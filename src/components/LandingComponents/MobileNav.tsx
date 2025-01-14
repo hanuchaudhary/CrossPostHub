@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Sheet,
@@ -10,9 +12,14 @@ import {
 } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Github, Menu } from "lucide-react";
-import NavItems from "./NavItems";
+import { useTheme } from "next-themes";
 
 export default function MobileNav() {
+  const { setTheme, theme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -35,16 +42,26 @@ export default function MobileNav() {
           <h1 className="font-semibold">Pricing</h1>
         </div>
         {/* <NavItems /> */}
-        <SheetFooter className="absolute text-neutral-500 dark:text-neutral-400 flex items-center flex-row justify-center bottom-2 left-0 w-full">
-          <Github className="h-4 w-4 mr-1" />
-          <a
-            href="https://github.com/hanuchaudhary"
-            target="_blank"
-            className="underline text-sm"
+        <SheetFooter className="absolute px-2 gap-4 flex-col text-neutral-500 dark:text-neutral-400 flex items-center justify-center bottom-2 left-0 w-full">
+          <Button
+            onClick={toggleTheme}
+            size={"sm"}
+            variant={"outline"}
+            className="font-semibold w-full"
           >
-            github/hanuchaudhary
-          </a>
-          <span>❤️</span>
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+          </Button>
+          <div className="flex">
+            <Github className="h-4 w-4 mr-1" />
+            <a
+              href="https://github.com/hanuchaudhary"
+              target="_blank"
+              className="underline text-sm"
+            >
+              github/hanuchaudhary
+            </a>
+            <span>❤️</span>
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>

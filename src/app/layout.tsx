@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     {
       rel: "icon",
       sizes: "32x32",
-      url: "/window.svg",
+      url: "/logo.svg",
     },
   ],
 };
