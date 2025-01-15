@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { NavProfileLoader } from "../Loaders/NavProfileLoader";
 
 export const UserProfile: React.FC = () => {
   const { user, isLoading } = useUser();
@@ -21,11 +22,8 @@ export const UserProfile: React.FC = () => {
     }
   };
 
-  console.log("user: ", user);
-  
-
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <NavProfileLoader/>;
   }
 
   if (!user) {
@@ -33,7 +31,7 @@ export const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="flex gap-1 items-center md:bg-secondary/30 md:border border-secondary/40 md:px-2 md:py-1 md:rounded-lg ">
+    <div className="flex gap-1 items-center md:dark:bg-secondary/30 md:bg-secondary md:border dark:border-secondary/40 md:px-2 md:py-1 md:rounded-lg ">
       <Avatar>
         <AvatarImage src={user.photoURL || ""}></AvatarImage>
         <AvatarFallback className="uppercase">
@@ -44,7 +42,7 @@ export const UserProfile: React.FC = () => {
         <p className="text-base font-ClashDisplayMedium leading-none">
           {user.displayName || "Cross Post Hub"}
         </p>
-        <p className="text-xs text-neutral-300">
+        <p className="text-xs dark:text-neutral-300 text-neutral-600">
           {user.email || "kushchaudharyog@gmail.com"}
         </p>
       </div>

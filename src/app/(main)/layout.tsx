@@ -1,4 +1,5 @@
 import DashboardNavbar from "@/components/DashboardComponents/DashboardNavbar";
+import ThemeToggle from "@/components/Tools/ThemeToggle";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
@@ -14,9 +15,12 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <div>
+    <div className="relative">
       <DashboardNavbar />
       {children}
+      <div className="fixed bottom-10 right-10 ">
+        <ThemeToggle/>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Guide from "../Guide";
 import { Pen } from "lucide-react";
 import { UserProfile } from "./UserProfile";
+import Link from "next/link"
 
 export default function DashboardNavbar() {
   return (
@@ -11,13 +11,23 @@ export default function DashboardNavbar() {
       <h1 className="text-xl font-ClashDisplayMedium ">CrossPost Hub.</h1>
       <div className="flex items-center md:space-x-2 space-x-1">
         <div>
-          <Button className="md:block hidden" variant={"default"}>Create Post</Button>
-          <Button className="md:hidden block" variant={"secondary"} size={"sm"}>
-            <Pen/>
-          </Button>
+          <Link href={"/create"}>
+            <Button className="md:block hidden" variant={"default"}>
+              Create Post
+            </Button>
+          </Link>
+          <Link href={"/create"}>
+            <Button
+              className="md:hidden block"
+              variant={"secondary"}
+              size={"sm"}
+            >
+              <Pen />
+            </Button>
+          </Link>
         </div>
         <Guide />
-        <UserProfile/>
+        <UserProfile />
       </div>
     </div>
   );
