@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,29 +15,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-    ),
-});
+import { registerSchema } from "@/lib/validation";
+import { useAuthStore } from "@/store/AuthStore/useAuthStore";
 
 export default function RegisterForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { isLoading, registerAccount, error } = useAuthStore();
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically make an API call to create the user
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
+    await registerAccount(values);
     console.log(values);
   }
 
@@ -70,14 +61,14 @@ export default function RegisterForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Email</FormLabel>
+                    <FormLabel className="text-neutral-400">Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your email"
-                        className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                        placeholder="Enter your Name"
+                        className=""
                         {...field}
                       />
                     </FormControl>
@@ -85,6 +76,24 @@ export default function RegisterForm() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-neutral-400">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email"
+                        className=""
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-400" />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -95,7 +104,7 @@ export default function RegisterForm() {
                       <Input
                         type="password"
                         placeholder="Create a password"
-                        className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                        className=""
                         {...field}
                       />
                     </FormControl>
@@ -103,11 +112,13 @@ export default function RegisterForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Continue
+              <Button disabled={isLoading} type="submit" className="w-full">
+                {isLoading ? "Registering..." : "Register"}
               </Button>
             </form>
           </Form>
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
           {/* Divider */}
           <div className="relative">
@@ -121,6 +132,7 @@ export default function RegisterForm() {
 
           {/* Google Sign In */}
           <Button
+            disabled={isLoading}
             variant="outline"
             className="w-full bg-transparent border-neutral-700 text-white hover:bg-neutral-800"
           >
