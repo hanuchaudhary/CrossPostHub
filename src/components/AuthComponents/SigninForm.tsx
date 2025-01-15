@@ -15,29 +15,25 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-    ),
-});
+import { useAuthStore } from "@/store/AuthStore/useAuthStore";
+import { useRouter } from "next/navigation";
+import { signinSchema } from "@/lib/validation";
+import AuthWithGoogle from "./AuthWithGoogle";
 
 export default function SigninForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { isLoading, error, signin } = useAuthStore();
+  const router = useRouter();
+  const form = useForm<z.infer<typeof signinSchema>>({
+    resolver: zodResolver(signinSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  
+  async function onSubmit(values: z.infer<typeof signinSchema>) {
+    await signin(values);
+    router.push("/dashboard");
   }
 
   return (
@@ -75,7 +71,7 @@ export default function SigninForm() {
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
-                        className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                        className=""
                         {...field}
                       />
                     </FormControl>
@@ -93,7 +89,7 @@ export default function SigninForm() {
                       <Input
                         type="password"
                         placeholder="Create a password"
-                        className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+                        className=""
                         {...field}
                       />
                     </FormControl>
@@ -101,8 +97,9 @@ export default function SigninForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Continue
+              {error && <div className="text-red-400 text-sm">{error}</div>}
+              <Button disabled={isLoading} type="submit" className="w-full">
+                {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>
@@ -117,18 +114,7 @@ export default function SigninForm() {
             </div>
           </div>
 
-          {/* Google Sign In */}
-          <Button
-            variant="outline"
-            className="w-full bg-transparent border-neutral-700 text-white hover:bg-neutral-800"
-          >
-            <img
-              src="https://www.google.com/favicon.ico"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            Continue with Google
-          </Button>
+          <AuthWithGoogle/>
         </motion.div>
       </div>
     </div>

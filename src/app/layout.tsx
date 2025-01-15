@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ReactNode } from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CrossPost Hub. | Post Once, Share Everywhere!",
-  description: "Effortlessly share content to Instagram, LinkedIn, Twitter, and more — all at once.",
+  description:
+    "Effortlessly share content to Instagram, LinkedIn, Twitter, and more — all at once.",
   icons: [
     {
       rel: "icon",
@@ -43,6 +45,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
