@@ -19,7 +19,7 @@ export default function RootLayout({
       <DashboardNavbar />
       {children}
       <div className="fixed bottom-10 right-10 ">
-        <ThemeToggle/>
+        <ThemeToggle />
       </div>
     </div>
   );

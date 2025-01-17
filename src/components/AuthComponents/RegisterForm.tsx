@@ -17,9 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { registerSchema } from "@/lib/validation";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const { isLoading, registerAccount, error } = useAuthStore();
+  const router = useRouter();
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -29,8 +31,7 @@ export default function RegisterForm() {
   });
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
-    await registerAccount(values);
-    console.log(values);
+    await registerAccount(values, () => router.push("/dashboard"));
   }
 
   return (
@@ -61,13 +62,13 @@ export default function RegisterForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Name</FormLabel>
+                    <FormLabel className="text-neutral-400">Username</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your Name"
+                        placeholder="Enter username"
                         className=""
                         {...field}
                       />

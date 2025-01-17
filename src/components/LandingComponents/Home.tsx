@@ -19,7 +19,7 @@ export default function Home() {
           <span className="text-orange-500">—all at once.</span>
         </h2>
         <div className="flex items-center w-full justify-center md:py-20 gap-3">
-          <Link href="/auth/register" replace>
+          <Link href="/register" replace>
             <Button className="md:px-14 md:py-6" size={"lg"}>
               Start Now
             </Button>

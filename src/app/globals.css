@@ -90,3 +90,21 @@ body {
   font-family: "ClashDisplayBold";
   src: url("../../public/fonts/ClashDisplay-Bold.otf");
 }
+
+
+/* custom scrollbar styles */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-md;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-foreground;
+  }
+}

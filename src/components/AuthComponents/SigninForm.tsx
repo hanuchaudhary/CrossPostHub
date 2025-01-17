@@ -15,13 +15,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/store/AuthStore/useAuthStore";
 import { useRouter } from "next/navigation";
 import { signinSchema } from "@/lib/validation";
-import AuthWithGoogle from "./AuthWithGoogle";
+import { signIn, useSession } from "next-auth/react";
+import { useState } from "react";
 
 export default function SigninForm() {
-  const { isLoading, error, signin } = useAuthStore();
+  const { data: session } = useSession();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
@@ -30,10 +32,9 @@ export default function SigninForm() {
       password: "",
     },
   });
-  
+
   async function onSubmit(values: z.infer<typeof signinSchema>) {
-    await signin(values);
-    router.push("/dashboard");
+    signIn();
   }
 
   return (
@@ -113,8 +114,6 @@ export default function SigninForm() {
               <span className="px-2 bg-b">Or</span>
             </div>
           </div>
-
-          <AuthWithGoogle/>
         </motion.div>
       </div>
     </div>
