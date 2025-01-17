@@ -7,8 +7,8 @@ import Link from "next/link"
 
 export default function DashboardNavbar() {
   return (
-    <div className="max-w-7xl mx-auto flex items-center justify-between py-6 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-xl font-ClashDisplayMedium ">CrossPost Hub.</h1>
+    <div className="max-w-7xl mx-auto flex items-center justify-between md:py-6 py-4 px-4 sm:px-6 lg:px-8">
+      <Link href={"/dashboard"} className="text-xl font-ClashDisplayMedium ">CrossPost Hub.</Link>
       <div className="flex items-center md:space-x-2 space-x-1">
         <div>
           <Link href={"/create"}>
