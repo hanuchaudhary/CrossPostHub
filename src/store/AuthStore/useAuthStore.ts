@@ -8,10 +8,6 @@ interface registerAccountProps {
     username: string;
 }
 
-interface signinProps {
-    email: string;
-    password: string;
-}
 
 interface AuthStore {
     user: User | null;

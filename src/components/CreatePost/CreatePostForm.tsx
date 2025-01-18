@@ -97,7 +97,7 @@ export function CreatePostForm() {
 
   return (
     <section className="md:flex block gap-4 w-full">
-      <Card className="w-full border-none md:mx-auto">
+      <Card className="w-full border-none shadow-none md:mx-auto">
         <CardContent className="p-6">
           <Tabs defaultValue="edit" className="space-y-4">
             <TabsList className="">

@@ -42,7 +42,7 @@ export default function RegisterForm() {
           <p className="text-neutral-400 font-ClashDisplayRegular">
             Already have an account?{" "}
             <Link
-              href="/auth/signin"
+              href="/signin"
               replace
               className="text-blue-500 underline hover:text-blue-400"
             >

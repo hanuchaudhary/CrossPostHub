@@ -17,24 +17,46 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { signinSchema } from "@/lib/validation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export default function SigninForm() {
-  const { data: session } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof signinSchema>) {
-    signIn();
+    
+    setIsLoading(true);
+    setError(null);
+    try {
+      console.log(values);
+      const result = await signIn("credentials", {
+        ...values,
+        redirect: false,
+        callbackUrl: "http://localhost:3000/dashboard", // Explicit callback URL
+      });
+
+      
+      console.log("result", result?.error);
+      
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -43,10 +65,9 @@ export default function SigninForm() {
         <div className="leading-none">
           <h1 className="text-4xl font-ClashDisplayMedium">Sign in</h1>
           <p className="text-neutral-400 font-ClashDisplayRegular">
-            Not have an account yet?{" "}
+            Don't have an account yet?{" "}
             <Link
-              replace
-              href="/auth/register"
+              href="/register"
               className="text-blue-500 underline hover:text-blue-400"
             >
               Create One!
@@ -55,24 +76,21 @@ export default function SigninForm() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
           className="space-y-6"
         >
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="identifier"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-neutral-400">Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
-                        className=""
+                        type="email"
+                        autoComplete="email"
                         {...field}
                       />
                     </FormControl>
@@ -89,8 +107,8 @@ export default function SigninForm() {
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Create a password"
-                        className=""
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
                         {...field}
                       />
                     </FormControl>
@@ -98,22 +116,27 @@ export default function SigninForm() {
                   </FormItem>
                 )}
               />
-              {error && <div className="text-red-400 text-sm">{error}</div>}
+              {error && (
+                <div className="text-red-400 text-sm" role="alert">
+                  {error}
+                </div>
+              )}
               <Button disabled={isLoading} type="submit" className="w-full">
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-neutral-700" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-b">Or</span>
+              <span className="px-2 bg-background">Or</span>
             </div>
           </div>
+
+          {/* You can add additional sign-in options here */}
         </motion.div>
       </div>
     </div>

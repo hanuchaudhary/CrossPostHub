@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useUserStore } from "@/store/UserStore/useUserStore";
 
 interface PostPreviewProps {
   content: string;
@@ -47,7 +46,11 @@ export function PostPreview({ content, images }: PostPreviewProps) {
 }
 
 function TwitterPreview({ content, images }: PostPreviewProps) {
-  const { user } = useUserStore();
+  const user = {
+    displayName: "Christian Nwamba",
+    email: "Christian@gmail.com",
+    photoURL: "https://avatars.githubusercontent.com/u/5078601?v=4",
+  };
   return (
     <div className="max-w-xl bg-black text-white rounded-xl p-4 font-sans">
       <div className="flex items-center gap-1 mb-2">
@@ -136,7 +139,11 @@ function TwitterPreview({ content, images }: PostPreviewProps) {
 }
 
 function InstagramPreview({ content, images }: PostPreviewProps) {
-  const { user } = useUserStore();
+  const user = {
+    displayName: "Christian Nwamba",
+    email: "Christian@gmail.com",
+    photoURL: "https://avatars.githubusercontent.com/u/5078601?v=4",
+  };
   return (
     <div className="max-w-full dark:bg-black bg-neutral-100 p-1  font-sans">
       <div className="flex items-center gap-1 mb-2">
@@ -216,7 +223,11 @@ function InstagramPreview({ content, images }: PostPreviewProps) {
 }
 
 function LinkedInPreview({ content, images }: PostPreviewProps) {
-  const { user } = useUserStore();
+  const user = {
+    displayName: "Christian Nwamba",
+    email: "Christian@gmail.com",
+    photoURL: "https://avatars.githubusercontent.com/u/5078601?v=4",
+  };
   return (
     <div className="max-w-2xl bg-primary border border-neutral-200 font-sans">
       <div className="p-2 flex items-start justify-between">

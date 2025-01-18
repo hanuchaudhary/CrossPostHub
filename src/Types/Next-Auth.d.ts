@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import "next-auth";
 import { DefaultSession, DefaultUser } from "next-auth";
 
 declare module "next-auth" {

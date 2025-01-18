@@ -1,45 +1,57 @@
-import prisma from "@/lib/prisma"
-import NextAuth, { AuthOptions, NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcryptjs from 'bcryptjs'
+import prisma from "@/lib/prisma";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcryptjs from "bcryptjs";
 
+if (!process.env.NEXTAUTH_URL) {
+    console.warn("Please set NEXTAUTH_URL environment variable");
+}
 
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
-            id: 'Credentials',
-            name: 'Credentials',
+            id: "credentials",
+            name: "Credentials",
             credentials: {
-                identifier: { label: "identifier", type: "text" },
-                password: { label: "Password", type: "password" }
+                identifier: { label: "Email or Username", type: "text" },
+                password: { label: "Password", type: "password" },
             },
-            async authorize(credentials, req) {
+            async authorize(credentials) {
+                if (!credentials) throw new Error("Credentials not provided");
+                const { identifier, password } = credentials;
+
                 try {
                     const user = await prisma.user.findFirst({
                         where: {
-                            OR: [{ email: credentials?.identifier },
-                            { username: credentials?.identifier }
-                            ]
-                        }
-                    }) as { id: string; email: string; password: string; username: string | undefined; image: string | undefined; createdAt: Date; updatedAt: Date } | null
+                            OR: [
+                                { email: identifier },
+                                { username: identifier },
+                            ],
+                        },
+                    });
 
-                    if (!user) { throw new Error('No user found') }
+                    if (!user) throw new Error("No user found with this email or username");
+                    if (!password) throw new Error("Password is required");
 
-                    if (!credentials?.password) { throw new Error('Password is required') }
+                    const isPasswordValid = await bcryptjs.compare(password, user.password);
+                    if (!isPasswordValid) throw new Error("Invalid password");
 
-                    const unhashedPassword = await bcryptjs.compare(credentials.password, user.password);
-                    if (!unhashedPassword) { throw new Error('Password is incorrect') }
-
-                    return user;
-                } catch (error: any) {
-                    throw new Error(error.message)
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        username: user.username || undefined,
+                        image: user.image || undefined,
+                    };
+                } catch (error) {
+                    console.error("Authentication error:", error);
+                    throw error;
                 }
-            }
-        })
+            },
+        }),
     ],
     callbacks: {
         async jwt({ token, user }) {
-            if (token) {
+            if (user) {
                 token.id = user.id;
                 token.email = user.email;
                 token.username = user.username;
@@ -47,22 +59,24 @@ export const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, user }) {
-            if (session) {
-                session.user.id = user.id;
-                session.user.email = user.email;
-                session.user.username = user.username
-                session.user.image = user.image;
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id as string;
+                session.user.email = token.email as string;
+                session.user.username = token.username as string;
+                session.user.image = token.image as string;
             }
             return session;
-        }
-    }
-    ,
+        },
+    },
     pages: {
-        signIn: '/auth/signin',
+        signIn: "/signin",
+        error: "/sigin",
     },
     session: {
-        strategy: "jwt"
+        strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    secret: process.env.NEXTAUTH_SECRET
-}
+    secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === 'development',
+};
