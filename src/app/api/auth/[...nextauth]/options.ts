@@ -1,8 +1,13 @@
 import prisma from "@/lib/prisma";
+import bcryptjs from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import bcryptjs from "bcryptjs";
+import TwitterProvider from "next-auth/providers/twitter";
+import InstagramProvider from "next-auth/providers/instagram"
+import LinkedinProvider from "next-auth/providers/linkedin"
 
 if (!process.env.NEXTAUTH_URL) {
     console.warn("Please set NEXTAUTH_URL environment variable");
@@ -52,10 +57,43 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+        }),
+        TwitterProvider({
+            clientId: process.env.TWITTER_CLIENT_ID!,
+            clientSecret: process.env.TWITTER_CLIENT_SECRET!,
+            authorization:{
+                params:{
+                    redirect_uri: 'http://localhost:3000/auth/x/callback'
+                }
+            }
+        }),
+        InstagramProvider({
+            clientId: process.env.INSTAGRAM_CLIENT_ID!,
+            clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!
+        }),
+        LinkedinProvider({
+            clientId: process.env.LINKEDIN_CLIENT_ID!,
+            clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+            authorization:{
+                params:{
+                    redirect_uri: 'http://localhost:3000/auth/linkedin/callback'
+                },
+                url: 'https://www.linkedin.com/oauth/v2/authorization'
+            }
         })
     ],
+    adapter: PrismaAdapter(prisma), // Use Prisma adapter for NextAuth
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user,account }) {
+            if (account?.access_token) {
+                token.accessToken = account.access_token;
+            }
+            if (account?.id_token) {
+                token.idToken = account.id_token;
+            }
+            if (token?.iss) {
+                delete token.iss;
+            }
             if (user) {
                 token.id = user.id;
                 token.email = user.email;
