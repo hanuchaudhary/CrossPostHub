@@ -4,6 +4,13 @@ import { DashboardHeader } from "@/components/DashboardComponents/DashboardHeade
 import { QuickActions } from "@/components/DashboardComponents/QuickActions";
 import { RecentPosts } from "@/components/DashboardComponents/RecentPosts";
 import React from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard | CrossPost Hub",
+  description: "CrossPost Hub's dashboard.",
+};
+
 
 export default function Dashboard() {
   return (

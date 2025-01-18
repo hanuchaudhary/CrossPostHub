@@ -1,33 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "@/firebase/firebase";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useUserStore } from "@/store/UserStore/useUserStore";
 import { toast } from "@/hooks/use-toast";
+import { signIn } from "next-auth/react";
+import { Loader2 } from 'lucide-react';
 
 export default function AuthWithGoogle() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const setUser = useUserStore((state) => state.setUser);
 
   const handleGoogleSignIn = async () => {
     if (isLoading) return;
-
     setIsLoading(true);
-    const provider = new GoogleAuthProvider();
-
     try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-      toast({
-        title: "Success",
-        description: "You have successfully signed in with Google.",
+      const result = await signIn("google", {
+        callbackUrl: "http://localhost:3000/dashboard",
+        redirect: false,
+        signInOptions: { popup: true }
       });
-      router.push("/dashboard");
+
+      if (result?.ok) {
+        toast({
+          title: "Success",
+          description: "You have successfully signed in with Google.",
+        });
+        router.push("/dashboard");
+      } else if (result?.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error signing in with Google", error);
       toast({
@@ -41,26 +47,26 @@ export default function AuthWithGoogle() {
   };
 
   return (
-    <Button
-      variant="outline"
+    <button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
-      className="w-full flex items-center justify-center gap-2"
+      className="w-full rounded-full border py-3 flex items-center justify-center gap-3"
       aria-label="Sign in with Google"
     >
       {isLoading ? (
-        <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-current" />
+        <Loader2 className="h-5 w-5 animate-spin rounded-full border-b-2 border-current" />
       ) : (
         <Image
           src="/google.svg"
-          width={24}
-          height={24}
+          width={32}
+          height={32}
           alt=""
           className="shrink-0"
           aria-hidden="true"
         />
       )}
-      <span>{isLoading ? "Signing in..." : "Sign in with Google"}</span>
-    </Button>
+      <span className="font-light">{isLoading ? "Signing in..." : "Continue with Google"}</span>
+    </button>
   );
 }
+

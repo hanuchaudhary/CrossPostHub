@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { registerSchema } from "@/lib/validation";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
 import { useRouter } from "next/navigation";
+import AuthWithGoogle from "./AuthWithGoogle";
+import OrSeperator from "./OrSeperator";
 
 export default function RegisterForm() {
   const { isLoading, registerAccount, error } = useAuthStore();
@@ -35,11 +36,11 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-150px)] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="leading-none">
-          <h1 className="text-4xl font-ClashDisplayMedium">Register</h1>
-          <p className="text-neutral-400 font-ClashDisplayRegular">
+          <h1 className="text-4xl font-ClashDisplayRegular">Register</h1>
+          <p className="text-neutral-400 text-sm">
             Already have an account?{" "}
             <Link
               href="/signin"
@@ -51,11 +52,7 @@ export default function RegisterForm() {
           </p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
+        <div
           className="space-y-6"
         >
           <Form {...form}>
@@ -65,11 +62,13 @@ export default function RegisterForm() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Username</FormLabel>
+                    <FormLabel className="text-neutral-400 text-xs">
+                      Username
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter username"
-                        className=""
+                        className="focus-visible:ring-0 bg-secondary"
                         {...field}
                       />
                     </FormControl>
@@ -82,11 +81,13 @@ export default function RegisterForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Email</FormLabel>
+                    <FormLabel className="text-neutral-400 text-xs">
+                      Email
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
-                        className=""
+                        className="focus-visible:ring-0 bg-secondary"
                         {...field}
                       />
                     </FormControl>
@@ -100,12 +101,14 @@ export default function RegisterForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400">Password</FormLabel>
+                    <FormLabel className="text-neutral-400 text-xs">
+                      Password
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         placeholder="Create a password"
-                        className=""
+                        className="focus-visible:ring-0 bg-secondary"
                         {...field}
                       />
                     </FormControl>
@@ -113,56 +116,41 @@ export default function RegisterForm() {
                   </FormItem>
                 )}
               />
-              <Button disabled={isLoading} type="submit" className="w-full">
-                {isLoading ? "Registering..." : "Register"}
-              </Button>
+              <div className="flex items-center justify-end">
+                <Button
+                  disabled={isLoading}
+                  type="submit"
+                  className="rounded-full"
+                  size={"sm"}
+                >
+                  {isLoading ? "Registering..." : "Continue"}
+                </Button>
+              </div>
             </form>
           </Form>
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-700" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-b">Or</span>
-            </div>
-          </div>
+          <OrSeperator />
+          <AuthWithGoogle />
 
-          {/* Google Sign In */}
-          <Button
-            disabled={isLoading}
-            variant="outline"
-            className="w-full bg-transparent border-neutral-700 text-white hover:bg-neutral-800"
-          >
-            <img
-              src="https://www.google.com/favicon.ico"
-              alt="Google"
-              className="w-5 h-5 mr-2"
-            />
-            Continue with Google
-          </Button>
-
-          {/* Terms */}
-          <p className="text-sm text-neutral-400 text-center">
+          <p className="text-[10px] text-neutral-400 text-center">
             By creating an account you accept our{" "}
             <Link
               href="/privacy"
-              className="text-neutral-500 hover:text-neutral-400"
+              className="text-neutral-500 font-semibold underline hover:text-neutral-400"
             >
               privacy policies
             </Link>{" "}
             &{" "}
             <Link
               href="/terms"
-              className="text-neutral-500 hover:text-neutral-400"
+              className="text-neutral-500 font-semibold underline hover:text-neutral-400"
             >
               terms and conditions
             </Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
