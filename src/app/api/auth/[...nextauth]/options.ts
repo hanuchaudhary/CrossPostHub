@@ -1,13 +1,12 @@
 import prisma from "@/lib/prisma";
 import bcryptjs from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { decode } from "next-auth/jwt";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import TwitterProvider from "next-auth/providers/twitter";
-import InstagramProvider from "next-auth/providers/instagram"
-import LinkedinProvider from "next-auth/providers/linkedin"
+import InstagramProvider from "next-auth/providers/instagram";
+import LinkedinProvider from "next-auth/providers/linkedin";
 
 if (!process.env.NEXTAUTH_URL) {
     console.warn("Please set NEXTAUTH_URL environment variable");
@@ -74,7 +73,13 @@ export const authOptions: NextAuthOptions = {
         }),
         InstagramProvider({
             clientId: process.env.INSTAGRAM_CLIENT_ID!,
-            clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!
+            clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+            authorization: {
+                params: {
+                    redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
+                }
+            },
+            scope : "user_profile" 
         }),
         LinkedinProvider({
             clientId: process.env.LINKEDIN_CLIENT_ID!,
@@ -88,7 +93,7 @@ export const authOptions: NextAuthOptions = {
                 }
             },
             async profile(profile) {
-                const id = profile.id || profile.email || profile.sub; // Use sub as the ID if email is missing
+                const id = profile.sub || profile.id || profile.email;
                 return {
                   id,
                   name: profile.name,

@@ -14,6 +14,8 @@ import { AIAssist } from "@/components/CreatePost/AiAssist";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import Image from "next/image";
+import { Axis3D } from "lucide-react";
+import axios from "axios";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -44,7 +46,7 @@ export function CreatePostForm() {
     );
   };
 
-  const handlePublishPost = () => {
+  const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
       toast({
         title: "Please select at least one platform",
@@ -63,6 +65,39 @@ export function CreatePostForm() {
       return;
     }
 
+    const jsonContent = {
+      content,
+      images: images.map((image) => image.name),
+      selectedPlatforms,
+      isScheduled,
+      scheduleDate,
+      scheduleTime,
+    };
+
+    console.log(
+      {
+        content,
+        images: images.map((image) => image.name),
+        selectedPlatforms,
+        isScheduled,
+        scheduleDate,
+        scheduleTime,
+      }
+    );
+
+    try {
+      const response = await axios.post("/api/post",{
+        postText: content,
+        images: images,
+        providers: selectedPlatforms
+      })
+      console.log(response.data);
+
+    } catch (error) {
+      console.error("CreatePost Error:", error);
+    }
+    
+
     if (isScheduled && (!scheduleDate || !scheduleTime)) {
       toast({
         title: "Please set a schedule",
@@ -77,22 +112,15 @@ export function CreatePostForm() {
         ? new Date(`${format(scheduleDate, "yyyy-MM-dd")}T${scheduleTime}`)
         : null;
 
-    console.log({
-      content,
-      images,
-      platforms: selectedPlatforms,
-      scheduledDateTime,
-    });
-
-    toast({
-      title: isScheduled ? "Post scheduled" : "Post published",
-      description: isScheduled
-        ? `Your post has been scheduled for ${format(
-            scheduledDateTime!,
-            "PPpp"
-          )}`
-        : "Your post has been published successfully",
-    });
+    // toast({
+    //   title: isScheduled ? "Post scheduled" : "Post published",
+    //   description: isScheduled
+    //     ? `Your post has been scheduled for ${format(
+    //         scheduledDateTime!,
+    //         "PPpp"
+    //       )}`
+    //     : "Your post has been published successfully",
+    // });
   };
 
   return (

@@ -25,3 +25,5 @@ export interface ConnectedApp {
     updatedAt: Date
     user: User
 }
+
+export type Providers = "twitter" | "linkedin" | "instagram" | "threads"
