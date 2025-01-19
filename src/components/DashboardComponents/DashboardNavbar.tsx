@@ -11,7 +11,6 @@ import { usePathname, useRouter } from "next/navigation";
 export default function DashboardNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  console.log("pathname", pathname);
 
   return (
     <div className="max-w-7xl mx-auto flex items-center justify-between md:py-6 py-4 px-4 sm:px-6 lg:px-8">

@@ -16,7 +16,13 @@ export async function GET(request: NextRequest) {
             }
         })
 
-        return NextResponse.json(connectedApps, { status: 200 });
+        const filterApp = connectedApps.filter((app) => {
+            if (app.provider !== "google") {
+            return app;
+            }
+        });
+        
+        return NextResponse.json({ connectedApps: filterApp }, { status: 200 });
 
     } catch (error) {
         console.error("Get Apps Error:", error);
