@@ -3,7 +3,7 @@ import axios from "axios";
 interface registerAndUploadMediaProps {
     accessToken: string;
     personURN: string;
-    image: any;
+    image: File;
 }
 
 //Step 1: Register Media Upload
@@ -35,7 +35,7 @@ export async function registerAndUploadMedia({ accessToken, personURN, image }: 
         //Step 2: Upload Media
         await axios.post(uploadUrl, image, {
             headers: {
-                "Content-Type": "image/jpeg"
+                "Content-Type": image.type
             }
         });
 

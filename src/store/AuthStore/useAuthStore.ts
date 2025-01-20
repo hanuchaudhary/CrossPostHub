@@ -5,7 +5,7 @@ import axios from "axios";
 interface registerAccountProps {
     email: string;
     password: string;
-    username: string;
+    name: string;
 }
 
 

@@ -28,11 +28,16 @@ model Account {
   providerAccountId String
   refresh_token     String?
   access_token      String?
+  access_token_secret String?
   expires_at        Int?
   token_type        String?
   scope             String?
   id_token          String?
   session_state     String?
+
+  //for twitter
+  oauth_consumer_key String?
+  oauth_consumer_secret String?
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DisconnectingLoader from "../Loaders/DisconnectingLoader";
+import DummyTBT from "../DummyTBT";
 
 interface SocialApp {
   name: string;
@@ -149,6 +150,7 @@ export function ConnectAccounts() {
 
   return (
     <div className="w-full relative h-full">
+      <DummyTBT/>
       <Card className="w-full max-w-2xl border-none shadow-none mx-auto">
         <DisconnectingLoader isDisconnecting={isDisconnecting} />
         <CardHeader>
@@ -199,6 +201,8 @@ export function ConnectAccounts() {
                     </div>
                   ) : (
                     <Button
+                      className="rounded-full"
+                      size={"sm"}
                       onClick={() => handleConnect(app)}
                       disabled={loading === app.provider}
                     >

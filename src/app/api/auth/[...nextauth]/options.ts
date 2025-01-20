@@ -7,6 +7,7 @@ import GoogleProvider from "next-auth/providers/google";
 import TwitterProvider from "next-auth/providers/twitter";
 import InstagramProvider from "next-auth/providers/instagram";
 import LinkedinProvider from "next-auth/providers/linkedin";
+import { signinSchema } from "@/lib/validation";
 
 if (!process.env.NEXTAUTH_URL) {
     console.warn("Please set NEXTAUTH_URL environment variable");
@@ -24,6 +25,10 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials) throw new Error("Credentials not provided");
                 const { email, password } = credentials;
+                console.log("Credentials", credentials);
+                
+                const {success} = signinSchema.safeParse({email, password});
+                if (!success) throw new Error("Invalid credentials");
 
                 try {
                     const user = await prisma.user.findFirst({
@@ -74,12 +79,15 @@ export const authOptions: NextAuthOptions = {
         InstagramProvider({
             clientId: process.env.INSTAGRAM_CLIENT_ID!,
             clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+            version: "1.0A",
             authorization: {
                 params: {
                     redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
+                    scope: "tweet.read tweet.write users.read offline.access",
+
                 }
             },
-            scope : "user_profile" 
+            scope: "user_profile"
         }),
         LinkedinProvider({
             clientId: process.env.LINKEDIN_CLIENT_ID!,
@@ -95,14 +103,14 @@ export const authOptions: NextAuthOptions = {
             async profile(profile) {
                 const id = profile.sub || profile.id || profile.email;
                 return {
-                  id,
-                  name: profile.name,
-                  email: profile.email,
-                  image: profile.picture,
+                    id,
+                    name: profile.name,
+                    email: profile.email,
+                    image: profile.picture,
                 };
-              }
-              
-              
+            }
+
+
         })
     ],
     adapter: PrismaAdapter(prisma), // Use Prisma adapter for NextAuth

@@ -39,23 +39,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Please enter some text or upload an image" }, { status: 400 });
         }
 
-        console.log("Creating post with text:", postText, "and images:", images, "for providers:", providers);
-
-
-        const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
-        if (!linkedinAccount) {
-            return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
-        }
-
-        console.log("LinkedIn Account:", linkedinAccount);
-
-
         const results = await Promise.all(
             providers.map(async (provider) => {
                 if (provider === "linkedin") {
+
+                    const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
+                    if (!linkedinAccount) {
+                        return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
+                    }
+
                     if (images.length !== 0) {
                         const assetURNs: string[] = [];
-                        
+
                         for (const image of images) {
                             const assetURN = await registerAndUploadMedia({
                                 accessToken: linkedinAccount.access_token!,
@@ -65,10 +60,6 @@ export async function POST(request: NextRequest) {
                             assetURNs.push(assetURN);
                         }
 
-                        console.log("Asset URNs:", assetURNs);
-
-
-                        // Create the LinkedIn post
                         const postResponse = await CreatePostWithMedia({
                             accessToken: linkedinAccount.access_token!,
                             personURN: linkedinAccount.providerAccountId!,
@@ -76,7 +67,6 @@ export async function POST(request: NextRequest) {
                             text: postText
                         });
 
-                        console.log("LinkedIn Post Response:", postResponse);
                         return { provider: "linkedin", response: postResponse };
                     } else {
                         const postResponse = await CreateTextPost({
@@ -84,13 +74,32 @@ export async function POST(request: NextRequest) {
                             personURN: linkedinAccount.providerAccountId!,
                             text: postText
                         });
-
-                        console.log("LinkedIn Post Response:", postResponse);
                         return { provider: "linkedin", response: postResponse };
                     }
                 }
                 if (provider === "twitter") {
-                    // Create the Twitter post
+                    const twitterAccount = loggedUser.accounts.find((acc) => acc.provider === "twitter");
+                    if (!twitterAccount) {
+                        return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
+                    }
+
+                    console.log(twitterAccount);
+                    
+
+                    try {
+                        let mediaIds: string[] = [];
+                        if (images.length > 0) {
+                            mediaIds = await Promise.all(
+                                images.map(image =>
+                                    // uploadMediaToTwitter(image, twitterAccount.access_token!)
+                                    "media_id"
+                                )
+                            );
+                        }
+                        
+                    } catch (error) {
+
+                    }
                     return { provider, response: null };
                 }
                 if (provider === "instagram") {

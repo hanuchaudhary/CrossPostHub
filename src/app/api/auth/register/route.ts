@@ -5,8 +5,8 @@ import bcryptjs from "bcryptjs";
 
 export async function POST(request: Request) {
     try {
-        const { email, password, username } = await request.json();
-        const { success, error } = registerSchema.safeParse({ email, password, username });
+        const { email, password, name } = await request.json();
+        const { success, error } = registerSchema.safeParse({ email, password, name  });
         if (!success) {
             return NextResponse.json({ error: error.flatten().fieldErrors }, { status: 400 });
         }
@@ -14,14 +14,14 @@ export async function POST(request: Request) {
         const userExistWithEmail = await prisma.user.findFirst({ where: { email } });
         if (userExistWithEmail) { return NextResponse.json({ error: "User already exists with this email" }, { status: 400 }); }
 
-        const userExistWithUsername = await prisma.user.findFirst({ where: { username } });
+        const userExistWithUsername = await prisma.user.findFirst({ where: { name } });
         if (userExistWithUsername) { return NextResponse.json({ error: "User already exists with this username" }, { status: 400 }); }
 
         const hashedPassword = await bcryptjs.hash(password, 10);
         const user = await prisma.user.create({
             data: {
                 email,
-                username,
+                name,
                 password: hashedPassword
             }
         });
