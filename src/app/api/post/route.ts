@@ -26,7 +26,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { postText, images, providers }: ReqBody = await request.json();
+        const formData = await request.formData();
+        const postText = formData.get("postText") as string;
+        const images = formData.getAll("images") as File[];
+        const providersJson = formData.get("providers") as string;
+        const providers = JSON.parse(providersJson) as Providers[];
+
         if (providers.length === 0) {
             return NextResponse.json({ error: "Please select at least one provider" }, { status: 400 });
         }

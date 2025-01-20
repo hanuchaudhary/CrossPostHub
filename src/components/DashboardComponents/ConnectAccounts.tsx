@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DisconnectingLoader from "./DisconnectingLoader";
+import DisconnectingLoader from "../Loaders/DisconnectingLoader";
 
 interface SocialApp {
   name: string;

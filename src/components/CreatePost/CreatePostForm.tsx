@@ -12,10 +12,11 @@ import { PlatformSelector } from "@/components/CreatePost/PlatformSelector";
 import { SchedulePost } from "@/components/CreatePost/SchedulePost";
 import { AIAssist } from "@/components/CreatePost/AiAssist";
 import { toast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import Image from "next/image";
 import { Axis3D } from "lucide-react";
 import axios from "axios";
+import DisconnectingLoader from "../Loaders/DisconnectingLoader";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -27,9 +28,17 @@ export function CreatePostForm() {
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
   const [scheduleTime, setScheduleTime] = useState<string>("");
   const [preview, setPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
+  };
+
+  const handleAIAssist = (generatedContent: string) => {
+    setContent(
+      (prevContent) =>
+        prevContent + (prevContent ? "\n\n" : "") + generatedContent
+    );
   };
 
   const handleImageChange = (files: FileList | null) => {
@@ -39,12 +48,18 @@ export function CreatePostForm() {
     }
   };
 
-  const handleAIAssist = (generatedContent: string) => {
-    setContent(
-      (prevContent) =>
-        prevContent + (prevContent ? "\n\n" : "") + generatedContent
-    );
-  };
+  const formData = new FormData();
+  formData.append("postText", content);
+  formData.append("providers", JSON.stringify(selectedPlatforms));
+  images.forEach((image) => {
+    formData.append("images", image);
+  });
+
+  //now formdata look like if we have 2 provider and 3 images :
+  // postText: "content"
+  // images[0]: image1.jpg
+  // images[1]: image2.jpg
+  // platforms: "instagram,twitter"
 
   const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
@@ -65,38 +80,22 @@ export function CreatePostForm() {
       return;
     }
 
-    const jsonContent = {
-      content,
-      images: images.map((image) => image.name),
-      selectedPlatforms,
-      isScheduled,
-      scheduleDate,
-      scheduleTime,
-    };
-
-    console.log(
-      {
-        content,
-        images: images.map((image) => image.name),
-        selectedPlatforms,
-        isScheduled,
-        scheduleDate,
-        scheduleTime,
-      }
-    );
-
     try {
-      const response = await axios.post("/api/post",{
-        postText: content,
-        images: images,
-        providers: selectedPlatforms
-      })
+      setIsLoading(true);
+      const response = await axios.post("/api/post", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       console.log(response.data);
-
+      toast({
+        title: "Post published",
+        description: "Your post has been published successfully",
+      });
+      setIsLoading(false);
     } catch (error) {
       console.error("CreatePost Error:", error);
     }
-    
 
     if (isScheduled && (!scheduleDate || !scheduleTime)) {
       toast({
@@ -124,7 +123,11 @@ export function CreatePostForm() {
   };
 
   return (
-    <section className="md:flex block gap-4 w-full">
+    <section className="md:flex relative block gap-4 w-full">
+      <DisconnectingLoader
+        isDisconnecting={isLoading}
+        title={`Send Post to ${formData.get("providers")}`}
+      />
       <Card className="w-full border-none shadow-none md:mx-auto">
         <CardContent className="p-6">
           <Tabs defaultValue="edit" className="space-y-4">
@@ -185,7 +188,7 @@ export function CreatePostForm() {
             </TabsContent>
           </Tabs>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button onClick={handlePublishPost}>
+            <Button disabled={isLoading} onClick={handlePublishPost}>
               {isScheduled ? "Schedule Post" : "Publish Now"}
             </Button>
           </div>

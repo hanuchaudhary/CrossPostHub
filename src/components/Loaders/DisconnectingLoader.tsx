@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function DisconnectingLoader({ isDisconnecting }: { isDisconnecting: boolean }) {
+export default function DisconnectingLoader({ isDisconnecting, title }: { isDisconnecting: boolean, title?:string }) {
   const containerVariants = {
     hidden: { y: 100, opacity: 0 },
     visible: { 
@@ -72,7 +72,7 @@ export default function DisconnectingLoader({ isDisconnecting }: { isDisconnecti
             initial="hidden"
             animate="visible"
           >
-            Disconnecting from Twitter
+            {title}
             <motion.span variants={dotVariants} initial="hidden" animate="visible">.</motion.span>
             <motion.span variants={dotVariants} initial="hidden" animate="visible" style={{ animationDelay: '0.2s' }}>.</motion.span>
             <motion.span variants={dotVariants} initial="hidden" animate="visible" style={{ animationDelay: '0.4s' }}>.</motion.span>

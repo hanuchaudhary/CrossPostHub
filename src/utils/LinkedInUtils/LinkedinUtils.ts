@@ -3,7 +3,7 @@ import axios from "axios";
 interface registerAndUploadMediaProps {
     accessToken: string;
     personURN: string;
-    image: File;
+    image: any;
 }
 
 //Step 1: Register Media Upload
@@ -35,7 +35,7 @@ export async function registerAndUploadMedia({ accessToken, personURN, image }: 
         //Step 2: Upload Media
         await axios.post(uploadUrl, image, {
             headers: {
-                "Content-Type": image.type
+                "Content-Type": "image/jpeg"
             }
         });
 
@@ -68,7 +68,6 @@ Expected Response:
 
 //Step 3: Create Post
 export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, text }: { accessToken: string, personURN: string, assetURNs: string[], text: string }) {
-
     const mediaArray = assetURNs.map((urn, index) => ({
         status: "READY",
         description: { text: `Image ${index + 1}` },
@@ -94,7 +93,8 @@ export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, t
             }
         }, {
             headers: {
-                Authorization: `Bearer ${accessToken}`
+                Authorization: `Bearer ${accessToken}`,
+                "X-Restli-Protocol-Version": "2.0.0"
             }
         })
         return response.data;
@@ -121,7 +121,8 @@ export async function CreateTextPost({ accessToken, personURN, text }: { accessT
             }
         }, {
             headers: {
-                Authorization: `Bearer ${accessToken}`
+                Authorization: `Bearer ${accessToken}`,
+                "X-Restli-Protocol-Version": "2.0.0"
             }
         })
         return response.data
