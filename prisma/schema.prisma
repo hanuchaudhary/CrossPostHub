@@ -34,11 +34,6 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  //for twitter
-  oauth_consumer_key String?
-  oauth_consumer_secret String?
- 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
  
