@@ -151,12 +151,11 @@ export function ConnectAccounts() {
   return (
     <div className="w-full relative h-full">
       <Card className="w-full max-w-2xl border-none shadow-none mx-auto">
-        <DisconnectingLoader isDisconnecting={isDisconnecting} />
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">
+        <CardHeader className="space-y-0">
+          <CardTitle className="text-2xl font-semibold">
             Connect Social Media
           </CardTitle>
-          <CardDescription>
+          <CardDescription className={""}>
             Link your social media accounts to share your posts
           </CardDescription>
         </CardHeader>
@@ -199,6 +198,11 @@ export function ConnectAccounts() {
                           >
                             Disconnect
                           </DropdownMenuItem>
+                          <DisconnectingLoader
+                            isLoading={isDisconnecting}
+                            selectedPlatforms={[app.provider]}
+                            title={`Disconnecting from ${app.name}`}
+                          />
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

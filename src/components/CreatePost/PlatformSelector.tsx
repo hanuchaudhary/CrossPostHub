@@ -67,7 +67,7 @@ export function PlatformSelector({
                   width={40}
                   height={40}
                   className={cn(
-                    "transition-all duration-300 ease-in-out",
+                    "transition-all duration-300 ease-in-out", app.provider === "twitter" && "dark:invert"
                   )}
                 />
                 <span className="mt-2 text-sm font-medium capitalize">
@@ -78,7 +78,6 @@ export function PlatformSelector({
       </div>
       {selectedPlatforms.length > 0 && (
         <div className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Selected Platforms</h3>
           <div className="flex flex-wrap gap-2">
             {selectedPlatforms.map((app) => (
               <motion.span

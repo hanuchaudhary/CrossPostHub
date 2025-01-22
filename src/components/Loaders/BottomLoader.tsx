@@ -6,20 +6,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
 interface BottomLoaderProps {
-  isDisconnecting: boolean;
+  isLoading: boolean;
   title?: string;
   selectedPlatforms?: string[];
 }
 
 export default function BottomLoader({
-  isDisconnecting,
+  isLoading,
   title = "Processing",
   selectedPlatforms = [],
 }: BottomLoaderProps) {
   const [blurIntensity, setBlurIntensity] = useState(0);
 
   useEffect(() => {
-    if (isDisconnecting) {
+    if (isLoading) {
       const interval = setInterval(() => {
         setBlurIntensity((prev) => (prev < 8 ? prev + 1 : 8));
       }, 50);
@@ -27,7 +27,7 @@ export default function BottomLoader({
     } else {
       setBlurIntensity(0);
     }
-  }, [isDisconnecting]);
+  }, [isLoading]);
 
   const containerVariants = {
     hidden: { y: 100, opacity: 0 },
@@ -53,7 +53,7 @@ export default function BottomLoader({
 
   return (
     <AnimatePresence>
-      {isDisconnecting && (
+      {isLoading && (
         <motion.div
           className="fixed inset-0 z-50 flex items-end justify-center md:pb-8 pb-4 md:px-0 px-4"
           initial={{ opacity: 0 }}
