@@ -14,9 +14,8 @@ import { AIAssist } from "@/components/CreatePost/AiAssist";
 import { toast } from "@/hooks/use-toast";
 import { format, set } from "date-fns";
 import Image from "next/image";
-import { Axis3D } from "lucide-react";
 import axios from "axios";
-import DisconnectingLoader from "../Loaders/DisconnectingLoader";
+import BottomLoader from "../Loaders/BottomLoader";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -122,11 +121,13 @@ export function CreatePostForm() {
     // });
   };
 
+  
   return (
     <section className="md:flex relative block gap-4 w-full">
-      <DisconnectingLoader
+      <BottomLoader
+        selectedPlatforms={selectedPlatforms}
         isDisconnecting={isLoading}
-        title={`Send Post to ${formData.get("providers")}`}
+        title={`Send Post to ${selectedPlatforms.join(", ")}`}
       />
       <Card className="w-full border-none shadow-none md:mx-auto">
         <CardContent className="p-6">

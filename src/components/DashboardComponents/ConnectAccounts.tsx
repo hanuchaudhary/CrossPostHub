@@ -22,8 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DisconnectingLoader from "../Loaders/DisconnectingLoader";
-import DummyTBT from "../DummyTBT";
+import DisconnectingLoader from "../Loaders/BottomLoader";
+import TwitterConnectBTN from "../TwitterConnectButton";
 
 interface SocialApp {
   name: string;
@@ -150,7 +150,6 @@ export function ConnectAccounts() {
 
   return (
     <div className="w-full relative h-full">
-      <DummyTBT/>
       <Card className="w-full max-w-2xl border-none shadow-none mx-auto">
         <DisconnectingLoader isDisconnecting={isDisconnecting} />
         <CardHeader>
@@ -177,7 +176,11 @@ export function ConnectAccounts() {
                       width={40}
                       src={app.icon || "/placeholder.svg"}
                       alt={`${app.name} logo`}
-                      className="transition-all duration-300 ease-in-out"
+                      className={`transition-all duration-300 ease-in-out ${
+                        (app.provider === "twitter" ||
+                          app.provider === "threads") &&
+                        "dark:invert"
+                      }`}
                     />
                     <span className="font-medium">{app.name}</span>
                   </div>
@@ -199,6 +202,8 @@ export function ConnectAccounts() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
+                  ) : app.provider === "twitter" ? (
+                    <TwitterConnectBTN />
                   ) : (
                     <Button
                       className="rounded-full"

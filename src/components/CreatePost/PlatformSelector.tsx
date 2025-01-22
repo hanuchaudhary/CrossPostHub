@@ -68,7 +68,6 @@ export function PlatformSelector({
                   height={40}
                   className={cn(
                     "transition-all duration-300 ease-in-out",
-                    app.provider === "twitter" && "dark:invert"
                   )}
                 />
                 <span className="mt-2 text-sm font-medium capitalize">
