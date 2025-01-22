@@ -6,22 +6,15 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default async function AuthErrorPage({
+export default function AuthErrorPage({
   searchParams,
 }: {
   searchParams: { error?: string };
 }) {
-  // Await the searchParams to ensure it's resolved
-  const params = await new Promise<{ error?: string }>((resolve) =>
-    resolve(searchParams)
-  );
-
   const errorMessage =
-    params.error || "An unknown error occurred during authentication";
+    searchParams.error || "An unknown error occurred during authentication";
 
   const getDetailedErrorMessage = (error: string) => {
     switch (error.toLowerCase()) {
@@ -40,7 +33,7 @@ export default async function AuthErrorPage({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">
-      <Card className="w-full max-w-lg  rounded-3xl">
+      <Card className="w-full max-w-lg rounded-3xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
             <AlertCircle className="h-12 w-12 text-red-900" />

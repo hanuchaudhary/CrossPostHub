@@ -44,7 +44,7 @@ export default function PricingSection() {
     <>
       <div className="text-center py-10">
         <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
-          "Find the Perfect Plan for Your Needs"
+          &quot;Find the Perfect Plan for Your Needs&quot;
         </h1>
         <h3 className="font-ClashDisplayRegular md:text-base text-xs dark:text-neutral-400 text-neutral-700">
           Pick your plan and start sharing smarter today.

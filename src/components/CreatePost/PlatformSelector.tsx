@@ -36,7 +36,7 @@ export function PlatformSelector({
 
   React.useEffect(() => {
     fetchConnectedApps();
-  }, []);
+  });
 
   return (
     <div className="space-y-4">
