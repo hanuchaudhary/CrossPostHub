@@ -4,6 +4,7 @@ import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/lib/prisma";
 import { Providers } from "@/Types/Types";
 import { CreateTextPost, CreatePostWithMedia, registerAndUploadMedia } from "@/utils/LinkedInUtils/LinkedinUtils";
+import { createTweet, uploadMediaToTwiiter } from "@/utils/TwitterUtils/TwitterUtils";
 
 interface ReqBody {
     postText: string;
@@ -82,25 +83,36 @@ export async function POST(request: NextRequest) {
                     if (!twitterAccount) {
                         return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
                     }
+                    //console.log(twitterAccount);
 
-                    console.log(twitterAccount);
-                    
+                    console.log("Images:", images, "PostText:", postText);
 
                     try {
                         let mediaIds: string[] = [];
                         if (images.length > 0) {
                             mediaIds = await Promise.all(
                                 images.map(image =>
-                                    // uploadMediaToTwitter(image, twitterAccount.access_token!)
-                                    "media_id"
+                                    uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
                                 )
                             );
                         }
                         
-                    } catch (error) {
+                        console.log({
+                            text: postText,
+                            mediaIds,
+                            oauth_token: twitterAccount.access_token!,
+                            oauth_token_secret: twitterAccount.access_token_secret!
+                        });
+                        
+                        // Create the Twitter post
+                        const postResponse = await createTweet({ text: postText, mediaIds, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! });
+                        console.log("PostResponse:", postResponse);
+                        return { provider: "twitter", response: postResponse };
+                    } catch (error: any) {
+                        console.error("Twitter posting error:", error);
+                        return { provider: "twitter", error: error.message || "An error occurred" };
 
                     }
-                    return { provider, response: null };
                 }
                 if (provider === "instagram") {
                     // Create the Instagram post

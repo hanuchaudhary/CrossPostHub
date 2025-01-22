@@ -1,70 +1,92 @@
-import axios from "axios";
+import OAuth from "oauth-1.0a"
+import crypto from "crypto"
+import axios from "axios"
 
-type Command = "INIT" | "APPEND" | "FINALIZE" | "STATUS";
-interface TwitterMediaUploadProps {
+const oauth = new OAuth({
+    consumer: {
+        key: process.env.TWITTER_CONSUMER_KEY as string,
+        secret: process.env.TWITTER_CONSUMER_SECRET as string,
+    },
+    signature_method: "HMAC-SHA1",
+    hash_function(base_string, key) {
+        return crypto.createHmac("sha1", key).update(base_string).digest("base64")
+    },
+})
+
+interface uploadMediaToTwiiterProps {
     media: File;
-    command: Command;
-    total_bytes: string;
-    media_type: string;
-    accessToken: string;
+    oauth_token: string;
+    oauth_token_secret: string;
 }
 
-// Step 1: Upload media to Twitter
-//Required: media, media_type, total_bytes, command, AuthorizationToken
-export async function twiiterMediaUpload({ accessToken, command, media}: TwitterMediaUploadProps) {
+export async function uploadMediaToTwiiter({ media, oauth_token, oauth_token_secret }: uploadMediaToTwiiterProps) {
+
+    const formData = new FormData();
+    formData.append("media", media);
+
+    const requestData = {
+        url: "https://upload.twitter.com/1.1/media/upload.json",
+        method: "POST",
+        data: formData,
+    }
+
+    const headers = oauth.toHeader(
+        oauth.authorize(requestData, {
+            key: oauth_token,
+            secret: oauth_token_secret,
+        }),
+    )
+
     try {
-        const response = await axios.post("https://api.x.com/2/media/upload", {
-            media
-        }, {
+        const response = await axios.post("https://upload.twitter.com/1.1/media/upload.json", formData, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "multipart/form-data"
-            },
-            params: {
-                media_type : media.type,
-                command,
-                total_bytes: media.size
+                "Content-Type": "multipart/form-data",
+                Authorization: headers.Authorization,
             }
-        })
+        });
+        return response.data.media_id_string;
 
-        return response.data;
+    } catch (error: any) {
+        console.log("Error in uploadMediaToTwiiter:", error.message);
+        console.error("Media upload failed:", error);
+        return
 
-    } catch (error) {
-        console.error("Twitter Media Upload Error:", error);
     }
 }
 
-export async function TwitterMediaUploadStatus({ accessToken, media_id }: { accessToken: string, media_id: string }) {
-    try {
-        const response = await axios.get("https://api.x.com/2/media/upload", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            },
-            params: {
-                command: "STATUS",
-                media_id
-            }
-        })
-        return response.data;
-    } catch (error) {
-        console.error("Twitter Media Upload Status Error:", error);
-    }
+interface createTweetProps {
+    text: string;
+    mediaIds: string[];
+    oauth_token: string;
+    oauth_token_secret: string;
 }
 
-export async function CreateTwitterPost({ accessToken, mediaIds, postText }: { accessToken: string, mediaIds: string[], postText: string }) {
-    try {
-        const response = await axios.post("https://api.x.com/2/tweets", {
-            "media": {
-                "media_ids": mediaIds,
-            },
-            "reply_settings": "following",
-            "text": postText,
-        }, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        })
-    } catch (error) {
+export async function createTweet({ text, mediaIds, oauth_token, oauth_token_secret }: createTweetProps) {
+    const requestData = {
+        url: "https://api.twitter.com/2/tweets",
+        method: "POST",
+        data: {
+            text,
+            ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
+        },
+    };
 
+    const headers = oauth.toHeader(
+        oauth.authorize(requestData, {
+            key: oauth_token,
+            secret: oauth_token_secret,
+        })
+    );
+   
+    try {
+        const response = await axios.post(requestData.url, requestData.data, {
+            headers: {
+                Authorization: headers.Authorization.toString(),
+                "Content-Type": "application/json", // Explicit JSON header
+            },
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Tweet creation failed:", error.response?.data || error.message);
     }
 }
