@@ -66,8 +66,8 @@ export async function createTweet({ text, mediaIds, oauth_token, oauth_token_sec
         url: "https://api.twitter.com/2/tweets",
         method: "POST",
         data: {
-            text
-            // ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
+            text,
+            ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
         },
     };
 

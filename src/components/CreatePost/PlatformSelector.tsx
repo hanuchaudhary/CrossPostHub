@@ -43,7 +43,7 @@ export function PlatformSelector({
       <h2 className="text-2xl font-ClashDisplayMedium text-primary">
         Select Platforms
       </h2>
-      <div className="flex gap-4">
+      <div className="flex md:gap-4 gap-2">
         {isFetchingApps || connectedApps.length < 0
           ? Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} className="w-full h-16 rounded-xl" />

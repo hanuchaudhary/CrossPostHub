@@ -16,7 +16,7 @@ export interface ConnectedApp {
     providerAccountId?: string
     refresh_token?: string
     access_token?: string
-    expires_at?: Number
+    expires_at?: number
     token_type?: string
     scope?: string
     id_token?: string

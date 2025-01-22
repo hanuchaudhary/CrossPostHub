@@ -1,56 +1,57 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Loader2, Wand2 } from 'lucide-react'
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2, Wand2 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 interface AIAssistProps {
-  onGenerate: (content: string) => void
+  onGenerate: (content: string) => void;
 }
 
 export function AIAssist({ onGenerate }: AIAssistProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [prompt, setPrompt] = useState("")
-  const [isOpen, setIsOpen] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return
+    if (!prompt.trim()) return;
 
-    setIsGenerating(true)
+    setIsGenerating(true);
     // Simulating AI generation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    const generatedContent = `AI-generated content based on: "${prompt}". Customize this with your actual AI integration.`
-    onGenerate(generatedContent)
-    setIsGenerating(false)
-    setIsOpen(false)
-    setPrompt("")
-  }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const generatedContent = `AI-generated content based on: "${prompt}". Customize this with your actual AI integration.`;
+    onGenerate(generatedContent);
+    setIsGenerating(false);
+    setIsOpen(false);
+    setPrompt("");
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialogTrigger asChild>
         <Button variant="outline">
           <Wand2 className="mr-2 h-4 w-4" />
           AI Assist
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>AI Content Generation</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>AI Content Generation</AlertDialogTitle>
+          <AlertDialogDescription>
             Enter a prompt to generate content for your post.
-          </DialogDescription>
-        </DialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
         <div className="grid gap-4 py-4">
           <Input
             placeholder="Enter your prompt here..."
@@ -58,8 +59,12 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
             onChange={(e) => setPrompt(e.target.value)}
           />
         </div>
-        <DialogFooter>
-          <Button onClick={handleGenerate} disabled={isGenerating || !prompt.trim()}>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button
+            onClick={handleGenerate}
+            disabled={isGenerating || !prompt.trim()}
+          >
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -72,8 +77,8 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
               </>
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }

@@ -17,7 +17,7 @@ export default function Guide() {
       <SheetTrigger asChild>
         <Button variant="outline">Guide</Button>
       </SheetTrigger>
-      <SheetContent className="max-w-sm sm:max-w-xl">
+      <SheetContent className="max-w-sm sm:max-w-3xl">
         <SheetHeader>
           <SheetTitle>
             <h1 className="font-ClashDisplayMedium text-xl">CrossPost Hub.</h1>

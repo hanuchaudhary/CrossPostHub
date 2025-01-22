@@ -18,7 +18,7 @@ export default function RootLayout({
     <div className="relative">
       <DashboardNavbar />
       {children}
-      <div className="fixed bottom-10 right-10 ">
+      <div className="fixed bottom-6 right-6 md:block hidden">
         <ThemeToggle />
       </div>
     </div>

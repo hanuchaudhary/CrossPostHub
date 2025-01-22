@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 export interface PricingCardProps {
   title: string;
@@ -63,7 +64,7 @@ export default function PricingCard({
                 transition={{ duration: 0.3, delay: index * 0.1 }}
                 className="flex gap-2 text-sm"
               >
-                <img src="/PricingTick.svg" alt="" /> <span>{feature}</span>
+                <Image height={24} width={24} src="/PricingTick.svg" alt="" /> <span>{feature}</span>
               </motion.li>
             ))}
           </motion.ul>

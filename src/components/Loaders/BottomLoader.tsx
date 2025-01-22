@@ -85,7 +85,7 @@ export default function BottomLoader({
                 ))}
               </div>
               <motion.div
-                className="flex-grow text-sm font-medium"
+                className="flex-grow capitalize text-sm font-medium"
                 variants={textVariants}
                 initial="hidden"
                 animate="visible"

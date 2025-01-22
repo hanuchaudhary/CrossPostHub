@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import DisconnectingLoader from "../Loaders/BottomLoader";
+import BottomLoader from "../Loaders/BottomLoader";
 import TwitterConnectBTN from "../TwitterConnectButton";
 
 interface SocialApp {
@@ -33,13 +33,14 @@ interface SocialApp {
 
 const socialApps: SocialApp[] = [
   { name: "X", icon: "/twitter.svg", provider: "twitter" },
-  { name: "LinkedIn", icon: "/linkedin.svg", provider: "linkedin" },
+  { name: "Linkedin", icon: "/linkedin.svg", provider: "linkedin" },
   { name: "Instagram", icon: "/instagram.svg", provider: "instagram" },
-  { name: "threads", icon: "/threads.svg", provider: "threads" },
+  { name: "Threads", icon: "/threads.svg", provider: "threads" },
 ];
 
 export function ConnectAccounts() {
   const [loading, setLoading] = useState<string | null>(null);
+  const [disconnectedAppName, setDisconnectedAppName] = useState<string | null>(null);
   const {
     connectedApps,
     fetchConnectedApps,
@@ -101,6 +102,7 @@ export function ConnectAccounts() {
       (ca) => ca.provider === app.provider
     );
     if (connectedApp) {
+      setDisconnectedAppName(connectedApp.provider!);
       try {
         await disconnectApp({
           provider: app.provider,
@@ -133,6 +135,7 @@ export function ConnectAccounts() {
         });
         await fetchConnectedApps();
       } catch (error) {
+        setDisconnectedAppName(null);
         toast({
           title: `Error disconnecting from ${app.name}`,
           description: "An unexpected error occurred",
@@ -151,6 +154,11 @@ export function ConnectAccounts() {
   return (
     <div className="w-full relative h-full">
       <Card className="w-full max-w-2xl border-none shadow-none mx-auto">
+        <BottomLoader
+          isLoading={isDisconnecting}
+          selectedPlatforms={[disconnectedAppName!]}
+          title={`Disconnecting from ${disconnectedAppName}`}
+        />
         <CardHeader className="space-y-0">
           <CardTitle className="text-2xl font-semibold">
             Connect Social Media
@@ -198,11 +206,6 @@ export function ConnectAccounts() {
                           >
                             Disconnect
                           </DropdownMenuItem>
-                          <DisconnectingLoader
-                            isLoading={isDisconnecting}
-                            selectedPlatforms={[app.provider]}
-                            title={`Disconnecting from ${app.name}`}
-                          />
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

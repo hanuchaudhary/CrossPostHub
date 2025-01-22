@@ -9,7 +9,7 @@ interface registerAndUploadMediaProps {
 //Step 1: Register Media Upload
 export async function registerAndUploadMedia({ accessToken, personURN, image }: registerAndUploadMediaProps) {
     try {
-        const response = await axios.post(`https://api.linkedin.com/v2/assets?action=registerUpload`, {
+        const response = await axios.post("https://api.linkedin.com/v2/assets?action=registerUpload", {
             "registerUploadRequest": {
                 "recipes": [
                     "urn:li:digitalmediaRecipe:feedshare-image"
