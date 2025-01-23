@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface SimplePostPreviewProps {
   content: string;
@@ -26,7 +27,7 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
       className="w-full shadow-none md:border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
     >
       {!content && images.length === 0 ? (
-        <div className="w-96 px-2 md:flex hidden nd:border-l h-full items-center justify-center">
+        <div className="w-96 px-2 select-none md:flex hidden nd:border-l h-full items-center justify-center">
           <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
             Post Preview
           </h2>
@@ -40,7 +41,7 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
                 {images.map((image, index) => (
                   <CarouselItem key={index}>
                     <AspectRatio ratio={1}>
-                      <img
+                      <Image
                         src={URL.createObjectURL(image) || "/placeholder.svg"}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-contain rounded"
@@ -49,8 +50,12 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className={`${images.length > 1 ? "flex" : "hidden"}`} />
-              <CarouselNext className={`${images.length > 1 ? "flex" : "hidden"}`} />
+              <CarouselPrevious
+                className={`${images.length > 1 ? "flex" : "hidden"}`}
+              />
+              <CarouselNext
+                className={`${images.length > 1 ? "flex" : "hidden"}`}
+              />
             </Carousel>
           )}
         </div>

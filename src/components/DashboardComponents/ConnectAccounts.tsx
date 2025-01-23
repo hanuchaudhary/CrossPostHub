@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import BottomLoader from "../Loaders/BottomLoader";
 import TwitterConnectBTN from "../TwitterConnectButton";
+import axios from "axios";
 
 interface SocialApp {
   name: string;
@@ -40,14 +41,11 @@ const socialApps: SocialApp[] = [
 
 export function ConnectAccounts() {
   const [loading, setLoading] = useState<string | null>(null);
-  const [disconnectedAppName, setDisconnectedAppName] = useState<string | null>(null);
-  const {
-    connectedApps,
-    fetchConnectedApps,
-    isFetchingApps,
-    disconnectApp,
-    isDisconnecting,
-  } = useDashboardStore();
+  const [disconnectedAppName, setDisconnectedAppName] = useState<string | null>(
+    null
+  );
+  const { connectedApps, fetchConnectedApps, isFetchingApps } =
+    useDashboardStore();
 
   useEffect(() => {
     fetchConnectedApps();
@@ -97,6 +95,7 @@ export function ConnectAccounts() {
     }
   };
 
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   const handleDisconnect = async (app: SocialApp) => {
     const connectedApp = connectedApps.find(
       (ca) => ca.provider === app.provider
@@ -104,43 +103,49 @@ export function ConnectAccounts() {
     if (connectedApp) {
       setDisconnectedAppName(connectedApp.provider!);
       try {
-        await disconnectApp({
-          provider: app.provider,
-          providerAccountId: connectedApp.providerAccountId!,
+        setIsDisconnecting(true);
+        const res = await axios.put("/api/disconnect", {
+          provider: connectedApp.provider,
+          providerAccountId: connectedApp.providerAccountId,
         });
-        toast({
-          title: `${app.name} Disconnected`,
-          description: (
-            <div>
-              <Badge className="my-2" variant="destructive">
-                Disconnected
-              </Badge>
-              <div className="text-xs">
-                <p>
-                  Your {app.name} account has been disconnected successfully
-                </p>
-                <p>
-                  You can connect your {app.name} account again to share your
-                  posts
-                </p>
-                <span className="text-neutral-500 text-xs">
-                  {new Date().toLocaleDateString()}
-                </span>
-                <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                  CrossPostHub.
-                </p>
+        if (res.status === 200) {
+          toast({
+            title: `${app.name} Disconnected`,
+            description: (
+              <div>
+                <Badge className="my-2" variant="destructive">
+                  Disconnected
+                </Badge>
+                <div className="text-xs">
+                  <p>
+                    Your {app.name} account has been disconnected successfully
+                  </p>
+                  <p>
+                    You can connect your {app.name} account again to share your
+                    posts
+                  </p>
+                  <span className="text-neutral-500 text-xs">
+                    {new Date().toLocaleDateString()}
+                  </span>
+                  <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+                    CrossPostHub.
+                  </p>
+                </div>
               </div>
-            </div>
-          ),
-        });
-        await fetchConnectedApps();
-      } catch (error) {
+            ),
+          });
+          fetchConnectedApps();
+        }
+      } catch (error: any) {
         setDisconnectedAppName(null);
+        console.error("Disconnect Error:", error);
         toast({
           title: `Error disconnecting from ${app.name}`,
           description: "An unexpected error occurred",
           variant: "destructive",
         });
+      } finally {
+        setIsDisconnecting(false);
       }
     } else {
       toast({

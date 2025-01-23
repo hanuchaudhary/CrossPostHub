@@ -51,7 +51,7 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-2xl font-ClashDisplayMedium">
-            Unleash <AuroraText>Gemini's </AuroraText> Creative Power
+            Unleash <AuroraText>Gemini&apos;s </AuroraText> Creative Power
           </AlertDialogTitle>
           <AlertDialogDescription className="text-base">
             Spark your imagination with Gemini AI. Transform your ideas into

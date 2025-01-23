@@ -58,16 +58,18 @@ export function CreatePostForm() {
             <Badge className="my-2" variant="destructive">
               Error
             </Badge>
-            <div className="text-xs">
-              <p>Please select at least one platform to publish your post.</p>
-              <p>You can choose from Instagram, Twitter, or LinkedIn.</p>
+            <div className="text-xs leading-none opacity-90">
+              <p>
+                Please select at least one platform to publish your post. You
+                can choose from Instagram, Twitter, or LinkedIn.
+              </p>
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
             </div>
+            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+              CrossPostHub.
+            </p>
           </div>
         ),
       });
@@ -82,16 +84,18 @@ export function CreatePostForm() {
             <Badge className="my-2" variant="destructive">
               Error
             </Badge>
-            <div className="text-xs">
-              <p>Your post needs either text content or images.</p>
-              <p>Please add some content or upload images to continue.</p>
+            <div className="text-xs bg-opacity-90">
+              <p>
+                Your post needs either text content or images. Please add some
+                content or upload images to continue.
+              </p>
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
             </div>
+            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+              CrossPostHub.
+            </p>
           </div>
         ),
       });
@@ -106,16 +110,18 @@ export function CreatePostForm() {
             <Badge className="my-2" variant="destructive">
               Error
             </Badge>
-            <div className="text-xs w-full">
-              <p>Your scheduled post is missing date or time information.</p>
-              <p>Please set both a valid date and time for scheduling.</p>
+            <div className="text-xs opacity-90">
+              <p>
+                Your scheduled post is missing date or time information. Please
+                set both a valid date and time for scheduling.
+              </p>
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
             </div>
+            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+              CrossPostHub.
+            </p>
           </div>
         ),
       });
@@ -166,10 +172,10 @@ export function CreatePostForm() {
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
             </div>
+            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+              CrossPostHub.
+            </p>
           </div>
         ),
       });

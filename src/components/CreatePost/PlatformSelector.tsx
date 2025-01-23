@@ -15,12 +15,6 @@ interface PlatformSelectorProps {
   setSelectedPlatforms: React.Dispatch<React.SetStateAction<Platform[]>>;
 }
 
-const platforms: { id: Platform; icon: string; name: string }[] = [
-  { id: "instagram", icon: "/instagram.svg", name: "Instagram" },
-  { id: "twitter", icon: "/twitter.svg", name: "Twitter" },
-  { id: "linkedin", icon: "/linkedin.svg", name: "LinkedIn" },
-];
-
 export function PlatformSelector({
   selectedPlatforms,
   setSelectedPlatforms,
@@ -46,7 +40,7 @@ export function PlatformSelector({
       <div className="flex md:gap-4 gap-2">
         {isFetchingApps || connectedApps.length < 0
           ? Array.from({ length: 4 }).map((_, index) => (
-              <Skeleton key={index} className="w-full h-16 rounded-xl" />
+              <Skeleton key={index} className="w-full h-14 rounded-xl" />
             ))
           : connectedApps.map((app) => (
               <motion.button
