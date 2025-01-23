@@ -3,7 +3,7 @@ export interface User {
     id: string
     email: string
     password: string
-    username: string
+    name: string
     image: string
     createdAt: string | Date
     updatedAt: string | Date
