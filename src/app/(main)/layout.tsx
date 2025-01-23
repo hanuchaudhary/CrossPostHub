@@ -1,4 +1,5 @@
 import DashboardNavbar from "@/components/DashboardComponents/DashboardNavbar";
+import PageLoader from "@/components/Loaders/PageLoader";
 import ThemeToggle from "@/components/Tools/ThemeToggle";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -14,8 +15,10 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+
   return (
     <div className="relative">
+      <PageLoader />
       <DashboardNavbar />
       {children}
       <div className="fixed bottom-6 right-6 md:block hidden">

@@ -72,7 +72,7 @@ export default function BottomLoader({
             exit="exit"
           >
             <div className="p-4 flex items-center space-x-2">
-              <div className="flex -space-x-2 overflow-hidden">
+              <div className="flex overflow-hidden">
                 {selectedPlatforms.map((platform) => (
                   <Image
                     key={platform}

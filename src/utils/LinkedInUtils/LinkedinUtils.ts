@@ -9,6 +9,7 @@ interface registerAndUploadMediaProps {
 //Step 1: Register Media Upload
 export async function registerAndUploadMedia({ accessToken, personURN, image }: registerAndUploadMediaProps) {
     try {
+        console.log("Registering Media Upload...");
         const response = await axios.post("https://api.linkedin.com/v2/assets?action=registerUpload", {
             "registerUploadRequest": {
                 "recipes": [
@@ -27,7 +28,7 @@ export async function registerAndUploadMedia({ accessToken, personURN, image }: 
                 Authorization: `Bearer ${accessToken}`
             }
         })
-
+        console.log("Media Upload Registered!");
         //Extract the upload URL and asset URN
         const uploadUrl = response.data.value.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl;
         const assetURN = response.data.value.asset;
@@ -38,6 +39,7 @@ export async function registerAndUploadMedia({ accessToken, personURN, image }: 
                 "Content-Type": image.type
             }
         });
+        console.log("Media Uploaded!");
 
         return assetURN; //Return the asset URN
 
@@ -76,6 +78,7 @@ export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, t
     }));
 
     try {
+        console.log("Creating Post...");
         const response = await axios.post("https://api.linkedin.com/v2/ugcPosts", {
             "author": `urn:li:person:${personURN}`,
             "lifecycleState": "PUBLISHED",
@@ -97,6 +100,7 @@ export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, t
                 "X-Restli-Protocol-Version": "2.0.0"
             }
         })
+        console.log("Post Created!");
         return response.data;
     } catch (error) {
         console.error("CreatePost Error:", error);
@@ -105,6 +109,7 @@ export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, t
 
 export async function CreateTextPost({ accessToken, personURN, text }: { accessToken: string, personURN: string, text: string }) {
     try {
+        console.log("Creating Post...");
         const response = await axios.post("https://api.linkedin.com/v2/ugcPosts", {
             "author": `urn:li:person:${personURN}`,
             "lifecycleState": "PUBLISHED",
@@ -125,6 +130,7 @@ export async function CreateTextPost({ accessToken, personURN, text }: { accessT
                 "X-Restli-Protocol-Version": "2.0.0"
             }
         })
+        console.log("Linkedin Post Created!");
         return response.data
     } catch (error) {
         console.error("CreatePost Error:", error);

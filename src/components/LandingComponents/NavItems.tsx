@@ -3,11 +3,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "../Tools/ThemeToggle";
+import Link from "next/link";
 
 export default function NavItems() {
   return (
     <nav className="flex items-center space-x-4">
-      <Button size="sm">Try it Free</Button>
+      <Link href={"/signin"}>
+        <Button size="sm">Try it Free</Button>
+      </Link>
       <ThemeToggle />
     </nav>
   );

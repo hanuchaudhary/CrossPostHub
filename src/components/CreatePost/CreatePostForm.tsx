@@ -18,7 +18,7 @@ import axios from "axios";
 import BottomLoader from "../Loaders/BottomLoader";
 import { Badge } from "@/components/ui/badge";
 import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -295,9 +295,9 @@ export function CreatePostForm() {
         </CardContent>
       </Card>
       <AnimatePresence>
-          {isSinglePreview && (
-            <SimplePostPreview content={content} images={images} />
-          )}
+        {isSinglePreview && (
+          <SimplePostPreview content={content} images={images} />
+        )}
       </AnimatePresence>
     </section>
   );

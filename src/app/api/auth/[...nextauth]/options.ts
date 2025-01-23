@@ -66,16 +66,6 @@ export const authOptions: NextAuthOptions = {
                 }
             }
         }),
-        TwitterProvider({
-            clientId: process.env.TWITTER_CLIENT_ID!,
-            clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-            version: "2.0",
-            authorization: {
-                params: {
-                    redirect_uri: "http://localhost:3000/api/auth/callback/twitter",
-                },
-            }
-        }),
         InstagramProvider({
             clientId: process.env.INSTAGRAM_CLIENT_ID!,
             clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
@@ -83,8 +73,6 @@ export const authOptions: NextAuthOptions = {
             authorization: {
                 params: {
                     redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
-                    scope: "tweet.read tweet.write users.read offline.access",
-
                 }
             },
             scope: "user_profile"

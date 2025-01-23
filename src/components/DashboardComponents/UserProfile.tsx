@@ -4,7 +4,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { NavProfileLoader } from "../Loaders/NavProfileLoader";
-import { Button } from "../ui/button";
 import { signOut, useSession } from "next-auth/react";
 import {
   Tooltip,
@@ -27,7 +26,7 @@ import {
 
 export const UserProfile: React.FC = () => {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const handleSignOut = async () => {
     try {

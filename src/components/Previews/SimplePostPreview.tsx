@@ -23,10 +23,10 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
       transition={{ type: "tween" }}
-      className="w-full shadow-none border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
+      className="w-full shadow-none md:border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
     >
       {!content && images.length === 0 ? (
-        <div className="w-96 px-2 md:flex hidden border-l h-full items-center justify-center">
+        <div className="w-96 px-2 md:flex hidden nd:border-l h-full items-center justify-center">
           <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
             Post Preview
           </h2>
@@ -43,14 +43,14 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
                       <img
                         src={URL.createObjectURL(image) || "/placeholder.svg"}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover rounded"
+                        className="w-full h-full object-contain rounded"
                       />
                     </AspectRatio>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className={`${images.length > 1 ? "flex" : "hidden"}`} />
+              <CarouselNext className={`${images.length > 1 ? "flex" : "hidden"}`} />
             </Carousel>
           )}
         </div>

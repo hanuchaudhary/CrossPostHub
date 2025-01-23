@@ -175,12 +175,12 @@ export function ConnectAccounts() {
             : socialApps.map((app) => (
                 <div
                   key={app.provider}
-                  className="flex items-center justify-between w-full border rounded-xl p-4 hover:bg-secondary/80 transition-colors"
+                  className="flex items-center justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
                 >
                   <div className="flex items-center space-x-4">
                     <Image
-                      height={40}
-                      width={40}
+                      height={45}
+                      width={45}
                       src={app.icon || "/placeholder.svg"}
                       alt={`${app.name} logo`}
                       className={`transition-all duration-300 ease-in-out ${

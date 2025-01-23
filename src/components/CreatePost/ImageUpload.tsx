@@ -21,6 +21,8 @@ export function ImageUpload({ onChange }: ImageUploadProps) {
         onChange={(e) => onChange(e.target.files)}
         multiple
         accept="image/*"
+        max={5}
+        size={5 * 1024 * 1024} // 5MB
         className="hidden"
       />
       <Button type="button" variant="outline" onClick={handleClick}>
