@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,6 +15,8 @@ import {
 import { AuroraText } from "../ui/aurora-text";
 import { Textarea } from "../ui/textarea";
 import { SparklesText } from "../ui/sparkles-text";
+import axios from "axios";
+import { toast } from "@/hooks/use-toast";
 
 interface AIAssistProps {
   onGenerate: (content: string) => void;
@@ -31,13 +31,29 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
-    // Simulating AI generation
-    await new Promise((resolve) => setTimeout(resolve, 4000));
-    const generatedContent = `AI-generated content based on: "${prompt}". Customize this with your actual AI integration.`;
-    onGenerate(generatedContent);
-    setIsGenerating(false);
-    setIsOpen(false);
-    setPrompt("");
+    try {
+      const response = await axios.post("/api/generate", { content: prompt });
+
+      if (response.data.error) {
+        toast({
+          title: "Failed to generate content",
+          description: response.data.error,
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      const generatedContent = response.data.caption;
+      onGenerate(generatedContent);
+      setIsGenerating(false);
+      setIsOpen(false);
+      setPrompt("");
+    } catch (error) {
+      toast({
+        title: "Failed to generate content",
+        description: "An unexpected error occurred.",
+      });
+    }
   };
 
   return (
@@ -63,7 +79,7 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
             placeholder="Describe your magical content idea..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="text-xl"
+            className="md:text-lg h-32"
           />
         </div>
         <AlertDialogFooter>
@@ -75,7 +91,11 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
           >
             {isGenerating ? (
               <>
-                <SparklesText className="text-sm font-light" sparklesCount={5} text="Conjuring..." />
+                <SparklesText
+                  className="text-sm font-light"
+                  sparklesCount={5}
+                  text="Conjuring..."
+                />
               </>
             ) : (
               <>
