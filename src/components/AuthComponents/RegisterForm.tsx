@@ -38,7 +38,7 @@ export default function RegisterForm() {
 
   return (
     <div className="min-h-[calc(100vh-150px)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md md:space-y-8 space-y-4">
         <div className="leading-none">
           <h1 className="text-4xl font-ClashDisplayRegular">Register</h1>
           <p className="text-neutral-400 text-sm">

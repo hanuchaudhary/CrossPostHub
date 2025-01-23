@@ -63,8 +63,8 @@ export default function SigninForm() {
   }
 
   return (
-    <div className="h-full min-h-[calc(100vh-150px)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="h-full min-h-[calc(100vh-150px)] flex items-center justify-center px-4 md:p-4">
+      <div className="w-full max-w-md md:space-y-8 space-y-4">
         <div className="leading-none">
           <h1 className="text-4xl font-ClashDisplayRegular">Sign In</h1>
         </div>

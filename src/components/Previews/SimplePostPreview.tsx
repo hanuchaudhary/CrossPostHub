@@ -42,6 +42,8 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
                   <CarouselItem key={index}>
                     <AspectRatio ratio={1}>
                       <Image
+                        height={100}
+                        width={100}
                         src={URL.createObjectURL(image) || "/placeholder.svg"}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-contain rounded"
