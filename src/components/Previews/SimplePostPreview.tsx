@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -20,34 +19,42 @@ interface SimplePostPreviewProps {
 export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
   return (
     <motion.div
-      initial={{ x: 20 }}
+      initial={{ x: "100%" }}
       animate={{ x: 0 }}
-      exit={{ x: 20 }}
-      transition={{ duration: 0.1 }}
+      exit={{ x: "100%" }}
+      transition={{ type: "tween" }}
       className="w-full shadow-none border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
     >
-      <div className="p-4">
-        <p className="mb-4 break-words">{content}</p>
-        {images.length > 0 && (
-          <Carousel className="w-full max-w-xs mx-auto">
-            <CarouselContent>
-              {images.map((image, index) => (
-                <CarouselItem key={index}>
-                  <AspectRatio ratio={1}>
-                    <img
-                      src={URL.createObjectURL(image) || "/placeholder.svg"}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-full object-cover rounded"
-                    />
-                  </AspectRatio>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        )}
-      </div>
+      {!content && images.length === 0 ? (
+        <div className="w-96 px-2 md:flex hidden border-l h-full items-center justify-center">
+          <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
+            Post Preview
+          </h2>
+        </div>
+      ) : (
+        <div className="p-4">
+          <p className="mb-4 break-words">{content}</p>
+          {images.length > 0 && (
+            <Carousel className="w-full max-w-xs mx-auto">
+              <CarouselContent>
+                {images.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <AspectRatio ratio={1}>
+                      <img
+                        src={URL.createObjectURL(image) || "/placeholder.svg"}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </AspectRatio>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }

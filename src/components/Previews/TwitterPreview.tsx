@@ -1,6 +1,13 @@
 import React from "react";
 import Image from "next/image";
-import { MessageCircle, Repeat2, Heart, BarChart2, Bookmark, Share } from 'lucide-react';
+import {
+  MessageCircle,
+  Repeat2,
+  Heart,
+  BarChart2,
+  Bookmark,
+  Share,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl } from "@/lib/getImageUrl";
 
@@ -12,7 +19,7 @@ interface TwitterPreviewProps {
 
 export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
   return (
-    <div className="max-w-xl bg-black text-white rounded-xl p-4 font-sans">
+    <div className="max-w-xl dark:bg-black bg-neutral-100 rounded-xl p-4 font-sans">
       <div className="flex items-center gap-1 mb-2">
         <Avatar>
           <AvatarImage src={user?.image || ""} />
@@ -22,7 +29,7 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
         </Avatar>
         <div className="flex items-center gap-2">
           <div className="flex flex-col">
-            <span className="font-bold leading-none">{user?.name}</span>
+            <span className="leading-none">{user?.name}</span>
             <span className="text-neutral-500 leading-none text-xs">
               {user?.email}
             </span>
@@ -30,8 +37,10 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
         </div>
       </div>
 
-      <div className="space-y-3">
-        <p>{content}</p>
+      <div className="space-y-2">
+        <p className="text-sm dark:text-neutral-400 text-neutral-700 leading-none p-1">
+          {content.length > 220 ? content.slice(0, 220) + "..." : content}
+        </p>
 
         <div className="border dark:border-neutral-800 border-neutral-200 rounded-xl overflow-hidden">
           <div className="space-y-2">
@@ -48,7 +57,7 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1">
                   {images.slice(0, 4).map((image, index) => (
                     <div key={index} className="relative aspect-square">
                       <Image

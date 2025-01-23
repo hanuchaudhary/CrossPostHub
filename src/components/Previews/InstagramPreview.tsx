@@ -12,7 +12,7 @@ interface InstagramPreviewProps {
 
 export function InstagramPreview({ content, images, user }: InstagramPreviewProps) {
   return (
-    <div className="max-w-full dark:bg-black bg-neutral-100 p-1 font-sans">
+    <div className="max-w-full rounded-xl dark:bg-black bg-neutral-100 p-1 font-sans">
       <div className="flex items-center gap-1 mb-2">
         <Avatar>
           <AvatarImage src={user?.image || ""} />
@@ -20,7 +20,7 @@ export function InstagramPreview({ content, images, user }: InstagramPreviewProp
         </Avatar>
         <div className="flex items-center gap-2">
           <div className="flex flex-col">
-            <span className="font-bold leading-none">{user?.name}</span>
+            <span className="leading-none">{user?.name}</span>
             <span className="text-neutral-500 leading-none text-xs">{user?.email}</span>
           </div>
         </div>
@@ -57,7 +57,7 @@ export function InstagramPreview({ content, images, user }: InstagramPreviewProp
           ) : null}
         </div>
       </div>
-      <p className="text-sm p-1">{content.length > 220 ? content.slice(0, 220) + "..." : content}</p>
+      <p className="text-sm dark:text-neutral-400 text-neutral-700 leading-none py-3 p-1">{content.length > 220 ? content.slice(0, 220) + "..." : content}</p>
 
       <div className="p-3">
         <div className="flex items-center justify-between ">

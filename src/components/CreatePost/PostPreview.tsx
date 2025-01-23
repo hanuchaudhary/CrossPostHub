@@ -28,16 +28,16 @@ export function PostPreview({ content, images }: PostPreviewProps) {
       setUser(session.user);
     }
   }, [session, status]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <div>Please sign in to preview your post.</div>;
-  }
-
+  
   const platforms = ["Instagram", "X", "LinkedIn"];
+
+  if (!content && images.length === 0) {
+    return (
+      <div className="w-full h-96 flex items-center justify-center">
+        <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-10 py-3 text-lg">Write something or add an image to preview your post.</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
