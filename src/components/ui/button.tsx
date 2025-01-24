@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        customOne : "bg-emerald-500 dark:text-emerald-950 text-emerald-100 hover:bg-emerald-600 font-semibold"
+        customOne : "bg-emerald-500 dark:text-emerald-950 text-emerald-100 hover:bg-emerald-600 font-semibold",
       },
       size: {
         default: "md:h-9 h-8 md:px-4 px-3 text-sm py-2",

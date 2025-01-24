@@ -10,15 +10,15 @@ interface registerAccountProps {
 
 
 interface AuthStore {
-    user: User | null;
     isLoading: boolean;
     error: string | null;
     registerAccount: (props: registerAccountProps, onSuccess: () => void) => Promise<void>;
 
+    user: User | null;
+    fetchUser: VoidFunction;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-    user: null,
     error: null,
     isLoading: false,
     registerAccount: async (props, onSuccess) => {
@@ -29,8 +29,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
                 set({ error: data.error });
                 return;
             }
-
-            set({ user: data.user, error: null });
             onSuccess();
         } catch (error: any) {
             set({ error: error.error || "An error occurred" });
@@ -39,4 +37,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
             set({ isLoading: false });
         }
     },
+
+    user: null,
+    fetchUser: async () => {
+        set({ isLoading: true });
+        try {
+            const { data } = await axios.get("/api/me");
+            set({ user: data.user });
+        } catch (error: any) {
+            console.error("Fetch User Error:", error);
+        } finally {
+            set({ isLoading: false });
+        }
+    }
 }));

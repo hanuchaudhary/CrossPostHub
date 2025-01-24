@@ -6,6 +6,7 @@ import { Providers } from "@/Types/Types";
 import { postQueue } from "@/lib/Redis/queue";
 import { CreatePostWithMedia, CreateTextPost, registerAndUploadMedia } from "@/utils/LinkedInUtils/LinkedinUtils";
 import { createTweet, uploadMediaToTwiiter } from "@/utils/TwitterUtils/TwitterUtils";
+import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,6 +21,14 @@ export async function POST(request: NextRequest) {
         });
         if (!loggedUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const isAllowed = await CheckCreatedPostMiddleware(loggedUser.id);
+        if (!isAllowed) {
+            return NextResponse.json(
+                { error: "You have reached your monthly limit of 5 posts. Upgrade your plan to Pro" },
+                { status: 400 }
+            );   
         }
 
         const formData = await request.formData();

@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, MoreVertical } from "lucide-react";
+import { Loader2, Lock, MoreVertical } from "lucide-react";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,6 +51,7 @@ export function ConnectAccounts() {
     fetchConnectedApps();
   }, [fetchConnectedApps]);
 
+  // Connect Logic
   const handleConnect = async (app: SocialApp) => {
     setLoading(app.provider);
     try {
@@ -95,6 +96,7 @@ export function ConnectAccounts() {
     }
   };
 
+  // Disconnect Logic
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const handleDisconnect = async (app: SocialApp) => {
     const connectedApp = connectedApps.find(
@@ -180,7 +182,7 @@ export function ConnectAccounts() {
             : socialApps.map((app) => (
                 <div
                   key={app.provider}
-                  className="flex items-center justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
+                  className="flex relative overflow-hidden items-center justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
                 >
                   <div className="flex items-center space-x-4">
                     <Image
@@ -229,6 +231,16 @@ export function ConnectAccounts() {
                         "Connect"
                       )}
                     </Button>
+                  )}
+                  {connectedApps.some((ca) => ca.provider != app.provider) && (
+                    <div className="h-full w-full select-none absolute top-0 left-0 bg-secondary/95 md:bg-secondary/70 flex items-center justify-center">
+                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
+                        Upgrade to Add More Platforms
+                      </h2>
+                      <span>
+                        <Lock className="h-5 w-5 ml-2" />
+                      </span>
+                    </div>
                   )}
                 </div>
               ))}

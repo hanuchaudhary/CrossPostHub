@@ -8,7 +8,6 @@ import {
   DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -21,9 +20,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function Profile() {
   const { fetchAccountDetails, twitterUserDetails } = useDashboardStore();
+  const router = useRouter();
 
   // Dummy LinkedIn profile data
   const linkedInProfile = {
@@ -182,7 +184,14 @@ export function Profile() {
           </div>
         </ScrollArea>
 
-        <Button variant="secondary" className="absolute bottom-4 right-4">
+        <Button
+          onClick={() => {
+            signOut();
+            router.push("/signin");
+          }}
+          variant="secondary"
+          className="absolute bottom-4 right-4"
+        >
           <LogOut className="h-4 w-4" /> Logout
         </Button>
         <DrawerClose className="absolute top-2 right-2">

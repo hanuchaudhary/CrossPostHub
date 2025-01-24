@@ -5,8 +5,46 @@ export interface User {
     password: string
     name: string
     image: string
+
+    accounts: Account[]
+    plans: Plan[]
+    posts: Post[]
+    plansId: string
+
     createdAt: string | Date
     updatedAt: string | Date
+}
+
+export interface Account {
+    userId: string
+    type: string
+    provider: string
+    providerAccountId: string
+    refresh_token: string
+    access_token: string
+    expires_at: number
+    token_type: string
+    scope: string
+    id_token: string
+    session_state: string
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface Plan {
+    id: string
+    name: string
+    price: number
+    description: string
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface Post{
+    id: string
+    content: string
+    createdAt: Date
+    updatedAt: Date
 }
 
 export interface ConnectedApp {

@@ -27,17 +27,17 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
           {title}
         </Button>
       </SheetTrigger>
-      <SheetContent className="max-w-2xl overflow-y-auto md::max-w-3xl">
+      <SheetContent className="max-w-2xl overflow-y-auto md:max-w-3xl">
         <SheetHeader>
           <SheetTitle>
-            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500">CrossPost Hub</h1>
-            <SheetDescription className="text-neutral-500 dark:text-neutral-400">
+            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500 leading-none">CrossPost Hub</h1>
+            <SheetDescription className="text-neutral-500 font-medium text-sm leading-none dark:text-neutral-400 md:text-base">
               All your social media in one place.
             </SheetDescription>
           </SheetTitle>
         </SheetHeader>
         <div className="mt-6 space-y-6">
-          <p className="dark:text-neutral-400 text-neutral-500">
+          <p className="dark:text-neutral-400 text-neutral-500 md:text-base text-sm">
             {guideData.intro.content
               .split("Kush Chaudhary")
               .map((part, index, array) => (
@@ -54,7 +54,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
             {guideData.targetUsers.content.map((tu) => (
               <div key={tu.role} className="mb-2">
                 <h3 className="font-semibold">{tu.role}</h3>
-                <p className="dark:text-neutral-400 text-neutral-500">
+                <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
                   {tu.description}
                 </p>
               </div>
@@ -62,7 +62,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
           </Section>
 
           <Section title={guideData.whatIsCrossPostHub.title}>
-            <p className="dark:text-neutral-400 text-neutral-500">
+            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
               {guideData.whatIsCrossPostHub.content}
             </p>
           </Section>
@@ -71,7 +71,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
             <ul className="list-disc pl-5">
               {guideData.features.content.map((feature) => (
                 <li
-                  className="dark:text-neutral-400 text-neutral-500"
+                  className="dark:text-neutral-400 md:text-base text-sm text-neutral-500"
                   key={feature}
                 >
                   {feature}
@@ -84,7 +84,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
             <ol className="list-decimal pl-5">
               {guideData.howToUse.steps.map((step) => (
                 <li
-                  className="dark:text-neutral-400 text-neutral-500"
+                  className="dark:text-neutral-400 md:text-base text-sm text-neutral-500"
                   key={step}
                 >
                   {step}
@@ -94,13 +94,13 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
           </Section>
 
           <Section title={guideData.pricing.title}>
-            <p className="dark:text-neutral-400 text-neutral-500">
+            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
               {guideData.pricing.content}
             </p>
           </Section>
 
           <Section title={guideData.conclusion.title}>
-            <p className="dark:text-neutral-400 text-neutral-500">
+            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
               {guideData.conclusion.content}
             </p>
           </Section>

@@ -9,11 +9,10 @@ export default function PricingSection() {
       description:
         "Perfect for individuals managing personal accounts with basic needs.",
       features: [
-        "Connect up to 2 platforms",
+        "Connect only 2 platforms",
         "5 posts/month",
         "Basic analytics",
         "Community support",
-        "No scheduling",
       ],
       cta: "Get Started",
     },
@@ -50,7 +49,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[65rem] mx-auto md:px-0 px-3">
       <div className="text-center py-16">
         <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
           &quot;Find the Perfect Plan for Your Needs&quot;
@@ -64,7 +63,7 @@ export default function PricingSection() {
           <PricingCard
             classname={`${
               plan.id === "pro" &&
-              "md:scale-110 bg-emerald-950/10 border-emerald-950/20"
+              "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
             }`}
             key={plan.id}
             title={plan.title}

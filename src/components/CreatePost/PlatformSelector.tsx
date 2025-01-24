@@ -30,7 +30,7 @@ export function PlatformSelector({
 
   React.useEffect(() => {
     fetchConnectedApps();
-  },[fetchConnectedApps]);
+  }, [fetchConnectedApps]);
 
   return (
     <div className="space-y-4">
@@ -38,7 +38,7 @@ export function PlatformSelector({
         Select Platforms
       </h2>
       <div className="flex md:gap-4 gap-2">
-        {isFetchingApps || connectedApps.length < 0
+        {isFetchingApps
           ? Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} className="w-full h-14 rounded-xl" />
             ))
@@ -61,7 +61,8 @@ export function PlatformSelector({
                   width={40}
                   height={40}
                   className={cn(
-                    "transition-all duration-300 ease-in-out", app.provider === "twitter" && "dark:invert"
+                    "transition-all duration-300 ease-in-out",
+                    app.provider === "twitter" && "dark:invert"
                   )}
                 />
                 <span className="mt-2 text-sm font-medium capitalize">

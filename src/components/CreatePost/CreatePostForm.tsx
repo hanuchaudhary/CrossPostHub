@@ -18,7 +18,10 @@ import axios from "axios";
 import BottomLoader from "../Loaders/BottomLoader";
 import { Badge } from "@/components/ui/badge";
 import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
+import Link from "next/link";
+import NoAppButton from "../Buttons/NoAppButton";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -31,6 +34,7 @@ export function CreatePostForm() {
   const [scheduleTime, setScheduleTime] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSinglePreview, setIsSinglePreview] = useState(true);
+  const { connectedApps } = useDashboardStore();
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -63,7 +67,7 @@ export function CreatePostForm() {
                 Please select at least one platform to publish your post. You
                 can choose from Instagram, Twitter, or LinkedIn.
               </p>
-              <span className="text-neutral-500 text-xs">
+              <span className="text-neutral-400 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
             </div>
@@ -223,88 +227,94 @@ export function CreatePostForm() {
         title={`Creating post to ${selectedPlatforms.join(", ")}`}
         selectedPlatforms={selectedPlatforms}
       />
-      <Card className="w-full border-none shadow-none md:mx-auto">
-        <CardContent className="p-6">
-          <Tabs defaultValue="edit" className="space-y-4">
-            <TabsList>
-              <TabsTrigger
-                onClick={() => setIsSinglePreview(true)}
-                value="edit"
-              >
-                Edit
-              </TabsTrigger>
-              <TabsTrigger
-                onClick={() => setIsSinglePreview(false)}
-                value="preview"
-              >
-                Platform Preview
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="edit" className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-ClashDisplayMedium leading-none">
-                    Post Content
-                  </h2>
-                  <AIAssist onGenerate={handleAIAssist} />
-                </div>
-                <Textarea
-                  placeholder="What's on your mind?"
-                  value={content}
-                  onChange={handleContentChange}
-                  rows={5}
-                />
-              </div>
-              <ImageUpload onChange={handleImageChange} />
-              <PlatformSelector
-                selectedPlatforms={selectedPlatforms}
-                setSelectedPlatforms={setSelectedPlatforms}
-              />
-              <div className="flex items-center space-x-2">
-                <label
-                  htmlFor="schedule"
-                  className="text-lg font-ClashDisplayMedium leading-none"
+      {connectedApps.length === 0 ? (
+        <NoAppButton />
+      ) : (
+        <>
+          <Card className="w-full border-none shadow-none md:mx-auto">
+            <CardContent className="p-6">
+              <Tabs defaultValue="edit" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger
+                    onClick={() => setIsSinglePreview(true)}
+                    value="edit"
+                  >
+                    Edit
+                  </TabsTrigger>
+                  <TabsTrigger
+                    onClick={() => setIsSinglePreview(false)}
+                    value="preview"
+                  >
+                    Platform Preview
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="edit" className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-lg font-ClashDisplayMedium leading-none">
+                        Post Content
+                      </h2>
+                      <AIAssist onGenerate={handleAIAssist} />
+                    </div>
+                    <Textarea
+                      placeholder="What's on your mind?"
+                      value={content}
+                      onChange={handleContentChange}
+                      rows={5}
+                    />
+                  </div>
+                  <ImageUpload onChange={handleImageChange} />
+                  <PlatformSelector
+                    selectedPlatforms={selectedPlatforms}
+                    setSelectedPlatforms={setSelectedPlatforms}
+                  />
+                  <div className="flex items-center space-x-2">
+                    <label
+                      htmlFor="schedule"
+                      className="text-lg font-ClashDisplayMedium leading-none"
+                    >
+                      Schedule this post
+                    </label>
+                    <Checkbox
+                      id="schedule"
+                      checked={isScheduled}
+                      onCheckedChange={(checked) =>
+                        setIsScheduled(checked as boolean)
+                      }
+                    />
+                  </div>
+                  {isScheduled && (
+                    <SchedulePost
+                      scheduleDate={scheduleDate}
+                      setScheduleDate={setScheduleDate}
+                      scheduleTime={scheduleTime}
+                      setScheduleTime={setScheduleTime}
+                    />
+                  )}
+                </TabsContent>
+                <TabsContent value="preview">
+                  <PostPreview content={content} images={images} />
+                </TabsContent>
+              </Tabs>
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button
+                  disabled={isLoading}
+                  variant={"default"}
+                  className="rounded-full"
+                  onClick={handlePublishPost}
                 >
-                  Schedule this post
-                </label>
-                <Checkbox
-                  id="schedule"
-                  checked={isScheduled}
-                  onCheckedChange={(checked) =>
-                    setIsScheduled(checked as boolean)
-                  }
-                />
+                  {isScheduled ? "Schedule Post" : "Publish Now"}
+                </Button>
               </div>
-              {isScheduled && (
-                <SchedulePost
-                  scheduleDate={scheduleDate}
-                  setScheduleDate={setScheduleDate}
-                  scheduleTime={scheduleTime}
-                  setScheduleTime={setScheduleTime}
-                />
-              )}
-            </TabsContent>
-            <TabsContent value="preview">
-              <PostPreview content={content} images={images} />
-            </TabsContent>
-          </Tabs>
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button
-              disabled={isLoading}
-              variant={"default"}
-              className="rounded-full"
-              onClick={handlePublishPost}
-            >
-              {isScheduled ? "Schedule Post" : "Publish Now"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      <AnimatePresence>
-        {isSinglePreview && (
-          <SimplePostPreview content={content} images={images} />
-        )}
-      </AnimatePresence>
+            </CardContent>
+          </Card>
+          <AnimatePresence>
+            {isSinglePreview && (
+              <SimplePostPreview content={content} images={images} />
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </section>
   );
 }
