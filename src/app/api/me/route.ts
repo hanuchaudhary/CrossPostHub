@@ -28,8 +28,8 @@ export async function GET(request: NextRequest) {
                 image: true,
                 createdAt: true,
                 updatedAt: true,
-                Plan: true,
-                Post: true,
+                plan: true,
+                posts: true,
                 planId: true
             }
         })

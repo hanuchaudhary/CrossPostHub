@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import Script from "next/script";
 import { createOrderId } from "@/utils/Payment/CreateOrderId";
 import { toast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 export default function BuySubscriptionButton({
   price,
@@ -13,15 +14,12 @@ export default function BuySubscriptionButton({
   buttonTitle: string;
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const { data } = useSession();
 
   const handlePayment = async () => {
     setIsLoading(true);
     try {
       const orderId: string = await createOrderId(price, "INR");
-
-      console.log("orderId", orderId);
-      
-
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: price * 100,
@@ -39,12 +37,7 @@ export default function BuySubscriptionButton({
                 razorpay_signature: response.razorpay_signature,
               }
             );
-            console.log({
-                order_id: orderId,
-                payment_id: response.razorpay_payment_id,
-                signature: response.razorpay_signature
-            });
-            
+
             alert("Payment Successful!");
             console.log(paymentResponse.data);
           } catch (error) {
@@ -53,9 +46,8 @@ export default function BuySubscriptionButton({
           }
         },
         prefill: {
-          name: "Kush Chaudhary", // Replace with dynamic user data
-          email: "kush@example.com", // Replace with dynamic user data
-          contact: "1234567890", // Replace with dynamic user data
+          name: data?.user.name, // Replace with dynamic user data
+          email: data?.user.email, // Replace with dynamic user data
         },
         theme: {
           color: "#3399cc",

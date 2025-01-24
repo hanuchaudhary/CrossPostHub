@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        const twittrAccount = user.accounts.find((account) => account.provider === "twitter");
-        if (!twittrAccount) {
+        const twitterAccount = user.accounts.find((account) => account.provider === "twitter");
+        if (!twitterAccount) {
             return NextResponse.json({ error: "Twitter account not found" }, { status: 404 });
         }
 
-        const twitterUserDetails = await getTwitterUserDetails({ oauth_token: twittrAccount?.access_token!, oauth_token_secret: twittrAccount?.access_token_secret! });
+        const twitterUserDetails = await getTwitterUserDetails({ oauth_token: twitterAccount?.access_token as string, oauth_token_secret: twitterAccount?.access_token_secret as string });
 
         return NextResponse.json({ twitterUserDetails }, { status: 200 });
 
