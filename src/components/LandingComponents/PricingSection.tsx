@@ -20,7 +20,7 @@ export default function PricingSection() {
     {
       id: "pro",
       title: "Pro",
-      price: "15$",
+      price: "15$/mo",
       description:
         "Great for professionals managing multiple accounts and looking for advanced tools.",
       features: [
@@ -35,7 +35,7 @@ export default function PricingSection() {
     {
       id: "premium",
       title: "Premium",
-      price: "30$",
+      price: "30$/mo",
       description:
         "Ideal for businesses and teams requiring full flexibility and premium features.",
       features: [
