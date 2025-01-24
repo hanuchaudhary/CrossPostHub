@@ -5,7 +5,7 @@ export default function PricingSection() {
     {
       id: "free",
       title: "Free",
-      price: "0$",
+      price: 0,
       description:
         "Perfect for individuals managing personal accounts with basic needs.",
       features: [
@@ -19,7 +19,7 @@ export default function PricingSection() {
     {
       id: "pro",
       title: "Pro",
-      price: "15$/mo",
+      price: 15,
       description:
         "Great for professionals managing multiple accounts and looking for advanced tools.",
       features: [
@@ -34,7 +34,7 @@ export default function PricingSection() {
     {
       id: "premium",
       title: "Premium",
-      price: "30$/mo",
+      price: 30,
       description:
         "Ideal for businesses and teams requiring full flexibility and premium features.",
       features: [
@@ -49,7 +49,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <div className="max-w-[65rem] mx-auto md:px-0 px-3">
+    <div className="max-w-[65rem] mx-auto lg:px-0 px-3">
       <div className="text-center py-16">
         <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
           &quot;Find the Perfect Plan for Your Needs&quot;

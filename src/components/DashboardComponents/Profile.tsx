@@ -25,6 +25,10 @@ import { useRouter } from "next/navigation";
 
 export function Profile() {
   const { fetchAccountDetails, twitterUserDetails } = useDashboardStore();
+  // React.useEffect(() => {
+  //   fetchAccountDetails();
+  // }, [fetchAccountDetails]);
+
   const router = useRouter();
 
   // Dummy LinkedIn profile data

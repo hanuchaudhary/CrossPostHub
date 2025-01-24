@@ -1,3 +1,4 @@
+import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
@@ -23,6 +24,10 @@ export async function POST(request: NextRequest) {
 
         const { amount, currency }: OrderBody = await request.json();
 
+        if (!amount) {
+            return NextResponse.json({ message: `Amount is required` }, { status: 400 })
+        }
+
         const options = {
             amount,
             currency: currency || "INR",
@@ -30,6 +35,7 @@ export async function POST(request: NextRequest) {
         }
 
         const order = await razorpay.orders.create(options);
+
         if (!order) {
             return NextResponse.json({ message: "Failed to create order" }, { status: 500 })
         }
@@ -37,6 +43,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ order }, { status: 200 })
 
     } catch (error) {
-        return NextResponse.json({ message: "Server Error" }, { status: 500 })
+        return NextResponse.json({ message: "Server Error", error }, { status: 500 })
     }
 }

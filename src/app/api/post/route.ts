@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: "You have reached your monthly limit of 5 posts. Upgrade your plan to Pro" },
                 { status: 400 }
-            );   
+            );
         }
 
         const formData = await request.formData();
@@ -50,38 +50,126 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const results = await Promise.allSettled(
-          providers.map(async (provider) => {
-            try {
-              const job = await postQueue.add(
-                "postQueue",
-                { provider, postText, images, loggedUser },
-                // {
-                //   attempts: 3,
-                //   backoff: {
-                //     type: "exponential",
-                //     delay: 5000,
-                //   },
-                // }
-              );
-              console.log("Job added to the queue:", job.id);
-              return { provider, jobId: job.id, status: "success" };
-            } catch (error : any) {
-              console.error(`Failed to add job for provider: ${provider}`, error);
-              return { provider, error: error.message, status: "failed" };
-            }
-          })
+
+        const results = await Promise.all(
+            providers.map(async (provider) => {
+                if (provider === "linkedin") {
+
+                    const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
+                    if (!linkedinAccount) {
+                        return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
+                    }
+
+                    if (images.length !== 0) {
+                        const assetURNs: string[] = [];
+
+                        for (const image of images) {
+                            const assetURN = await registerAndUploadMedia({
+                                accessToken: linkedinAccount.access_token!,
+                                personURN: linkedinAccount.providerAccountId!,
+                                image
+                            });
+                            assetURNs.push(assetURN);
+                        }
+
+                        const postResponse = await CreatePostWithMedia({
+                            accessToken: linkedinAccount.access_token!,
+                            personURN: linkedinAccount.providerAccountId!,
+                            assetURNs,
+                            text: postText
+                        });
+
+                        return { provider: "linkedin", response: postResponse };
+                    } else {
+                        const postResponse = await CreateTextPost({
+                            accessToken: linkedinAccount.access_token!,
+                            personURN: linkedinAccount.providerAccountId!,
+                            text: postText
+                        });
+                        return { provider: "linkedin", response: postResponse };
+                    }
+                }
+                if (provider === "twitter") {
+                    const twitterAccount = loggedUser.accounts.find((acc) => acc.provider === "twitter");
+                    if (!twitterAccount) {
+                        return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
+                    }
+                    //console.log(twitterAccount);
+
+                    console.log("Images:", images, "PostText:", postText);
+
+                    try {
+                        let mediaIds: string[] = [];
+                        if (images.length > 0) {
+                            mediaIds = await Promise.all(
+                                images.map(image =>
+                                    uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
+                                )
+                            );
+                        }
+
+                        console.log({
+                            text: postText,
+                            mediaIds,
+                            oauth_token: twitterAccount.access_token!,
+                            oauth_token_secret: twitterAccount.access_token_secret!
+                        });
+
+                        // Create the Twitter post
+                        const postResponse = await createTweet({ text: postText, mediaIds, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! });
+                        console.log("PostResponse:", postResponse);
+                        return { provider: "twitter", response: postResponse };
+                    } catch (error: any) {
+                        console.error("Twitter posting error:", error);
+                        return { provider: "twitter", error: error.message || "An error occurred" };
+
+                    }
+                }
+                if (provider === "instagram") {
+                    // Create the Instagram post
+                    return { provider, response: null };
+                }
+                if (provider === "threads") {
+                    // Create the Threads post
+                    return { provider, response: null };
+                }
+                return { provider, response: null };
+            })
         );
+        return NextResponse.json({ success: true, results });
 
-        const formattedResults = results.map((result) => {
-          if (result.status === "fulfilled") {
-            return result.value;
-          } else {
-            return { status: "failed", error: result.reason };
-          }
-        });
+        // const results = await Promise.allSettled(
+        //   providers.map(async (provider) => {
+        //     try {
+        //       const job = await postQueue.add(
+        //         "postQueue",
+        //         { provider, postText, images, loggedUser },
+        //         // {
+        //         //   attempts: 3,
+        //         //   backoff: {
+        //         //     type: "exponential",
+        //         //     delay: 5000,
+        //         //   },
+        //         // }
+        //       );
+        //       console.log("Job added to the queue:", job.id);
+        //       return { provider, jobId: job.id, status: "success" };
+        //     } catch (error : any) {
+        //       console.error(`Failed to add job for provider: ${provider}`, error);
+        //       return { provider, error: error.message, status: "failed" };
+        //     }
+        //   })
+        // );
 
-        return NextResponse.json({ results: formattedResults }, { status: 200 });
+        // const formattedResults = results.map((result) => {
+        //   if (result.status === "fulfilled") {
+        //     return result.value;
+        //   } else {
+        //     return { status: "failed", error: result.reason };
+        //   }
+        // });
+
+        // return NextResponse.json({ results: formattedResults }, { status: 200 });
 
     } catch (error) {
         console.error("CreatePost Error:", error);
@@ -94,90 +182,3 @@ export async function POST(request: NextRequest) {
 
 
 // Without Queue Logic
-
-// const results = await Promise.all(
-    //     providers.map(async (provider) => {
-        //         if (provider === "linkedin") {
-            
-        //             const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
-        //             if (!linkedinAccount) {
-            //                 return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
-            //             }
-            
-            //             if (images.length !== 0) {
-                //                 const assetURNs: string[] = [];
-                
-                //                 for (const image of images) {
-                    //                     const assetURN = await registerAndUploadMedia({
-                        //                         accessToken: linkedinAccount.access_token!,
-                        //                         personURN: linkedinAccount.providerAccountId!,
-                        //                         image
-                        //                     });
-                        //                     assetURNs.push(assetURN);
-                        //                 }
-                        
-                        //                 const postResponse = await CreatePostWithMedia({
-                            //                     accessToken: linkedinAccount.access_token!,
-                            //                     personURN: linkedinAccount.providerAccountId!,
-                            //                     assetURNs,
-                            //                     text: postText
-                            //                 });
-                            
-                            //                 return { provider: "linkedin", response: postResponse };
-                            //             } else {
-                                //                 const postResponse = await CreateTextPost({
-                                    //                     accessToken: linkedinAccount.access_token!,
-                                    //                     personURN: linkedinAccount.providerAccountId!,
-                                    //                     text: postText
-                                    //                 });
-                                    //                 return { provider: "linkedin", response: postResponse };
-                                    //             }
-                                    //         }
-                                    //         if (provider === "twitter") {
-                                        //             const twitterAccount = loggedUser.accounts.find((acc) => acc.provider === "twitter");
-                                        //             if (!twitterAccount) {
-                                            //                 return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
-                                            //             }
-                                            //             //console.log(twitterAccount);
-                                            
-                                            //             console.log("Images:", images, "PostText:", postText);
-                                            
-                                            //             try {
-                                                //                 let mediaIds: string[] = [];
-                                                //                 if (images.length > 0) {
-                                                    //                     mediaIds = await Promise.all(
-                                                        //                         images.map(image =>
-                                                        //                             uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
-                                                        //                         )
-                                                        //                     );
-                                                        //                 }
-                                                        
-                                                        //                 console.log({
-                                                            //                     text: postText,
-                                                            //                     mediaIds,
-                                                            //                     oauth_token: twitterAccount.access_token!,
-                                                            //                     oauth_token_secret: twitterAccount.access_token_secret!
-                                                            //                 });
-                                                            
-                                                            //                 // Create the Twitter post
-                                                            //                 const postResponse = await createTweet({ text: postText, mediaIds, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! });
-                                                            //                 console.log("PostResponse:", postResponse);
-//                 return { provider: "twitter", response: postResponse };
-//             } catch (error: any) {
-//                 console.error("Twitter posting error:", error);
-//                 return { provider: "twitter", error: error.message || "An error occurred" };
-
-//             }
-//         }
-//         if (provider === "instagram") {
-    //             // Create the Instagram post
-    //             return { provider, response: null };
-    //         }
-    //         if (provider === "threads") {
-        //             // Create the Threads post
-        //             return { provider, response: null };
-        //         }
-        //         return { provider, response: null };
-        //     })
-        // );
-        //return NextResponse.json({ success: true, results });

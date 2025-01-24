@@ -4,11 +4,13 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import Image from "next/image";
+import axios from "axios";
+import BuySubscriptionButton from "../Buttons/BuySubscriptionButton";
 
 export interface PricingCardProps {
   title: string;
   description: string;
-  price: string;
+  price: number;
   features: string[];
   classname?: string;
   cta: string;
@@ -46,13 +48,13 @@ export default function PricingCard({
             className="mb-10 flex flex-col items-start justify-center"
           >
             <div>
-              {price !== "0$" && (
+              {price !== 0 && (
                 <p className="text-sm text-neutral-900 dark:text-neutral-200">
                   pause or cancel anytime
                 </p>
               )}
               <h1 className="text-4xl font-bold pb-4">
-                {price === "0$" ? "Free" : price}
+                {price === 0 ? "Free" : `${price}$`}
               </h1>
             </div>
             <p className="description text-xs text-secondary-foreground/90">
@@ -80,7 +82,7 @@ export default function PricingCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <Button>{cta}</Button>
+            <BuySubscriptionButton buttonTitle={cta} price={price} />
           </motion.div>
         </CardFooter>
       </Card>
