@@ -291,7 +291,7 @@ export function CreatePostForm() {
           <div className="flex justify-end space-x-2 mt-4">
             <Button
               disabled={isLoading}
-              variant={"customOne"}
+              variant={"default"}
               className="rounded-full"
               onClick={handlePublishPost}
             >

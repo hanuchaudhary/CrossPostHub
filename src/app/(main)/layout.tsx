@@ -15,7 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-
   return (
     <div className="relative">
       <PageLoader />

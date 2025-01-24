@@ -26,4 +26,14 @@ export interface ConnectedApp {
     user: User
 }
 
+export interface TwitterUser {
+    id: string;
+    name: string;
+    screen_name: string;  // Username/handle
+    profile_name: string; // Display name
+    followers_count: number;
+    friends_count: number;
+    profile_image_url_https: string;
+}
+
 export type Providers = "twitter" | "linkedin" | "instagram" | "threads"

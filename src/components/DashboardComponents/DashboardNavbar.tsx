@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileMenu } from "./MobileMenu";
+import { ConnectedPlatforms } from "./ConnectedPlatforms";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
@@ -52,6 +53,7 @@ export default function DashboardNavbar() {
             </Link>
           </div>
         )}
+        <ConnectedPlatforms />
         <div className="md:block hidden">
           <Guide />
         </div>
