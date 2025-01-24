@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     try {
 
         const { amount, currency }: OrderBody = await request.json();
-
         if (!amount) {
             return NextResponse.json({ message: `Amount is required` }, { status: 400 })
         }
@@ -35,12 +34,9 @@ export async function POST(request: NextRequest) {
         }
 
         const order = await razorpay.orders.create(options);
+        console.log(order);
 
-        if (!order) {
-            return NextResponse.json({ message: "Failed to create order" }, { status: 500 })
-        }
-
-        return NextResponse.json({ order }, { status: 200 })
+        return NextResponse.json({orderId: order.id}, { status: 200 })
 
     } catch (error) {
         return NextResponse.json({ message: "Server Error", error }, { status: 500 })

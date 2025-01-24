@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+
 export interface VerifyBody {
     razorpay_order_id: string;
     razorpay_payment_id: string;
@@ -10,7 +11,11 @@ export async function POST(request: NextRequest) {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature }: VerifyBody = await request.json();
 
-        const secret = process.env.RAZORPAY_SECRET as string
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return NextResponse.json({ error: "Missing required parameters", success: false }, { status: 400 })
+        }
+        
+        const secret = process.env.RAZORPAY_KEY_SECRET as string
         if (!secret) { return NextResponse.json({ error: "Razorpay secret not found" }, { status: 400 }) }
 
         const HMAC = crypto.createHmac("sha256", secret)
