@@ -34,7 +34,10 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
         </div>
       ) : (
         <div className="p-4">
-          <p className="mb-4 break-words">{content}</p>
+          <p
+            dangerouslySetInnerHTML={{ __html: content }}
+            className="mb-4 whitespace-pre-wrap"
+          />
           {images.length > 0 && (
             <Carousel className="w-full max-w-xs mx-auto">
               <CarouselContent>

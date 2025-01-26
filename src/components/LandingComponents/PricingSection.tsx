@@ -72,7 +72,7 @@ export default function PricingSection() {
         {pricingPlans?.map((plan) => (
           <PricingCard
             classname={`${
-              plan.id === "pro" &&
+              plan.title === "Pro" &&
               "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
             }`}
             key={plan.id}

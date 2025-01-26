@@ -28,34 +28,38 @@ export function PostPreview({ content, images }: PostPreviewProps) {
       setUser(session.user);
     }
   }, [session, status]);
-  
-  const platforms = ["Instagram", "X", "LinkedIn"];
+
+  const platforms = ["Linkedin", "X", "Instagram"];
 
   if (!content && images.length === 0) {
     return (
       <div className="w-full h-96 flex items-center justify-center">
-        <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-10 py-3 text-lg">Write something or add an image to preview your post.</h2>
+        <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-10 py-3 text-lg">
+          Write something or add an image to preview your post.
+        </h2>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {platforms.map((platform) => (
         <Card
           className="border-none shadow-none rounded-none p-0"
           key={platform}
         >
-          <CardHeader>
-            <CardTitle>{platform}</CardTitle>
+          <CardHeader className="px-1 py-3">
+            <CardTitle className="font-ClashDisplayRegular">
+              {platform}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {platform === "X" ? (
-              <TwitterPreview content={content} images={images} user={user} />
+            {platform === "Linkedin" ? (
+              <LinkedInPreview content={content} images={images} user={user} />
             ) : platform === "Instagram" ? (
               <InstagramPreview content={content} images={images} user={user} />
-            ) : platform === "LinkedIn" ? (
-              <LinkedInPreview content={content} images={images} user={user} />
+            ) : platform === "X" ? (
+              <TwitterPreview content={content} images={images} user={user} />
             ) : null}
           </CardContent>
         </Card>

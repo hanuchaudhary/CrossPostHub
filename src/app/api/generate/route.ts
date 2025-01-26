@@ -33,8 +33,7 @@ export async function POST(request: NextRequest) {
 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const result = await model.generateContent([
-            `Write a brief and engaging caption for the following content: "${content}". It should align with the tone "${tone}" and be optimized for platforms: ${platforms.join(", ")}. 
-             Do not include platform names, formatting (like numbered lists, Markdown, or headers), or emojis. Return only the caption in plain text.`
+            `Write a brief and engaging caption for the following content: "${content}".`
         ]);
 
 
