@@ -9,7 +9,9 @@ import { useSession } from "next-auth/react";
 export default function BuySubscriptionButton({
   price,
   buttonTitle,
+  planId,
 }: {
+  planId: string;
   price: number;
   buttonTitle: string;
 }) {
@@ -19,7 +21,7 @@ export default function BuySubscriptionButton({
   const handlePayment = async () => {
     setIsLoading(true);
     try {
-      const orderId: string = await createOrderId(price, "INR");
+      const orderId: string = await createOrderId(price, "INR", planId);
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: price * 100,
@@ -32,6 +34,7 @@ export default function BuySubscriptionButton({
             const paymentResponse = await axios.post(
               "/api/payment/verifyOrder",
               {
+                planId,
                 razorpay_order_id: orderId,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
@@ -78,7 +81,7 @@ export default function BuySubscriptionButton({
   return (
     <>
       <Button onClick={handlePayment} disabled={isLoading}>
-        {isLoading ? "Processing..." : buttonTitle}
+        {isLoading ? "Upgrading..." : buttonTitle}
       </Button>
       <Script
         id="razorpay-checkout-js"

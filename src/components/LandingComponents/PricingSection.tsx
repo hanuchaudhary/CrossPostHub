@@ -3,7 +3,7 @@ import PricingCard from "./PricingCard";
 export default function PricingSection() {
   const pricingPlans = [
     {
-      id: "free",
+      id: "cm6au8r5a0000qx5cd3my4bjx",
       title: "Free",
       price: 0,
       description:
@@ -17,7 +17,7 @@ export default function PricingSection() {
       cta: "Get Started",
     },
     {
-      id: "pro",
+      id: "cm6au8r5c0001qx5ccwbife9l",
       title: "Pro",
       price: 15,
       description:
@@ -32,7 +32,7 @@ export default function PricingSection() {
       cta: "Upgrade to Pro",
     },
     {
-      id: "premium",
+      id: "cm6au8r5c0002qx5cbfiz0puk",
       title: "Premium",
       price: 30,
       description:
@@ -49,7 +49,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <div className="max-w-[65rem] mx-auto lg:px-0 px-3">
+    <div className="max-w-[65rem] mx-auto lg:px-0 px-5 pb-5">
       <div className="text-center py-16">
         <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
           &quot;Find the Perfect Plan for Your Needs&quot;
@@ -58,7 +58,7 @@ export default function PricingSection() {
           Pick your plan and start sharing smarter today.
         </h3>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-7 max-w-6xl mx-auto">
         {pricingPlans.map((plan) => (
           <PricingCard
             classname={`${
@@ -66,11 +66,7 @@ export default function PricingSection() {
               "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
             }`}
             key={plan.id}
-            title={plan.title}
-            price={plan.price}
-            features={plan.features}
-            cta={plan.cta}
-            description={plan.description}
+            {...plan}
           />
         ))}
       </div>

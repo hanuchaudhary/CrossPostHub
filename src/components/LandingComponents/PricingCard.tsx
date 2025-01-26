@@ -8,6 +8,7 @@ import axios from "axios";
 import BuySubscriptionButton from "../Buttons/BuySubscriptionButton";
 
 export interface PricingCardProps {
+  id: string;
   title: string;
   description: string;
   price: number;
@@ -17,6 +18,7 @@ export interface PricingCardProps {
 }
 
 export default function PricingCard({
+  id,
   title,
   description,
   price,
@@ -82,7 +84,11 @@ export default function PricingCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <BuySubscriptionButton buttonTitle={cta} price={price} />
+            <BuySubscriptionButton
+              planId={id}
+              buttonTitle={cta}
+              price={price}
+            />
           </motion.div>
         </CardFooter>
       </Card>

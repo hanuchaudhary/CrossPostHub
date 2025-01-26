@@ -116,6 +116,7 @@ export async function createTweet({ text, mediaIds, oauth_token, oauth_token_sec
 
         return response.data;
     } catch (error: any) {
+        console.log(error);
         console.error("Tweet creation failed:", error.response?.data || error.message);
     }
 }

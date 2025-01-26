@@ -4,7 +4,6 @@ import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import TwitterProvider from "next-auth/providers/twitter";
 import InstagramProvider from "next-auth/providers/instagram";
 import LinkedinProvider from "next-auth/providers/linkedin";
 import { signinSchema } from "@/lib/validation";
@@ -99,7 +98,7 @@ export const authOptions: NextAuthOptions = {
             }
 
 
-        })
+        }),
     ],
     adapter: PrismaAdapter(prisma), // Use Prisma adapter for NextAuth
     callbacks: {

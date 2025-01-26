@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -16,11 +17,12 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts      Post[]
-  planId    String?  @default("cm6au8r5a0000qx5cd3my4bjx")
-  plan      Plan?    @relation(fields: [planId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  posts       Post[]
+  planId      String?       @default("cm6au8r5a0000qx5cd3my4bjx")
+  plan        Plan?         @relation(fields: [planId], references: [id])
+  transaction Transaction[]
 }
 
 model Account {
@@ -47,6 +49,7 @@ model Account {
 model Post {
   id        String   @unique @default(cuid())
   text      String?
+  provider  String?
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
@@ -54,10 +57,30 @@ model Post {
 }
 
 model Plan {
+  id          String        @unique @default(cuid())
+  name        String?
+  price       Float?
+  users       User[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  transaction Transaction[]
+}
+
+enum STATUS {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Transaction {
   id        String   @unique @default(cuid())
-  name      String?
-  price     Float?
-  users     User[]
+  userId    String
+  planId    String
+  status    STATUS
+  amount    Int
+  order_id  String   @unique 
+  user      User     @relation(fields: [userId], references: [id])
+  plan      Plan     @relation(fields: [planId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
