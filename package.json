@@ -1,6 +1,6 @@
 {
   "name": "crosspost-hub",
-  "version": "1.0.0",
+  "version": "1 .0.0",
   "private": true,
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

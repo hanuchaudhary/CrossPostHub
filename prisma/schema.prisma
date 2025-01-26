@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum STATUS {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -20,7 +26,7 @@ model User {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   posts       Post[]
-  planId      String?       @default("cm6au8r5a0000qx5cd3my4bjx")
+  planId      String?       
   plan        Plan?         @relation(fields: [planId], references: [id])
   transaction Transaction[]
 }
@@ -58,18 +64,15 @@ model Post {
 
 model Plan {
   id          String        @unique @default(cuid())
-  name        String?
-  price       Float?
+  title        String?
+  description  String?
+  features    String[]
+  cta         String?
+  price       Int?
   users       User[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   transaction Transaction[]
-}
-
-enum STATUS {
-  PENDING
-  SUCCESS
-  FAILED
 }
 
 model Transaction {

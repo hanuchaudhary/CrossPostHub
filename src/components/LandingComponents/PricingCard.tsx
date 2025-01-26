@@ -2,9 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import { Button } from "../ui/button";
 import Image from "next/image";
-import axios from "axios";
 import BuySubscriptionButton from "../Buttons/BuySubscriptionButton";
 
 export interface PricingCardProps {

@@ -33,14 +33,33 @@ export interface Account {
 
 export interface Plan {
     id: string
-    name: string
-    price: number
+    title: string
     description: string
+    features: string[]
+    cta: string
+    price: Number
+    users: User[]
+    createdAt: Date
+    updatedAt: Date
+    transaction: Transaction[]
+}
+
+enum STATUS {
+    PENDING = "PENDING",
+    SUCCESS = "SUCCESS",
+    FAILED = "FAILED"
+}
+
+export interface Transaction {
+    id: string
+    amount: Number
+    currency: string
+    status: STATUS
     createdAt: Date
     updatedAt: Date
 }
 
-export interface Post{
+export interface Post {
     id: string
     content: string
     createdAt: Date

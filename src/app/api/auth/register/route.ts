@@ -6,7 +6,8 @@ import bcryptjs from "bcryptjs";
 export async function POST(request: Request) {
     try {
         const { email, password, name } = await request.json();
-        const { success, error } = registerSchema.safeParse({ email, password, name  });
+        const { success, error } = registerSchema.safeParse({ email, password, name  });``
+        
         if (!success) {
             return NextResponse.json({ error: error.flatten().fieldErrors }, { status: 400 });
         }
@@ -22,13 +23,14 @@ export async function POST(request: Request) {
             data: {
                 email,
                 name,
-                password: hashedPassword
+                password: hashedPassword,   
             }
         });
 
         return NextResponse.json({ success: true, user });
 
-    } catch (error) {
+    } catch (error: any) {
+        console.log("Register Error:", error);
         return NextResponse.json({ error }, { status: 500 });
     }
 
