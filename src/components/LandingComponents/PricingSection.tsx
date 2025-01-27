@@ -3,6 +3,7 @@
 import { usePricingStore } from "@/store/PricingStore/usePricingStore";
 import PricingCard from "./PricingCard";
 import { useEffect } from "react";
+import PricingLoader from "../Loaders/PricingLoader";
 
 export default function PricingSection() {
   // const pricingPlans = [
@@ -69,17 +70,21 @@ export default function PricingSection() {
         </h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-7 max-w-6xl mx-auto">
-        {pricingPlans?.map((plan) => (
-          <PricingCard
-            classname={`${
-              plan.title === "Pro" &&
-              "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
-            }`}
-            key={plan.id}
-            {...plan}
-            price={Number(plan.price)}
-          />
-        ))}
+        {pricingPlans?.map((plan) =>
+          isFetchingPlans ? (
+            <PricingLoader key={plan.id} />
+          ) : (
+            <PricingCard
+              classname={`${
+                plan.title === "Pro" &&
+                "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
+              }`}
+              key={plan.id}
+              {...plan}
+              price={Number(plan.price)}
+            />
+          )
+        )}
       </div>
     </div>
   );

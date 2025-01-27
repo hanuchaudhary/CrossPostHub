@@ -4,7 +4,7 @@ export async function createOrderId(amount: number, currency: string, planId: st
     try {
         const response = await axios.post("/api/payment/createOrder", {
             amount: amount * 100, // Convert to paise
-            currency: "INR",
+            currency: "USD",
             planId,
         });
 

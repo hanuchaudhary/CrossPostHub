@@ -9,10 +9,9 @@ interface PricingStore {
 }
 
 export const usePricingStore = create<PricingStore>((set) => ({
-    isFetchingPlans: false,
+    isFetchingPlans: true,
     pricingPlans: null,
     fetchPricingPlans: async () => {
-        set({ isFetchingPlans: true });
         try {
             const { data } = await axios.get("/api/payment/pricing");
             set({ pricingPlans: data.pricingPlans });
