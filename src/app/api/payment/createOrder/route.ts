@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/config/prismaConfig";
 import { error } from "console";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";

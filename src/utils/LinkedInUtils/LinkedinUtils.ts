@@ -3,7 +3,7 @@ import axios from "axios";
 interface registerAndUploadMediaProps {
     accessToken: string;
     personURN: string;
-    image: File;
+    image: any;
 }
 
 //Step 1: Register Media Upload

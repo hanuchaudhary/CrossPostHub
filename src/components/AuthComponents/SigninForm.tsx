@@ -48,7 +48,7 @@ export default function SigninForm() {
 
       if (result?.error) {
         toast({
-          title: "error",
+          title: "Error",
           description: result.error,
         });
         setError(result.error);

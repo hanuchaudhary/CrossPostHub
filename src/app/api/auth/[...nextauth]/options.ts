@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/config/prismaConfig";
 import bcryptjs from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -25,8 +25,8 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials) throw new Error("Credentials not provided");
                 const { email, password } = credentials;
                 console.log("Credentials", credentials);
-                
-                const {success} = signinSchema.safeParse({email, password});
+
+                const { success } = signinSchema.safeParse({ email, password });
                 if (!success) throw new Error("Invalid credentials");
 
                 try {
@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
                         },
                     });
 
-                    if (!user) throw new Error("No user found with this email or name");
+                    if (!user) throw new Error("No user found with this email address");
                     if (!password) throw new Error("Password is required");
 
                     const isPasswordValid = await bcryptjs.compare(password, user.password!);

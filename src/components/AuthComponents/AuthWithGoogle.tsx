@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import { signIn } from "next-auth/react";
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
 
 export default function AuthWithGoogle() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function AuthWithGoogle() {
       const result = await signIn("google", {
         callbackUrl: "http://localhost:3000/dashboard",
         redirect: false,
-        signInOptions: { popup: true }
+        signInOptions: { popup: true },
       });
 
       if (result?.ok) {
@@ -50,11 +50,11 @@ export default function AuthWithGoogle() {
     <button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
-      className="w-full rounded-full border py-3 flex items-center justify-center gap-3"
+      className="w-full rounded-full border py-3 flex items-center justify-center gap-1"
       aria-label="Sign in with Google"
     >
       {isLoading ? (
-        <Loader2 className="h-5 w-5 animate-spin rounded-full border-b-2 border-current" />
+        <Loader2 className="h-5 w-5 animate-spin rounded-full" />
       ) : (
         <Image
           src="/google.svg"
@@ -65,8 +65,9 @@ export default function AuthWithGoogle() {
           aria-hidden="true"
         />
       )}
-      <span className="font-light">{isLoading ? "Signing in..." : "Continue with Google"}</span>
+      <span className="font-light">
+        {isLoading ? "Signing in..." : "Continue with Google"}
+      </span>
     </button>
   );
 }
-

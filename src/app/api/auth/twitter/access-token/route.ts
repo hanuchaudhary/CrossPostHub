@@ -1,7 +1,7 @@
 import OAuth from "oauth-1.0a"
 import crypto from "crypto"
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import prisma from "@/config/prismaConfig"
 import axios from "axios"
 
 const oauth = new OAuth({

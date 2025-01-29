@@ -38,7 +38,7 @@ export const UserProfile: React.FC = () => {
         <TooltipTrigger>
           <div className="flex gap-1 select-none items-center md:dark:bg-secondary/30 md:bg-secondary md:border dark:border-secondary/40 md:px-2 md:py-1 md:rounded-lg ">
             <Avatar>
-              <AvatarImage src={session?.user.image || ""}></AvatarImage>
+              <AvatarImage src={session.user.image || ""}></AvatarImage>
               <AvatarFallback className="uppercase font-semibold font-ClashDisplayMedium">
                 {session?.user.name ? session.user.name[0] : "CH"}
               </AvatarFallback>

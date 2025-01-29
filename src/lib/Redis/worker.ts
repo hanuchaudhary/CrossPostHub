@@ -1,9 +1,12 @@
-import { Queue, Worker, Job } from "bullmq";
+import {  Worker, Job, Queue } from "bullmq";
 import { CreatePostWithMedia, CreateTextPost, registerAndUploadMedia } from "@/utils/LinkedInUtils/LinkedinUtils";
-import { createTweet, uploadMediaToTwiiter } from "@/utils/TwitterUtils/TwitterUtils";
+import { createTweet, uploadMediaToTwitter } from "@/utils/TwitterUtils/TwitterUtils";
 
-// Redis connection configuration
-const connection = { host: "localhost", port: 6379 };
+const connection = {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT!),
+    password: process.env.REDIS_PASSWORD,
+};
 
 // Queue instance
 export const postQueue = new Queue("postQueue", { connection });
@@ -23,8 +26,8 @@ const PublishPostWorker = new Worker(
             });
 
             if (provider === "linkedin") {
-                const linkedinAccount = loggedUser.accounts.find((acc: any) => acc.provider === "linkedin");
-                if (!linkedinAccount) throw new Error("LinkedIn account not found for the logged user.");
+                const linkedinAccount = loggedUser.accounts.find((acc: { provider: string; access_token?: string; providerAccountId?: string; }) => acc.provider === "linkedin");
+                if (!linkedinAccount) throw new Error("Linkedin account not found for the logged user.");
 
                 if (images.length === 0) {
                     console.log("Creating a LinkedIn text post...");
@@ -39,7 +42,7 @@ const PublishPostWorker = new Worker(
 
                 console.log("Uploading images to LinkedIn...");
                 const assetURNs = await Promise.all(
-                    images.map((image: any) =>
+                    images.map((image: { url: string; type: string }) =>
                         registerAndUploadMedia({
                             accessToken: linkedinAccount.access_token!,
                             personURN: linkedinAccount.providerAccountId!,
@@ -61,7 +64,7 @@ const PublishPostWorker = new Worker(
             }
 
             if (provider === "twitter") {
-                const twitterAccount = loggedUser.accounts.find((acc: any) => acc.provider === "twitter");
+                const twitterAccount = loggedUser.accounts.find((acc: { provider: string }) => acc.provider === "twitter");
                 if (!twitterAccount) throw new Error("Twitter account not found for the logged user.");
 
                 console.log("Uploading images to Twitter...");
@@ -78,7 +81,7 @@ const PublishPostWorker = new Worker(
                 } else {
                     const mediaIds = await Promise.all(
                         images.map((image: any) =>
-                            uploadMediaToTwiiter({
+                            uploadMediaToTwitter({
                                 media: image,
                                 oauth_token: twitterAccount.access_token!,
                                 oauth_token_secret: twitterAccount.access_token_secret!,
@@ -99,9 +102,10 @@ const PublishPostWorker = new Worker(
                 }
             }
 
-            throw new Error(`Unsupported provider: ${provider}`);
+            throw new Error(`Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`);
         } catch (error) {
-            console.error(`Job failed for provider: ${job.data.provider}`, error);
+            const sanitizedError = new Error("An error occurred while processing the job.");
+            console.error(`Job failed for provider: ${job.data.provider}`, sanitizedError.message);
             throw error;
         }
     },
@@ -109,10 +113,11 @@ const PublishPostWorker = new Worker(
 );
 
 // Event listener for successful job completion
+// This listener processes jobs related to posting on LinkedIn and Twitter.
 PublishPostWorker.on("completed", (job: Job) => {
     console.log(`Job completed successfully:`, {
         jobId: job.id,
-        returnValue: job.returnvalue,
+        result: job.returnvalue,
     });
 });
 

@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/config/prismaConfig";
 import { registerSchema } from "@/lib/validation";
 import { NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";

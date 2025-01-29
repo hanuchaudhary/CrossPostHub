@@ -2,13 +2,13 @@ import OAuth from "oauth-1.0a"
 import crypto from "crypto"
 import axios from "axios"
 
-interface uploadMediaToTwiiterProps {
-    media: File;
+interface uploadMediaToTwitterProps {
+    media: any;
     oauth_token: string;
     oauth_token_secret: string;
 }
 
-export async function uploadMediaToTwiiter({ media, oauth_token, oauth_token_secret }: uploadMediaToTwiiterProps) {
+export async function uploadMediaToTwitter({ media, oauth_token, oauth_token_secret }: uploadMediaToTwitterProps) {
 
     const oauth = new OAuth({
         consumer: {
@@ -24,8 +24,8 @@ export async function uploadMediaToTwiiter({ media, oauth_token, oauth_token_sec
     const formData = new FormData();
     formData.append("media", media);
 
-    console.log("formData", formData.get("media"));
-    
+    console.log("formData", formData.get("media")?.toString());
+
     const requestData = {
         url: "https://upload.twitter.com/1.1/media/upload.json",
         method: "POST",
@@ -40,7 +40,7 @@ export async function uploadMediaToTwiiter({ media, oauth_token, oauth_token_sec
     )
 
     try {
-        console.log("Uploading media to Twitter... ",media);
+        console.log("Uploading media to Twitter... ", Object.keys(media));
         const response = await axios.post("https://upload.twitter.com/1.1/media/upload.json", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",

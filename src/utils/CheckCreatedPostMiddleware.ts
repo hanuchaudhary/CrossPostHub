@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/config/prismaConfig";
 import { startOfMonth, endOfMonth } from "date-fns";
 
 export async function CheckCreatedPostMiddleware(userId: string): Promise<boolean> {

@@ -1,11 +1,9 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
-import prisma from "@/lib/prisma";
+import prisma from "@/config/prismaConfig";
 import { Providers } from "@/Types/Types";
-import { postQueue } from "@/lib/Redis/queue";
-import { CreatePostWithMedia, CreateTextPost, registerAndUploadMedia } from "@/utils/LinkedInUtils/LinkedinUtils";
-import { createTweet, uploadMediaToTwiiter } from "@/utils/TwitterUtils/TwitterUtils";
+import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 
 export async function POST(request: NextRequest) {
@@ -50,126 +48,38 @@ export async function POST(request: NextRequest) {
             );
         }
 
-
-        const results = await Promise.all(
+        const results = await Promise.allSettled(
             providers.map(async (provider) => {
-                if (provider === "linkedin") {
-
-                    const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
-                    if (!linkedinAccount) {
-                        return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
-                    }
-
-                    if (images.length !== 0) {
-                        const assetURNs: string[] = [];
-
-                        for (const image of images) {
-                            const assetURN = await registerAndUploadMedia({
-                                accessToken: linkedinAccount.access_token!,
-                                personURN: linkedinAccount.providerAccountId!,
-                                image
-                            });
-                            assetURNs.push(assetURN);
-                        }
-
-                        const postResponse = await CreatePostWithMedia({
-                            accessToken: linkedinAccount.access_token!,
-                            personURN: linkedinAccount.providerAccountId!,
-                            assetURNs,
-                            text: postText
-                        });
-
-                        return { provider: "linkedin", response: postResponse };
-                    } else {
-                        const postResponse = await CreateTextPost({
-                            accessToken: linkedinAccount.access_token!,
-                            personURN: linkedinAccount.providerAccountId!,
-                            text: postText
-                        });
-                        return { provider: "linkedin", response: postResponse };
-                    }
+                try {
+                    const job = await postQueue.add(
+                        "postQueue",
+                        { provider, postText, images, loggedUser },
+                        // {
+                        //   attempts: 3,
+                        //   backoff: {
+                        //     type: "exponential",
+                        //     delay: 5000,
+                        //   },
+                        // }
+                    );
+                    console.log("Job added to the queue:", job.id);
+                    return { provider, jobId: job.id, status: "success" };
+                } catch (error: any) {
+                    console.error(`Failed to add job for provider: ${provider}`, error);
+                    return { provider, error: error.message, status: "failed" };
                 }
-                if (provider === "twitter") {
-                    const twitterAccount = loggedUser.accounts.find((acc) => acc.provider === "twitter");
-                    if (!twitterAccount) {
-                        return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
-                    }
-                    //console.log(twitterAccount);
-
-                    console.log("Images:", images, "PostText:", postText);
-
-                    try {
-                        let mediaIds: string[] = [];
-                        if (images.length > 0) {
-                            mediaIds = await Promise.all(
-                                images.map(image =>
-                                    uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
-                                )
-                            );
-                        }
-
-                        console.log({
-                            text: postText,
-                            mediaIds,
-                            oauth_token: twitterAccount.access_token!,
-                            oauth_token_secret: twitterAccount.access_token_secret!
-                        });
-
-                        // Create the Twitter post
-                        const postResponse = await createTweet({ text: postText, mediaIds, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! });
-                        console.log("PostResponse:", postResponse);
-                        return { provider: "twitter", response: postResponse };
-                    } catch (error: any) {
-                        console.error("Twitter posting error:", error);
-                        return { provider: "twitter", error: error.message || "An error occurred" };
-
-                    }
-                }
-                if (provider === "instagram") {
-                    // Create the Instagram post
-                    return { provider, response: null };
-                }
-                if (provider === "threads") {
-                    // Create the Threads post
-                    return { provider, response: null };
-                }
-                return { provider, response: null };
             })
         );
-        return NextResponse.json({ success: true, results });
 
-        // const results = await Promise.allSettled(
-        //   providers.map(async (provider) => {
-        //     try {
-        //       const job = await postQueue.add(
-        //         "postQueue",
-        //         { provider, postText, images, loggedUser },
-        //         // {
-        //         //   attempts: 3,
-        //         //   backoff: {
-        //         //     type: "exponential",
-        //         //     delay: 5000,
-        //         //   },
-        //         // }
-        //       );
-        //       console.log("Job added to the queue:", job.id);
-        //       return { provider, jobId: job.id, status: "success" };
-        //     } catch (error : any) {
-        //       console.error(`Failed to add job for provider: ${provider}`, error);
-        //       return { provider, error: error.message, status: "failed" };
-        //     }
-        //   })
-        // );
+        const formattedResults = results.map((result) => {
+            if (result.status === "fulfilled") {
+                return result.value;
+            } else {
+                return { status: "failed", error: result.reason };
+            }
+        });
 
-        // const formattedResults = results.map((result) => {
-        //   if (result.status === "fulfilled") {
-        //     return result.value;
-        //   } else {
-        //     return { status: "failed", error: result.reason };
-        //   }
-        // });
-
-        // return NextResponse.json({ results: formattedResults }, { status: 200 });
+        return NextResponse.json({ results: formattedResults }, { status: 200 });
 
     } catch (error) {
         console.error("CreatePost Error:", error);
@@ -182,3 +92,105 @@ export async function POST(request: NextRequest) {
 
 
 // Without Queue Logic
+// const results = await Promise.all(
+//     providers.map(async (provider) => {
+//         if (provider === "linkedin") {
+
+//             const linkedinAccount = loggedUser.accounts.find((acc) => acc.provider === "linkedin");
+//             if (!linkedinAccount) {
+//                 return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
+//             }
+
+//             if (images.length !== 0) {
+//                 const assetURNs: string[] = [];
+
+//                 for (const image of images) {
+//                     const assetURN = await registerAndUploadMedia({
+//                         accessToken: linkedinAccount.access_token!,
+//                         personURN: linkedinAccount.providerAccountId!,
+//                         image
+//                     });
+//                     assetURNs.push(assetURN);
+//                 }
+
+//                 const postResponse = await CreatePostWithMedia({
+//                     accessToken: linkedinAccount.access_token!,
+//                     personURN: linkedinAccount.providerAccountId!,
+//                     assetURNs,
+//                     text: postText
+//                 });
+
+//                 if (postResponse.error) {
+//                     return { provider: "linkedin", error: postResponse.error };
+//                 }
+
+//                 const postSave = await postSaveToDB({ postText, userId: loggedUser.id, provider: "linkedin" });
+//                 console.log("Post saved to DB:", postSave.id);
+
+//                 return { provider: "linkedin", response: postResponse };
+//             } else {
+//                 const postResponse = await CreateTextPost({
+//                     accessToken: linkedinAccount.access_token!,
+//                     personURN: linkedinAccount.providerAccountId!,
+//                     text: postText
+//                 });
+
+//                 const postSave = await postSaveToDB({ postText, userId: loggedUser.id, provider: "linkedin" });
+//                 console.log("Post saved to DB:", postSave.id);
+
+//                 return { provider: "linkedin", response: postResponse };
+//             }
+//         }
+//         if (provider === "twitter") {
+//             const twitterAccount = loggedUser.accounts.find((acc) => acc.provider === "twitter");
+//             if (!twitterAccount) {
+//                 return NextResponse.json({ error: "Twitter account not found" }, { status: 400 });
+//             }
+
+//             try {
+//                 let mediaIds: string[] = [];
+//                 if (images.length > 0) {
+//                     mediaIds = await Promise.all(
+//                         images.map(image =>
+//                             uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
+//                         )
+//                     );
+//                 }
+
+//                 console.log({
+//                     text: postText,
+//                     mediaIds,
+//                     oauth_token: twitterAccount.access_token!,
+//                     oauth_token_secret: twitterAccount.access_token_secret!
+//                 });
+
+//                 // Create the Twitter post
+//                 const postResponse = await createTweet({ text: postText, mediaIds, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! });
+//                 console.log("PostResponse:", postResponse);
+
+//                 if (postResponse.error) {
+//                     return { provider: "twitter", error: postResponse.error };
+//                 }
+
+//                 const postSave = await postSaveToDB({ postText, userId: loggedUser.id, provider: "twitter" });
+//                 console.log("Post saved to DB:", postSave);
+
+//                 return { provider: "twitter", response: postResponse };
+//             } catch (error: any) {
+//                 console.error("Twitter posting error:", error);
+//                 return { provider: "twitter", error: error.message || "An error occurred" };
+
+//             }
+//         }
+//         if (provider === "instagram") {
+//             // Create the Instagram post
+//             return { provider, response: null };
+//         }
+//         if (provider === "threads") {
+//             // Create the Threads post
+//             return { provider, response: null };
+//         }
+//         return { provider, response: null };
+//     })
+// );
+// return NextResponse.json({ success: true, results });
