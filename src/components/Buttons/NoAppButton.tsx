@@ -2,13 +2,14 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import React from "react";
+import { GlowingButton } from "./GlowingButton";
 
 export default function NoAppButton() {
   return (
     <div className="select-none h-96 w-full flex items-center justify-center">
       <p className="font-ClashDisplayMedium bg-neutral-400/10 rounded-2xl space-x-4 leading-none border border-secondary pl-3 pr-2 py-2 md:text-sm text-xs text-neutral-400">
         <span className="">No Connected Apps Available</span>
-        <motion.span whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        {/* <motion.span whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Link
             href={"/dashboard"}
             replace
@@ -31,7 +32,10 @@ export default function NoAppButton() {
               }}
             />
           </Link>
-        </motion.span>
+        </motion.span> */}
+        <GlowingButton href="/dashboard" color="emerald">
+          Connect App?
+        </GlowingButton>
       </p>
     </div>
   );
