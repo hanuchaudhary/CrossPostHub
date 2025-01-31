@@ -13,6 +13,12 @@ export async function GET(request: NextRequest) {
         const connectedApps = await prisma.account.findMany({
             where: {
                 userId: session?.user.id
+            },
+            select:{
+                provider: true,
+                providerAccountId: true,
+                createdAt: true,
+                updatedAt: true,
             }
         })
 
