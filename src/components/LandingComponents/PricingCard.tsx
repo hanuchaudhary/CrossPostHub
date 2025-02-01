@@ -49,7 +49,7 @@ export default function PricingCard({
           >
             <div>
               {price !== 0 && (
-                <p className="text-sm text-neutral-900 dark:text-neutral-200">
+                <p className="text-xs text-neutral-700 dark:text-neutral-400">
                   pause or cancel anytime
                 </p>
               )}

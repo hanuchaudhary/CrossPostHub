@@ -22,20 +22,22 @@ import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { GlowingButton } from "../Buttons/GlowingButton";
+import Image from "next/image";
 
 export function Profile() {
   const { fetchAccountDetails, twitterUserDetails } = useDashboardStore();
-  // React.useEffect(() => {
-  //   fetchAccountDetails();
-  // }, [fetchAccountDetails]);
+  React.useEffect(() => {
+    fetchAccountDetails();
+  }, [fetchAccountDetails]);
 
   const router = useRouter();
 
   // Dummy LinkedIn profile data
   const linkedInProfile = {
-    name: "John Doe",
+    name: "Kush Cjaudhary",
     headline: "Software Engineer at Tech Co.",
-    profileImageUrl: "https://randomuser.me/api/portraits/men/1.jpg",
+    profileImageUrl: "https://randomuser.me/api/portraits",
     connections: 500,
   };
 
@@ -90,9 +92,14 @@ export function Profile() {
                       @{twitterUserDetails.screen_name}
                     </p>
                   </div>
-                  <Twitter className="h-6 w-6" />
+                  <Image
+                    className="invert-[1]"
+                    src={"/twitter.svg"}
+                    height={70}
+                    width={70}
+                    alt="linkedin"
+                  />
                 </div>
-                <Separator className="my-4" />
                 <div className="flex justify-between text-sm">
                   <div>
                     <p className="font-medium">
@@ -124,7 +131,12 @@ export function Profile() {
                     {linkedInProfile.headline}
                   </p>
                 </div>
-                <Linkedin className="h-6 w-6" />
+                <Image
+                  src={"/linkedin.svg"}
+                  height={70}
+                  width={70}
+                  alt="linkedin"
+                />
               </div>
               <div className="flex gap-1 text-sm">
                 <p className="font-medium">{linkedInProfile.connections}</p>
@@ -187,17 +199,18 @@ export function Profile() {
             </Card>
           </div>
         </ScrollArea>
-
-        <Button
+        <div
           onClick={() => {
             signOut();
             router.push("/signin");
           }}
-          variant="secondary"
-          className="absolute bottom-4 right-4"
         >
-          <LogOut className="h-4 w-4" /> Logout
-        </Button>
+          <GlowingButton className="absolute bottom-4 right-4">
+            <span className="flex flex-row items-center space-x-1">
+              <LogOut className="h-4 w-4" /> <span>Logout</span>
+            </span>
+          </GlowingButton>
+        </div>
         <DrawerClose className="absolute top-2 right-2">
           <Button variant="ghost" size="icon">
             <X className="h-4 w-4" />

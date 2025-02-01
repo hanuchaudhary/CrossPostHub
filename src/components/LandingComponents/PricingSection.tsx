@@ -63,7 +63,7 @@ export default function PricingSection() {
     <div className="max-w-[65rem] mx-auto lg:px-0 px-5 pb-5">
       <div className="text-center py-16">
         <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
-          &quot;Find the Perfect Plan for Your Needs&quot;
+          &quot;Find the <span className="text-emerald-500">Perfect Plan</span> for Your Needs&quot;
         </h1>
         <h3 className="font-ClashDisplayRegular md:text-base text-xs dark:text-neutral-400 text-neutral-700">
           Pick your plan and start sharing smarter today.
