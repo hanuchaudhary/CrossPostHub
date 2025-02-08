@@ -29,19 +29,19 @@ function About() {
       title: "Image & Video Uploads",
       description: "Upload and schedule media content.",
       image:
-        "https://images.unsplash.com/photo-1528109966604-5a6a4a964e8d?w=900&auto=format&fit=crop",
+        "https://i.pinimg.com/736x/9d/18/3b/9d183b81c09071745583fe932bb5657a.jpg",
     },
     {
       title: "Smart Scheduling",
       description: "Post at optimal engagement times.",
       image:
-        "https://images.unsplash.com/photo-1421789497144-f50500b5fcf0?w=900&auto=format&fit=crop",
+        "https://i.pinimg.com/736x/cf/c3/fe/cfc3fee57f4e2cf86ce83d362b6c36c2.jpg",
     },
     {
       title: "AI-Assisted Captions",
       description: "Generate engaging captions with AI.",
       image:
-        "https://images.unsplash.com/photo-1710993012037-8b00998c5130?w=900&auto=format&fit=crop",
+        "https://i.pinimg.com/736x/de/ca/d2/decad2dc12d7eacb57814abc200e6657.jpg",
     },
     {
       title: "Analytics Dashboard",

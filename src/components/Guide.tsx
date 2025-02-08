@@ -11,6 +11,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { guideContent } from "@/data/GuideData";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 interface GuideProps {
   title?: string;
@@ -19,6 +21,7 @@ interface GuideProps {
 
 export default function Guide({ title = "Guide", size }: GuideProps) {
   const [guideData] = React.useState(guideContent);
+  const { theme } = useTheme();
 
   return (
     <Sheet>
@@ -30,7 +33,9 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
       <SheetContent className="max-w-2xl overflow-y-auto md:max-w-3xl">
         <SheetHeader>
           <SheetTitle>
-            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500 leading-none">CrossPost Hub</h1>
+            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500 leading-none">
+              CrossPost Hub
+            </h1>
             <SheetDescription className="text-neutral-500 font-medium text-sm leading-none dark:text-neutral-400 md:text-base">
               All your social media in one place.
             </SheetDescription>
@@ -44,7 +49,9 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
                 <React.Fragment key={index}>
                   {part}
                   {index < array.length - 1 && (
-                    <a className="font-ClashDisplayMedium text-emerald-500 underline">Kush Chaudhary</a>
+                    <a className="font-ClashDisplayMedium text-emerald-500 underline">
+                      Kush Chaudhary
+                    </a>
                   )}
                 </React.Fragment>
               ))}
@@ -65,6 +72,19 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
             <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
               {guideData.whatIsCrossPostHub.content}
             </p>
+
+            <h3 className="py-3">Dashboard:</h3>
+            <Image
+              src={
+                theme === "dark"
+                  ? guideData.whatIsCrossPostHub.dashboardImageDark
+                  : guideData.whatIsCrossPostHub.dashboardImageLight
+              }
+              alt="CrossPostHub Dashboard"
+              width={1200}
+              height={800}
+              className="rounded-2xl border-4"
+            />
           </Section>
 
           <Section title={guideData.features.title}>
@@ -78,6 +98,32 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
                 </li>
               ))}
             </ul>
+
+            <h3 className="py-3">Creating and Scheduling Posts:</h3>
+            <Image
+              src={
+                theme === "dark"
+                  ? guideData.howToUse.createPostImageDark
+                  : guideData.howToUse.createPostImageLight
+              }
+              alt="Create Post"
+              width={1200}
+              height={800}
+              className="rounded-2xl border-4"
+            />
+
+            <h3 className="py-3">Preview Post:</h3>
+            <Image
+              src={
+                theme === "dark"
+                  ? guideData.howToUse.previewImageDark
+                  : guideData.howToUse.previewImageLight
+              }
+              alt="Preview Post"
+              width={1200}
+              height={800}
+              className="rounded-2xl border-4"
+            />
           </Section>
 
           <Section title={guideData.howToUse.title}>
@@ -97,6 +143,18 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
             <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
               {guideData.pricing.content}
             </p>
+            <h3 className="py-3">Pricing Plans:</h3>
+            <Image
+              src={
+                theme === "dark"
+                  ? guideData.pricing.pricingImageDark
+                  : guideData.pricing.pricingImageLight
+              }
+              alt="Pricing Plans"
+              width={1200}
+              height={800}
+              className="rounded-2xl border-4"
+            />
           </Section>
 
           <Section title={guideData.conclusion.title}>

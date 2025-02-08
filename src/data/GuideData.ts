@@ -22,7 +22,10 @@ export const guideContent = {
     },
     whatIsCrossPostHub: {
         title: "What is CrossPostHub?",
-        content: "CrossPostHub is a unified social media platform that allows you to manage and post to various social media accounts (LinkedIn, Instagram, Twitter, and more) in one place. Whether you want to post instantly or schedule your content, CrossPostHub makes it seamless and efficient."
+        content: "CrossPostHub is a unified social media platform that allows you to manage and post to various social media accounts (LinkedIn, Instagram, Twitter, and more) in one place. Whether you want to post instantly or schedule your content, CrossPostHub makes it seamless and efficient.",
+        dashboardImageDark: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/dsnfleybbx9i6scuqyhi.png",
+        dashboardImageLight: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/hylbcxmvlnj416zifzwe.png"
+
     },
     features: {
         title: "Features",
@@ -42,11 +45,18 @@ export const guideContent = {
             "Connect Your Accounts: Link your social media accounts, including LinkedIn, Twitter, Instagram, and others.",
             "Create a Post: Use the 'Create Post' button to start composing your post with text, images, and scheduled times.",
             "Publish or Schedule: Choose whether to publish the post immediately or schedule it for later."
-        ]
+        ],
+        previewImageLight: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040708/cross/ed4yhsvx003rjyvslgnk.png",
+        previewImageDark: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040708/cross/ffayzvdqydoeokpikxrb.png",
+        createPostImageLight: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/yhigggolltakewqzffyq.png",
+        createPostImageDark: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/rpxsnpauqreztq0trb7u.png"
     },
     pricing: {
         title: "Pricing",
-        content: "We offer several pricing plans:\n- Free Plan: Includes limited posts and integrations.\n- Pro Plan: Allows you to connect more platforms and offers more features.\n- Premium Plan: Unlocks all features, including unlimited integrations, analytics, and team collaboration."
+        content: "We offer several pricing plans:\n- Free Plan: Includes limited posts and integrations.\n- Pro Plan: Allows you to connect more platforms and offers more features.\n- Premium Plan: Unlocks all features, including unlimited integrations, analytics, and team collaboration.",
+        pricingImageLight: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/w5vghx2btveb8pruhi9v.png",
+        pricingImageDark: "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/c0otun0gw4rfn1uiosag.png"
+
     },
     conclusion: {
         title: "Conclusion",

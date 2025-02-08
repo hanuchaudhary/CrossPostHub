@@ -11,6 +11,7 @@ import { MobileMenu } from "./MobileMenu";
 import { Profile } from "./Profile";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
 import { GlowingButton } from "../Buttons/GlowingButton";
+import UpgradeButton from "../Buttons/UpgradeButton";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
@@ -30,9 +31,7 @@ export default function DashboardNavbar() {
           CrossPost Hub.
         </Link>
         <div className="md:block hidden">
-          <GlowingButton href="/upgrade" color="green" className="hidden md:block">
-            Upgrade
-          </GlowingButton>
+          <UpgradeButton/>
         </div>
       </div>
       <div className="flex items-center md:space-x-2 space-x-1">

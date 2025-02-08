@@ -63,16 +63,18 @@ export function LinkedInPreview({
       />
 
       {/* Image */}
-      <div className="relative aspect-square w-full border-t border-gray-200">
-        {images.length > 0 && (
-          <Image
-            src={getImageUrl(images[0]) || "/placeholder.svg"}
-            alt="Post image"
-            fill
-            className="object-contain"
-          />
-        )}
-      </div>
+      {images.length > 0 && (
+        <div className="relative aspect-square w-full border-t border-gray-200">
+          {images.length > 0 && (
+            <Image
+              src={getImageUrl(images[0]) || "/placeholder.svg"}
+              alt="Post image"
+              fill
+              className="object-contain"
+            />
+          )}
+        </div>
+      )}
 
       {/* Engagement Stats */}
       <div className="px-3 py-2 flex items-center justify-between text-[13px] text-gray-500">
