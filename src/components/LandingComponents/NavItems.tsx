@@ -9,7 +9,7 @@ export default function NavItems() {
   return (
     <nav className="flex items-center space-x-4">
       <Link href={"/signin"}>
-        <Button size="sm">Try it Free</Button>
+        <Button className="rounded-xl" size="sm">Try it Free</Button>
       </Link>
       <ThemeToggle />
     </nav>

@@ -10,7 +10,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileMenu } from "./MobileMenu";
 import { Profile } from "./Profile";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
-import UpgradeButton from "../Buttons/UpgradeButton";
 import { GlowingButton } from "../Buttons/GlowingButton";
 
 export default function DashboardNavbar() {
@@ -31,7 +30,7 @@ export default function DashboardNavbar() {
           CrossPost Hub.
         </Link>
         <div className="md:block hidden">
-          <GlowingButton href="/upgrade" className="hidden md:block">
+          <GlowingButton href="/upgrade" color="green" className="hidden md:block">
             Upgrade
           </GlowingButton>
         </div>

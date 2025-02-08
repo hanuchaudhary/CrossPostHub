@@ -37,8 +37,8 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-150px)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md md:space-y-8 space-y-4">
+    <div className="min-h-[calc(100vh-150px)] relative flex items-center justify-center p-4">
+      <div className="w-full max-w-md md:space-y-8 space-y-4 relative z-10">
         <div className="leading-none">
           <h1 className="text-4xl font-ClashDisplayRegular">Register</h1>
           <p className="text-neutral-400 text-sm">
@@ -69,7 +69,7 @@ export default function RegisterForm() {
                     <FormControl>
                       <Input
                         placeholder="Enter name"
-                        className="focus-visible:ring-0 bg-secondary"
+                        className="focus-visible:ring-0 md:text-base text-sm bg-secondary"
                         {...field}
                       />
                     </FormControl>
@@ -88,7 +88,7 @@ export default function RegisterForm() {
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
-                        className="focus-visible:ring-0 bg-secondary"
+                        className="focus-visible:ring-0 bg-secondary md:text-base text-sm"
                         {...field}
                       />
                     </FormControl>
@@ -109,7 +109,7 @@ export default function RegisterForm() {
                       <Input
                         type="password"
                         placeholder="Create a password"
-                        className="focus-visible:ring-0 bg-secondary"
+                        className="focus-visible:ring-0 bg-secondary md:text-base text-sm"
                         {...field}
                       />
                     </FormControl>

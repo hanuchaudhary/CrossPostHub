@@ -23,7 +23,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size={size}>
+        <Button className="text-primary" variant="outline" size={size}>
           {title}
         </Button>
       </SheetTrigger>

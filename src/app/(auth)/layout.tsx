@@ -1,6 +1,6 @@
+import AuthGradient from "@/components/AuthComponents/AuthGradent";
 import Navbar from "@/components/LandingComponents/Navbar";
 import { ReactNode } from "react";
-
 
 export default function AuthLayout({
   children,
@@ -8,9 +8,10 @@ export default function AuthLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className="relative">
+    <div className="relative pt-20 h-screen bg-background overflow-hidden">
       <Navbar />
       {children}
+      <AuthGradient />
     </div>
   );
 }

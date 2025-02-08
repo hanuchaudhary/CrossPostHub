@@ -31,13 +31,13 @@ export function GlowingButton({
 
   return (
     <motion.div
-          whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
         "inline-block font-ClashDisplayMedium rounded-xl",
-        "transition-colors duration-300 ease-in-out px-4 py-1 relative group",
-        `bg-red-500/10 border border-red-500 text-red-500`,
-        `hover:bg-red-400/10 hover:border-red-400 hover:text-red-400`,
+        "transition-colors duration-300 backdrop-blur-sm ease-in-out px-4 py-1 relative group",
+        `bg-${color}-500/10 border border-${color}-500 text-${color}-500`,
+        `hover:bg-${color}-400/10 hover:border-${color}-400 hover:text-${color}-400`,
         className
       )}
     >
@@ -47,7 +47,7 @@ export function GlowingButton({
       <motion.span
         className={cn(
           "absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 ease-in-out",
-          `bg-red-500`
+          `bg-${color}-500`
         )}
         animate={{
           boxShadow: [

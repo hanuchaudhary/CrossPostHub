@@ -6,12 +6,12 @@ import PricingSection from "@/components/LandingComponents/PricingSection";
 
 export default function Page() {
   return (
-    <div className="min-h-screen px-3">
+    <div className="h-full px-3 pt-20  dark:bg-black bg-white">
       <Navbar />
       <Home />
-      <About/>
+      <About />
       <PricingSection />
-      <LandingFooter/>
+      <LandingFooter />
     </div>
   );
 }

@@ -205,7 +205,7 @@ export function Profile() {
             router.push("/signin");
           }}
         >
-          <GlowingButton className="absolute bottom-4 right-4">
+          <GlowingButton color="red" className="absolute backdrop-blur-3xl bottom-4 right-4">
             <span className="flex flex-row items-center space-x-1">
               <LogOut className="h-4 w-4" /> <span>Logout</span>
             </span>
