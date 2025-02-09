@@ -160,7 +160,7 @@ export function ConnectAccounts() {
 
   return (
     <div className="w-full relative h-full">
-      <Card className="w-full max-w-2xl border-none shadow-none mx-auto">
+      <Card className="w-full max-w-2xl z-20 relative bg-transparent border-none shadow-none mx-auto">
         <BottomLoader
           isLoading={isDisconnecting}
           selectedPlatforms={[disconnectedAppName!]}

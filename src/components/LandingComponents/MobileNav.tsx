@@ -13,6 +13,7 @@ import {
 import { Button } from "../ui/button";
 import { Github, Menu } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 export default function MobileNav() {
   const { setTheme, theme } = useTheme();
@@ -37,9 +38,18 @@ export default function MobileNav() {
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col mt-10">
-          <h1 className="font-semibold">Get Started</h1>
-          <h1 className="font-semibold">Learn More</h1>
-          <h1 className="font-semibold">Pricing</h1>
+          <Link href={"/dashboard"} className="font-semibold">
+            Get Started
+          </Link>
+          <Link href={"/upgrade"} className="font-semibold">
+            Upgrade
+          </Link>
+          <Link href={"/register"} className="font-semibold">
+            Register
+          </Link>
+          <Link href={"/sigin"} className="font-semibold">
+            Sign In
+          </Link>
         </div>
         {/* <NavItems /> */}
         <SheetFooter className="absolute px-2 gap-4 flex-col text-neutral-500 dark:text-neutral-400 flex items-center justify-center bottom-2 left-0 w-full">

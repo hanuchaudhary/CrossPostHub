@@ -23,7 +23,7 @@ function About() {
       title: "Multi-Platform Support",
       description: "Seamlessly post to multiple platforms.",
       image:
-        "https://images.unsplash.com/photo-1620794511798-d7ba5299a087?w=900&auto=format&fit=crop",
+        "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/dsnfleybbx9i6scuqyhi.png",
     },
     {
       title: "Image & Video Uploads",

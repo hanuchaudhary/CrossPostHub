@@ -38,7 +38,7 @@ function FeatureCard({
               src={image || "/placeholder.svg"}
               alt={title}
             />
-            <div className="absolute inset-0 md:bg-black/50 group-hover:bg-black/10 transition-colors duration-500" />
+            <div className="absolute inset-0 md:bg-black/60 group-hover:bg-transparent transition-colors duration-500" />
           </div>
           <div
             className={`absolute ${
