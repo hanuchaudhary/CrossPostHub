@@ -60,49 +60,55 @@ export default function PricingSection() {
   }, []);
 
   return (
-    <div className="max-w-[65rem] mx-auto lg:px-0 px-5 pb-5">
-      <div className="text-center py-16">
-        <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
-          &quot;Find the <span className="text-emerald-500">Perfect Plan</span>{" "}
-          for Your Needs&quot;
-        </h1>
-        <h3 className="font-ClashDisplayRegular md:text-base text-xs dark:text-neutral-400 text-neutral-700">
-          Pick your plan and start sharing smarter today.
-        </h3>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-7 max-w-6xl mx-auto">
-        {pricingPlans
-          ? pricingPlans?.map((plan) =>
-              isFetchingPlans ? (
-                <PricingLoader key={plan.id} />
-              ) : (
-                <PricingCard
-                  classname={`${
-                    plan.title === "Pro" &&
-                    "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
-                  }`}
-                  key={plan.id}
-                  {...plan}
-                  price={Number(plan.price)}
-                />
+    <div className="max-w-[65rem] relative mx-auto lg:px-0 px-3 pb-5">
+      <div className="relative z-10">
+        <div className="text-center py-16">
+          <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">
+            &quot;Find the{" "}
+            <span className="text-emerald-500">Perfect Plan</span> for Your
+            Needs&quot;
+          </h1>
+          <h3 className="font-ClashDisplayRegular md:text-base text-xs dark:text-neutral-400 text-neutral-700">
+            Pick your plan and start sharing smarter today.
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-7 max-w-6xl mx-auto">
+          {pricingPlans
+            ? pricingPlans?.map((plan) =>
+                isFetchingPlans ? (
+                  <PricingLoader key={plan.id} />
+                ) : (
+                  <PricingCard
+                    classname={`${
+                      plan.title === "Pro" &&
+                      "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
+                    }`}
+                    key={plan.id}
+                    {...plan}
+                    price={Number(plan.price)}
+                  />
+                )
               )
-            )
-          : localPricingPlan.map((plan) =>
-              isFetchingPlans ? (
-                <PricingLoader key={plan.id} />
-              ) : (
-                <PricingCard
-                  classname={`${
-                    plan.title === "Pro" &&
-                    "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
-                  }`}
-                  key={plan.id}
-                  {...plan}
-                  price={Number(plan.price)}
-                />
-              )
-            )}
+            : localPricingPlan.map((plan) =>
+                isFetchingPlans ? (
+                  <PricingLoader key={plan.id} />
+                ) : (
+                  <PricingCard
+                    classname={`${
+                      plan.title === "Pro" &&
+                      "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"
+                    }`}
+                    key={plan.id}
+                    {...plan}
+                    price={Number(plan.price)}
+                  />
+                )
+              )}
+        </div>
       </div>
+      <div
+        className={`absolute md:-bottom-40 md:-right-40 -right-36  md:h-48 h-28 w-[20rem] dark:block rounded-full md:blur-[210px] blur-3xl md:bg-[#25DFB3] bg-[#25DFB3]/70`}
+      />
     </div>
   );
 }

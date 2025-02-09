@@ -1,4 +1,4 @@
-import AuthGradient from "@/components/AuthComponents/AuthGradent";
+import AuthGradient from "@/components/AuthComponents/AuthGradeint";
 import Navbar from "@/components/LandingComponents/Navbar";
 import { ReactNode } from "react";
 

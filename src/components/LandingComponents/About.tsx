@@ -52,7 +52,7 @@ function About() {
   ];
 
   return (
-    <div className="min-h-screen py-40 flex flex-col justify-center max-w-7xl mx-auto items-center">
+    <div className="min-h-screen relative py-40 flex flex-col justify-center max-w-7xl mx-auto items-center">
       <div className="font-ClashDisplaySemibold text-2xl">
         <h2 className="text-center w-full">
           Why <span className="text-emerald-500">CrossPostHub?</span>
@@ -63,7 +63,7 @@ function About() {
         </p>
       </div>
 
-      <div className="mt-12 md:flex grid grid-cols-1 gap-4 w-full mx-auto overflow-hidden">
+      <div className="mt-12 z-20 md:flex grid grid-cols-1 gap-4 w-full mx-auto overflow-hidden">
         {Features.map((feature, index) => (
           <FeatureCard
             index={index + 1}
@@ -77,6 +77,13 @@ function About() {
           />
         ))}
       </div>
+
+      <div
+        className={`absolute md:top-40 md:-left-40 top-40 -left-40 md:h-80 h-24 w-[20rem] dark:block rounded-full md:blur-[210px] blur-3xl bg-[#25DFB3]`}
+      />
+      <div
+        className={`absolute md:hidden block top-[60rem] -right-40 md:h-96 h-24 w-[20rem] rounded-full md:blur-[210px] blur-3xl bg-[#25DFB3]`}
+      />
     </div>
   );
 }
