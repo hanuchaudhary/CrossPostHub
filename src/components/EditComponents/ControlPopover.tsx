@@ -15,7 +15,9 @@ export function ControlPopover({ triggerIcon, children, className, title }: Cont
     <TooltipProvider>
       <Popover>
         <PopoverTrigger asChild>
-          <TriggerButton icon={triggerIcon} title={title} />
+          <button>
+            <TriggerButton icon={triggerIcon} title={title} />
+          </button>
         </PopoverTrigger>
         <PopoverContent side="top" className="w-80 p-4 pb-6" sideOffset={20}>
           {children}

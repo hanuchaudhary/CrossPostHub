@@ -36,9 +36,9 @@ export function PositionGrid({ value, onChange, className }: PositionGridProps) 
             <button
               key={index}
               className={cn(
-                "aspect-square bg-muted-foreground rounded-lg border transition-colors",
-                "hover:bg-emerald-500 hover:border-emerald-600",
-                isSelected ? "bg-emerald-500 border-primary-foreground" : "border-border",
+                "aspect-square bg-muted-foreground rounded-lg transition-all duration-200",
+                "hover:bg-indigo-500 hover:border-muted-foreground",
+                isSelected ? "bg-indigo-500 border-4 border-muted-foreground" : "",
               )}
               onClick={() => onChange(calculatePosition(row, col))}
             />
