@@ -1,40 +1,43 @@
 import * as React from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 
 interface ControlPopoverProps {
-  icon: React.ReactNode
-  title: string
+  triggerIcon: React.ReactNode
   children: React.ReactNode
   className?: string
+  title: string
 }
 
-export function ControlPopover({ icon, title, children, className }: ControlPopoverProps) {
+export function ControlPopover({ triggerIcon, children, className, title }: ControlPopoverProps) {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="ghost" 
+    <TooltipProvider>
+      <Popover>
+        <PopoverTrigger asChild>
+          <TriggerButton icon={triggerIcon} title={title} />
+        </PopoverTrigger>
+        <PopoverContent side="top" className="w-80 p-4 pb-6" sideOffset={20}>
+          {children}
+        </PopoverContent>
+      </Popover>
+    </TooltipProvider>
+  )
+}
+
+function TriggerButton({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <Tooltip delayDuration={100}>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
           size="icon"
-          className={cn(
-            "h-12 w-12 rounded-full hover:bg-accent hover:text-accent-foreground",
-            className
-          )}
+          className="h-12 w-12 rounded-full hover:bg-accent hover:text-accent-foreground"
         >
           {icon}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        side="top" 
-        className="w-80 p-4"
-        sideOffset={20}
-      >
-        <div className="space-y-4">
-          <h4 className="font-medium leading-none">{title}</h4>
-          {children}
-        </div>
-      </PopoverContent>
-    </Popover>
+      </TooltipTrigger>
+      <TooltipContent className="pointer-events-none">{title}</TooltipContent>
+    </Tooltip>
   )
 }
