@@ -85,6 +85,8 @@ export const authOptions: NextAuthOptions = {
                 params: {
                     redirect_uri: "http://localhost:3000/api/auth/callback/linkedin",
                     scope: 'email profile w_member_social openid',
+                    prompt: 'consent',
+                    response_type: 'code',
                 }
             },
             async profile(profile) {

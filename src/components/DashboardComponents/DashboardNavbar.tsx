@@ -31,7 +31,7 @@ export default function DashboardNavbar() {
           CrossPost Hub.
         </Link>
         <div className="md:block hidden">
-          <UpgradeButton/>
+          <UpgradeButton />
         </div>
       </div>
       <div className="flex items-center md:space-x-2 space-x-1">
@@ -71,6 +71,9 @@ export default function DashboardNavbar() {
         <div className="md:block hidden">
           <Profile />
         </div>
+        <Link href={"/edit"}>
+          <GlowingButton className="md:block hidden">Edit</GlowingButton>
+        </Link>
         <div className="md:hidden block">
           <Sheet>
             <SheetTrigger asChild>
