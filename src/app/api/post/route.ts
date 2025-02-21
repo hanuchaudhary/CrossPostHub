@@ -5,6 +5,7 @@ import prisma from "@/config/prismaConfig";
 import { Providers } from "@/Types/Types";
 import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
+import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,6 +79,19 @@ export async function POST(request: NextRequest) {
               },
             }
           );
+
+          if (await job.isFailed()) {
+            return { provider, error: job.failedReason, status: "failed" };
+          }
+
+          if (await job.isCompleted()) {
+            const postSave = await postSaveToDB({
+              postText,
+              userId: loggedUser.id,
+              provider: provider,
+            });
+            return { provider, jobId: job.id, status: "success", postSave };
+          }
 
           console.log("Job added to the queue:", job.id);
           return { provider, jobId: job.id, status: "success" };
