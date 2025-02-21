@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const postText = formData.get("postText") as string;
     const images = formData.getAll("images") as File[];
+    const scheduleAt = formData.get("scheduleAt") as string;
     const providersJson = formData.get("providers") as string;
     const providers = JSON.parse(providersJson) as Providers[];
 
@@ -63,21 +64,29 @@ export async function POST(request: NextRequest) {
     const results = await Promise.allSettled(
       providers.map(async (provider) => {
         try {
+          const jobOptions: any = {
+            attempts: 3,
+            backoff: {
+              type: "exponential",
+              delay: 5000,
+            }
+          };
+
+          if (scheduleAt) {
+            const scheduleTime = new Date(scheduleAt);
+            jobOptions.delay = Math.max(0, scheduleTime.getTime() - Date.now());
+          }
+
           const job = await postQueue.add(
             "postQueue",
             {
               provider,
               postText,
-              images: imagesBase64, // Pass base64 images
+              images: imagesBase64,
               loggedUser,
+              scheduledFor: scheduleAt || null,
             },
-            {
-              attempts: 3,
-              backoff: {
-                type: "exponential",
-                delay: 5000,
-              },
-            }
+            jobOptions
           );
 
           if (await job.isFailed()) {
@@ -89,12 +98,18 @@ export async function POST(request: NextRequest) {
               postText,
               userId: loggedUser.id,
               provider: provider,
+              // scheduledFor: scheduleAt || null, // Save schedule time to DB
             });
             return { provider, jobId: job.id, status: "success", postSave };
           }
 
-          console.log("Job added to the queue:", job.id);
-          return { provider, jobId: job.id, status: "success" };
+          console.log("Job added to the queue:", job.id, scheduleAt ? `(scheduled for ${scheduleAt})` : "(immediate)");
+          return { 
+            provider, 
+            jobId: job.id, 
+            status: "success",
+            scheduledFor: scheduleAt || null 
+          };
         } catch (error: any) {
           console.error(`Failed to add job for provider: ${provider}`, error);
           return { provider, error: error.message, status: "failed" };
