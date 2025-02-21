@@ -27,7 +27,7 @@ export async function CheckCreatedPostMiddleware(userId: string): Promise<boolea
             },
         });
 
-        if (user.plan?.name === "Free" && monthlyPostCount >= 5) {
+        if (user.plan?.title === "Free" && monthlyPostCount >= 5) {
             console.log("You have reached your monthly limit of 5 posts.");
             return false;
         }

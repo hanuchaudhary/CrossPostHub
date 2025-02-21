@@ -60,21 +60,26 @@ export function CanvasSizeSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant="ghost" size="icon" className="relative">
-                <Ratio className="h-4 w-4" />
-                <span className="sr-only">Change canvas size</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Canvas Size</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Ratio className="h-4 w-4" />
+                  <span className="sr-only">Change canvas size</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Canvas Size</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
+        <h3 className="font-ClashDisplayRegular text-lg font-medium text-muted-foreground px-2 pb-3">
+          Canvas Size
+        </h3>
         <ScrollArea className="h-[400px]">
-          <div className="space-y-4 p-2">
+          <div className="space-y-4 ">
             {categories.map((category) => (
               <div key={category} className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground px-2">

@@ -7,89 +7,104 @@ import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 
 export async function POST(request: NextRequest) {
-    try {
-        const session = await getServerSession(authOptions);
-        if (!session || !session.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const loggedUser = await prisma.user.findUnique({
-            where: { id: session.user.id },
-            include: { accounts: true },
-        });
-        if (!loggedUser) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const isAllowed = await CheckCreatedPostMiddleware(loggedUser.id);
-        if (!isAllowed) {
-            return NextResponse.json(
-                { error: "You have reached your monthly limit of 5 posts. Upgrade your plan to Pro" },
-                { status: 400 }
-            );
-        }
-
-        const formData = await request.formData();
-        const postText = formData.get("postText") as string;
-        const images = formData.getAll("images") as File[];
-        const providersJson = formData.get("providers") as string;
-        const providers = JSON.parse(providersJson) as Providers[];
-
-        if (providers.length === 0) {
-            return NextResponse.json(
-                { error: "Please select at least one provider" },
-                { status: 400 }
-            );
-        }
-        if (!postText && images.length === 0) {
-            return NextResponse.json(
-                { error: "Please enter some text or upload an image" },
-                { status: 400 }
-            );
-        }
-
-        const results = await Promise.allSettled(
-            providers.map(async (provider) => {
-                try {
-                    const job = await postQueue.add(
-                        "postQueue",
-                        { provider, postText, images, loggedUser },
-                        // {
-                        //   attempts: 3,
-                        //   backoff: {
-                        //     type: "exponential",
-                        //     delay: 5000,
-                        //   },
-                        // }
-                    );
-                    console.log("Job added to the queue:", job.id);
-                    return { provider, jobId: job.id, status: "success" };
-                } catch (error: any) {
-                    console.error(`Failed to add job for provider: ${provider}`, error);
-                    return { provider, error: error.message, status: "failed" };
-                }
-            })
-        );
-
-        const formattedResults = results.map((result) => {
-            if (result.status === "fulfilled") {
-                return result.value;
-            } else {
-                return { status: "failed", error: result.reason };
-            }
-        });
-
-        return NextResponse.json({ results: formattedResults }, { status: 200 });
-
-    } catch (error) {
-        console.error("CreatePost Error:", error);
-        return NextResponse.json(
-            { error: "An unexpected error occurred. Please try again." },
-            { status: 500 }
-        );
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-}
 
+    const loggedUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { accounts: true },
+    });
+    if (!loggedUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const isAllowed = await CheckCreatedPostMiddleware(loggedUser.id);
+    if (!isAllowed) {
+      return NextResponse.json(
+        {
+          error:
+            "You have reached your monthly limit of 5 posts. Upgrade your plan to Pro",
+        },
+        { status: 400 }
+      );
+    }
+
+    const formData = await request.formData();
+    const postText = formData.get("postText") as string;
+    const images = formData.getAll("images") as File[];
+    const providersJson = formData.get("providers") as string;
+    const providers = JSON.parse(providersJson) as Providers[];
+
+    if (providers.length === 0) {
+      return NextResponse.json(
+        { error: "Please select at least one provider" },
+        { status: 400 }
+      );
+    }
+    if (!postText && images.length === 0) {
+      return NextResponse.json(
+        { error: "Please enter some text or upload an image" },
+        { status: 400 }
+      );
+    }
+
+    const imagesBase64 = await Promise.all(
+      images.map(async (image) => {
+        const buffer = await image.arrayBuffer();
+        return Buffer.from(buffer).toString("base64");
+      })
+    );
+    console.log("Images before adding to queue:", imagesBase64);
+
+    const results = await Promise.allSettled(
+      providers.map(async (provider) => {
+        try {
+          const job = await postQueue.add(
+            "postQueue",
+            {
+              provider,
+              postText,
+              images: imagesBase64, // Pass base64 images
+              loggedUser,
+            },
+            {
+              attempts: 3,
+              backoff: {
+                type: "exponential",
+                delay: 5000,
+              },
+            }
+          );
+
+          console.log("Job added to the queue:", job.id);
+          return { provider, jobId: job.id, status: "success" };
+        } catch (error: any) {
+          console.error(`Failed to add job for provider: ${provider}`, error);
+          return { provider, error: error.message, status: "failed" };
+        }
+      })
+    );
+
+    const formattedResults = results.map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return { status: "failed", error: result.reason };
+      }
+    });
+
+    return NextResponse.json({ results: formattedResults }, { status: 200 });
+  } catch (error) {
+    console.error("CreatePost Error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred. Please try again." },
+      { status: 500 }
+    );
+  }
+}
 
 // Without Queue Logic
 // const results = await Promise.all(

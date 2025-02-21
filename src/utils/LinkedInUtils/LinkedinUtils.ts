@@ -7,45 +7,57 @@ interface registerAndUploadMediaProps {
 }
 
 //Step 1: Register Media Upload
-export async function registerAndUploadMedia({ accessToken, personURN, image }: registerAndUploadMediaProps) {
-    try {
-        console.log("Registering Media Upload...");
-        const response = await axios.post("https://api.linkedin.com/v2/assets?action=registerUpload", {
-            "registerUploadRequest": {
-                "recipes": [
-                    "urn:li:digitalmediaRecipe:feedshare-image"
-                ],
-                "owner": `urn:li:person:${personURN}`,
-                "serviceRelationships": [
-                    {
-                        "relationshipType": "OWNER",
-                        "identifier": "urn:li:userGeneratedContent"
-                    }
-                ]
-            }
-        }, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            }
-        })
-        console.log("Media Upload Registered!");
-        //Extract the upload URL and asset URN
-        const uploadUrl = response.data.value.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl;
-        const assetURN = response.data.value.asset;
+export async function registerAndUploadMedia({
+  accessToken,
+  personURN,
+  image,
+}: registerAndUploadMediaProps) {
+  try {
+    console.log("Registering Media Upload...");
+    const registerResponse = await axios.post(
+      "https://api.linkedin.com/v2/assets?action=registerUpload",
+      {
+        registerUploadRequest: {
+          recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
+          owner: `urn:li:person:${personURN}`,
+          serviceRelationships: [
+            {
+              relationshipType: "OWNER",
+              identifier: "urn:li:userGeneratedContent",
+            },
+          ],
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-        //Step 2: Upload Media
-        await axios.post(uploadUrl, image, {
-            headers: {
-                "Content-Type": image.type
-            }
-        });
-        console.log("Media Uploaded!");
+    const uploadUrl =
+      registerResponse.data.value.uploadMechanism[
+        "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
+      ].uploadUrl;
+    const assetURN = registerResponse.data.value.asset;
 
-        return assetURN; //Return the asset URN
+    console.log("Media Upload Registered!");
 
-    } catch (error) {
-        console.error("RegisterMediaUpload Error:", error);
-    }
+    // Step 2: Upload Media
+    console.log("Uploading Media...");
+    await axios.put(uploadUrl, image, {
+      headers: {
+        "Content-Type": image.type || "image/jpeg", // Set the correct Content-Type
+      },
+    });
+
+    console.log("Media Uploaded!");
+    return assetURN;
+  } catch (error: any) {
+    console.error("RegisterMediaUpload Error:", error.response?.data || error);
+    throw error;
+  }
 }
 
 /*

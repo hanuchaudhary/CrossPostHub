@@ -374,18 +374,18 @@ export default function ImageEditor() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl max-w-4xl mx-auto">
+    <div className="relative overflow-hidden rounded-2xl mx-auto">
       {/* Canvas */}
-      <div className="h-[250px] sm:h-[600px]">
-        <div className="h-full w-full">
+      {/* <div className="h-[250px] sm:h-[600px]">
+        <div className="h-full w-full"> */}
           <canvas
             width={canvasSize.width}
             height={canvasSize.height}
             ref={canvasRef}
             className="w-full h-full transition-all border border-border shadow-md"
           />
-        </div>
-      </div>
+        {/* </div>
+      </div> */}
 
       {/* Upload prompt */}
       {!selectedImage && (
