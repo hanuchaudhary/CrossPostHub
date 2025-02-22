@@ -85,7 +85,7 @@ export const CanvasAspectRatioOptions = ({ canvas }: CanvasAspectRatioOptionsPro
             if (option.category && option.category !== currentCategory) {
                 currentCategory = option.category;
                 element.push(
-                    <div key={`cat-${index}`} className="mt-4 mb-2 text-sm text-gray-400">
+                    <div key={`cat-${index}`} className="mt-4 mb-2 text-sm text-neutral-400">
                         {option.category}
                     </div>
                 );
@@ -96,7 +96,7 @@ export const CanvasAspectRatioOptions = ({ canvas }: CanvasAspectRatioOptionsPro
                     <Button
                         key={index}
                         variant="ghost"
-                        className="w-full justify-start hover:bg-gray-800"
+                        className="w-full justify-start hover:bg-neutral-800"
                         onClick={() => handleAspectRatioSelect(option)}
                     >
                         {option.name}
@@ -111,11 +111,11 @@ export const CanvasAspectRatioOptions = ({ canvas }: CanvasAspectRatioOptionsPro
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-gray-800">
+                <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
                     <LayoutGrid className="w-5 h-5" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] bg-[#1A1F2C] border-gray-800">
+            <PopoverContent className="w-[300px] bg-[#1A1F2C] border-neutral-800">
                 <div className="space-y-4">
                     <div className="flex items-center">
                         <h3 className="font-medium">Canvas Size</h3>
@@ -127,7 +127,7 @@ export const CanvasAspectRatioOptions = ({ canvas }: CanvasAspectRatioOptionsPro
                             <Input
                                 value={customWidth}
                                 onChange={(e) => setCustomWidth(e.target.value)}
-                                className="bg-gray-900"
+                                className="bg-neutral-900"
                             />
                         </div>
                         <div className="space-y-1 flex-1">
@@ -135,7 +135,7 @@ export const CanvasAspectRatioOptions = ({ canvas }: CanvasAspectRatioOptionsPro
                             <Input
                                 value={customHeight}
                                 onChange={(e) => setCustomHeight(e.target.value)}
-                                className="bg-gray-900"
+                                className="bg-neutral-900"
                             />
                         </div>
                         <Button

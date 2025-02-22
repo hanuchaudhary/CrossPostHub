@@ -64,48 +64,37 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
-          <Move className="w-5 h-5" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] bg-[#1A1F2C] border-neutral-800">
-        <div className="space-y-4">
-          <h3 className="font-medium">Position & Scale</h3>
+    <div className="space-y-4">
+      <div className={cn("space-y-4")}>
+        <div className="grid grid-cols-5 gap-1">
+          {Array.from({ length: 5 * 5 }).map((_, index) => {
+            const row = Math.floor(index / 5);
+            const col = index % 5;
 
-          <div className={cn("space-y-4")}>
-            <div className="grid grid-cols-5 gap-1">
-              {Array.from({ length: 5 * 5 }).map((_, index) => {
-                const row = Math.floor(index / 5);
-                const col = index % 5;
-
-                return (
-                  <button
-                    key={index}
-                    className={cn(
-                      "aspect-square bg-muted-foreground rounded-lg transition-all duration-200",
-                      "hover:bg-indigo-500 hover:border-muted-foreground"
-                    )}
-                    onClick={() => handleGridPosition(row, col)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm">Scale</label>
-            <Slider
-              defaultValue={[100]}
-              max={200}
-              min={10}
-              step={1}
-              onValueChange={handleScale}
-            />
-          </div>
+            return (
+              <button
+                key={index}
+                className={cn(
+                  "aspect-square bg-muted-foreground rounded-lg transition-all duration-200",
+                  "hover:bg-indigo-500 hover:border-muted-foreground"
+                )}
+                onClick={() => handleGridPosition(row, col)}
+              />
+            );
+          })}
         </div>
-      </PopoverContent>
-    </Popover>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm">Scale</label>
+        <Slider
+          defaultValue={[100]}
+          max={200}
+          min={10}
+          step={1}
+          onValueChange={handleScale}
+        />
+      </div>
+    </div>
   );
 };

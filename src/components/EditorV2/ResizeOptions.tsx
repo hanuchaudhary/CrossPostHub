@@ -1,3 +1,4 @@
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,10 @@ interface ResizeOptionsProps {
 export const ResizeOptions = ({ canvas }: ResizeOptionsProps) => {
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
+
   const handleResize = () => {
     if (!canvas) return;
-    
+
     const newWidth = parseInt(width);
     const newHeight = parseInt(height);
 
@@ -39,13 +41,35 @@ export const ResizeOptions = ({ canvas }: ResizeOptionsProps) => {
       return;
     }
 
+    const canvasWidth = canvas.width!;
+    const canvasHeight = canvas.height!;
+
+    // Calculate scales based on canvas size constraints
+    let scaleX = newWidth / activeObject.width!;
+    let scaleY = newHeight / activeObject.height!;
+
+    // If the new dimensions would exceed canvas size, adjust the scales
+    if (newWidth > canvasWidth || newHeight > canvasHeight) {
+      const scaleFactorW = canvasWidth / newWidth;
+      const scaleFactorH = canvasHeight / newHeight;
+      const scaleFactor = Math.min(scaleFactorW, scaleFactorH);
+
+      scaleX *= scaleFactor;
+      scaleY *= scaleFactor;
+    }
+
+    // Apply the adjusted scales
     activeObject.set({
-      scaleX: newWidth / activeObject.width!,
-      scaleY: newHeight / activeObject.height!,
+      scaleX,
+      scaleY,
     });
 
+    // Center the object on the canvas
+    canvas.centerObject(activeObject);
+    activeObject.setCoords();
+
     canvas.renderAll();
-    
+
     toast({
       title: "Success",
       description: "Image resized successfully",
@@ -80,8 +104,8 @@ export const ResizeOptions = ({ canvas }: ResizeOptionsProps) => {
           />
         </div>
       </div>
-      <Button 
-        onClick={handleResize} 
+      <Button
+        onClick={handleResize}
         className="w-full bg-teal-600 hover:bg-teal-700"
       >
         Resize Image

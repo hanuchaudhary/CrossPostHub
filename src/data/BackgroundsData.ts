@@ -17,7 +17,7 @@ export const backgrounds = [
     "#E2E8F0", // Slate 200
     "#F8F9FA", // Bootstrap Light
     "#FFFFFF", // White
-    "#F9FAFB", // Gray 50
+    "#F9FAFB", // neutral 50
     "#F5F3FF", // Violet 50
     "#ECFEFF", // Cyan 50
 
@@ -28,7 +28,7 @@ export const backgrounds = [
     "linear-gradient(to right, #0c0a20, #1e1b4b)", // Deep Purple to Indigo
     "linear-gradient(to bottom right, #1e293b, #0f172a)", // Slate Mix
     "linear-gradient(to right, #0C0A20, #DB2777)", // Deep Purple to Pink
-    "linear-gradient(45deg, #111827, #059669)", // Gray to Emerald
+    "linear-gradient(45deg, #111827, #059669)", // neutral to Emerald
     "linear-gradient(to right, #020617, #2563EB)", // Dark Blue
     "linear-gradient(to right, #18181B, #4F46E5)", // Zinc to Indigo
     "linear-gradient(to right, #0F172A, #7C3AED)", // Slate to Violet
@@ -36,7 +36,7 @@ export const backgrounds = [
     // Gradients - Light Theme
     "linear-gradient(to right, #f8fafc, #e2e8f0)", // Slate Light
     "linear-gradient(to right, #ffffff, #f1f5f9)", // White to Slate
-    "linear-gradient(to right, #f9fafb, #f3f4f6)", // Gray Light
+    "linear-gradient(to right, #f9fafb, #f3f4f6)", // neutral Light
     "linear-gradient(to right, #f5f3ff, #ede9fe)", // Violet Light
     "linear-gradient(to right, #ecfeff, #cffafe)", // Cyan Light
 
@@ -69,7 +69,7 @@ export const backgrounds = [
     "noise:#F8FAFC", // Slate Light
     "noise:#FFFFFF", // White
     "noise:#F1F5F9", // Slate 100
-    "noise:#F9FAFB", // Gray 50
+    "noise:#F9FAFB", // neutral 50
     "noise:#F5F3FF", // Violet 50
 
     // Noisy Gradients - Dark

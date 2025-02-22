@@ -8,12 +8,16 @@ import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Canvas, util } from "fabric";
 import { Move } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface PositionScaleOptionsProps {
   canvas: Canvas | null;
 }
 
 export const PositionScaleOptions = ({ canvas }: PositionScaleOptionsProps) => {
+  const [selectedPosition, setSelectedPosition] = useState<{ row: number; col: number } | null>(null);
+
   const handleScale = (value: number[]) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
@@ -29,6 +33,8 @@ export const PositionScaleOptions = ({ canvas }: PositionScaleOptionsProps) => {
     const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
 
+    setSelectedPosition({ row, col });
+
     const xPercent = col / 4;
     const yPercent = row / 4;
 
@@ -43,24 +49,28 @@ export const PositionScaleOptions = ({ canvas }: PositionScaleOptionsProps) => {
     util.animate({
       startValue: activeObject.left!,
       endValue: left,
-      duration: 100,
+      duration: 300,
       onChange: (value) => {
         activeObject.set('left', value);
         canvas.renderAll();
       },
+      onComplete: () => {
+        canvas.fire('object:modified');
+      }
     });
 
     util.animate({
       startValue: activeObject.top!,
       endValue: top,
-      duration: 100,
+      duration: 300,
       onChange: (value) => {
         activeObject.set('top', value);
         canvas.renderAll();
       },
+      onComplete: () => {
+        canvas.fire('object:modified');
+      }
     });
-
-    canvas.fire('object:modified');
   };
 
   return (
@@ -75,21 +85,42 @@ export const PositionScaleOptions = ({ canvas }: PositionScaleOptionsProps) => {
           <h3 className="font-medium">Position & Scale</h3>
           
           <div className={cn("space-y-4")}>
-            <div className="grid grid-cols-5 gap-1">
+            <div className="grid grid-cols-5 gap-1 relative">
+              {selectedPosition && (
+                <motion.div
+                  className="absolute bg-indigo-500 rounded-lg"
+                  layoutId="selectedPosition"
+                  initial={false}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30
+                  }}
+                  style={{
+                    width: 'calc(20% - 0.2rem)',
+                    height: 'calc(20% - 0.2rem)',
+                    top: `calc(${selectedPosition.row * 20}% + ${selectedPosition.row * 0.25}rem)`,
+                    left: `calc(${selectedPosition.col * 20}% + ${selectedPosition.col * 0.25}rem)`,
+                  }}
+                />
+              )}
               {Array.from({ length: 5 * 5 }).map((_, index) => {
-                const row = Math.floor(index / 5)
-                const col = index % 5
+                const row = Math.floor(index / 5);
+                const col = index % 5;
+                const isSelected = selectedPosition?.row === row && selectedPosition?.col === col;
 
                 return (
                   <button
                     key={index}
                     className={cn(
-                      "aspect-square bg-muted-foreground rounded-lg transition-all duration-200",
-                      "hover:bg-indigo-500 hover:border-muted-foreground"
+                      "aspect-square rounded-lg transition-all duration-200",
+                      "bg-muted-foreground hover:bg-indigo-500/50",
+                      "relative z-10",
+                      isSelected && "bg-transparent"
                     )}
                     onClick={() => handleGridPosition(row, col)}
                   />
-                )
+                );
               })}
             </div>
           </div>
