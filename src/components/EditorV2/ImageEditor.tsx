@@ -1,7 +1,6 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Upload,
   Download,
@@ -14,15 +13,15 @@ import {
   RotateCw,
   RefreshCw,
 } from "lucide-react";
-import { BorderOptions } from "@/components/EditorV2/BorderOptions";
-import { BackgroundOptions } from "@/components/EditorV2/BackgroundOptions";
+import { useToast } from "@/components/ui/use-toast";
+import { BorderOptions } from "./BorderOptions";
+import { BackgroundOptions } from "./BackgroundOptions";
 import { Canvas, loadSVGFromURL } from "fabric";
-import * as fabric from "fabric";
-import { ResizeOptions } from "@/components/EditorV2/ResizeOptions";
-import { PositionScaleOptions } from "@/components/EditorV2/PositionScaleOptions";
-import { CanvasAspectRatioOptions } from "@/components/EditorV2/CanvasAspectRatioOptions";
-import { BackgroundGradientPicker } from "@/components/EditorV2/BackgroundGradientPicker";
-import { toast } from "@/hooks/use-toast";
+import * as fabric from 'fabric';
+import { ResizeOptions } from "./ResizeOptions";
+import { PositionScaleOptions } from "./PositionScaleOptions";
+import { CanvasAspectRatioOptions } from "./CanvasAspectRatioOptions";
+import { BackgroundGradientPicker } from "./BackgroundGradientPicker";
 
 const ImageEditor = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -30,6 +29,7 @@ const ImageEditor = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -50,10 +50,10 @@ const ImageEditor = () => {
   useEffect(() => {
     if (!canvas) return;
 
-    canvas.on("object:modified", () => {
+    canvas.on('object:modified', () => {
       const json = JSON.stringify(canvas.toJSON());
-      setHistory((prev) => [...prev.slice(0, historyIndex + 1), json]);
-      setHistoryIndex((prev) => prev + 1);
+      setHistory(prev => [...prev.slice(0, historyIndex + 1), json]);
+      setHistoryIndex(prev => prev + 1);
     });
   }, [canvas, historyIndex]);
 
@@ -64,8 +64,9 @@ const ImageEditor = () => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const imgData = event.target?.result as string;
-      console.log("imgData");
+      console.log("imgData",);
       console.log("file", file);
+
 
       const imgElement = new Image();
       imgElement.src = imgData;
@@ -78,19 +79,22 @@ const ImageEditor = () => {
           canvas.height! / image.height!
         );
 
-        console.log("sacle", scaleFactor);
+        console.log("sacle",scaleFactor);
+        
 
         image.scale(scaleFactor);
         image.set({
           left: (canvas.width! - image.getScaledWidth()) / 2,
           top: (canvas.height! - image.getScaledHeight()) / 2,
-        });
+
+        })
         image.set({
-          left: canvas.width - image.getScaledWidth(),
-          top: canvas.height - image.getScaledHeight(),
+          left: (canvas.width) - image.getScaledWidth(),
+          top: (canvas.height) - image.getScaledHeight(),
           angle: 0,
           padding: 10,
           cornersize: 10,
+
         });
         canvas.add(image);
         canvas.setActiveObject(image);
@@ -104,7 +108,7 @@ const ImageEditor = () => {
     if (!canvas) return;
 
     const dataURL = canvas.toDataURL({
-      format: "png",
+      format: 'png',
       multiplier: 1,
       quality: 1,
     });
@@ -122,12 +126,12 @@ const ImageEditor = () => {
 
   const applyBorderToImage = (borderColor: string, borderWidth: number) => {
     const activeObject = canvas?.getActiveObject();
-    if (activeObject && activeObject.type === "image") {
+    if (activeObject && activeObject.type === 'image') {
       activeObject.set({
         stroke: borderColor,
         strokeWidth: borderWidth,
       });
-      canvas?.renderAll();
+      canvas.renderAll();
     }
   };
 
@@ -171,10 +175,7 @@ const ImageEditor = () => {
             <Upload className="w-4 h-4 mr-2" />
             Upload
           </Button>
-          <Button
-            onClick={handleDownload}
-            className="bg-teal-600 hover:bg-teal-700"
-          >
+          <Button onClick={handleDownload} className="bg-teal-600 hover:bg-teal-700">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -212,32 +213,16 @@ const ImageEditor = () => {
             </Button>
             <PositionScaleOptions canvas={canvas} />
             <CanvasAspectRatioOptions canvas={canvas} />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-neutral-800"
-            >
+            <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
               <Frame className="w-5 h-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-neutral-800"
-            >
+            <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
               <Layers className="w-5 h-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-neutral-800"
-            >
+            <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
               <PenTool className="w-5 h-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-neutral-800"
-            >
+            <Button variant="ghost" size="icon" className="hover:bg-neutral-800">
               <Settings className="w-5 h-5" />
             </Button>
             <BackgroundGradientPicker canvas={canvas} />

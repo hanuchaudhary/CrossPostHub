@@ -13,7 +13,7 @@ interface PositionScaleOptionsProps {
   canvas: Canvas | null;
 }
 
-export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
+export const PositionScaleOptions = ({ canvas }: PositionScaleOptionsProps) => {
   const handleScale = (value: number[]) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
@@ -45,7 +45,7 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
       endValue: left,
       duration: 100,
       onChange: (value) => {
-        activeObject.set("left", value);
+        activeObject.set('left', value);
         canvas.renderAll();
       },
     });
@@ -55,12 +55,12 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
       endValue: top,
       duration: 100,
       onChange: (value) => {
-        activeObject.set("top", value);
+        activeObject.set('top', value);
         canvas.renderAll();
       },
     });
 
-    canvas.fire("object:modified");
+    canvas.fire('object:modified');
   };
 
   return (
@@ -73,12 +73,12 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
       <PopoverContent className="w-[300px] bg-[#1A1F2C] border-neutral-800">
         <div className="space-y-4">
           <h3 className="font-medium">Position & Scale</h3>
-
+          
           <div className={cn("space-y-4")}>
             <div className="grid grid-cols-5 gap-1">
               {Array.from({ length: 5 * 5 }).map((_, index) => {
-                const row = Math.floor(index / 5);
-                const col = index % 5;
+                const row = Math.floor(index / 5)
+                const col = index % 5
 
                 return (
                   <button
@@ -89,7 +89,7 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
                     )}
                     onClick={() => handleGridPosition(row, col)}
                   />
-                );
+                )
               })}
             </div>
           </div>
@@ -104,8 +104,9 @@ export const PositionGrid = ({ canvas }: PositionScaleOptionsProps) => {
               onValueChange={handleScale}
             />
           </div>
+          
         </div>
       </PopoverContent>
     </Popover>
-  );
+  );  
 };
