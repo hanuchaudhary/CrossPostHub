@@ -27,6 +27,7 @@ import { toast } from "@/hooks/use-toast";
 import { ControlPopover } from "./ControlPopover";
 import { PositionGrid } from "./PostionGrid";
 import { ToolButton } from "./ToolButtons";
+import { ExportOptions } from "./ExportOptions";
 
 const ImageEditor = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -170,26 +171,6 @@ const ImageEditor = () => {
     setIsImagePresent(false);
   };
 
-  const exportImage = (quality: number, format: 'png' | 'jpeg') => {
-    if (!canvas) return;
-
-    const dataURL = canvas.toDataURL({
-      format: format,
-      quality: quality,
-      multiplier: format === 'png' ? 1 : 1, // Always use multiplier 1
-    });
-
-    const link = document.createElement("a");
-    link.download = `edited-image.${format}`;
-    link.href = dataURL;
-    link.click();
-
-    toast({
-      title: "Success!",
-      description: `Your image has been downloaded as ${format.toUpperCase()}.`,
-    });
-  };
-
   return (
     <div className="h-screen">
       <div className="flex h-[calc(100vh-64px)]">
@@ -231,8 +212,8 @@ const ImageEditor = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
-        <div className="bg-background/80 backdrop-blur-xl border rounded-full px-4 py-2 flex items-center gap-2">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full px-4 sm:px-0 sm:w-auto">
+        <div className="bg-background/80 backdrop-blur-xl border rounded-full px-2 sm:px-4 py-2 flex items-center gap-1 sm:gap-2 overflow-x-auto max-w-full">
           {/* Background Selection */}
           <ControlPopover
             toolkitTitle="Background"
@@ -242,16 +223,18 @@ const ImageEditor = () => {
             <BackgroundOptions canvas={canvas} />
           </ControlPopover>
 
-          {/* Position and Scale */}
-          <ControlPopover
-            toolkitTitle="Position / Scale"
-            triggerIcon={<Move className="h-4 w-4" />}
-          >
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Position / Scale</h3>
-              <PositionGrid canvas={canvas} />
-            </div>
-          </ControlPopover>
+          {/* Position and Scale - Hide on mobile */}
+          <div className="block">
+            <ControlPopover
+              toolkitTitle="Position / Scale"
+              triggerIcon={<Move className="h-4 w-4" />}
+            >
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Position / Scale</h3>
+                <PositionGrid canvas={canvas} />
+              </div>
+            </ControlPopover>
+          </div>
 
           <ControlPopover toolkitTitle="Image Border" title="Image Border">
             <div className="space-y-4">
@@ -260,24 +243,27 @@ const ImageEditor = () => {
             </div>
           </ControlPopover>
 
-          {/* Canvas Size */}
+          {/* Canvas Size - Hide on mobile */}
+          <div className="hidden sm:block">
+            <CanvasAspectRatioOptions canvas={canvas} />
+          </div>
 
-          <CanvasAspectRatioOptions canvas={canvas} />
-
-          {/* Zoom controls */}
-          <ToolButton>
-            <Maximize className="h-4 w-4" />
-          </ToolButton>
-          <ToolButton>
-            <Minimize className="h-4 w-4" />
-          </ToolButton>
+          {/* Zoom controls - Hide on mobile */}
+          <div className="hidden sm:flex items-center gap-1">
+            <ToolButton>
+              <Maximize className="h-4 w-4" />
+            </ToolButton>
+            <ToolButton>
+              <Minimize className="h-4 w-4" />
+            </ToolButton>
+          </div>
 
           {/* Rotate button */}
           <ToolButton>
             <RotateCw className="h-4 w-4" />
           </ToolButton>
 
-          <div className="w-px h-4 bg-border mx-2" />
+          <div className="w-px h-4 bg-border mx-1 sm:mx-2" />
 
           {/* Undo/Redo buttons */}
           <ToolButton onClick={handleUndo}>
@@ -287,25 +273,27 @@ const ImageEditor = () => {
             <Redo2 className="h-4 w-4" />
           </ToolButton>
 
-          <div className="w-px h-4 bg-border mx-2" />
+          <div className="w-px h-4 bg-border mx-1 sm:mx-2" />
 
-          {/* Reset button */}
+          {/* Reset and Code buttons */}
           <ToolButton onClick={handleReset}>
             <RotateCcw className="h-4 w-4" />
           </ToolButton>
 
-          <ToolButton>
-            <Code2 className="h-4 w-4" />
-          </ToolButton>
+          <div className="hidden sm:block">
+            <ToolButton>
+              <Code2 className="h-4 w-4" />
+            </ToolButton>
+          </div>
 
-          {/* <ToolButton> */}
+          {/* Upload button */}
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
             className="bg-transparent border-neutral-700 hover:bg-neutral-800"
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload
+            <Upload className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Upload</span>
             <input
               ref={fileInputRef}
               type="file"
@@ -314,63 +302,9 @@ const ImageEditor = () => {
               onChange={handleImageUpload}
             />
           </Button>
-          {/* </ToolButton> */}
 
-          <ControlPopover
-            toolkitTitle="Export"
-            title="Export"
-            // triggerIcon={<Download className="h-4 w-4" />}
-          >
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Export Options</h3>
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-muted-foreground">
-                  PNG Format
-                </h4>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => exportImage(1.0, "png")}
-                >
-                  Maximum Quality PNG
-                </Button>
-
-                <h4 className="text-sm font-medium text-muted-foreground mt-4">
-                  JPEG Format
-                </h4>
-                <div className="grid gap-1">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => exportImage(1.0, "jpeg")}
-                  >
-                    Best Quality JPEG
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => exportImage(0.8, "jpeg")}
-                  >
-                    High Quality JPEG
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => exportImage(0.6, "jpeg")}
-                  >
-                    Medium Quality JPEG
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => exportImage(0.4, "jpeg")}
-                  >
-                    Low Quality JPEG
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </ControlPopover>
+          {/* Export options */}
+          <ExportOptions canvas={canvas} />
         </div>
       </div>
     </div>

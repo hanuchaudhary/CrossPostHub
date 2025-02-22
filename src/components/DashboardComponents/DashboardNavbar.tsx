@@ -35,6 +35,9 @@ export default function DashboardNavbar() {
         </div>
       </div>
       <div className="flex items-center md:space-x-2 space-x-1">
+        <Link href={"/edit"}>
+          <Button className="md:block hidden">Edit Image</Button>
+        </Link>
         {pathname === "/dashboard" ? (
           <div>
             <Link replace href={"/create"}>
@@ -71,9 +74,6 @@ export default function DashboardNavbar() {
         <div className="md:block hidden">
           <Profile />
         </div>
-        <Link href={"/edit"}>
-          <GlowingButton className="md:block hidden">Edit</GlowingButton>
-        </Link>
         <div className="md:hidden block">
           <Sheet>
             <SheetTrigger asChild>
