@@ -58,8 +58,8 @@ function About() {
           Why <span className="text-emerald-500">CrossPostHub?</span>
         </h2>
         <p className="md:text-base text-sm text-center font-ClashDisplayRegular text-muted-foreground">
-          "Effortless Social Media Management – Schedule, Post, and Analyze with
-          Ease!"
+          &quot;Effortless Social Media Management – Schedule, Post, and Analyze with
+          Ease!&quot;
         </p>
       </div>
 

@@ -37,10 +37,10 @@ export interface Plan {
     description: string
     features: string[]
     cta: string
-    price: Number
+    price: number
     users: User[]
     createdAt: Date
-    updatedAt: Date
+    updatedAt: Date 
     transaction: Transaction[]
 }
 
@@ -52,7 +52,7 @@ enum STATUS {
 
 export interface Transaction {
     id: string
-    amount: Number
+    amount: number
     currency: string
     status: STATUS
     createdAt: Date
