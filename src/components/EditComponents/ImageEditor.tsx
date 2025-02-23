@@ -13,8 +13,6 @@ import {
   Undo2,
   Redo2,
   Code2,
-  Wrench,
-  Link,
   Upload,
 } from "lucide-react";
 import { BorderOptions } from "@/components/EditorV2/BorderOptions";

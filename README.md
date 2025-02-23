@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CrossPostHub 🚀
 
-## Getting Started
+CrossPostHub is a powerful unified social media management platform that enables users to post and schedule content across multiple social media platforms from a single hub. Built with Next.js, it offers a seamless experience for developers, content creators, and regular users alike.
 
-First, run the development server:
+![CrossPostHub Dashboard](https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/dsnfleybbx9i6scuqyhi.png)
+
+## 🌟 Features
+
+- **Multi-Platform Support**: Seamlessly post to LinkedIn, Twitter, Instagram, and more
+- **Smart Scheduling**: Schedule posts for optimal engagement times
+- **User-Friendly Interface**: Intuitive design requiring no technical expertise
+- **Analytics Dashboard**: Track post performance with detailed metrics (Premium)
+- **Secure Authentication**: Robust security for account integrations
+- **Real-time Preview**: See how your posts will look before publishing
+
+## 🎯 Who Is It For?
+
+- **Developers** - Automate your learn-in-public journey across platforms
+- **Content Creators** - Manage multiple social media accounts efficiently
+- **Regular Users** - Share updates with friends and family seamlessly
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or higher
+- npm or yarn package manager
+- Docker (optional)
+
+### Local Development
 
 ```bash
+# Clone the repository
+git clone https://github.com/hanuchaudhary/CrossPostHub.
+
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Start the development server
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🐳 Docker Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run CrossPostHub using Docker:
 
-## Learn More
+```bash
+# Build the Docker image
+docker build -t crossposthub .
 
-To learn more about Next.js, take a look at the following resources:
+# Run the container
+docker run -p 3000:3000 crossposthub
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Using Docker Compose:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# Start the application
+docker-compose up
 
-## Deploy on Vercel
+# Stop the application
+docker-compose down
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 💻 Usage Guide
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Create Account**: Sign up for a free account
+2. **Connect Platforms**: Link your social media accounts
+3. **Create Content**: Use the intuitive post creator
+4. **Schedule or Post**: Choose between immediate or scheduled posting
+5. **Track Performance**: Monitor engagement through analytics
+
+## 💰 Pricing Plans
+
+### Free Tier
+- Basic platform integrations
+- Limited monthly posts
+- Standard features
+
+### Pro Plan
+- More platform connections
+- Advanced scheduling
+- Basic analytics
+
+### Premium Plan
+- Unlimited integrations
+- Advanced analytics
+- Team collaboration
+- Priority support
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js, TypeScript, Tailwind CSS
+- **Backend**: Node.js
+- **Database**: [Your Database Choice]
+- **Authentication**: [Auth Provider]
+- **Deployment**: Vercel
+- **Containerization**: Docker
+
+## 📝 Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+NEXT_PUBLIC_API_URL=your_api_url
+DATABASE_URL=your_database_url
+AUTH_SECRET=your_auth_secret
+# Add other necessary environment variables. See .env.example
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE)
+
+## 👨‍💻 Author
+
+**Kush Chaudhary**
+
+## 📞 Support
+
+For support, email [kushchaudharyog@gmail.com] or join our [Discord community](https://discord.gg/qK7vgWCJ59).
+
+---
+
+Built with ❤️ using [Next.js](https://nextjs.org/)
