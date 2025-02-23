@@ -36,18 +36,18 @@ export default function NotificationButton() {
       {/* Notification Button */}
       <Drawer direction="top">
         <DrawerTrigger asChild>
-          <Button variant="ghost" className="relative">
-            <BellIcon className="h-5 w-5" />
+          <button className="relative">
+            <BellIcon className="h-6 w-6" />
             {unreadCount > 0 && (
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-2">
+              <Badge variant={"destructive"} className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center rounded-full p-2">
                 {unreadCount}
               </Badge>
             )}
-          </Button>
+          </button>
         </DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent className="w-96">
           <DrawerHeader>
-            <DrawerTitle>Notifications</DrawerTitle>
+            <DrawerTitle className="font-ClashDisplayRegular text-emerald-500 tracking-normal">Notifications</DrawerTitle>
             <DrawerDescription>
               You have {unreadCount} unread notifications.
             </DrawerDescription>
@@ -60,14 +60,14 @@ export default function NotificationButton() {
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 rounded-lg ${
-                      notification.read ? "bg-secondary" : "bg-white shadow-sm"
+                    className={`p-4 rounded-lg shadow-sm ${
+                      notification.read ? "bg-secondary" : "bg-primary text-primary-foreground"
                     }`}
                   >
                     <p className="text-sm font-medium">
                       {notification.message}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(notification.createdAt).toLocaleString()}
                     </p>
                   </div>

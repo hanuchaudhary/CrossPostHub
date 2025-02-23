@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
 import Guide from "../Guide";
 import { Menu, ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
@@ -38,37 +37,34 @@ export default function DashboardNavbar() {
           <UpgradeButton />
         </div>
       </div>
-      <div className="flex items-center md:space-x-2 space-x-1">
+      <div className="flex items-center md:space-x-4 space-x-1">
         <Link href={"/edit"}>
-          <Button className="md:block hidden">Edit Image</Button>
+          <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
+            Edit Image
+          </span>
         </Link>
         {pathname === "/dashboard" ? (
           <div>
             <Link replace href={"/create"}>
-              <Button className="md:block hidden" variant={"default"}>
-                Create Post
-              </Button>
+              <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
+                Create
+              </span>
             </Link>
             <Link href={"/create"}>
-              <Button
-                className="md:hidden block leading-none"
-                variant={"outline"}
-              >
-                Post
-              </Button>
+              <span className="md:hidden block leading-none">Create</span>
             </Link>
           </div>
         ) : (
           <div>
             <Link href={"/dashboard"}>
-              <Button className="md:block hidden" variant={"outline"}>
+              <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
                 Dashboard
-              </Button>
+              </span>
             </Link>
             <Link href={"/dashboard"}>
-              <Button className="md:hidden block" variant={"outline"}>
+              <span className="md:hidden block">
                 <ArrowLeftIcon />
-              </Button>
+              </span>
             </Link>
           </div>
         )}
@@ -84,10 +80,10 @@ export default function DashboardNavbar() {
         <div className="md:hidden block">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline">
+              <span>
                 <Menu className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Toggle menu</span>
-              </Button>
+              </span>
             </SheetTrigger>
             <SheetContent>
               <MobileMenu />

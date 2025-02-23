@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/config/prismaConfig";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   // Create a stream for SSE
   const stream = new ReadableStream({
     async start(controller) {
