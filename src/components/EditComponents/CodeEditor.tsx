@@ -3,9 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import Prism from "prismjs";
 import { toPng } from "html-to-image";
-import { Settings2, Type, Frame, PaintBucket } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Settings2, Type, PaintBucket } from "lucide-react";
+import { Button } from "@/components/ui/button"; import { Card, } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -49,6 +48,7 @@ import "prismjs/components/prism-json";
 import { toast } from "@/hooks/use-toast";
 import { ControlPopover } from "./ControlPopover";
 import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
 
 const SUPPORTED_LANGUAGES = [
   { value: "javascript", label: "JavaScript" },
@@ -68,6 +68,8 @@ const SUPPORTED_LANGUAGES = [
   { value: "css", label: "CSS" },
   { value: "json", label: "JSON" },
 ];
+
+const presetColors = ["#ff75c3", "#ffa647", "#ffe83f", "#9fff5b", "#70e2ff", "#cd93ff", "#09203f"]
 
 const detectLanguage = (code: string): string => {
   // Simple language detection based on common patterns
@@ -92,7 +94,7 @@ const CodeEditor = () => {
   const [code, setCode] = useState("");
   const [padding, setPadding] = useState([32]);
   const [fontSize, setFontSize] = useState([14]);
-  const [background, setBackground] = useState("#1e1e1e");
+  const [background, setBackground] = useState("#000");
   const [language, setLanguage] = useState("javascript");
   const [wrapCode, setWrapCode] = useState(false);
   const [frameType, setFrameType] = useState<
@@ -164,7 +166,7 @@ const CodeEditor = () => {
                       className={`language-${language} !bg-transparent !m-0 !p-0`}
                       style={{
                         fontFamily: "'JetBrains Mono', monospace",
-                        wordBreak: wrapCode ? 'break-word' : 'normal'
+                        textWrap: wrapCode ? 'wrap' : 'nowrap'
                       }}
                     >
                       {code}
@@ -172,7 +174,7 @@ const CodeEditor = () => {
                   </pre>
                 </div>
               ) : (
-                <div 
+                <div
                   style={{ backgroundColor: background }}
                   className="min-h-[300px] flex items-center justify-center text-center p-8"
                 >
@@ -244,7 +246,6 @@ const CodeEditor = () => {
                   </TooltipContent>
                 </Tooltip>
 
-                {/* Typography */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Popover>
@@ -298,6 +299,65 @@ const CodeEditor = () => {
                     <p>Typography Settings</p>
                   </TooltipContent>
                 </Tooltip>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-8 h-8"
+                      style={{
+                        backgroundColor: background,
+                        border: "2px solid",
+                        borderColor: background === "#ffffff" ? "hsl(var(--border))" : background,
+                      }}
+                    >
+                      <PaintBucket className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <div className="space-y-4 p-2">
+                      <h4 className="font-medium leading-none tracking-tight">Background</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs">Color Picker</Label>
+                            <span className="text-xs text-muted-foreground">{background.toUpperCase()}</span>
+                          </div>
+                          <div className="border rounded-md my-2 p-2" style={{ backgroundColor: background }}>
+                            <Input
+                              type="color"
+                              value={background}
+                              onChange={(e) => setBackground(e.target.value)}
+                              className="w-full h-10 cursor-pointer appearance-none bg-transparent border-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-0"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Presets</Label>
+                          <div className="grid grid-cols-7 gap-2">
+                            {presetColors.map((color) => (
+                              <button
+                                key={color}
+                                className="h-6 w-6 rounded-md border border-muted bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                style={{ backgroundColor: color }}
+                                onClick={() => setBackground(color)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Hex Value</Label>
+                          <Input
+                            value={background}
+                            onChange={(e) => setBackground(e.target.value)}
+                            className="h-8 px-2"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
                 <ControlPopover toolkitTitle="Frame Decoration" title="Frame">
                   <div className="space-y-6">
@@ -355,35 +415,6 @@ const CodeEditor = () => {
                   </div>
                 </ControlPopover>
 
-                {/* Background */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="icon">
-                          <PaintBucket className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80">
-                        <div className="space-y-4">
-                          <h4 className="font-medium">Background</h4>
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Color</label>
-                            <Input
-                              type="color"
-                              value={background}
-                              onChange={(e) => setBackground(e.target.value)}
-                              className="w-full h-10"
-                            />
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Background Settings</p>
-                  </TooltipContent>
-                </Tooltip>
               </TooltipProvider>
             </div>
 
