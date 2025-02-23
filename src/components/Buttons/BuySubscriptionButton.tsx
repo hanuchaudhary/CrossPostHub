@@ -28,7 +28,9 @@ export default function BuySubscriptionButton({
         description: "You need to login to continue.",
         action: (
           <Link href="/signin">
-            <Button variant={"default"} size={"sm"}>Login</Button>
+            <Button variant={"default"} size={"sm"}>
+              Login
+            </Button>
           </Link>
         ),
       });

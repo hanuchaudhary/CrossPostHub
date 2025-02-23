@@ -10,11 +10,14 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { MobileMenu } from "./MobileMenu";
 import { Profile } from "./Profile";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
-import { GlowingButton } from "../Buttons/GlowingButton";
 import UpgradeButton from "../Buttons/UpgradeButton";
+import { useSession } from "next-auth/react";
+import SSEListener from "../Tools/SSEListner";
+import NotificationButton from "../Buttons/NotificationsButton";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
+  const { data } = useSession();
 
   const { fetchUser } = useAuthStore();
   React.useEffect(() => {
@@ -23,6 +26,7 @@ export default function DashboardNavbar() {
 
   return (
     <div className="max-w-7xl mx-auto flex items-center justify-between md:py-6 py-4 px-4 sm:px-6 lg:px-8">
+      <SSEListener userId={data?.user.id!} />
       <div className="flex items-center space-x-4">
         <Link
           href={"/dashboard"}
@@ -73,6 +77,9 @@ export default function DashboardNavbar() {
         </div>
         <div className="md:block hidden">
           <Profile />
+        </div>
+        <div className="md:block hidden">
+          <NotificationButton />
         </div>
         <div className="md:hidden block">
           <Sheet>

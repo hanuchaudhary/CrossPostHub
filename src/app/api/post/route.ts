@@ -6,14 +6,17 @@ import { Providers } from "@/Types/Types";
 import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
+import { createNotification } from "@/utils/Controllers/NotificationController"; // Add this utility
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate user
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch logged-in user
     const loggedUser = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: { accounts: true },
@@ -22,6 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Check post creation limit
     const isAllowed = await CheckCreatedPostMiddleware(loggedUser.id);
     if (!isAllowed) {
       return NextResponse.json(
@@ -33,6 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Parse form data
     const formData = await request.formData();
     const postText = formData.get("postText") as string;
     const images = formData.getAll("images") as File[];
@@ -40,6 +45,7 @@ export async function POST(request: NextRequest) {
     const providersJson = formData.get("providers") as string;
     const providers = JSON.parse(providersJson) as Providers[];
 
+    // Validate inputs
     if (providers.length === 0) {
       return NextResponse.json(
         { error: "Please select at least one provider" },
@@ -53,14 +59,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert images to Base64 (or upload to cloud storage)
     const imagesBase64 = await Promise.all(
       images.map(async (image) => {
         const buffer = await image.arrayBuffer();
         return Buffer.from(buffer).toString("base64");
       })
     );
-    console.log("Images before adding to queue:", imagesBase64);
 
+    // Add jobs to the queue for each provider
     const results = await Promise.allSettled(
       providers.map(async (provider) => {
         try {
@@ -69,7 +76,7 @@ export async function POST(request: NextRequest) {
             backoff: {
               type: "exponential",
               delay: 5000,
-            }
+            },
           };
 
           if (scheduleAt) {
@@ -83,32 +90,24 @@ export async function POST(request: NextRequest) {
               provider,
               postText,
               images: imagesBase64,
-              loggedUser,
+              userId: loggedUser.id,
               scheduledFor: scheduleAt || null,
             },
             jobOptions
           );
 
-          if (await job.isFailed()) {
-            return { provider, error: job.failedReason, status: "failed" };
-          }
+          // Create a notification for the user
+          await createNotification({
+            message: `Post scheduled for ${provider}`,
+            type: "POST_STATUS",
+            userId: loggedUser.id as string,
+          });
 
-          if (await job.isCompleted()) {
-            const postSave = await postSaveToDB({
-              postText,
-              userId: loggedUser.id,
-              provider: provider,
-              // scheduledFor: scheduleAt || null, // Save schedule time to DB
-            });
-            return { provider, jobId: job.id, status: "success", postSave };
-          }
-
-          console.log("Job added to the queue:", job.id, scheduleAt ? `(scheduled for ${scheduleAt})` : "(immediate)");
-          return { 
-            provider, 
-            jobId: job.id, 
-            status: "success",
-            scheduledFor: scheduleAt || null 
+          return {
+            provider,
+            jobId: job.id,
+            status: "queued",
+            scheduledFor: scheduleAt || null,
           };
         } catch (error: any) {
           console.error(`Failed to add job for provider: ${provider}`, error);
@@ -117,6 +116,7 @@ export async function POST(request: NextRequest) {
       })
     );
 
+    // Format results for response
     const formattedResults = results.map((result) => {
       if (result.status === "fulfilled") {
         return result.value;

@@ -13,6 +13,11 @@ enum STATUS {
   FAILED
 }
 
+enum NOTIFICATION_TYPE {
+  POST_STATUS
+  SYSTEM_ALERT
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -23,12 +28,13 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  posts       Post[]
-  planId      String?       
-  plan        Plan?         @relation(fields: [planId], references: [id])
-  transaction Transaction[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  posts        Post[]
+  planId       String?
+  plan         Plan?          @relation(fields: [planId], references: [id])
+  transaction  Transaction[]
+  notifications Notification[]
 }
 
 model Account {
@@ -64,8 +70,8 @@ model Post {
 
 model Plan {
   id          String        @unique @default(cuid())
-  title        String?
-  description  String?
+  title       String?
+  description String?
   features    String[]
   cta         String?
   price       Int?
@@ -81,9 +87,20 @@ model Transaction {
   planId    String
   status    STATUS
   amount    Int
-  order_id  String   @unique 
+  order_id  String   @unique
   user      User     @relation(fields: [userId], references: [id])
   plan      Plan     @relation(fields: [planId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id],onDelete: Cascade)
+  type      NOTIFICATION_TYPE
+  message   String
+  read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

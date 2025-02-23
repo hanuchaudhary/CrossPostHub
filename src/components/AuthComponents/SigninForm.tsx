@@ -77,7 +77,9 @@ export default function SigninForm() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-neutral-400 text-xs">Email Address</FormLabel>
+                    <FormLabel className="text-neutral-400 text-xs">
+                      Email Address
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your email"
@@ -117,7 +119,7 @@ export default function SigninForm() {
                   {error}
                 </div>
               )}
-              <div className="w-full flex justify-end"> 
+              <div className="w-full flex justify-end">
                 <Button
                   disabled={isLoading}
                   type="submit"

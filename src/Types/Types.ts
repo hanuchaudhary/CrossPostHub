@@ -83,6 +83,16 @@ export interface ConnectedApp {
     user: User
 }
 
+export interface NotificationType {
+    id: string
+    message: string
+    type: string
+    userId: string
+    read: boolean
+    createdAt: Date
+    updatedAt: Date
+}
+
 export interface TwitterUser {
     id: string;
     name: string;
