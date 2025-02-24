@@ -84,7 +84,7 @@ export interface ConnectedApp {
 }
 
 export interface NotificationType {
-    id: string
+    id: number
     message: string
     type: string
     userId: string

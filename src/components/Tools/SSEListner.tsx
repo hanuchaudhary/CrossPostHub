@@ -1,40 +1,40 @@
-"use client"; // Mark as a Client Component
+"use client";
 
 import { useEffect } from "react";
-import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore"; 
+import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
+import { toast } from "@/hooks/use-toast";
 
-export default function SSEListener({ userId }: { userId: string }) {
+export default function SSEListener({ userId }: { userId: number }) {
   const { fetchNotifications } = useNotificationStore();
 
   useEffect(() => {
-    // Create an EventSource connection to the SSE endpoint
     const eventSource = new EventSource(`/api/sse?userId=${userId}`);
 
-    // Listen for "notification" events
     eventSource.addEventListener("notification", (event) => {
       const data = JSON.parse(event.data);
       console.log("New notification:", data);
-
+      toast({
+        title: "Post Update",
+        description: `${data.message}`,
+        variant: "default", // You can change it to "destructive" if it's an error
+      });
       // Fetch notifications to update the UI
       fetchNotifications();
     });
 
-    // Listen for "connected" events
     eventSource.addEventListener("connected", (event) => {
-      console.log("SSE connection established");
+      console.log("SSE connected:", event.data);
     });
 
-    // Handle errors
     eventSource.onerror = (error) => {
       console.error("SSE error:", error);
       eventSource.close();
     };
 
-    // Clean up on component unmount
     return () => {
       eventSource.close();
     };
   }, [userId, fetchNotifications]);
 
-  return null; // This component doesn't render anything
+  return null;
 }

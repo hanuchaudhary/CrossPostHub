@@ -95,6 +95,20 @@ const PublishPostWorker = new Worker(
           throw new Error(postResponse.error);
         }
 
+        // Send success notification
+        const notification = await createNotification({
+          userId,
+          type: "POST_STATUS",
+          message: `Your post has been published on ${provider}.`,
+        });
+
+        // Trigger SSE event
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, notification }),
+        });
+
         return { provider: "linkedin", response: postResponse };
       }
 
@@ -135,6 +149,20 @@ const PublishPostWorker = new Worker(
           throw new Error(tweetResponse.error);
         }
 
+        // Send success notification
+        const notification = await createNotification({
+          userId,
+          type: "POST_STATUS",
+          message: `Your post has been published on ${provider}.`,
+        });
+
+        // Trigger SSE event
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, notification }),
+        });
+
         return { provider: "twitter", response: tweetResponse };
       }
 
@@ -143,47 +171,23 @@ const PublishPostWorker = new Worker(
       );
     } catch (error) {
       console.error(`Job failed for provider: ${job.data.provider}`, error);
+
+      // Send failure notification
+      const notification = await createNotification({
+        userId: job.data.userId,
+        type: "POST_STATUS",
+        message: `Failed to publish post on ${job.data.provider}.`,
+      });
+
+      // Trigger SSE event
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: job.data.userId, notification }),
+      });
+
       throw error;
     }
   },
   { connection }
 );
-
-// Event listener for successful job completion
-PublishPostWorker.on("completed", async (job: Job) => {
-  console.log(`Job completed successfully:`, {
-    jobId: job.id,
-    result: job.returnvalue,
-  });
-
-  const { userId, provider } = job.data;
-
-  // Send success notification
-  await createNotification({
-    userId,
-      type: "POST_STATUS",
-    message: `Your post has been published on ${provider}.`,
-  })
-});
-
-// Event listener for job failure
-PublishPostWorker.on("failed", async (job: Job | undefined, error: Error) => {
-  if (job) {
-    console.error(`Job failed:`, {
-      jobId: job.id,
-      error: error.message,
-    });
-
-    const { userId, provider } = job.data;
-
-    // Send failure notification
-    await createNotification({
-      userId,
-      type: "POST_STATUS",
-      message: `Failed to publish post on ${provider}.`,
-    }
-    );
-  } else {
-    console.error("Job failed but job is undefined:", error);
-  }
-});

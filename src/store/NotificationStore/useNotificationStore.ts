@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast";
 import { NotificationType } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
@@ -7,9 +8,10 @@ interface NotificationStore {
   notifications: NotificationType[];
   fetchNotifications: () => Promise<void>;
 
-  markAsRead: (notificationId: string) => Promise<void>;
+  markAsRead: (notificationId: number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
-  removeNotification: () => Promise<void>;
+  removeNotification: (notificationId: number) => Promise<void>;
+  clearAll: () => void;
 }
 
 export const useNotificationStore = create<NotificationStore>((set) => ({
@@ -27,7 +29,7 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     }
   },
 
-  markAsRead: async (notificationId: string) => {
+  markAsRead: async (notificationId) => {
     try {
       await axios.post("/api/notifications", { notificationId });
       set((state) => ({
@@ -51,14 +53,28 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
     }
   },
 
-  removeNotification: async () => {
+  removeNotification: async (notificationId) => {
     try {
-      await axios.delete("/api/notifications");
+      await axios.delete("/api/notifications?notificationId=" + notificationId);
       set((state) => ({
-        notifications: state.notifications.filter((n) => n.read),
+        notifications: state.notifications.filter((n) => n.id !== notificationId),
       }));
     } catch (error) {
       console.error("Failed to remove notifications:", error);
+    }
+  },
+
+  clearAll: async () => {
+    try {
+      await axios.put("/api/notifications/clear");
+      toast({
+        title: "Notifications cleared",
+        description: "All notifications have been removed.",
+        variant: "default",
+      });
+      set({ notifications: [] });
+    } catch (error) {
+      console.error("Failed to clear notifications:", error);
     }
   },
 }));

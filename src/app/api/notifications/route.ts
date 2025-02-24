@@ -39,10 +39,17 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { notificationId } = await request.json();
+  const notificationId = request.nextUrl.searchParams.get("notificationId");
+
+  if (!notificationId) {
+    return NextResponse.json(
+      { error: "Notification ID is required" },
+      { status: 400 }
+    );
+  }
 
   await prisma.notification.delete({
-    where: { id: notificationId },
+    where: { id: parseInt(notificationId) },
   });
 
   return NextResponse.json({ success: true });

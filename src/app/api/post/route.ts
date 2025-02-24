@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
           // Create a notification for the user
           await createNotification({
-            message: `Post scheduled for ${provider}`,
+            message: `Processing post for ${provider}`,
             type: "POST_STATUS",
             userId: loggedUser.id as string,
           });
