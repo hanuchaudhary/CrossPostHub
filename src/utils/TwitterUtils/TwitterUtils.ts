@@ -38,10 +38,17 @@ export async function uploadMediaToTwitter({
   };
 
   const headers = oauth.toHeader(
-    oauth.authorize(requestData, {
-      key: oauth_token,
-      secret: oauth_token_secret,
-    })
+    oauth.authorize(
+      {
+        url: requestData.url,
+        method: requestData.method,
+        data: formData.getBuffer(),
+      },
+      {
+        key: oauth_token,
+        secret: oauth_token_secret,
+      }
+    )
   );
 
   try {
@@ -49,12 +56,22 @@ export async function uploadMediaToTwitter({
     console.log("OAuth Headers:", headers); // Log headers for debugging
     console.log("FormData:", formData); // Log FormData for debugging
 
-    const response = await axios.post(requestData.url, formData, {
-      headers: {
-        ...headers,
-        ...formData.getHeaders(), // Add FormData headers
+    const response = await axios.post(
+      requestData.url,
+      {
+        media: formData.getBuffer(),
       },
-    });
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "User-Agent": "PostmanRuntime/7.43.0",
+          Accept: "*/*",
+          "Accept-Encoding": "gzip, deflate, br",
+          Connection: "keep-alive",
+          Authorization: headers.Authorization,
+        },
+      }
+    );
     console.log("Media uploaded to Twitter successfully");
     return response.data.media_id_string;
   } catch (error: any) {
@@ -99,6 +116,11 @@ export async function createTweet({
       ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
     },
   };
+
+  if (!text && mediaIds.length === 0) {
+    console.error("Text or media is required to create a tweet");
+    return null;
+  }
 
   const headers = oauth.toHeader(
     oauth.authorize(

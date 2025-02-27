@@ -138,6 +138,10 @@ const PublishPostWorker = new Worker(
           );
         }
 
+        if (!mediaIds) {
+          throw new Error("Failed to upload media to Twitter.");
+        }
+
         const tweetResponse = await createTweet({
           text: postText,
           mediaIds,

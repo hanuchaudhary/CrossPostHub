@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       providers.map(async (provider) => {
         try {
           const jobOptions: any = {
-            attempts: 3,
+            attempts: 1,
             backoff: {
               type: "exponential",
               delay: 5000,
