@@ -1,5 +1,4 @@
-import { Plan } from "@/Types/Types";
-import { Transaction } from "@prisma/client";
+import { Plan, TransactionType } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
 
@@ -10,7 +9,11 @@ interface PricingStore {
 
   fetchTransactions: VoidFunction;
   isFetchingTransactions: boolean;
-  transactions: Transaction[] | null;
+  transactions: TransactionType[] | null;
+
+  fetchSingleTransaction: (order_id: string) => Promise<void>;
+  isFetchingSingleTransaction: boolean;
+  singleTransaction: TransactionType | null;
 }
 
 export const usePricingStore = create<PricingStore>((set) => ({
@@ -37,6 +40,22 @@ export const usePricingStore = create<PricingStore>((set) => ({
       console.error("Fetch Transactions Error:", error);
     } finally {
       set({ isFetchingTransactions: false });
+    }
+  },
+
+  isFetchingSingleTransaction: false,
+  singleTransaction: null,
+  fetchSingleTransaction: async (order_id: string) => {
+    set({ isFetchingSingleTransaction: true });
+    try {
+      const { data } = await axios.post("/api/payment", { order_id });
+      console.log("Single Transaction:", data);
+      
+      set({ singleTransaction: data.transaction });
+    } catch (error: any) {
+      console.error("Fetch Single Transaction Error:", error);
+    } finally {
+      set({ isFetchingSingleTransaction: false });
     }
   },
 }));

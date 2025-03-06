@@ -15,78 +15,62 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
+import confetti from "canvas-confetti";
+import { usePricingStore } from "@/store/PricingStore/usePricingStore";
 export default function PaymentSuccessPage() {
-  // Mock transaction data - in a real app, this would come from your database
-  const transaction = {
-    id: "cuid123",
-    order_id: "ORD-12345678",
-    amount: 2999,
-    plan: {
-      name: "Premium Plan",
-      duration: "Monthly",
-      features: ["Unlimited access", "Priority support", "Advanced analytics"],
-    },
-    createdAt: new Date(),
-  };
+  const { fetchSingleTransaction, singleTransaction } = usePricingStore();
 
-  // Animation for confetti effect
+  useEffect(()=>{
+    fetchSingleTransaction("order_Q3PIQ4PD6kku7O");
+  },[])
+
+  // Confetti animation
+  const end = Date.now() + 3 * 1000; // 3 seconds
+  const colors = [
+    "#a786ff",
+    "#fd8bbc",
+    "#eca184",
+    "#f8deb1",
+    "#ff0000",
+    "#00ff00",
+    "#ffff00",
+    "#0000ff",
+    "#ffa500",
+  ];
+
   useEffect(() => {
-    const createConfetti = () => {
-      const confettiCount = 200;
-      const colors = ["#FFC700", "#FF0066", "#2563EB", "#10B981", "#8B5CF6"];
+    const frame = () => {
+      if (Date.now() > end) return;
 
-      for (let i = 0; i < confettiCount; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor =
-          colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.top = -10 + "px";
-        confetti.style.width = Math.random() * 10 + 5 + "px";
-        confetti.style.height = Math.random() * 10 + 5 + "px";
-        confetti.style.opacity = ((Math.random() * 5 + 5) / 10).toString();
-        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors: colors,
+      });
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors: colors,
+      });
 
-        document.getElementById("confetti-container")?.appendChild(confetti);
-
-        setTimeout(() => {
-          confetti.remove();
-        }, 3000);
-      }
+      requestAnimationFrame(frame);
     };
 
-    createConfetti();
-
-    return () => {
-      const container = document.getElementById("confetti-container");
-      if (container) {
-        container.innerHTML = "";
-      }
-    };
+    frame();
+    return () => {};
   }, []);
 
+  console.log(singleTransaction);
+  
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950 dark:to-background flex flex-col items-center justify-center p-4">
-      <style jsx global>{`
-        .confetti {
-          position: fixed;
-          z-index: 100;
-          animation: fall 3s linear forwards;
-        }
-
-        @keyframes fall {
-          to {
-            transform: translateY(100vh) rotate(720deg);
-          }
-        }
-      `}</style>
-
-      <div
-        id="confetti-container"
-        className="fixed inset-0 pointer-events-none"
-      ></div>
-
+    <div className="relative flex flex-col items-center justify-center p-4">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -97,7 +81,7 @@ export default function PaymentSuccessPage() {
         }}
         className="w-full max-w-md"
       >
-        <Card className="border-green-200 dark:border-green-800 shadow-lg">
+        <Card className="border-none shadow-none">
           <CardHeader className="pb-4">
             <div className="flex justify-center mb-4">
               <motion.div
@@ -142,23 +126,27 @@ export default function PaymentSuccessPage() {
             >
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Order ID</span>
-                <span className="font-medium">{transaction.order_id}</span>
+                <span className="font-medium">
+                  {singleTransaction?.order_id}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium">
-                  {transaction.createdAt.toLocaleDateString()}
+                  {new Date(singleTransaction?.createdAt ?? "").toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Amount</span>
                 <span className="font-medium">
-                  ${(transaction.amount / 100).toFixed(2)}
+                  ${(Number(singleTransaction?.amount) / 100).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="font-medium">{transaction.plan.name}</span>
+                <span className="font-medium">
+                  {singleTransaction?.plan.title}
+                </span>
               </div>
             </motion.div>
 
@@ -171,7 +159,7 @@ export default function PaymentSuccessPage() {
             >
               <h3 className="font-medium mb-2">Plan Features:</h3>
               <ul className="space-y-2">
-                {transaction.plan.features.map((feature, index) => (
+                {singleTransaction?.plan.features.map((feature, index) => (
                   <motion.li
                     key={index}
                     initial={{ x: -10, opacity: 0 }}
@@ -188,14 +176,14 @@ export default function PaymentSuccessPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button className="w-full" asChild>
-              <Link href="/transactions">
+              <Link href="/payment/transactions">
                 <ChevronRight className="mr-2 h-4 w-4" />
                 View All Transactions
               </Link>
             </Button>
             <div className="flex gap-2 w-full">
               <Button variant="outline" className="flex-1" asChild>
-                <Link href="/">
+                <Link href="/dashboard">
                   <Home className="mr-2 h-4 w-4" />
                   Home
                 </Link>
