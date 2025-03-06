@@ -57,7 +57,7 @@ export default function PricingSection() {
     usePricingStore();
   useEffect(() => {
     fetchPricingPlans();
-  });
+  },[]);
 
   return (
     <div className="max-w-[65rem] relative mx-auto lg:px-0 px-3 pb-5">

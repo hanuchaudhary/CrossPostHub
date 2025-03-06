@@ -33,7 +33,7 @@ model User {
   posts        Post[]
   planId       String?
   plan         Plan?          @relation(fields: [planId], references: [id])
-  transaction  Transaction[]
+  transactions  Transaction[]
   notifications Notification[]
 }
 

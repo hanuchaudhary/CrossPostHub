@@ -13,6 +13,7 @@ import UpgradeButton from "../Buttons/UpgradeButton";
 import { useSession } from "next-auth/react";
 import SSEListener from "../Tools/SSEListner";
 import NotificationButton from "../Buttons/NotificationsButton";
+import { Button } from "../ui/button";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
@@ -68,6 +69,13 @@ export default function DashboardNavbar() {
             </Link>
           </div>
         )}
+        <div className="md:block hidden">
+          <Link href={"/payment/transactions"}>
+            <Button variant="default" size="sm">
+              Transactions
+            </Button>
+          </Link>
+        </div>
         <div className="md:block hidden">
           <Guide />
         </div>

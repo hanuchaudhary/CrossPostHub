@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
 import { toast } from "@/hooks/use-toast";
 
-export default function SSEListener({ userId }: { userId: number }) {
+export default function SSEListener({ userId }: { userId: string }) {
   const { fetchNotifications } = useNotificationStore();
 
   useEffect(() => {

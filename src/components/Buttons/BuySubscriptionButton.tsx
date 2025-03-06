@@ -8,6 +8,7 @@ import { createOrderId } from "@/utils/Payment/CreateOrderId";
 import { toast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function BuySubscriptionButton({
   price,
@@ -20,6 +21,7 @@ export default function BuySubscriptionButton({
 }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const { data } = useSession();
+  const router = useRouter();
 
   const handlePayment = async () => {
     if (!data?.user) {
@@ -40,6 +42,15 @@ export default function BuySubscriptionButton({
     setIsLoading(true);
     try {
       const orderId: string = await createOrderId(price, "INR", planId);
+      if (!orderId) {
+        toast({
+          title: "An error occurred",
+          description: "Failed to process payment. Please try again.",
+        });
+
+        router.push("/payment/failed");
+        return;
+      }
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: price * 100,
@@ -64,6 +75,10 @@ export default function BuySubscriptionButton({
                 title: "Payment successful",
                 description: "Your subscription has been updated.",
               });
+
+              // Redirect to success page
+              router.push("/payment/success");
+              //window.location.href = "/payment/success";
             } else {
               toast({
                 title: "Payment failed",
@@ -79,6 +94,8 @@ export default function BuySubscriptionButton({
                 "Payment verification failed. Please contact support.",
             });
 
+            router.push("/payment/failed");
+            //window.location.href = "/payment/failed";
             console.error(error);
           }
         },

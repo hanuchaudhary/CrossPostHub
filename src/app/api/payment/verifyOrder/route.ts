@@ -49,6 +49,14 @@ export async function POST(request: NextRequest) {
 
             return NextResponse.json({ message: "Payment verified successfully", success: true })
         } else {
+
+            await prisma.transaction.update({
+                where: {
+                    userId: session.user.id,
+                    order_id: razorpay_order_id
+                },
+                data: { status: "FAILED" }
+            })
             return NextResponse.json({ error: "Invalid signature", success: false }, { status: 400 })
         }
     } catch (error) {
