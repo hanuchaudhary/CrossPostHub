@@ -21,10 +21,7 @@ export async function uploadMediaToTwitter({
     },
     signature_method: "HMAC-SHA1",
     hash_function(base_string, key) {
-      return crypto
-        .createHmac("sha1", key)
-        .update(base_string)
-        .digest("base64");
+      return crypto.createHmac("sha1", key).update(base_string).digest("base64");
     },
   });
 
@@ -34,7 +31,6 @@ export async function uploadMediaToTwitter({
   const requestData = {
     url: "https://upload.twitter.com/1.1/media/upload.json",
     method: "POST",
-    data: formData,
   };
 
   const headers = oauth.toHeader(
@@ -42,7 +38,7 @@ export async function uploadMediaToTwitter({
       {
         url: requestData.url,
         method: requestData.method,
-        data: formData.getBuffer(),
+        data: {}, 
       },
       {
         key: oauth_token,
@@ -53,25 +49,15 @@ export async function uploadMediaToTwitter({
 
   try {
     console.log("Uploading media to Twitter...");
-    console.log("OAuth Headers:", headers); // Log headers for debugging
-    console.log("FormData:", formData); // Log FormData for debugging
+    console.log("OAuth Headers:", headers.Authorization);
 
-    const response = await axios.post(
-      requestData.url,
-      {
-        media: formData.getBuffer(),
+    const response = await axios.post(requestData.url, formData, {
+      headers: {
+        ...formData.getHeaders(),
+        Authorization: headers.Authorization,
       },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "User-Agent": "PostmanRuntime/7.43.0",
-          Accept: "*/*",
-          "Accept-Encoding": "gzip, deflate, br",
-          Connection: "keep-alive",
-          Authorization: headers.Authorization,
-        },
-      }
-    );
+    });
+
     console.log("Media uploaded to Twitter successfully");
     return response.data.media_id_string;
   } catch (error: any) {
@@ -80,6 +66,7 @@ export async function uploadMediaToTwitter({
     return null;
   }
 }
+
 
 interface createTweetProps {
   text: string;
