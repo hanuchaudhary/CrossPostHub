@@ -51,6 +51,7 @@ export default function BuySubscriptionButton({
         router.push("/payment/failed");
         return;
       }
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: price * 100,
@@ -60,6 +61,7 @@ export default function BuySubscriptionButton({
         order_id: orderId,
         handler: async function (response: any) {
           try {
+            setIsLoading(true);
             const paymentResponse = await axios.post(
               "/api/payment/verifyOrder",
               {
@@ -77,7 +79,7 @@ export default function BuySubscriptionButton({
               });
 
               // Redirect to success page
-              router.push("/payment/success");
+              router.push("/payment/success?order_id=" + orderId);
               //window.location.href = "/payment/success";
             } else {
               toast({
@@ -94,9 +96,11 @@ export default function BuySubscriptionButton({
                 "Payment verification failed. Please contact support.",
             });
 
-            router.push("/payment/failed");
+            router.push("/payment/failed?order_id=" + orderId);
             //window.location.href = "/payment/failed";
             console.error(error);
+          } finally {
+            setIsLoading(false);
           }
         },
         prefill: {

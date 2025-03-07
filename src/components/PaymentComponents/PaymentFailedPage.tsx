@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -10,7 +11,6 @@ import {
   Home,
   RefreshCw,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,30 +22,44 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import {  TransactionType } from "@/Types/Types";
 
 export default function PaymentFailedPage() {
   const [isRetrying, setIsRetrying] = useState(false);
+  const [transaction, setTransaction] = useState<TransactionType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Mock transaction data - in a real app, this would come from your database
-  const transaction = {
-    id: "cuid456",
-    order_id: "ORD-87654321",
-    amount: 4999,
-    plan: {
-      name: "Business Plan",
-      duration: "Annual",
-    },
-    error: {
-      code: "card_declined",
-      message:
-        "Your card was declined. Please try a different payment method or contact your bank.",
-    },
-    createdAt: new Date(),
-  };
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("order_id"); // Extract order_id from URL
 
+  // Fetch transaction details
+  useEffect(() => {
+    if (orderId) {
+      const fetchTransaction = async () => {
+        try {
+          const response = await fetch(`/api/transactions/${orderId}`);
+          if (!response.ok) throw new Error("Failed to fetch transaction");
+          const data = await response.json();
+          setTransaction(data);
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchTransaction();
+    } else {
+      setError("Order ID is missing");
+      setIsLoading(false);
+    }
+  }, [orderId]);
+
+  // Handle retry payment
   const handleRetry = () => {
     setIsRetrying(true);
-    // In a real app, you would redirect to the payment page or retry the payment
+    // Redirect to payment page or retry logic
     setTimeout(() => {
       setIsRetrying(false);
     }, 2000);
@@ -100,15 +114,33 @@ export default function PaymentFailedPage() {
     },
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-4">Loading...</div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white dark:from-red-950 dark:to-background flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center p-4">
       <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
         className="w-full max-w-md"
       >
-        <Card className="border-red-200 dark:border-red-800 shadow-lg">
+        <Card className="border-none shadow-lg">
           <CardHeader className="pb-4">
             <div className="flex justify-center mb-4">
               <motion.div
@@ -131,7 +163,9 @@ export default function PaymentFailedPage() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{transaction.error.message}</AlertDescription>
+                <AlertDescription>
+                  {"An unknown error occurred."}
+                </AlertDescription>
               </Alert>
             </motion.div>
 
@@ -141,23 +175,23 @@ export default function PaymentFailedPage() {
             >
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Order ID</span>
-                <span className="font-medium">{transaction.order_id}</span>
+                <span className="font-medium">{transaction?.order_id}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium">
-                  {transaction.createdAt.toLocaleDateString()}
+                  {transaction?.createdAt ? new Date(transaction.createdAt).toLocaleDateString() : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Amount</span>
                 <span className="font-medium">
-                  ${(transaction.amount / 100).toFixed(2)}
+                  ${(typeof transaction?.amount === "number" ? (transaction.amount / 100).toFixed(2) : "N/A")}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="font-medium">{transaction.plan.name}</span>
+                <span className="font-medium">{transaction?.plan?.title}</span>
               </div>
             </motion.div>
 

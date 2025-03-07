@@ -40,22 +40,13 @@ export interface Plan {
   users: User[];
   createdAt: Date;
   updatedAt: Date;
-  transaction: Transaction[];
+  transaction: TransactionType[];
 }
 
 enum STATUS {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
-}
-
-export interface Transaction {
-  id: string;
-  amount: number;
-  currency: string;
-  status: STATUS;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface Post {
@@ -89,6 +80,7 @@ export interface TransactionType {
   status: STATUS;
   amount: Number;
   order_id: string;
+  paymentId: string;
   user: User;
   plan: Plan;
   createdAt: Date;

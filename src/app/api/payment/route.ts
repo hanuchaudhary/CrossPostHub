@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
             planId: true,
             status: true,
             updatedAt: true,
+            paymentId: true,
           },
         },
       },
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
         plan: true,
         planId: true,
         status: true,
+        paymentId: true,
       },
     });
 

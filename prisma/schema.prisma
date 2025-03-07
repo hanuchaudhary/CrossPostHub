@@ -28,11 +28,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  posts        Post[]
-  planId       String?
-  plan         Plan?          @relation(fields: [planId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  posts         Post[]
+  planId        String?
+  plan          Plan?          @relation(fields: [planId], references: [id])
   transactions  Transaction[]
   notifications Notification[]
 }
@@ -88,6 +88,7 @@ model Transaction {
   status    STATUS
   amount    Int
   order_id  String   @unique
+  paymentId String   @default("")
   user      User     @relation(fields: [userId], references: [id])
   plan      Plan     @relation(fields: [planId], references: [id])
   createdAt DateTime @default(now())
@@ -95,14 +96,14 @@ model Transaction {
 }
 
 model Notification {
-  id        Int      @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   userId    String
-  user      User     @relation(fields: [userId], references: [id],onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      NOTIFICATION_TYPE
   message   String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 }
 
 model Session {

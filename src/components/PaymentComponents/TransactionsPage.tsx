@@ -11,6 +11,7 @@ import {
   Filter,
   Search,
   XCircle,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { usePricingStore } from "@/store/PricingStore/usePricingStore";
 import PageLoader from "../Loaders/PageLoader";
+import { TransactionDetailsModal } from "./TransactionDetailModal";
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,12 +55,8 @@ export default function TransactionsPage() {
     fetchTransactions();
   }, []);
 
-  if (!transactions) {
-    return <PageLoader />;
-  }
-
   const filteredTransactions = transactions
-    .filter((transaction) => {
+    ?.filter((transaction) => {
       if (statusFilter !== "ALL" && transaction.status !== statusFilter) {
         return false;
       }
@@ -77,6 +75,11 @@ export default function TransactionsPage() {
         : dateA.getTime() - dateB.getTime();
     });
 
+  // Show loading state while fetching transactions
+  if (isFetchingTransactions || !transactions) {
+    return <PageLoader />;
+  }
+
   return (
     <div className="container mx-auto py-10 px-4 max-w-7xl">
       <motion.div
@@ -92,6 +95,7 @@ export default function TransactionsPage() {
           </p>
         </div>
 
+        {/* Transactions Table */}
         <Card className="shadow-none border-none">
           <CardContent className="p-0 border-none shadow-none">
             <div className="space-y-4">
@@ -148,21 +152,23 @@ export default function TransactionsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredTransactions.length === 0 ? (
+                    {filteredTransactions?.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="h-24 text-left">
                           No transactions found.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredTransactions.map((transaction, index) => (
+                      filteredTransactions?.map((transaction, index) => (
                         <motion.tr
                           key={transaction.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           className={`border-b transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700 ${
-                            index % 2 === 0 ? "bg-neutral-50 dark:bg-neutral-900" : ""
+                            index % 2 === 0
+                              ? "bg-neutral-50 dark:bg-neutral-900"
+                              : ""
                           }`}
                         >
                           <TableCell className="text-left">
@@ -204,11 +210,11 @@ export default function TransactionsPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-left">
-                            <Button variant="ghost" size="sm" asChild>
-                              <Link href={`/transactions/${transaction.id}`}>
+                            <TransactionDetailsModal transaction={transaction}>
+                              <Button variant="ghost" size="sm">
                                 View Details
-                              </Link>
-                            </Button>
+                              </Button>
+                            </TransactionDetailsModal>
                           </TableCell>
                         </motion.tr>
                       ))

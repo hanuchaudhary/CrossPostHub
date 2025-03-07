@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, ChevronRight, Download, Home } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,57 +16,92 @@ import {
 import { Separator } from "@/components/ui/separator";
 import confetti from "canvas-confetti";
 import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import { useSearchParams } from "next/navigation";
+import PageLoader from "../Loaders/PageLoader";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { ReceiptTemplate } from "./Reciept";
+
 export default function PaymentSuccessPage() {
-  const { fetchSingleTransaction, singleTransaction } = usePricingStore();
-
-  useEffect(()=>{
-    fetchSingleTransaction("order_Q3PIQ4PD6kku7O");
-  },[])
-
-  // Confetti animation
-  const end = Date.now() + 3 * 1000; // 3 seconds
-  const colors = [
-    "#a786ff",
-    "#fd8bbc",
-    "#eca184",
-    "#f8deb1",
-    "#ff0000",
-    "#00ff00",
-    "#ffff00",
-    "#0000ff",
-    "#ffa500",
-  ];
+  const {
+    fetchSingleTransaction,
+    singleTransaction,
+    isFetchingSingleTransaction,
+  } = usePricingStore();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("order_id");
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
-    const frame = () => {
-      if (Date.now() > end) return;
-
-      confetti({
-        particleCount: 2,
-        angle: 60,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 0, y: 0.5 },
-        colors: colors,
+    if (orderId) {
+      fetchSingleTransaction(orderId).then(() => {
+        setIsDataLoaded(true);
       });
-      confetti({
-        particleCount: 2,
-        angle: 120,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 1, y: 0.5 },
-        colors: colors,
+    }
+  }, [orderId]);
+
+  useEffect(() => {
+    if (isDataLoaded) {
+      const end = Date.now() + 3 * 1000; // 3 seconds
+      const colors = [
+        "#a786ff",
+        "#fd8bbc",
+        "#eca184",
+        "#f8deb1",
+        "#ff0000",
+        "#00ff00",
+        "#ffff00",
+        "#0000ff",
+        "#ffa500",
+      ];
+
+      const frame = () => {
+        if (Date.now() > end) return;
+
+        confetti({
+          particleCount: 2,
+          angle: 60,
+          spread: 55,
+          startVelocity: 60,
+          origin: { x: 0, y: 0.5 },
+          colors: colors,
+        });
+        confetti({
+          particleCount: 2,
+          angle: 120,
+          spread: 55,
+          startVelocity: 60,
+          origin: { x: 1, y: 0.5 },
+          colors: colors,
+        });
+
+        requestAnimationFrame(frame);
+      };
+
+      frame();
+    }
+  }, [isDataLoaded]);
+
+  if (isFetchingSingleTransaction || !singleTransaction) {
+    return <PageLoader />;
+  }
+
+  const handleDownloadReceipt = () => {
+    const receiptElement = document.getElementById("receipt");
+
+    if (receiptElement) {
+      html2canvas(receiptElement).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save("receipt.pdf");
       });
-
-      requestAnimationFrame(frame);
-    };
-
-    frame();
-    return () => {};
-  }, []);
-
-  console.log(singleTransaction);
-  
+    }
+  };
 
   return (
     <div className="relative flex flex-col items-center justify-center p-4">
@@ -133,7 +167,9 @@ export default function PaymentSuccessPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium">
-                  {new Date(singleTransaction?.createdAt ?? "").toLocaleDateString()}
+                  {new Date(
+                    singleTransaction?.createdAt ?? ""
+                  ).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -188,7 +224,11 @@ export default function PaymentSuccessPage() {
                   Home
                 </Link>
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button
+                onClick={handleDownloadReceipt}
+                variant="outline"
+                className="flex-1"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Receipt
               </Button>
@@ -196,6 +236,10 @@ export default function PaymentSuccessPage() {
           </CardFooter>
         </Card>
       </motion.div>
+
+      <div className="hidden">
+        <ReceiptTemplate transaction={singleTransaction} />
+      </div>
     </div>
   );
 }
