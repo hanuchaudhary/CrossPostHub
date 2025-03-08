@@ -16,7 +16,7 @@ export default function SSEListener({ userId }: { userId: string }) {
       toast({
         title: "Post Update",
         description: `${data.message}`,
-        variant: "default", // You can change it to "destructive" if it's an error
+        variant: "default",
       });
       // Fetch notifications to update the UI
       fetchNotifications();

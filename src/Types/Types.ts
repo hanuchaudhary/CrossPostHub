@@ -78,7 +78,7 @@ export interface TransactionType {
   userId: string;
   planId: string;
   status: STATUS;
-  amount: Number;
+  amount: number;
   order_id: string;
   paymentId: string;
   user: User;

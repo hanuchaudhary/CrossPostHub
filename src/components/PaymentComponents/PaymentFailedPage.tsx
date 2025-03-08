@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,50 +22,30 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import {  TransactionType } from "@/Types/Types";
+import { TransactionType } from "@/Types/Types";
+import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import PageLoader from "../Loaders/PageLoader";
 
 export default function PaymentFailedPage() {
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [transaction, setTransaction] = useState<TransactionType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id"); // Extract order_id from URL
 
-  // Fetch transaction details
-  useEffect(() => {
+  const {
+    fetchSingleTransaction,
+    singleTransaction,
+    isFetchingSingleTransaction,
+  } = usePricingStore();
+
+  const fetchTransaction = useCallback(() => {
     if (orderId) {
-      const fetchTransaction = async () => {
-        try {
-          const response = await fetch(`/api/transactions/${orderId}`);
-          if (!response.ok) throw new Error("Failed to fetch transaction");
-          const data = await response.json();
-          setTransaction(data);
-        } catch (err: any) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchTransaction();
-    } else {
-      setError("Order ID is missing");
-      setIsLoading(false);
+      fetchSingleTransaction(orderId);
     }
-  }, [orderId]);
+  }, [orderId, fetchSingleTransaction]);
 
-  // Handle retry payment
-  const handleRetry = () => {
-    setIsRetrying(true);
-    // Redirect to payment page or retry logic
-    setTimeout(() => {
-      setIsRetrying(false);
-    }, 2000);
-  };
+  useEffect(() => {
+    fetchTransaction();
+  }, [fetchTransaction]);
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -114,22 +94,8 @@ export default function PaymentFailedPage() {
     },
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-4">Loading...</div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center p-4">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
+  if (isFetchingSingleTransaction) {
+    return <PageLoader />;
   }
 
   return (
@@ -155,7 +121,7 @@ export default function PaymentFailedPage() {
               Payment Failed
             </CardTitle>
             <CardDescription className="text-center">
-              We couldn't process your payment. Please try again.
+              We couldn&apos;t process your payment. Please try again.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -175,23 +141,34 @@ export default function PaymentFailedPage() {
             >
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Order ID</span>
-                <span className="font-medium">{transaction?.order_id}</span>
+                <span className="font-medium">
+                  {singleTransaction?.order_id}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium">
-                  {transaction?.createdAt ? new Date(transaction.createdAt).toLocaleDateString() : "N/A"}
+                  {singleTransaction?.createdAt
+                    ? new Date(
+                        singleTransaction?.createdAt
+                      ).toLocaleDateString()
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Amount</span>
                 <span className="font-medium">
-                  ${(typeof transaction?.amount === "number" ? (transaction.amount / 100).toFixed(2) : "N/A")}
+                  $
+                  {typeof singleTransaction?.amount === "number"
+                    ? (singleTransaction?.amount / 100).toFixed(2)
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="font-medium">{transaction?.plan?.title}</span>
+                <span className="font-medium">
+                  {singleTransaction?.plan?.title}
+                </span>
               </div>
             </motion.div>
 
@@ -210,7 +187,9 @@ export default function PaymentFailedPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-muted-foreground" />
-                  <span>Contact your bank to authorize the transaction</span>
+                  <span>
+                    Contact your bank to authorize the singleTransaction
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <ArrowRight className="h-4 w-4 mt-0.5 text-muted-foreground" />
@@ -220,22 +199,9 @@ export default function PaymentFailedPage() {
             </motion.div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Button
-              className="w-full"
-              onClick={handleRetry}
-              disabled={isRetrying}
-            >
-              {isRetrying ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Retrying...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Try Again
-                </>
-              )}
+            <Button className="w-full">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
             </Button>
             <div className="flex gap-2 w-full">
               <Button variant="outline" className="flex-1" asChild>

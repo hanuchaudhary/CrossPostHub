@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, ChevronRight, Download, Home } from "lucide-react";
@@ -32,13 +32,15 @@ export default function PaymentSuccessPage() {
   const orderId = searchParams.get("order_id");
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
-  useEffect(() => {
+  const fetchTransaction = useCallback(() => {
     if (orderId) {
-      fetchSingleTransaction(orderId).then(() => {
-        setIsDataLoaded(true);
-      });
+      fetchSingleTransaction(orderId).then(() => setIsDataLoaded(true));
     }
-  }, [orderId]);
+  }, [orderId, fetchSingleTransaction]);
+
+  useEffect(() => {
+    fetchTransaction();
+  }, [fetchTransaction]);
 
   useEffect(() => {
     if (isDataLoaded) {

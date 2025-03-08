@@ -38,7 +38,7 @@ export default function NotificationDropdown({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -20 }}
           transition={{ duration: 0.2 }}
-          className="fixed md:right-4 lg:right-48 top-16 z-50 w-[380px] rounded-3xl bg-primary-foreground shadow-lg border"
+          className="absolute right-0 top-10 z-50 w-[380px] rounded-3xl bg-primary-foreground shadow-lg border"
         >
           <div className="relative max-h-[600px] flex flex-col">
             {/* Header */}

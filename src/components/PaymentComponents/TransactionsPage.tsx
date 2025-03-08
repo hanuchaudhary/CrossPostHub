@@ -53,7 +53,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const filteredTransactions = transactions
     ?.filter((transaction) => {
