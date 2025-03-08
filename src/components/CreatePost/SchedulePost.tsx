@@ -34,7 +34,7 @@ export function SchedulePost({ scheduleDate, setScheduleDate, scheduleTime, setS
             {scheduleDate ? format(scheduleDate, "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0 pt-1">
           <Calendar
             mode="single"
             selected={scheduleDate!}

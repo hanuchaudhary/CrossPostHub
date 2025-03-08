@@ -1,104 +1,90 @@
 "use client";
 
-import React from "react";
-import Guide from "../Guide";
-import { Menu, ArrowLeftIcon } from "lucide-react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { MobileMenu } from "./MobileMenu";
-import { Profile } from "./Profile";
-import { useAuthStore } from "@/store/AuthStore/useAuthStore";
-import UpgradeButton from "../Buttons/UpgradeButton";
 import { useSession } from "next-auth/react";
+import { ArrowLeft, Menu } from "lucide-react";
+
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/AuthStore/useAuthStore";
 import SSEListener from "../Tools/SSEListner";
+import UpgradeButton from "../Buttons/UpgradeButton";
+import Guide from "../Guide";
 import NotificationButton from "../Buttons/NotificationsButton";
-import { Button } from "../ui/button";
+import { Profile } from "./Profile";
+import { MobileMenu } from "./MobileMenu";
 
 export default function DashboardNavbar() {
   const pathname = usePathname();
   const { data } = useSession();
-
   const { fetchUser } = useAuthStore();
-  React.useEffect(() => {
+
+  useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
   return (
-    <div className="max-w-7xl mx-auto flex items-center justify-between md:py-6 py-4 px-4 sm:px-6 lg:px-8">
-      <SSEListener userId={data?.user.id!} />
-      <div className="flex items-center space-x-4">
-        <Link
-          href={"/dashboard"}
-          className="text-xl text-emerald-500 font-ClashDisplayMedium"
-        >
-          CrossPost Hub.
+    <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-6xl mx-auto border-b border-b-secondary/40">
+      {data?.user.id && <SSEListener userId={data.user.id} />}
+      <div className="flex items-center gap-2 md:gap-4">
+        <Link href="/dashboard" className="flex items-center">
+          <span className="text-lg font-ClashDisplayMedium text-emerald-500">
+            CrossPostHub.
+          </span>
         </Link>
-        <div className="md:block hidden">
+        <div className="hidden md:block">
           <UpgradeButton />
         </div>
       </div>
-      <div className="flex items-center md:space-x-4 space-x-1">
-        <Link href={"/edit"}>
-          <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
-            Edit Image
-          </span>
-        </Link>
-        {pathname === "/dashboard" ? (
-          <div>
-            <Link replace href={"/create"}>
-              <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
-                Create
-              </span>
-            </Link>
-            <Link href={"/create"}>
-              <span className="md:hidden block leading-none">Create</span>
-            </Link>
-          </div>
-        ) : (
-          <div>
-            <Link href={"/dashboard"}>
-              <span className="md:block hidden uppercase font-semibold text-sm hover:text-emerald-500 transition-colors duration-200">
-                Dashboard
-              </span>
-            </Link>
-            <Link href={"/dashboard"}>
-              <span className="md:hidden block">
-                <ArrowLeftIcon />
-              </span>
-            </Link>
-          </div>
-        )}
-        <div className="md:block hidden">
-          <Link href={"/payment/transactions"}>
-            <Button variant="default" size="sm">
-              Transactions
-            </Button>
+
+      <nav className="flex items-center gap-1 md:gap-4">
+        {[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/create", label: "Create" },
+          { href: "/edit", label: "Edit Image" },
+          { href: "/payment/transactions", label: "Transactions" },
+        ].map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`${
+              href === "/dashboard" || href === "/create" ? "inline-flex" : "hidden md:inline-flex"
+            } items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+              pathname === href ? "text-emerald-500" : ""
+            }`}
+          >
+            {label}
           </Link>
-        </div>
-        <div className="md:block hidden">
+        ))}
+
+        <div className="hidden md:block">
           <Guide />
         </div>
-        <div className="md:block hidden">
-          <Profile />
-        </div>
-        <div className="md:block hidden">
+
+        <div className="hidden md:block">
           <NotificationButton />
         </div>
-        <div className="md:hidden block">
+
+        <div className="hidden md:block">
+          <Profile />
+        </div>
+
+        <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <span>
-                <Menu className="h-[1.2rem] w-[1.2rem]" />
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
-              </span>
+              </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent side="right" className="w-[80%] sm:w-[350px]">
               <MobileMenu />
             </SheetContent>
           </Sheet>
         </div>
-      </div>
-    </div>
+      </nav>
+    </header>
   );
 }

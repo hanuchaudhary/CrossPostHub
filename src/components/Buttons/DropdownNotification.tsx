@@ -67,7 +67,7 @@ export default function NotificationDropdown({
                   No notifications yet
                 </div>
               ) : (
-                <div className="p-4 space-y-3">
+                <div className="p-4 space-y-1">
                   {notifications.map((notification) => (
                     <motion.div
                       key={notification.id}
