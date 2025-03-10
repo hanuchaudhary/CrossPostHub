@@ -103,6 +103,12 @@ export async function POST(request: NextRequest) {
             userId: loggedUser.id as string,
           });
 
+          await postSaveToDB({
+            postText,
+            userId: loggedUser.id,
+            provider,
+          });
+
           return {
             provider,
             jobId: job.id,

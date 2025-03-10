@@ -112,6 +112,7 @@ export async function CreatePostWithMedia({ accessToken, personURN, assetURNs, t
                 "X-Restli-Protocol-Version": "2.0.0"
             }
         })
+
         console.log("Post Created!");
         return response.data;
     } catch (error) {

@@ -70,7 +70,7 @@ model Post {
 
 model Plan {
   id          String        @unique @default(cuid())
-  title       String?
+  title       String?       @unique
   description String?
   features    String[]
   cta         String?

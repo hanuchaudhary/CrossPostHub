@@ -7,134 +7,163 @@ import GoogleProvider from "next-auth/providers/google";
 import InstagramProvider from "next-auth/providers/instagram";
 import LinkedinProvider from "next-auth/providers/linkedin";
 import { signinSchema } from "@/lib/validation";
+import { getFreePlanId } from "@/utils/Controllers/GETFreePlan";
 
 if (!process.env.NEXTAUTH_URL) {
-    console.warn("Please set NEXTAUTH_URL environment variable");
+  console.warn("Please set NEXTAUTH_URL environment variable");
 }
 
 export const authOptions: NextAuthOptions = {
-    providers: [
-        CredentialsProvider({
-            id: "credentials",
-            name: "Credentials",
-            credentials: {
-                email: { label: "Email", type: "text" },
-                password: { label: "Password", type: "password" },
+  providers: [
+    CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials) throw new Error("Credentials not provided");
+        const { email, password } = credentials;
+        console.log("Credentials", credentials);
+
+        const { success } = signinSchema.safeParse({ email, password });
+        if (!success) throw new Error("Invalid credentials");
+
+        try {
+          const user = await prisma.user.findFirst({
+            where: {
+              email: email,
             },
-            async authorize(credentials) {
-                if (!credentials) throw new Error("Credentials not provided");
-                const { email, password } = credentials;
-                console.log("Credentials", credentials);
+          });
 
-                const { success } = signinSchema.safeParse({ email, password });
-                if (!success) throw new Error("Invalid credentials");
+          if (!user) throw new Error("No user found with this email address");
+          if (!password) throw new Error("Password is required");
 
-                try {
-                    const user = await prisma.user.findFirst({
-                        where: {
-                            email: email
-                        },
-                    });
+          const isPasswordValid = await bcryptjs.compare(
+            password,
+            user.password!
+          );
+          if (!isPasswordValid) throw new Error("Invalid password");
 
-                    if (!user) throw new Error("No user found with this email address");
-                    if (!password) throw new Error("Password is required");
-
-                    const isPasswordValid = await bcryptjs.compare(password, user.password!);
-                    if (!isPasswordValid) throw new Error("Invalid password");
-
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name || undefined,
-                        image: user.image || undefined,
-                    };
-                } catch (error) {
-                    console.error("Authentication error:", error);
-                    throw error;
-                }
-            },
-        }),
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            authorization: {
-                params: {
-                    access_type: 'offline',
-                    prompt: 'consent',
-                    response_type: 'code',
-                }
-            }
-        }),
-        InstagramProvider({
-            clientId: process.env.INSTAGRAM_CLIENT_ID!,
-            clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-            version: "1.0A",
-            authorization: {
-                params: {
-                    redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
-                }
-            },
-            scope: "user_profile"
-        }),
-        LinkedinProvider({
-            clientId: process.env.LINKEDIN_CLIENT_ID!,
-            clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-            jwks_endpoint: 'https://www.linkedin.com/oauth/openid/jwks',
-            issuer: "https://www.linkedin.com/oauth",
-            authorization: {
-                params: {
-                    redirect_uri: "http://localhost:3000/api/auth/callback/linkedin",
-                    scope: 'email profile w_member_social openid',
-                    prompt: 'consent',
-                    response_type: 'code',
-                }
-            },
-            async profile(profile) {
-                const id = profile.sub || profile.id || profile.email;
-                return {
-                    id,
-                    name: profile.name,
-                    email: profile.email,
-                    image: profile.picture,
-                };
-            }
-
-
-        }),
-    ],
-    adapter: PrismaAdapter(prisma), // Use Prisma adapter for NextAuth
-    callbacks: {
-        async jwt({ token, user, account }) {
-            if (account?.access_token) {
-                token.accessToken = account.access_token;
-            }
-            if (user) {
-                token.id = user.id;
-                token.email = user.email;
-                token.name = user.name;
-                token.image = user.image;
-            }
-            return token;
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name || undefined,
+            image: user.image || undefined,
+          };
+        } catch (error) {
+          console.error("Authentication error:", error);
+          throw error;
+        }
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          access_type: "offline",
+          prompt: "consent",
+          response_type: "code",
         },
-        async session({ session, token }) {
-            if (token) {
-                session.user.id = token.id as string;
-                session.user.email = token.email as string;
-                session.user.name = token.name as string;
-                session.user.image = token.image as string;
-            }
-            return session;
+      },
+    }),
+    InstagramProvider({
+      clientId: process.env.INSTAGRAM_CLIENT_ID!,
+      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+      version: "1.0A",
+      authorization: {
+        params: {
+          redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
         },
+      },
+      scope: "user_profile",
+    }),
+    LinkedinProvider({
+      clientId: process.env.LINKEDIN_CLIENT_ID!,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+      jwks_endpoint: "https://www.linkedin.com/oauth/openid/jwks",
+      issuer: "https://www.linkedin.com/oauth",
+      authorization: {
+        params: {
+          redirect_uri: "http://localhost:3000/api/auth/callback/linkedin",
+          scope: "email profile w_member_social openid",
+          prompt: "consent",
+          response_type: "code",
+        },
+      },
+      async profile(profile) {
+        const id = profile.sub || profile.id || profile.email;
+        return {
+          id,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
+    }),
+  ],
+  adapter: PrismaAdapter(prisma), // Use Prisma adapter for NextAuth
+  callbacks: {
+    async jwt({ token, user, account }) {
+      if (account?.access_token) {
+        token.accessToken = account.access_token;
+      }
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+      }
+      return token;
     },
-    pages: {
-        signIn: "/signin",
-        error: "/sigin",
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.image = token.image as string;
+      }
+      return session;
     },
-    session: {
-        strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-    },
-    secret: process.env.NEXTAUTH_SECRET,
-    debug: true,
+    async signIn({user,account,profile}) {
+      try {
+        // Check if the user already exists
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
 
+        if (!existingUser) {
+          // Assign the Free Tier plan
+          const freePlanId = await getFreePlanId();
+
+          // Create a new user with the Free Tier plan
+          await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+              planId: freePlanId,
+            },
+          });
+        }
+
+        return true; 
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+        return false; 
+      }
+  },
+  },
+  pages: {
+    signIn: "/signin",
+    error: "/sigin",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: true,
 };
