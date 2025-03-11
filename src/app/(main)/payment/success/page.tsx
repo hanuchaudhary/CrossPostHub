@@ -1,8 +1,11 @@
-import PaymentSuccessPage from '@/components/PaymentComponents/PaymentSuccesPage'
-import React from 'react'
+import PageLoader from "@/components/Loaders/PageLoader";
+import PaymentSuccessPage from "@/components/PaymentComponents/PaymentSuccesPage";
+import React, { Suspense } from "react";
 
 export default function Page() {
   return (
-    <PaymentSuccessPage/>
-  )
+    <Suspense fallback={<PageLoader />}>
+      <PaymentSuccessPage />
+    </Suspense>
+  );
 }

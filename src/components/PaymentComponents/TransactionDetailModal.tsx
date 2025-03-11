@@ -9,6 +9,7 @@ import { TransactionType } from "@/Types/Types";
 import React from "react";
 import { Badge } from "../ui/badge";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { formatDate } from "@/lib/formatDate";
 
 export const TransactionDetailsModal = ({
   transaction,
@@ -32,7 +33,7 @@ export const TransactionDetailsModal = ({
           <div className="flex justify-between">
             <span className="text-muted-foreground">Date:</span>
             <span className="font-medium">
-              {/* {format(transaction.createdAt, "MMM dd, yyyy hh:mm a")} */}
+              {formatDate(transaction.createdAt)}
             </span>
           </div>
           <div className="flex justify-between">

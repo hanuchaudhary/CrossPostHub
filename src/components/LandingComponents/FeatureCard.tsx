@@ -40,10 +40,19 @@ function FeatureCard({
             />
             <div className="absolute inset-0 md:bg-black/60 group-hover:bg-transparent transition-colors duration-500" />
           </div>
-          <div
-            className={`absolute ${
-              isActive ? "md:block md:opacity-100" : "md:hidden md:opacity-0"
-            } bottom-0 left-0 w-full p-4 z-10 bg-black/40 rounded-t-3xl backdrop-blur-3xl transition-all duration-500`}
+          <motion.div
+            initial={{ y: 100}}
+            animate={{
+              y: isActive ? 0 : 100,
+              opacity: isActive ? 1 : 0,
+              transition: {
+                duration: 0.1,
+                stiffness: 200,
+                damping: 20,
+                type: "spring",
+              },
+            }}
+            className={`absolute bottom-0 left-0 w-full p-4 z-10 bg-black/40 rounded-t-3xl backdrop-blur-3xl transition-all duration-500`}
           >
             <h3 className="md:text-2xl text-lg font-ClashDisplayMedium text-white mb-1 leading-tight">
               {title.split(" ").map((word, index, array) => (
@@ -58,7 +67,7 @@ function FeatureCard({
               ))}
             </h3>
             <p className="text-neutral-300 text-xs md:text-sm">{description}</p>
-          </div>
+          </motion.div>
           <div
             className={`absolute ${
               isActive ? "opacity-100" : "opacity-30"

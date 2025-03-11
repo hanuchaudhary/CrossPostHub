@@ -26,10 +26,15 @@ import { GlowingButton } from "../Buttons/GlowingButton";
 import Image from "next/image";
 
 export function Profile() {
-  const { fetchAccountDetails, twitterUserDetails } = useDashboardStore();
+  const { fetchAccountDetails, twitterUserDetails, fetchDashboardData,dashboardData } =
+    useDashboardStore();
+  // React.useEffect(() => {
+  //   fetchAccountDetails();
+  // }, [fetchAccountDetails]);
+
   React.useEffect(() => {
-    fetchAccountDetails();
-  }, [fetchAccountDetails]);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const router = useRouter();
 
@@ -42,20 +47,20 @@ export function Profile() {
   };
 
   // Dummy graph data for posts on different platforms
-  const postData = [
-    { month: "Jan", Twitter: 15, LinkedIn: 8, Instagram: 20 },
-    { month: "Feb", Twitter: 20, LinkedIn: 10, Instagram: 25 },
-    { month: "Mar", Twitter: 18, LinkedIn: 12, Instagram: 22 },
-    { month: "Apr", Twitter: 25, LinkedIn: 15, Instagram: 30 },
-    { month: "May", Twitter: 22, LinkedIn: 18, Instagram: 28 },
-    { month: "Jun", Twitter: 30, LinkedIn: 20, Instagram: 35 },
-    { month: "Jul", Twitter: 28, LinkedIn: 22, Instagram: 32 },
-    { month: "Aug", Twitter: 35, LinkedIn: 25, Instagram: 40 },
-    { month: "Sep", Twitter: 32, LinkedIn: 28, Instagram: 38 },
-    { month: "Oct", Twitter: 40, LinkedIn: 30, Instagram: 45 },
-    { month: "Nov", Twitter: 38, LinkedIn: 32, Instagram: 42 },
-    { month: "Dec", Twitter: 45, LinkedIn: 35, Instagram: 50 },
-  ];
+  // const postData = [
+  //   { month: "Jan", Twitter: 15, LinkedIn: 8, Instagram: 20 },
+  //   { month: "Feb", Twitter: 20, LinkedIn: 10, Instagram: 25 },
+  //   { month: "Mar", Twitter: 18, LinkedIn: 12, Instagram: 22 },
+  //   { month: "Apr", Twitter: 25, LinkedIn: 15, Instagram: 30 },
+  //   { month: "May", Twitter: 22, LinkedIn: 18, Instagram: 28 },
+  //   { month: "Jun", Twitter: 30, LinkedIn: 20, Instagram: 35 },
+  //   { month: "Jul", Twitter: 28, LinkedIn: 22, Instagram: 32 },
+  //   { month: "Aug", Twitter: 35, LinkedIn: 25, Instagram: 40 },
+  //   { month: "Sep", Twitter: 32, LinkedIn: 28, Instagram: 38 },
+  //   { month: "Oct", Twitter: 40, LinkedIn: 30, Instagram: 45 },
+  //   { month: "Nov", Twitter: 38, LinkedIn: 32, Instagram: 42 },
+  //   { month: "Dec", Twitter: 45, LinkedIn: 35, Instagram: 50 },
+  // ];
 
   return (
     <Drawer>
@@ -166,12 +171,12 @@ export function Profile() {
                   }}
                   className="h-[300px] w-full"
                 >
-                  <BarChart data={postData}>
+                  <BarChart data={dashboardData}>
                     <XAxis dataKey="month" />
                     <Tooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="Twitter" fill="hsl(203, 89%, 53%)" />
-                    <Bar dataKey="LinkedIn" fill="hsl(201, 100%, 35%)" />
-                    <Bar dataKey="Instagram" fill="hsl(340, 75%, 54%)" />
+                    <Bar dataKey="twitter" fill="#ffffff" />
+                    <Bar dataKey="linkedin" fill="#0088D1" />
+                    <Bar dataKey="instagram" fill="#EB5949" />
                   </BarChart>
                 </ChartContainer>
               </CardContent>
@@ -205,7 +210,10 @@ export function Profile() {
             router.push("/signin");
           }}
         >
-          <GlowingButton color="red" className="absolute backdrop-blur-3xl bottom-4 right-4">
+          <GlowingButton
+            color="red"
+            className="absolute backdrop-blur-3xl bottom-4 right-4"
+          >
             <span className="flex flex-row items-center space-x-1">
               <LogOut className="h-4 w-4" /> <span>Logout</span>
             </span>

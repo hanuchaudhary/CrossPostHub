@@ -28,10 +28,10 @@ export default function MobileNav() {
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="rounded-l-2xl">
         <SheetHeader>
-          <SheetTitle>
-            <h1 className="font-ClashDisplayMedium text-xl">CrossPost Hub.</h1>
+          <SheetTitle className="text-left">
+            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500">CrossPost Hub.</h1>
             <SheetDescription className="text-neutral-500 dark:text-neutral-400">
               All your social media in one place.
             </SheetDescription>

@@ -28,7 +28,7 @@ import PageLoader from "../Loaders/PageLoader";
 
 export default function PaymentFailedPage() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get("order_id"); // Extract order_id from URL
+  const orderId = searchParams.get("order_id");
 
   const {
     fetchSingleTransaction,

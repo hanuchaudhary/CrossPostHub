@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <header className="flex fixed z-30 backdrop-blur-lg top-0 left-0 w-full items-center justify-between mx-auto py-4 px-4 sm:px-6 lg:px-28">
+    <header className="flex fixed z-30 rounded-b-3xl backdrop-blur-lg top-0 left-0 w-full items-center justify-between mx-auto py-4 px-4 sm:px-6 lg:px-28">
       <Link
         href="/"
         className="font-ClashDisplayMedium text-emerald-500 text-xl"

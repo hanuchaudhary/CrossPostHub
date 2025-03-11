@@ -46,6 +46,9 @@ export default function SigninForm() {
         callbackUrl: "http://localhost:3000/dashboard", // Explicit callback URL
       });
 
+      console.log(result);
+      
+
       if (result?.error) {
         toast({
           title: "Error",
