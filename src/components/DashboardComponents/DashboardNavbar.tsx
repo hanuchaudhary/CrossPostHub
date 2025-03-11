@@ -26,7 +26,7 @@ export default function DashboardNavbar() {
   }, [fetchUser]);
 
   return (
-    <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-6xl mx-auto border-b border-b-secondary/40">
+    <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-6xl mx-auto border-b border-b-secondary/20">
       {data?.user.id && <SSEListener userId={data.user.id} />}
       <div className="flex items-center gap-2 md:gap-4">
         <Link href="/dashboard" className="flex items-center">
@@ -51,7 +51,7 @@ export default function DashboardNavbar() {
             href={href}
             className={`${
               href === "/dashboard" || href === "/create" ? "inline-flex" : "hidden md:inline-flex"
-            } items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+            } items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
               pathname === href ? "text-emerald-500" : ""
             }`}
           >

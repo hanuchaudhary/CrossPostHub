@@ -74,7 +74,7 @@ export default function NotificationDropdown({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className={`relative rounded-lg border p-4 transition-colors ${
+                      className={`group relative rounded-lg border p-4 transition-colors ${
                         notification.read ? "bg-muted" : "bg-primary"
                       }`}
                     >
@@ -96,9 +96,15 @@ export default function NotificationDropdown({
                         {/* Dropdown Menu */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost">
-                              <MoreVertical className="h-5 w-5" />
-                            </Button>
+                            <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreVertical
+                                className={`h-4 w-4 ${
+                                  notification.read
+                                    ? "text-primary"
+                                    : " text-black"
+                                }`}
+                              />
+                            </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             {!notification.read && (

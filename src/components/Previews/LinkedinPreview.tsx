@@ -41,8 +41,7 @@ export function LinkedInPreview({
               <span className="text-neutral-500 text-sm">• Following</span>
             </div>
             <p className="text-neutral-600 text-[13px] leading-tight">
-              retired from corporate and full time YouTuber, x founder of LCO
-              (acquired)
+              Passionate about technology and innovation. Loves to travel and explore new cultures.
             </p>
             <div className="flex items-center gap-1 text-neutral-600 text-[13px]">
               <span>2h</span>

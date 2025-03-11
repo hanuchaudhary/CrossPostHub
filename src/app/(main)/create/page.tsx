@@ -3,7 +3,8 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Create Post",
+  title: "Create Post | CrossPostHub",
+  description: "Create a new post on CrossPostHub.",
 };
 
 export default function CreatePostPage() {

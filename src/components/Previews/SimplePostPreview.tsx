@@ -1,6 +1,4 @@
-"use client";
-
-import React from "react";
+import React, { memo } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -17,7 +15,10 @@ interface SimplePostPreviewProps {
   images: File[];
 }
 
-export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
+export const SimplePostPreview = memo(function SimplePostPreview({
+  content,
+  images,
+}: SimplePostPreviewProps) {
   return (
     <motion.div
       initial={{ x: "100%" }}
@@ -41,16 +42,35 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
           {images.length > 0 && (
             <Carousel className="w-full max-w-xs mx-auto">
               <CarouselContent>
-                {images.map((image, index) => (
+                {images.map((file, index) => (
                   <CarouselItem key={index}>
                     <AspectRatio ratio={1}>
-                      <Image
-                        height={100}
-                        width={100}
-                        src={URL.createObjectURL(image) || "/placeholder.svg"}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-contain rounded"
-                      />
+                      {file.type.startsWith("image/") ? (
+                        <Image
+                          height={100}
+                          width={100}
+                          src={URL.createObjectURL(file) || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-contain rounded"
+                        />
+                      ) : file.type.startsWith("video/") ? (
+                        <video
+                          controls
+                          className="w-full h-full object-contain rounded"
+                        >
+                          <source
+                            src={URL.createObjectURL(file)}
+                            type={file.type}
+                          />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-secondary/50 rounded">
+                          <p className="text-sm text-muted-foreground">
+                            Unsupported file type
+                          </p>
+                        </div>
+                      )}
                     </AspectRatio>
                   </CarouselItem>
                 ))}
@@ -67,4 +87,4 @@ export function SimplePostPreview({ content, images }: SimplePostPreviewProps) {
       )}
     </motion.div>
   );
-}
+});
