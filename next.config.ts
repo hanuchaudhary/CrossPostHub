@@ -1,7 +1,7 @@
 import { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
-    domains: ["images.unsplash.com", "res.cloudinary.com"],
+    domains: ["images.unsplash.com", "res.cloudinary.com", "i.pinimg.com"],
   },
   webpack: (config) => {
     config.externals.push({
