@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
 import { getTwitterUserDetails } from "@/utils/TwitterUtils/TwitterUtils";
+import { redis } from "@/config/redisConfig";
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -46,6 +47,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
+    const cacheDashboardDataKey = `dashboardData-${session.user.id}`;
+    const cacheDashboardData = await redis.get(cacheDashboardDataKey);
+    if (cacheDashboardData) {
+      console.log("Cache hit");
+      
+      return NextResponse.json(JSON.parse(cacheDashboardData), { status: 200 });
+    }
+
     const posts = await prisma.post.findMany({
       where: { userId: session.user.id },
       select: {
@@ -54,9 +63,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log("Posts:", posts);
-    
-    // Define a type for the provider keys
     type Provider = "twitter" | "linkedin" | "instagram";
 
     // Initialize a map to store the aggregated data
@@ -89,10 +95,12 @@ export async function POST(request: NextRequest) {
     // Convert the map to an array of objects
     const result = Object.values(monthlyData);
 
-    console.log("Result:", result);
-    
+    // Cache the data
+    await redis.set(cacheDashboardDataKey, JSON.stringify(result), {
+      EX: 60 * 60 * 24, // 24 hours
+    });
 
-    return NextResponse.json( result , { status: 200 });
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }

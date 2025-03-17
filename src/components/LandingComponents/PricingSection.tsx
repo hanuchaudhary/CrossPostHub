@@ -55,7 +55,6 @@ export default function PricingSection() {
 
   const { fetchPricingPlans, isFetchingPlans, pricingPlans } =
     usePricingStore();
-
   const fetchPlans = useCallback(() => {
     fetchPricingPlans();
   }, [fetchPricingPlans]);
