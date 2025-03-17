@@ -118,18 +118,21 @@ body {
     @apply bg-primary-foreground;
   }
 }
-
 @layer components {
   .bubble-button {
-    @apply relative z-[1] overflow-hidden;
+    @apply relative z-[1] overflow-hidden text-black;
   }
 
   .bubble-button::after {
-    @apply content-[''] text-white flex justify-center items-center z-[100] transition-all duration-500 ease-in-out h-full w-full bg-black left-0 -bottom-full absolute rounded-full;
+    @apply content-[""] flex justify-center items-center z-[100] transition-all duration-500 ease-in-out h-full w-full bg-black left-0 -bottom-full absolute rounded-full;
   }
 
   .bubble-button:hover::after {
     @apply bottom-0 rounded-none;
+  }
+
+  .bubble-button:hover {
+    @apply text-white;
   }
 }
 

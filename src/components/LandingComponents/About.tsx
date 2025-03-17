@@ -2,13 +2,17 @@
 
 import {
   AlignVerticalJustifyCenter,
+  BellIcon,
   Captions,
   Code2,
   EditIcon,
+  IndianRupee,
+  SquareChevronDown,
   SquareSquare,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
+import { cn } from "@/lib/utils";
 
 export default function About() {
   const features = [
@@ -39,36 +43,42 @@ export default function About() {
         "Secure login and integrations with social media platforms to keep your accounts safe.",
     },
     {
-      icon: AlignVerticalJustifyCenter,
-      title: "Analytics",
-      description: "Track your post performance with analytics.",
+      icon: IndianRupee,
+      title: "Affordable Pricing",
+      description: "Affordable pricing plans for all users.",
     },
     {
-      icon: AlignVerticalJustifyCenter,
-      title: "Analytics",
-      description: "Track your post performance with analytics.",
+      icon: BellIcon,
+      title: "Notifications",
+      description: "Get notified about your posts and account activity.",
     },
     {
-      icon: SquareSquare,
-      title: "Security",
-      description:
-        "Secure login and integrations with social media platforms to keep your accounts safe.",
+      icon: SquareChevronDown,
+      title: "Scheduling",
+      description: "Schedule posts for the future.",
     },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 my-16 z-50 relative">
-      <h4 className="text-4xl text-center font-ClashDisplayMedium mb-4">
-        ...and so much <span className="text-emerald-500">more!</span>
-      </h4>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8">
+    <div className="max-w-4xl mx-auto px-4 my-16 z-30 relative">
+      <div className="text-center font-ClashDisplayMedium mb-4">
+        <h4 className="md:text-4xl text-2xl">
+          ...and so much <span className="text-emerald-500">more!</span>
+        </h4>
+        <p className="md:text-base text-sm text-center font-ClashDisplayRegular text-muted-foreground leading-4">
+          &quot;CrossPostHub offers a plethora of features that make it the
+          perfect tool for managing your social media accounts. Here are some of
+          the features that make CrossPostHub stand out from the rest.&quot;
+        </p>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2 md:p-8">
         {features.map((feature, index) => (
           <motion.div
             key={index}
-            className="relative p-6 h-44 w-48 border dark:border-secondary border-neutral-300/80 flex flex-col overflow-hidden items-center group text-center shadow-sm rounded-2xl bg-primary-foreground gap-3"
+            className="relative p-6 md:h-44 md:w-48  border dark:border-secondary border-neutral-300/50 flex flex-col overflow-hidden items-center group text-center shadow-sm rounded-2xl bg-primary-foreground gap-3"
             whileHover={{ scale: 1.05 }}
           >
-            <div className="relative dark:bg-muted bg-neutral-200/40 border border-secondary p-5 flex items-center justify-center rounded-2xl">
+            <div className="relative dark:bg-muted bg-neutral-200/20 border dark:border-neutral-700/30 border-neutral-300/30` p-5 flex items-center justify-center rounded-2xl">
               <feature.icon className="h-6 w-6 text-primary" />
               <div className="dot1 absolute top-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
               <div className="dot1 absolute top-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
@@ -86,8 +96,15 @@ export default function About() {
                 transition={{ duration: 0.3 }}
                 className="absolute inset-0 h-full w-full bg-primary-foreground flex items-center justify-center rounded-3xl"
               >
-                <p className="text-primary text-lg font-ClashDisplayMedium leading-5 text-center p-4">
-                  {feature.description}
+                <p className="text-primary text-lg font-ClashDisplayMedium leading-5 p-4 flex flex-wrap gap-1 items-center justify-center">
+                  {feature.description.split(" ").map((word, index) => (
+                    <span
+                      key={index}
+                      className={cn(index === 0 && "text-emerald-500")}
+                    >
+                      {word}
+                    </span>
+                  ))}
                 </p>
                 <div className="dot1 absolute top-3 left-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>
                 <div className="dot1 absolute top-3 right-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>

@@ -40,8 +40,8 @@ export default function Features() {
   }, [timeSlots]);
 
   return (
-    <div className="md:max-w-6xl mx-auto px-4 py-12 z-50 relative">
-      <div className="font-ClashDisplaySemibold text-4xl mt-8 mb-12">
+    <div className="md:max-w-6xl mx-auto px-4 py-12 z-30 relative">
+      <div className="font-ClashDisplaySemibold md:text-4xl text-2xl mt-8 mb-12">
         <h2 className="text-center w-full">
           Why <span className="text-emerald-500">CrossPostHub?</span>
         </h2>
