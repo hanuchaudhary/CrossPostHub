@@ -1,13 +1,13 @@
 {
   "name": "crosspost-hub",
-  "version": "1 .0.0",
+  "version": "1.0.0",
   "private": true,
   "prisma": {
     "seed": "bun prisma/seed.ts"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && bunx prisma generate",
     "start": "next start",
     "lint": "next lint"
   },
