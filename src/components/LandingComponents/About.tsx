@@ -1,91 +1,103 @@
 "use client";
 
-import { useState } from "react";
-import FeatureCard from "./FeatureCard";
+import {
+  AlignVerticalJustifyCenter,
+  Captions,
+  Code2,
+  EditIcon,
+  SquareSquare,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import React from "react";
 
-interface Feature {
-  title: string;
-  description: string;
-  image: string;
-}
-
-function About() {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const Features: Feature[] = [
+export default function About() {
+  const features = [
     {
-      title: "Unified Post Scheduler",
-      description: "One dashboard for all your social media posts.",
-      image:
-        "https://images.unsplash.com/photo-1642618717985-a681a41d04bc?q=80&w=3118&auto=format&fit=crop",
+      icon: Captions,
+      title: "AI-Generated Captions",
+      description: "Generate captions for your posts with AI.",
     },
     {
-      title: "Multi-Platform Support",
-      description: "Seamlessly post to multiple platforms.",
-      image:
-        "https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/dsnfleybbx9i6scuqyhi.png",
+      icon: EditIcon,
+      title: "Inbuilt Image Editor",
+      description: "Edit images within the platform.",
     },
     {
-      title: "Image & Video Uploads",
-      description: "Upload and schedule media content.",
-      image:
-        "https://i.pinimg.com/736x/9d/18/3b/9d183b81c09071745583fe932bb5657a.jpg",
+      icon: Code2,
+      title: "Code-to-Image Converter",
+      description: "Convert code snippets into images.",
     },
     {
-      title: "Smart Scheduling",
-      description: "Post at optimal engagement times.",
-      image:
-        "https://i.pinimg.com/736x/cf/c3/fe/cfc3fee57f4e2cf86ce83d362b6c36c2.jpg",
+      icon: AlignVerticalJustifyCenter,
+      title: "Analytics",
+      description: "Track your post performance with analytics.",
     },
     {
-      title: "AI-Assisted Captions",
-      description: "Generate engaging captions with AI.",
-      image:
-        "https://i.pinimg.com/736x/de/ca/d2/decad2dc12d7eacb57814abc200e6657.jpg",
+      icon: SquareSquare,
+      title: "Security",
+      description:
+        "Secure login and integrations with social media platforms to keep your accounts safe.",
     },
     {
-      title: "Analytics Dashboard",
-      description: "Track and analyze post performance.",
-      image:
-        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&auto=format&fit=crop",
+      icon: AlignVerticalJustifyCenter,
+      title: "Analytics",
+      description: "Track your post performance with analytics.",
+    },
+    {
+      icon: AlignVerticalJustifyCenter,
+      title: "Analytics",
+      description: "Track your post performance with analytics.",
+    },
+    {
+      icon: SquareSquare,
+      title: "Security",
+      description:
+        "Secure login and integrations with social media platforms to keep your accounts safe.",
     },
   ];
 
   return (
-    <div className="min-h-screen relative py-40 flex flex-col justify-center max-w-7xl mx-auto items-center">
-      <div className="font-ClashDisplaySemibold text-2xl">
-        <h2 className="text-center w-full">
-          Why <span className="text-emerald-500">CrossPostHub?</span>
-        </h2>
-        <p className="md:text-base text-sm text-center font-ClashDisplayRegular text-muted-foreground">
-          &quot;Effortless Social Media Management – Schedule, Post, and Analyze with
-          Ease!&quot;
-        </p>
-      </div>
-
-      <div className="mt-12 z-20 md:flex grid grid-cols-1 gap-4 w-full mx-auto overflow-hidden">
-        {Features.map((feature, index) => (
-          <FeatureCard
-            index={index + 1}
+    <div className="max-w-4xl mx-auto px-4 my-16 z-50 relative">
+      <h4 className="text-4xl text-center font-ClashDisplayMedium mb-4">
+        ...and so much <span className="text-emerald-500">more!</span>
+      </h4>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8">
+        {features.map((feature, index) => (
+          <motion.div
             key={index}
-            title={feature.title}
-            image={feature.image}
-            description={feature.description}
-            isActive={activeIndex === index}
-            onHover={() => setActiveIndex(index)}
-            onLeave={() => setActiveIndex(null)}
-          />
+            className="relative p-6 h-44 w-48 border dark:border-secondary border-neutral-300/80 flex flex-col overflow-hidden items-center group text-center shadow-sm rounded-2xl bg-primary-foreground gap-3"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="relative dark:bg-muted bg-neutral-200/40 border border-secondary p-5 flex items-center justify-center rounded-2xl">
+              <feature.icon className="h-6 w-6 text-primary" />
+              <div className="dot1 absolute top-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
+              <div className="dot1 absolute top-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
+              <div className="dot1 absolute bottom-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
+              <div className="dot1 absolute bottom-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
+            </div>
+            <h3 className="font-ClashDisplayMedium text-lg leading-none">
+              {feature.title}
+            </h3>
+            <AnimatePresence>
+              <motion.div
+                initial={{ scale: 0.98, opacity: 0, filter: "blur(10px)" }}
+                whileHover={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 h-full w-full bg-primary-foreground flex items-center justify-center rounded-3xl"
+              >
+                <p className="text-primary text-lg font-ClashDisplayMedium leading-5 text-center p-4">
+                  {feature.description}
+                </p>
+                <div className="dot1 absolute top-3 left-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>
+                <div className="dot1 absolute top-3 right-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>
+                <div className="dot1 absolute bottom-3 left-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>
+                <div className="dot1 absolute bottom-3 right-3 rounded-full bg-muted-foreground/50 h-1.5 w-1.5"></div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         ))}
       </div>
-
-      <div
-        className={`absolute md:top-40 md:-left-40 top-40 -left-40 md:h-80 h-24 w-[20rem] dark:block rounded-full md:blur-[210px] blur-3xl bg-[#25DFB3]`}
-      />
-      <div
-        className={`absolute md:hidden block top-[60rem] -right-40 md:h-96 h-24 w-[20rem] rounded-full md:blur-[210px] blur-3xl bg-[#25DFB3]`}
-      />
     </div>
   );
 }
-
-export default About;
