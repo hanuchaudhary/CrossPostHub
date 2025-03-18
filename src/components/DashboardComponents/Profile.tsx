@@ -73,7 +73,7 @@ export function Profile() {
         </DrawerHeader>
         <ScrollArea className="p-4">
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {dashboardData?.twitterUserDetails && (
                 <TwitterUserDetails dashboardData={dashboardData} />
               )}

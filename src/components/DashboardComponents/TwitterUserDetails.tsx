@@ -13,7 +13,7 @@ export default function TwitterUserDetails({
       <div className="flex items-center space-x-4 mb-4">
         <Avatar className="h-10 w-10">
           <AvatarImage
-            src={dashboardData?.twitterUserDetails.profile_image_url_https!}
+            src={dashboardData?.twitterUserDetails.profile_image_url_https}
           />
           <AvatarFallback>
             {dashboardData?.twitterUserDetails.name[0]}

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && bunx prisma generate",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "bunx prisma generate"
