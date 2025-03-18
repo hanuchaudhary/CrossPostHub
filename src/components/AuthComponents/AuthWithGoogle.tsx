@@ -50,7 +50,7 @@ export default function AuthWithGoogle() {
     <button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
-      className="w-full rounded-full border py-3 flex items-center justify-center gap-1"
+      className="w-full rounded-full border py-3 flex items-center justify-center gap-1 dark:border-neutral-600"
       aria-label="Sign in with Google"
     >
       {isLoading ? (

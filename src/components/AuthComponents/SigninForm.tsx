@@ -66,10 +66,10 @@ export default function SigninForm() {
   }
 
   return (
-    <div className="h-full min-h-[calc(100vh-150px)] flex items-center justify-center px-4 md:p-4">
-      <div className="w-full max-w-md md:space-y-8 space-y-4">
+    <div className="h-full min-h-[calc(100vh-150px)] flex items-center justify-center px-4 md:p-4 relative z-50">
+      <div className="w-full max-w-md md:space-y-8 space-y-4 dark:border-none border border-neutral-300 dark:p-0 p-6 rounded-3xl shadow-sm">
         <div className="leading-none">
-          <h1 className="text-4xl font-ClashDisplayRegular">Sign In</h1>
+          <h1 className="md:text-4xl text-3xl font-ClashDisplayRegular">Sign In</h1>
         </div>
 
         <motion.div className="space-y-6">
@@ -140,7 +140,7 @@ export default function SigninForm() {
           <div className="flex items-center justify-center flex-col gap-3">
             <AuthWithGoogle />
             <Link
-              className="w-full flex items-center justify-center text-center rounded-full py-3 border "
+              className="w-full flex items-center justify-center text-center rounded-full py-3 border dark:border-neutral-600 backdrop-blur-sm"
               href="/register"
             >
               <UserPlus2 className="mr-2 h-6 w-6" />

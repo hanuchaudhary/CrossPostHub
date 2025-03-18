@@ -63,13 +63,8 @@ export function MobileMenu() {
 
       <div className="mb-2 flex items-center justify-between">
         <UpgradeButton />
-      </div>
-
-      <div className="mb-2 flex items-center justify-between">
-        <NotificationButton />
         <Guide />
       </div>
-
       <Separator className="my-2" />
 
       <nav className="flex-1">

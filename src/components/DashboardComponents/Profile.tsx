@@ -22,12 +22,15 @@ import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { GlowingButton } from "../Buttons/GlowingButton";
 import Image from "next/image";
 
 export function Profile() {
-  const { fetchAccountDetails, twitterUserDetails, fetchDashboardData,dashboardData } =
-    useDashboardStore();
+  const {
+    fetchAccountDetails,
+    twitterUserDetails,
+    fetchDashboardData,
+    dashboardData,
+  } = useDashboardStore();
   // React.useEffect(() => {
   //   fetchAccountDetails();
   // }, [fetchAccountDetails]);
@@ -69,7 +72,7 @@ export function Profile() {
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle className="font-ClashDisplayRegular text-2xl mb-2">
+          <DrawerTitle className="font-ClashDisplayRegular text-2xl mb-2 text-emerald-500">
             Profile
           </DrawerTitle>
           <DrawerDescription>
@@ -154,31 +157,39 @@ export function Profile() {
                 <CardTitle>Posts Across Platforms</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer
-                  config={{
-                    Twitter: {
-                      label: "Twitter",
-                      color: "green",
-                    },
-                    LinkedIn: {
-                      label: "LinkedIn",
-                      color: "hsl(201, 100%, 35%)",
-                    },
-                    Instagram: {
-                      label: "Instagram",
-                      color: "hsl(340, 75%, 54%)",
-                    },
-                  }}
-                  className="h-[300px] w-full"
-                >
-                  <BarChart data={dashboardData}>
-                    <XAxis dataKey="month" />
-                    <Tooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="twitter" fill="#ffffff" />
-                    <Bar dataKey="linkedin" fill="#0088D1" />
-                    <Bar dataKey="instagram" fill="#EB5949" />
-                  </BarChart>
-                </ChartContainer>
+                {dashboardData?.length ? (
+                  <ChartContainer
+                    config={{
+                      Twitter: {
+                        label: "Twitter",
+                        color: "green",
+                      },
+                      LinkedIn: {
+                        label: "LinkedIn",
+                        color: "hsl(201, 100%, 35%)",
+                      },
+                      Instagram: {
+                        label: "Instagram",
+                        color: "hsl(340, 75%, 54%)",
+                      },
+                    }}
+                    className="h-[300px] w-full"
+                  >
+                    <BarChart data={dashboardData}>
+                      <XAxis dataKey="month" />
+                      <Tooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="twitter" fill="#ffffff" />
+                      <Bar dataKey="linkedin" fill="#0088D1" />
+                      <Bar dataKey="instagram" fill="#EB5949" />
+                    </BarChart>
+                  </ChartContainer>
+                ) : (
+                  <div>
+                    <p className="text-center text-muted-foreground border-2 border-secondary rounded-lg p-4 font-ClashDisplayMedium">
+                      Create posts on your connected platforms to see insights
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -207,17 +218,14 @@ export function Profile() {
         <div
           onClick={() => {
             signOut();
-            router.push("/signin");
+            router.push("/");
           }}
         >
-          <GlowingButton
-            color="red"
-            className="absolute backdrop-blur-3xl bottom-4 right-4"
-          >
+          <Button className="absolute backdrop-blur-3xl bottom-4 right-4">
             <span className="flex flex-row items-center space-x-1">
               <LogOut className="h-4 w-4" /> <span>Logout</span>
             </span>
-          </GlowingButton>
+          </Button>
         </div>
         <DrawerClose className="absolute top-2 right-2">
           <Button variant="ghost" size="icon">

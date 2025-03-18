@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!user) throw new Error("No user found with this email address");
           if (!password) throw new Error("Password is required");
+          if (!user.password) throw new Error("This email is registered with a Google account, please sign in with Google");
 
           const isPasswordValid = await bcryptjs.compare(
             password,

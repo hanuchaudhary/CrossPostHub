@@ -2,6 +2,13 @@ import { ConnectedApp, TwitterUser } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
 
+type DashboardDataType = {
+  month : string;
+  twitter : number;
+  linkedIn : number;
+  instagram : number;
+}
+
 interface DashboardStoreProps {
   isFetchingApps: boolean;
   connectedApps: ConnectedApp[];
@@ -10,7 +17,7 @@ interface DashboardStoreProps {
   twitterUserDetails: TwitterUser | null;
   fetchAccountDetails: VoidFunction;
 
-  dashboardData: any;
+  dashboardData: DashboardDataType[] | null;
   fetchDashboardData: VoidFunction;
   isFetchingDashboardData: boolean;
 }

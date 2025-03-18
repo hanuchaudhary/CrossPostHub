@@ -20,9 +20,9 @@ export default function NotificationButton() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background shadow-sm transition-colors hover:bg-accent"
+        className="relative inline-flex md:h-10 md:w-10 h-6 w-6  items-center justify-center rounded-full border bg-background shadow-sm transition-colors hover:bg-accent"
       >
-        <BellIcon className="h-5 w-5" />
+        <BellIcon className="md:h-5 md:w-5 h-3 w-3" />
         {unreadCount > 0 && (
           <Badge
             variant="destructive"

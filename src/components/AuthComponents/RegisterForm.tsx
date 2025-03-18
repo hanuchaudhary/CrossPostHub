@@ -38,9 +38,11 @@ export default function RegisterForm() {
 
   return (
     <div className="min-h-[calc(100vh-150px)] relative flex items-center justify-center p-4">
-      <div className="w-full max-w-md md:space-y-8 space-y-4 relative z-10">
+      <div className="w-full max-w-md md:space-y-8 space-y-4 relative z-10 dark:border-none border border-neutral-300 dark:p-0 p-6 rounded-3xl shadow-sm">
         <div className="leading-none">
-          <h1 className="text-4xl font-ClashDisplayRegular">Register</h1>
+          <h1 className="md:text-4xl text-3xl font-ClashDisplayRegular">
+            Register
+          </h1>
           <p className="text-neutral-400 text-sm">
             Already have an account?{" "}
             <Link
@@ -53,9 +55,7 @@ export default function RegisterForm() {
           </p>
         </div>
 
-        <div
-          className="space-y-6"
-        >
+        <div className="space-y-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField

@@ -49,9 +49,7 @@ export default function DashboardNavbar() {
           <Link
             key={href}
             href={href}
-            className={`${
-              href === "/dashboard" || href === "/create" ? "inline-flex" : "hidden md:inline-flex"
-            } items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
+            className={`md:flex hidden items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
               pathname === href ? "text-emerald-500" : ""
             }`}
           >
@@ -59,13 +57,26 @@ export default function DashboardNavbar() {
           </Link>
         ))}
 
+        {pathname === "/dashboard" ? (
+          <Link href={"/create"} className="md:hidden flex items-center">
+            <button className="px-2 py-1 border rounded-xl text-xs">
+              Create
+            </button>
+          </Link>
+        ) : (
+          <Link href={"/dashboard"} className="md:hidden flex items-center">
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Back</span>
+            </Button>
+          </Link>
+        )}
+
         <div className="hidden md:block">
           <Guide />
         </div>
 
-        <div className="hidden md:block">
-          <NotificationButton />
-        </div>
+        <NotificationButton />
 
         <div className="hidden md:block">
           <Profile />

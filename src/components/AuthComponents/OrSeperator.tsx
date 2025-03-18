@@ -7,7 +7,7 @@ export default function OrSeperator() {
         <div className="w-full border-t border-secondary" />
       </div>
       <div className="relative text-neutral-500 flex justify-center text-xs">
-        <span className="px-2 bg-background">Or</span>
+        <span className="px-2 ">Or</span>
       </div>
     </div>
   );
