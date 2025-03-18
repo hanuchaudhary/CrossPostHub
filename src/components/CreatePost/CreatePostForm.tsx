@@ -19,7 +19,7 @@ import BottomLoader from "../Loaders/BottomLoader";
 import { Badge } from "@/components/ui/badge";
 import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
 import { AnimatePresence } from "framer-motion";
-import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
+import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 
 type Platform = "instagram" | "twitter" | "linkedin";

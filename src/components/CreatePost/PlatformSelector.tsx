@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
+import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { Skeleton } from "../ui/skeleton";
 
 type Platform = "instagram" | "twitter" | "linkedin";

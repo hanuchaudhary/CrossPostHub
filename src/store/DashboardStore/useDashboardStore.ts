@@ -2,22 +2,24 @@ import { ConnectedApp, TwitterUser } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
 
-type DashboardDataType = {
-  month : string;
-  twitter : number;
-  linkedIn : number;
-  instagram : number;
-}
+type monthlyData = {
+  month: string;
+  twitter: number;
+  linkedIn: number;
+  instagram: number;
+};
+
+export type DashboardDataType = {
+  twitterUserDetails: TwitterUser;
+  monthlyData: monthlyData[];
+};
 
 interface DashboardStoreProps {
   isFetchingApps: boolean;
   connectedApps: ConnectedApp[];
   fetchConnectedApps: () => Promise<void>;
 
-  twitterUserDetails: TwitterUser | null;
-  fetchAccountDetails: VoidFunction;
-
-  dashboardData: DashboardDataType[] | null;
+  dashboardData: DashboardDataType | null;
   fetchDashboardData: VoidFunction;
   isFetchingDashboardData: boolean;
 }
@@ -36,31 +38,19 @@ export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
     }
   },
 
-  twitterUserDetails: null,
-  fetchAccountDetails: async () => {
-    try {
-      const response = await axios.get("/api/user");
-      const data = response.data;
-      set({ twitterUserDetails: data.twitterUserDetails });
-    } catch (error: any) {
-      console.error("Fetch Twitter Account Details Error:", error);
-    }
-  },
-
+  isFetchingDashboardData: true,
   dashboardData: null,
   fetchDashboardData: async () => {
     try {
-      const response = await axios.post("/api/user");
+      const response = await axios.get("/api/user");
       const data = response.data;
-      console.log("Dashboard Data:", data);
-      
+
       set({ dashboardData: data, isFetchingDashboardData: false });
     } catch (error: any) {
       console.error("Fetch Dashboard Data Error:", error);
-    }finally{
+    } finally {
       set({ isFetchingDashboardData: false });
     }
   },
 
-  isFetchingDashboardData: true,
 }));

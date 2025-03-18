@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Lock, MoreVertical } from "lucide-react";
-import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
+import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {

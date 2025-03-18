@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X, Twitter, Linkedin, LogOut, Instagram } from "lucide-react";
+import { X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -12,9 +12,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useDashboardStore } from "@/store/DashboardStore/useDashboardStoreStore";
+import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { UserProfile } from "./UserProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
@@ -23,17 +22,10 @@ import { ScrollArea } from "../ui/scroll-area";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import TwitterUserDetails from "./TwitterUserDetails";
 
 export function Profile() {
-  const {
-    fetchAccountDetails,
-    twitterUserDetails,
-    fetchDashboardData,
-    dashboardData,
-  } = useDashboardStore();
-  // React.useEffect(() => {
-  //   fetchAccountDetails();
-  // }, [fetchAccountDetails]);
+  const { fetchDashboardData, dashboardData } = useDashboardStore();
 
   React.useEffect(() => {
     fetchDashboardData();
@@ -50,20 +42,20 @@ export function Profile() {
   };
 
   // Dummy graph data for posts on different platforms
-  // const postData = [
-  //   { month: "Jan", Twitter: 15, LinkedIn: 8, Instagram: 20 },
-  //   { month: "Feb", Twitter: 20, LinkedIn: 10, Instagram: 25 },
-  //   { month: "Mar", Twitter: 18, LinkedIn: 12, Instagram: 22 },
-  //   { month: "Apr", Twitter: 25, LinkedIn: 15, Instagram: 30 },
-  //   { month: "May", Twitter: 22, LinkedIn: 18, Instagram: 28 },
-  //   { month: "Jun", Twitter: 30, LinkedIn: 20, Instagram: 35 },
-  //   { month: "Jul", Twitter: 28, LinkedIn: 22, Instagram: 32 },
-  //   { month: "Aug", Twitter: 35, LinkedIn: 25, Instagram: 40 },
-  //   { month: "Sep", Twitter: 32, LinkedIn: 28, Instagram: 38 },
-  //   { month: "Oct", Twitter: 40, LinkedIn: 30, Instagram: 45 },
-  //   { month: "Nov", Twitter: 38, LinkedIn: 32, Instagram: 42 },
-  //   { month: "Dec", Twitter: 45, LinkedIn: 35, Instagram: 50 },
-  // ];
+  const postData = [
+    { month: "Jan", twitter: 15, linkedin: 8, instagram: 20 },
+    { month: "Feb", twitter: 20, linkedin: 10, instagram: 25 },
+    { month: "Mar", twitter: 18, linkedin: 12, instagram: 22 },
+    { month: "Apr", twitter: 25, linkedin: 15, instagram: 30 },
+    { month: "May", twitter: 22, linkedin: 18, instagram: 28 },
+    { month: "Jun", twitter: 30, linkedin: 20, instagram: 35 },
+    { month: "Jul", twitter: 28, linkedin: 22, instagram: 32 },
+    { month: "Aug", twitter: 35, linkedin: 25, instagram: 40 },
+    { month: "Sep", twitter: 32, linkedin: 28, instagram: 38 },
+    { month: "Oct", twitter: 40, linkedin: 30, instagram: 45 },
+    { month: "Nov", twitter: 38, linkedin: 32, instagram: 42 },
+    { month: "Dec", twitter: 45, linkedin: 35, instagram: 50 },
+  ];
 
   return (
     <Drawer>
@@ -81,74 +73,36 @@ export function Profile() {
         </DrawerHeader>
         <ScrollArea className="p-4">
           <div className="space-y-4">
-            {twitterUserDetails && (
-              <div className="bg-secondary/30 rounded-2xl p-4">
-                <div className="flex items-center space-x-4 mb-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={twitterUserDetails.profile_image_url_https}
-                    />
-                    <AvatarFallback>
-                      {twitterUserDetails.name[0]}
-                    </AvatarFallback>
+            <div className="flex items-center justify-between gap-2">
+              {dashboardData?.twitterUserDetails && (
+                <TwitterUserDetails dashboardData={dashboardData} />
+              )}
+
+              <div className="bg-white dark:bg-secondary/30 border dark:border-secondary border-neutral-200 shadow-sm rounded-2xl p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage src={linkedInProfile.profileImageUrl} />
+                    <AvatarFallback>{linkedInProfile.name[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-ClashDisplayRegular text-xl leading-none mb-1">
-                      {twitterUserDetails.name}
+                    <h3 className="text-lg leading-none">
+                      {linkedInProfile.name}
                     </h3>
-                    <p className="text-muted-foreground">
-                      @{twitterUserDetails.screen_name}
+                    <p className="text-muted-foreground leading-none text-sm">
+                      {linkedInProfile.headline}
                     </p>
                   </div>
                   <Image
-                    className="invert-[1]"
-                    src={"/twitter.svg"}
+                    src={"/linkedin.svg"}
                     height={70}
                     width={70}
                     alt="linkedin"
                   />
                 </div>
-                <div className="flex justify-between text-sm">
-                  <div>
-                    <p className="font-medium">
-                      {twitterUserDetails.followers_count}
-                    </p>
-                    <p className="text-muted-foreground">Followers</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">
-                      {twitterUserDetails.friends_count}
-                    </p>
-                    <p className="text-muted-foreground">Following</p>
-                  </div>
+                <div className="flex gap-1 text-sm">
+                  <p className="font-medium">{linkedInProfile.connections}</p>
+                  <p className="text-muted-foreground">Connections</p>
                 </div>
-              </div>
-            )}
-
-            <div className="bg-secondary/30 border rounded-2xl p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <Avatar className="h-14 w-14">
-                  <AvatarImage src={linkedInProfile.profileImageUrl} />
-                  <AvatarFallback>{linkedInProfile.name[0]}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-lg leading-none">
-                    {linkedInProfile.name}
-                  </h3>
-                  <p className="text-muted-foreground leading-none text-sm">
-                    {linkedInProfile.headline}
-                  </p>
-                </div>
-                <Image
-                  src={"/linkedin.svg"}
-                  height={70}
-                  width={70}
-                  alt="linkedin"
-                />
-              </div>
-              <div className="flex gap-1 text-sm">
-                <p className="font-medium">{linkedInProfile.connections}</p>
-                <p className="text-muted-foreground">Connections</p>
               </div>
             </div>
 
@@ -157,7 +111,7 @@ export function Profile() {
                 <CardTitle>Posts Across Platforms</CardTitle>
               </CardHeader>
               <CardContent>
-                {dashboardData?.length ? (
+                {dashboardData?.monthlyData ? (
                   <ChartContainer
                     config={{
                       Twitter: {
@@ -175,12 +129,13 @@ export function Profile() {
                     }}
                     className="h-[300px] w-full"
                   >
-                    <BarChart data={dashboardData}>
+                    {/* <BarChart data={dashboardData.monthlyData}> */}
+                    <BarChart data={postData}>
                       <XAxis dataKey="month" />
                       <Tooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="twitter" fill="#ffffff" />
-                      <Bar dataKey="linkedin" fill="#0088D1" />
-                      <Bar dataKey="instagram" fill="#EB5949" />
+                      <Bar dataKey="twitter" fill="hsl(203, 89%, 53%)" />
+                      <Bar dataKey="linkedin" fill="hsl(201, 100%, 35%)" />
+                      <Bar dataKey="instagram" fill="hsl(340, 75%, 54%)" />
                     </BarChart>
                   </ChartContainer>
                 ) : (

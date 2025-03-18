@@ -4,44 +4,9 @@ import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
 import { getTwitterUserDetails } from "@/utils/TwitterUtils/TwitterUtils";
 import { redis } from "@/config/redisConfig";
+import { getLinkedInProfile } from "@/utils/LinkedInUtils/LinkedinUtils";
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: { accounts: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const twitterAccount = user.accounts.find(
-      (account) => account.provider === "twitter"
-    );
-    if (!twitterAccount) {
-      return NextResponse.json(
-        { error: "Twitter account not found" },
-        { status: 404 }
-      );
-    }
-
-    const twitterUserDetails = await getTwitterUserDetails({
-      oauth_token: twitterAccount?.access_token as string,
-      oauth_token_secret: twitterAccount?.access_token_secret as string,
-    });
-
-    return NextResponse.json({ twitterUserDetails }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
-  }
-}
-
-export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,9 +16,50 @@ export async function POST(request: NextRequest) {
     const cacheDashboardData = await redis.get(cacheDashboardDataKey);
     if (cacheDashboardData) {
       console.log("Cache hit");
-      
+
       return NextResponse.json(JSON.parse(cacheDashboardData), { status: 200 });
     }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { accounts: true },
+    });
+
+    const twitterAccount = user?.accounts.find(
+      (account) => account.provider === "twitter"
+    );
+
+    if (!twitterAccount) {
+      return NextResponse.json(
+        { error: "Twitter account not found" },
+        { status: 404 }
+      );
+    }
+
+    // const linkedinAccount = user?.accounts.find(
+    //   (account) => account.provider === "linkedin"
+    // );
+
+    // if (!linkedinAccount) {
+    //   return NextResponse.json(
+    //     { error: "LinkedIn account not found" },
+    //     { status: 404 }
+    //   );
+    // }
+
+    // const linkedInProfile = await getLinkedInProfile(
+    //   linkedinAccount?.access_token as string,
+    //   linkedinAccount?.providerAccountId as string
+    // );
+
+    // console.log("linkedinAccount", linkedinAccount);
+    
+    // console.log("linkedInProfile", linkedInProfile);
+
+    const twitterUserDetails = await getTwitterUserDetails({
+      oauth_token: twitterAccount?.access_token as string,
+      oauth_token_secret: twitterAccount?.access_token_secret as string,
+    });
 
     const posts = await prisma.post.findMany({
       where: { userId: session.user.id },
@@ -95,12 +101,17 @@ export async function POST(request: NextRequest) {
     // Convert the map to an array of objects
     const result = Object.values(monthlyData);
 
+    const dashboardData = {
+      twitterUserDetails,
+      monthlyData: result,
+    };
+
     // Cache the data
-    await redis.set(cacheDashboardDataKey, JSON.stringify(result), {
-      EX: 60 * 60 * 24, // 24 hours
+    await redis.set(cacheDashboardDataKey, JSON.stringify(dashboardData), {
+      EX: 24 * 60 * 60, // 24 hours
     });
 
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(dashboardData, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
