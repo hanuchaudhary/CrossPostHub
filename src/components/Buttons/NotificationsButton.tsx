@@ -26,7 +26,7 @@ export default function NotificationButton() {
         {unreadCount > 0 && (
           <Badge
             variant="destructive"
-            className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full p-2 text-xs"
+            className="absolute -right-1 -top-1 flex md:h-5 md:w-5 w-2 h-2 bg-red-800/70 items-center justify-center rounded-full p-2 text-xs"
           >
             {unreadCount}
           </Badge>

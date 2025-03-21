@@ -78,19 +78,21 @@ export default function TransactionsPage() {
 
   // Show loading state while fetching transactions
   if (isFetchingTransactions || !transactions) {
-    return <PageLoader />;
+    return <PageLoader loading={isFetchingTransactions} />;
   }
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-7xl">
       {filteredTransactions?.length === 0 ? (
-        <div className="text-muted-foreground h-24 flex flex-col items-center justify-center font-ClashDisplayMedium group">
-          <p className="mb-2 text-lg group-hover:text-emerald-100/70 transition-colors duration-300">
-            No transactions found.
-          </p>
-          <p className="text-lg border-2 border-secondary/50 rounded-3xl p-4 space-x-4 group-hover:text-emerald-100/70 group-hover:border-emerald-100/70 transition-colors duration-300">
-            <UpgradeButton /> <span>to view transactions.</span>
-          </p>
+        <div className="h-96 flex items-center justify-center">
+          <div className="select-none text-muted-foreground h-24 flex flex-col items-center justify-center font-ClashDisplayMedium group">
+            <p className="mb-2 text-lg group-hover:text-emerald-100/70 transition-colors duration-300">
+              No transactions found.
+            </p>
+            <p className="text-lg border-2 border-secondary/50 rounded-3xl p-4 space-x-4 group-hover:text-emerald-100/50 group-hover:border-emerald-100/50 transition-colors duration-300">
+              <UpgradeButton /> <span>to view transactions.</span>
+            </p>
+          </div>
         </div>
       ) : (
         <motion.div

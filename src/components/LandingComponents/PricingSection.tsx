@@ -77,11 +77,15 @@ export default function PricingSection() {
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 justify-center gap-3 md:gap-7 max-w-6xl mx-auto">
-          {pricingPlans &&
-            pricingPlans?.map((plan) =>
-              isFetchingPlans ? (
-                <PricingLoader key={plan.id} />
-              ) : (
+          {isFetchingPlans
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <PricingLoader
+                  key={index}
+                  classname={index === 1 ? "scale-110" : ""}
+                />
+              ))
+            : pricingPlans &&
+              pricingPlans.map((plan) => (
                 <PricingCard
                   classname={`${
                     plan.title === "Pro" &&
@@ -91,12 +95,11 @@ export default function PricingSection() {
                   {...plan}
                   price={Number(plan.price)}
                 />
-              )
-            )}
+              ))}
         </div>
       </div>
       <div
-        className={`absolute md:-bottom-40 md:-right-40 -right-36  md:h-48 h-28 w-[20rem] dark:block rounded-full md:blur-[210px] blur-3xl md:bg-[#25DFB3] bg-[#25DFB3]/70`}
+        className={`fixed md:-bottom-40 md:-right-40 -right-36 md:h-48 h-28 w-[20rem] dark:block rounded-full md:blur-[210px] blur-3xl md:bg-[#25DFB3] bg-[#25DFB3]/70`}
       />
     </div>
   );

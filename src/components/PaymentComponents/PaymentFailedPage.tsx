@@ -95,7 +95,7 @@ export default function PaymentFailedPage() {
   };
 
   if (isFetchingSingleTransaction) {
-    return <PageLoader />;
+    return <PageLoader loading={isFetchingSingleTransaction} />;
   }
 
   return (

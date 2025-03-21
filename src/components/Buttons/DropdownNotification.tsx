@@ -91,7 +91,8 @@ export default function NotificationDropdown({
                             }
                             height={40}
                             className={
-                              notification.message.includes("twitter")
+                              notification.message.includes("twitter") &&
+                              notification.read
                                 ? "dark:invert-[1]"
                                 : ""
                             }

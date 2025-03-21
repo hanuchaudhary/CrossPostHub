@@ -26,7 +26,7 @@ export default function DashboardNavbar() {
   }, [fetchUser]);
 
   return (
-    <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-6xl mx-auto border-b border-b-secondary/20">
+    <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-7xl mx-auto">
       {data?.user.id && <SSEListener userId={data.user.id} />}
       <div className="flex items-center gap-2 md:gap-4">
         <Link href="/dashboard" className="flex items-center">
@@ -39,22 +39,24 @@ export default function DashboardNavbar() {
         </div>
       </div>
 
-      <nav className="flex items-center gap-1 md:gap-4">
+      <nav className="flex items-center gap-1 md:gap-4 font-ClashDisplayMedium tracking-wide">
         {[
           { href: "/dashboard", label: "Dashboard" },
           { href: "/create", label: "Create" },
           { href: "/edit", label: "Edit Image" },
           { href: "/payment/transactions", label: "Transactions" },
         ].map(({ href, label }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`md:flex hidden items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
-              pathname === href ? "text-emerald-500" : ""
-            }`}
-          >
-            {label}
-          </Link>
+          <div className="relative" key={href}>
+            <Link
+              key={href}
+              href={href}
+              className={`md:flex hidden select-none items-center justify-center px-2 rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
+                pathname === href ? "border-b-2 border-emerald-500 " : ""
+              }`}
+            >
+              {label}
+            </Link>
+          </div>
         ))}
 
         {pathname === "/dashboard" ? (

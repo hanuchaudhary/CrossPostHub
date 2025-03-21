@@ -216,6 +216,18 @@ export function ConnectAccounts() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
+                  ) : connectedApps.filter(
+                      (e) =>
+                        e.provider === "instagram" || e.provider === "threads"
+                    ) ? (
+                    <div className="h-full w-full select-none absolute top-0 left-0 bg-secondary/95 md:bg-secondary/70 flex items-center justify-center">
+                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
+                        Comming Soon...
+                      </h2>
+                      <span>
+                        <Lock className="h-5 w-5 ml-2" />
+                      </span>
+                    </div>
                   ) : connectedApps.length === 2 ? (
                     <div className="h-full w-full select-none absolute top-0 left-0 bg-secondary/95 md:bg-secondary/70 flex items-center justify-center">
                       <h2 className="font-ClashDisplayMedium md:text-base text-sm">

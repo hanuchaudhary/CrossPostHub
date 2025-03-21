@@ -85,7 +85,7 @@ export default function PaymentSuccessPage() {
   }, [isDataLoaded]);
 
   if (isFetchingSingleTransaction || !singleTransaction) {
-    return <PageLoader />;
+    return <PageLoader loading={isFetchingSingleTransaction} />;
   }
 
   const handleDownloadReceipt = () => {
