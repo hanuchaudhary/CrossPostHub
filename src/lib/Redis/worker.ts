@@ -4,10 +4,7 @@ import {
   CreateTextPost,
   registerAndUploadMedia,
 } from "@/utils/LinkedInUtils/LinkedinUtils";
-import {
-  createTweet,
-  uploadMediaToTwitter,
-} from "@/utils/TwitterUtils/TwitterUtils";
+import { createTweet } from "@/utils/TwitterUtils/TwitterUtils";
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { getTwitterFileType } from "../getFileType";
@@ -128,7 +125,6 @@ const PublishPostWorker = new Worker(
         );
 
         console.log("Uploading media to Twitter... Large media upload");
-        
 
         let mediaIds: string[] = [];
 
@@ -210,83 +206,4 @@ const PublishPostWorker = new Worker(
     }
   },
   { connection }
-
-  //     let mediaIds: string[] = [];
-  //     if (imageBuffers.length > 0) {
-  //       console.log(
-  //         `Uploading ${imageBuffers.length} media files to Twitter...`
-  //       );
-  //       mediaIds = await Promise.all(
-  //         imageBuffers.map(async (imageBuffer: Buffer) => {
-  //           const mediaCategory = await getTwitterFileType(imageBuffer);
-  //           console.log("Media file size:", imageBuffer.length);
-  //           console.log("Media file type:", mediaCategory);
-  //           const mediaId = await uploadMediaToTwitter({
-  //             media: imageBuffer,
-  //             oauth_token: twitterAccount.access_token!,
-  //             oauth_token_secret: twitterAccount.access_token_secret!,
-  //             media_category: mediaCategory,
-  //           });
-  //           console.log(`Media uploaded: ${mediaId}`);
-  //           return mediaId;
-  //         })
-  //       );
-  //     }
-
-  //     if (!mediaIds) {
-  //       throw new Error("Failed to upload media to Twitter.");
-  //     } else {
-  //       const tweetResponse = await createTweet({
-  //         text: postText,
-  //         mediaIds,
-  //         oauth_token: twitterAccount.access_token!,
-  //         oauth_token_secret: twitterAccount.access_token_secret!,
-  //       });
-
-  //       if (tweetResponse.error) {
-  //         throw new Error(tweetResponse.error);
-  //       }
-
-  //       // Send success notification
-  //       const notification = await createNotification({
-  //         userId,
-  //         type: "POST_STATUS",
-  //         message: `Your post has been published on ${provider}.`,
-  //       });
-
-  //       // Trigger SSE event
-  //       await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ userId, notification }),
-  //       });
-
-  //       return { provider: "twitter", response: tweetResponse };
-  //     }
-  //   }
-
-  //   throw new Error(
-  //     `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
-  //   );
-  // } catch (error) {
-  //   console.error(`Job failed for provider: ${job.data.provider}`, error);
-
-  //   // Send failure notification
-  //   const notification = await createNotification({
-  //     userId: job.data.userId,
-  //     type: "POST_STATUS",
-  //     message: `Failed to publish post on ${job.data.provider}.`,
-  //   });
-
-  //   // Trigger SSE event
-  //   await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ userId: job.data.userId, notification }),
-  //   });
-
-  //   throw error;
-  // }
-  // },
-  // { connection }
 );
