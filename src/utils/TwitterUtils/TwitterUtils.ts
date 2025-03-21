@@ -7,12 +7,14 @@ interface uploadMediaToTwitterProps {
   media: any; // Expecting a Buffer or File
   oauth_token: string;
   oauth_token_secret: string;
+  media_category?: string;
 }
 
 export async function uploadMediaToTwitter({
   media,
   oauth_token,
   oauth_token_secret,
+  media_category,
 }: uploadMediaToTwitterProps) {
   const oauth = new OAuth({
     consumer: {
@@ -27,6 +29,10 @@ export async function uploadMediaToTwitter({
 
   const formData = new FormData();
   formData.append("media", media);
+
+  if (media_category) {
+    formData.append("media_category", media_category);
+  }
 
   const requestData = {
     url: "https://upload.twitter.com/1.1/media/upload.json",

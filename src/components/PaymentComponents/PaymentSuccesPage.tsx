@@ -106,7 +106,7 @@ export default function PaymentSuccessPage() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center p-4">
+    <div className="relative flex flex-col items-center">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -118,8 +118,8 @@ export default function PaymentSuccessPage() {
         className="w-full max-w-md"
       >
         <Card className="border-none shadow-none">
-          <CardHeader className="pb-4">
-            <div className="flex justify-center mb-4">
+          <CardHeader className="pb-2">
+            <div className="flex justify-center mb-2">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -153,7 +153,7 @@ export default function PaymentSuccessPage() {
               Your transaction has been completed successfully.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}

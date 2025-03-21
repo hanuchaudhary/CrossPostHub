@@ -108,7 +108,7 @@ export default function PaymentFailedPage() {
       >
         <Card className="border-none shadow-lg">
           <CardHeader className="pb-4">
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-3">
               <motion.div
                 variants={errorIconVariants}
                 animate={["visible", "pulse"]}
@@ -125,16 +125,6 @@ export default function PaymentFailedPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <motion.div variants={itemVariants}>
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  {"An unknown error occurred."}
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-
             <motion.div
               variants={itemVariants}
               className="rounded-lg bg-muted p-4 space-y-3"
@@ -199,15 +189,17 @@ export default function PaymentFailedPage() {
             </motion.div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Button className="w-full">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Try Again
-            </Button>
+            <Link href="/upgrade" className="w-full">
+              <Button>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+            </Link>
             <div className="flex gap-2 w-full">
               <Button variant="outline" className="flex-1" asChild>
-                <Link href="/">
+                <Link href="/dashboard">
                   <Home className="mr-2 h-4 w-4" />
-                  Home
+                  Dashboard
                 </Link>
               </Button>
               <Button variant="outline" className="flex-1" asChild>
