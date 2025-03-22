@@ -52,8 +52,7 @@ export function LinkedInPreview({
               <span className="text-neutral-500 text-sm">• Following</span>
             </div>
             <p className="text-neutral-600 text-[13px] leading-tight">
-              Passionate about technology and innovation. Loves to travel and
-              explore new cultures.
+             CrossPostHub. is a platform that allows you to cross-post content to multiple social media platforms.
             </p>
             <div className="flex items-center gap-1 text-neutral-600 text-[13px]">
               <span>2h</span>
