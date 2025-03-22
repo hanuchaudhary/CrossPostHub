@@ -1,3 +1,5 @@
+"use client";
+
 import React, { memo } from "react";
 import {
   Carousel,
@@ -19,6 +21,8 @@ export const SimplePostPreview = memo(function SimplePostPreview({
   content,
   images,
 }: SimplePostPreviewProps) {
+  const [expanded, setExpanded] = React.useState(false);
+  const contentIsLong = content.length > 280;
   return (
     <motion.div
       initial={{ x: "100%" }}
@@ -34,11 +38,22 @@ export const SimplePostPreview = memo(function SimplePostPreview({
           </h2>
         </div>
       ) : (
-        <div className="p-4">
-          <p
+        <div className="px-3 pb-1">
+          <div
+            className={`whitespace-pre-wrap text-sm overflow-hidden ${
+              !expanded && contentIsLong ? "line-clamp-4" : ""
+            }`}
             dangerouslySetInnerHTML={{ __html: content }}
-            className="mb-4 whitespace-pre-wrap"
           />
+          {contentIsLong && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-sm font-medium"
+            >
+              {expanded ? <>...less</> : <>...more</>}
+            </button>
+          )}
+
           {images.length > 0 && (
             <Carousel className="w-full max-w-xs mx-auto">
               <CarouselContent>

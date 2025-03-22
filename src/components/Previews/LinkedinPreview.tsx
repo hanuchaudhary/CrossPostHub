@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import {
   MessageCircle,
@@ -9,7 +11,13 @@ import {
   Globe,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getImageUrl } from "@/lib/getImageUrl";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
 
 interface LinkedInPreviewProps {
   content: string;
@@ -22,6 +30,9 @@ export function LinkedInPreview({
   images,
   user,
 }: LinkedInPreviewProps) {
+  const [expanded, setExpanded] = useState(false);
+  const contentIsLong = content.length > 280;
+
   return (
     <div className="max-w-[550px] bg-white rounded-lg border border-neutral-200 font-sans">
       {/* Header */}
@@ -41,7 +52,8 @@ export function LinkedInPreview({
               <span className="text-neutral-500 text-sm">• Following</span>
             </div>
             <p className="text-neutral-600 text-[13px] leading-tight">
-              Passionate about technology and innovation. Loves to travel and explore new cultures.
+              Passionate about technology and innovation. Loves to travel and
+              explore new cultures.
             </p>
             <div className="flex items-center gap-1 text-neutral-600 text-[13px]">
               <span>2h</span>
@@ -56,22 +68,63 @@ export function LinkedInPreview({
       </div>
 
       {/* Content */}
-      <div
-        className="whitespace-pre-wrap px-3 pb-1 text-black text-sm"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <div className="px-3 pb-1">
+        <div
+          className={`whitespace-pre-wrap text-black text-sm overflow-hidden ${
+            !expanded && contentIsLong ? "line-clamp-4" : ""
+          }`}
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+        {contentIsLong && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-neutral-600 text-sm font-medium hover:text-neutral-800 flex items-center mt-1"
+          >
+            {expanded ? <>...less</> : <>...more</>}
+          </button>
+        )}
+      </div>
 
       {/* Image */}
       {images.length > 0 && (
-        <div className="relative aspect-square w-full border-t border-neutral-200">
-          {images.length > 0 && (
-            <Image
-              src={getImageUrl(images[0]) || "/placeholder.svg"}
-              alt="Post image"
-              fill
-              className="object-contain"
-            />
-          )}
+        <div className="relative w-full">
+          <Carousel className="w-full mx-auto">
+            <CarouselContent>
+              {images.map((file, index) => (
+                <CarouselItem key={index}>
+                  {file.type.startsWith("image/") ? (
+                    <Image
+                      height={100}
+                      width={100}
+                      src={URL.createObjectURL(file) || "/placeholder.svg"}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full object-contain rounded"
+                    />
+                  ) : file.type.startsWith("video/") ? (
+                    <video controls className="w-full object-contain rounded">
+                      <source
+                        src={URL.createObjectURL(file)}
+                        type={file.type}
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="w-full flex items-center justify-center bg-secondary/50 rounded">
+                      <p className="text-sm text-muted-foreground">
+                        Unsupported file type
+                      </p>
+                    </div>
+                  )}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {images.length > 1 && (
+              <>
+                <CarouselPrevious className="absolute left-2" />
+                <CarouselNext className="absolute right-2" />
+              </>
+            )}
+          </Carousel>
         </div>
       )}
 
@@ -110,11 +163,15 @@ export function LinkedInPreview({
         </button>
         <button className="flex items-center gap-2 p-3 hover:bg-neutral-100 rounded-lg flex-1">
           <MessageCircle className="h-5 w-5 text-neutral-600" />
-          <span className="text-[14px] text-neutral-600 font-medium">Comment</span>
+          <span className="text-[14px] text-neutral-600 font-medium">
+            Comment
+          </span>
         </button>
         <button className="flex items-center gap-2 p-3 hover:bg-neutral-100 rounded-lg flex-1">
           <Share2 className="h-5 w-5 text-neutral-600" />
-          <span className="text-[14px] text-neutral-600 font-medium">Repost</span>
+          <span className="text-[14px] text-neutral-600 font-medium">
+            Repost
+          </span>
         </button>
         <button className="flex items-center gap-2 p-3 hover:bg-neutral-100 rounded-lg flex-1">
           <Send className="h-5 w-5 text-neutral-600" />

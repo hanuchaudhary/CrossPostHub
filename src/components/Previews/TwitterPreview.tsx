@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 import {
   MessageCircle,
@@ -10,6 +12,14 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl } from "@/lib/getImageUrl";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
+import { AspectRatio } from "../ui/aspect-ratio";
 
 interface PreviewUser {
   id?: string;
@@ -25,6 +35,9 @@ interface TwitterPreviewProps {
 }
 
 export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
+  const [expanded, setExpanded] = useState(false);
+  const contentIsLong = content.length > 280;
+
   return (
     <div className="max-w-xl bg-black text-white rounded-xl p-4 font-sans">
       <div className="flex gap-2">
@@ -46,37 +59,61 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
             <span className="text-neutral-500">· 9h</span>
           </div>
 
-          <div
-            className="whitespace-pre-wrap text-sm mb-2"
-            dangerouslySetInnerHTML={{ __html: content }}
-          ></div>
+          <div>
+            <div
+              className={`whitespace-pre-wrap text-sm overflow-hidden ${
+                !expanded && contentIsLong ? "line-clamp-4" : ""
+              }`}
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+            {contentIsLong && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="text-sm font-medium flex items-center mt-1"
+              >
+                {expanded ? <>...less</> : <>...more</>}
+              </button>
+            )}
+          </div>
 
           {images.length > 0 && (
-            <div className="mb-3 rounded-xl overflow-hidden border border-neutral-800">
-              {images.length === 1 ? (
-                <div className="relative aspect-square">
-                  <Image
-                    src={getImageUrl(images[0]) || "/placeholder.svg"}
-                    alt="Uploaded image"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-0.5">
-                  {images.slice(0, 4).map((image, index) => (
-                    <div key={index} className="relative aspect-square">
+            <Carousel className="w-full mx-auto">
+              <CarouselContent>
+                {images.map((file, index) => (
+                  <CarouselItem key={index}>
+                    {file.type.startsWith("image/") ? (
                       <Image
-                        src={getImageUrl(image) || "/placeholder.svg"}
-                        alt={`Uploaded image ${index + 1}`}
-                        fill
-                        className="object-cover"
+                        height={100}
+                        width={100}
+                        src={URL.createObjectURL(file) || "/placeholder.svg"}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full object-contain rounded"
                       />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    ) : file.type.startsWith("video/") ? (
+                      <video controls className="w-full object-contain rounded">
+                        <source
+                          src={URL.createObjectURL(file)}
+                          type={file.type}
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <div className="w-full flex items-center justify-center bg-secondary/50 rounded">
+                        <p className="text-sm text-muted-foreground">
+                          Unsupported file type
+                        </p>
+                      </div>
+                    )}
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious
+                className={`${images.length > 1 ? "flex" : "hidden"}`}
+              />
+              <CarouselNext
+                className={`${images.length > 1 ? "flex" : "hidden"}`}
+              />
+            </Carousel>
           )}
 
           <div className="flex items-center justify-between text-neutral-500 max-w-md">
