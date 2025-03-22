@@ -3,7 +3,16 @@ import crypto from "crypto";
 import axios from "axios";
 import FormData from "form-data";
 
-// Twitter media upload class for uploading large media files in chunks
+type StatusResponse = {
+  media_id: number;
+  media_id_string: string;
+  media_key: string;
+  processing_info: {
+    state: string;
+    check_after_secs: number;
+    progress_percent: number;
+  };
+};
 
 export class TwitterMediaUpload {
   private oauth: OAuth;
@@ -27,9 +36,11 @@ export class TwitterMediaUpload {
           .digest("base64");
       },
     });
-
-    //init upload function
   }
+
+  /**
+   * Initialize the media upload.
+   */
   async initilizeUpload(
     totalBytes: number,
     mediaType: string,
@@ -70,13 +81,9 @@ export class TwitterMediaUpload {
         },
       });
 
-      console.log("Init upload response:", {
-        status: response.status,
-        data: response.data,
-        mediaId: response.data.media_id,
-      });
+      console.log("Init upload response:", response.data.media_id_string);
 
-      return response.data.media_id;
+      return response.data.media_id_string;
     } catch (error: any) {
       console.error("Error initializing media upload:", error.message);
       console.error("Twitter API response:", error.response?.data || error);
@@ -84,8 +91,9 @@ export class TwitterMediaUpload {
     }
   }
 
-  // Append a media chunk to the upload.
-
+  /**
+   * Append a media chunk to the upload.
+   */
   async appendChunk(mediaId: string, segmentIndex: number, mediaData: Buffer) {
     const requestData = {
       url: "https://upload.twitter.com/1.1/media/upload.json",
@@ -121,10 +129,6 @@ export class TwitterMediaUpload {
           ...formData.getHeaders(),
           Authorization: headers.Authorization,
         },
-      });
-
-      console.log("Append chunk Media: ", {
-        response: response.data,
       });
 
       return response.data;
@@ -170,17 +174,92 @@ export class TwitterMediaUpload {
         },
       });
 
-      console.log("Finalize upload response:", {
-        status: response.status,
-        data: response.data,
-      });
-
       return response.data;
     } catch (error: any) {
       console.error("Error finalizing media upload:", error.message);
       console.error("Twitter API response:", error.response?.data || error);
       throw error;
     }
+  }
+
+  /**
+    Check the status of the media upload.
+
+    Example response:
+
+    Media status: {
+      media_id: 1903445365040480300,
+      media_id_string: '1903445365040480256',
+      media_key: '7_1903445365040480256',
+      processing_info: { state: 'in_progress', check_after_secs: 1, progress_percent: 20 }
+    }
+
+*/
+
+  async checkMediaStatus(mediaId: string) {
+    const requestData = {
+      url: "https://upload.twitter.com/1.1/media/upload.json",
+      method: "GET",
+      data: {
+        command: "STATUS",
+        media_id: mediaId,
+      },
+    };
+
+    const headers = this.oauth.toHeader(
+      this.oauth.authorize(
+        {
+          url: requestData.url,
+          method: requestData.method,
+          data: requestData.data,
+        },
+        {
+          key: this.oauthToken,
+          secret: this.oauthTokenSecret,
+        }
+      )
+    );
+
+    const response = await axios.get(requestData.url, {
+      params: requestData.data,
+      headers: {
+        Authorization: headers.Authorization,
+      },
+    });
+
+    console.log("Media status:", response.data);
+
+    return response.data;
+  }
+
+  /**
+   * Poll the media status until it is ready.
+   */
+  async pollMediaStatus(mediaId: string) {
+    let status : any;
+    do {  
+      status = await this.checkMediaStatus(mediaId);
+
+      if (status.processing_info?.state === "failed") {
+        throw new Error(
+          `Media processing failed: ${status.processing_info.error?.message}`
+        );
+      }
+
+      if (status.processing_info?.state !== "succeeded") {
+        console.log(
+          `Media ${mediaId} is still processing. Current state: ${status.processing_info?.state}`
+        );
+        await new Promise((resolve) =>
+          setTimeout(
+            resolve,
+            status.processing_info?.check_after_secs * 1000 || 1000
+          )
+        );
+      }
+    } while (status.processing_info?.state !== "succeeded");
+
+    return status;
   }
 
   /**
@@ -219,6 +298,11 @@ export class TwitterMediaUpload {
       if (!finalResponse) {
         throw new Error("Failed to finalize media upload.");
       }
+
+      // Step 4: Poll media status until processing is complete
+      await this.pollMediaStatus(mediaId);
+
+      console.log("Media uploaded successfully:", mediaId);
 
       return mediaId;
     } catch (error) {

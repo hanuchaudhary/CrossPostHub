@@ -101,6 +101,9 @@ export async function createTweet({
     },
   });
 
+  console.log("Media Ids:", mediaIds);
+  
+
   const requestData = {
     url: "https://api.twitter.com/2/tweets",
     method: "POST",
@@ -109,6 +112,9 @@ export async function createTweet({
       ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
     },
   };
+
+  console.log("Request Data:", requestData);
+  
 
   if (!text && mediaIds.length === 0) {
     console.error("Text or media is required to create a tweet");

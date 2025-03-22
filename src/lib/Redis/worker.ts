@@ -125,7 +125,7 @@ async function handleLinkedInPost({
       imageBuffers.map(async (imageBuffer: Buffer) => {
         const { uploadUrl, assetURN } = await linkedinUpload.initializeUpload({
           accessToken: linkedinAccount.access_token!,
-          personURN: "aQCwa8-sL2", // LinkedIn person URN
+          personURN: linkedinAccount.providerAccountId!,
           fileSizeBytes: imageBuffer.length,
         });
 
@@ -149,7 +149,7 @@ async function handleLinkedInPost({
     imageBuffers.length > 0
       ? await CreatePostWithMedia({
           accessToken: linkedinAccount.access_token!,
-          personURN: "aQCwa8-sL2", // LinkedIn person URN
+          personURN: linkedinAccount.providerAccountId!,
           assetURNs,
           text: postText,
           mediaType : await getLinkedInFileType(imageBuffers[0])
@@ -238,7 +238,7 @@ async function handleTwitterPost({
 
   const tweetResponse = await createTweet({
     text: postText,
-    mediaIds,
+    mediaIds : mediaIds,
     oauth_token: twitterAccount.access_token!,
     oauth_token_secret: twitterAccount.access_token_secret!,
   });
