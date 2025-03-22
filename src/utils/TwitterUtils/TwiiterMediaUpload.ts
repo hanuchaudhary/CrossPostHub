@@ -61,7 +61,6 @@ export class TwitterMediaUpload {
     );
 
     console.log("Init upload headers:", headers);
-    
 
     try {
       const response = await axios.post(requestData.url, null, {
@@ -71,7 +70,13 @@ export class TwitterMediaUpload {
         },
       });
 
-      return response.data.media_id_string;
+      console.log("Init upload response:", {
+        status: response.status,
+        data: response.data,
+        mediaId: response.data.media_id,
+      });
+
+      return response.data.media_id;
     } catch (error: any) {
       console.error("Error initializing media upload:", error.message);
       console.error("Twitter API response:", error.response?.data || error);
@@ -118,6 +123,10 @@ export class TwitterMediaUpload {
         },
       });
 
+      console.log("Append chunk Media: ", {
+        response: response.data,
+      });
+
       return response.data;
     } catch (error: any) {
       console.error("Error appending media chunk:", error.message);
@@ -159,6 +168,11 @@ export class TwitterMediaUpload {
         headers: {
           Authorization: headers.Authorization,
         },
+      });
+
+      console.log("Finalize upload response:", {
+        status: response.status,
+        data: response.data,
       });
 
       return response.data;

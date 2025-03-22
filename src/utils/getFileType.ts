@@ -22,3 +22,25 @@ export async function getTwitterFileType(buffer: Buffer): Promise<string> {
 
   throw new Error("Invalid file type " + mime);
 }
+
+
+
+export async function getLinkedInFileType(buffer: Buffer): Promise<string> {
+  const fileType = await fileTypeFromBuffer(buffer);
+
+  if (!fileType) {
+    throw new Error("File type not found");
+  }
+
+  const { mime } = fileType;
+
+  if (mime.startsWith("image/")) {
+    return "IMAGE";
+  }
+
+  if (mime.startsWith("video/")) {
+    return "VIDEO";
+  }
+
+  throw new Error("Invalid file type " + mime);
+}
