@@ -3,11 +3,18 @@ import {
   CreatePostWithMedia,
   CreateTextPost,
 } from "@/utils/LinkedInUtils/LinkedinUtils";
-import { createTweet } from "@/utils/TwitterUtils/TwitterUtils";
+import {
+  createTweet,
+  uploadMediaToTwitter,
+} from "@/utils/TwitterUtils/TwitterUtils";
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
-import { getLinkedInFileType, getTwitterFileType } from "../../utils/getFileType";
-import { TwitterMediaUpload } from "@/utils/TwitterUtils/TwiiterMediaUpload";
+import {
+  getLinkedInFileType,
+  getTwitterFileType,
+  TwiiterFileType,
+} from "../../utils/getFileType";
+import { TwitterMediaUpload } from "@/utils/TwitterUtils/TwitterMediaUpload";
 import { LinkedInVideoUploader } from "@/utils/LinkedInUtils/LinkedInMediaUpload";
 
 const connection = {
@@ -123,6 +130,7 @@ async function handleLinkedInPost({
     console.log(`Uploading ${imageBuffers.length} media files to LinkedIn...`);
     assetURNs = await Promise.all(
       imageBuffers.map(async (imageBuffer: Buffer) => {
+        
         const { uploadUrl, assetURN } = await linkedinUpload.initializeUpload({
           accessToken: linkedinAccount.access_token!,
           personURN: linkedinAccount.providerAccountId!,
@@ -145,6 +153,8 @@ async function handleLinkedInPost({
     throw new Error("Failed to upload media to LinkedIn.");
   }
 
+  const mediaType = await getLinkedInFileType(imageBuffers[0]);
+
   const postResponse =
     imageBuffers.length > 0
       ? await CreatePostWithMedia({
@@ -152,7 +162,7 @@ async function handleLinkedInPost({
           personURN: linkedinAccount.providerAccountId!,
           assetURNs,
           text: postText,
-          mediaType : await getLinkedInFileType(imageBuffers[0])
+          mediaType,
         })
       : await CreateTextPost({
           accessToken: linkedinAccount.access_token!,
@@ -164,19 +174,7 @@ async function handleLinkedInPost({
     throw new Error(postResponse.error);
   }
 
-  // Send success notification
-  const notification = await createNotification({
-    userId,
-    type: "POST_STATUS",
-    message: `Your post has been published on LinkedIn.`,
-  });
-
-  // Trigger SSE event
-  await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, notification }),
-  });
+  await sendNotification(userId, "linkedin", true);
 
   return { provider: "linkedin", response: postResponse };
 }
@@ -205,40 +203,56 @@ async function handleTwitterPost({
     twitterAccount.access_token_secret!
   );
 
-  console.log("Uploading media to Twitter... Large media upload");
+  console.log("Uploading media to Twitter...");
 
-  let mediaIds: string[] = [];
+  // Determine media types
+  const mediaTypes = await Promise.all(
+    imageBuffers.map(async (imageBuffer) => getTwitterFileType(imageBuffer))
+  );
 
-  if (imageBuffers.length > 0) {
-    console.log(`Uploading ${imageBuffers.length} media files to Twitter...`);
+  const videoMediaIds: string[] = [];
+  const imageMediaIds: string[] = [];
 
-    mediaIds = await Promise.all(
-      imageBuffers.map(async (imageBuffer: Buffer) => {
-        const mediaCategory = await getTwitterFileType(imageBuffer);
-        const mediaType =
-          mediaCategory === "tweet_image" ? "image/jpeg" : "video/mp4";
+  for (let i = 0; i < imageBuffers.length; i++) {
+    const imageBuffer = imageBuffers[i];
+    const mediaType = mediaTypes[i];
 
-        const mediaId = await twitterUpload.uploadLargeMedia(
-          imageBuffer,
-          mediaType,
-          mediaCategory
-        );
-        console.log(`Media uploaded: ${mediaId}`);
-        return mediaId;
-      })
-    );
+    if (mediaType === TwiiterFileType.TWEET_VIDEO) {
+      const mediaId = await twitterUpload.uploadLargeMedia(
+        imageBuffer,
+        "video/mp4",
+        "tweet_video"
+      );
+      console.log(`Video uploaded: ${mediaId}`);
+      videoMediaIds.push(mediaId);
+    } else if (mediaType === TwiiterFileType.TWEET_IMAGE) {
+      const mediaId = await uploadMediaToTwitter({
+        media: imageBuffer,
+        media_category: "tweet_image",
+        oauth_token: twitterAccount.access_token!,
+        oauth_token_secret: twitterAccount.access_token_secret!,
+      });
+      console.log(`Image uploaded: ${mediaId}`);
+      imageMediaIds.push(mediaId);
+    } else {
+      throw new Error(`Unsupported media type: ${mediaType}`);
+    }
   }
 
-  if (!mediaIds) {
-    throw new Error("Failed to upload media to Twitter.");
-  }
+  const mediaIds = [...videoMediaIds, ...imageMediaIds];
 
-  console.log("Media Ids:", mediaIds);
-  
+   for (const mediaId of mediaIds) {
+     const status = await twitterUpload.checkMediaStatus(mediaId);
+     if (status.processing_info?.state !== "succeeded") {
+       throw new Error(
+         `Media ${mediaId} is not ready. Current state: ${status.processing_info?.state}`
+       );
+     }
+   }
 
   const tweetResponse = await createTweet({
     text: postText,
-    mediaIds : mediaIds,
+    mediaIds,
     oauth_token: twitterAccount.access_token!,
     oauth_token_secret: twitterAccount.access_token_secret!,
   });
@@ -247,19 +261,30 @@ async function handleTwitterPost({
     throw new Error(tweetResponse.error);
   }
 
-  // Send success notification
+  await sendNotification(userId, "twitter", true);
+
+  return { provider: "twitter", response: tweetResponse };
+}
+
+
+async function sendNotification(
+  userId: string,
+  provider: string,
+  success: boolean
+) {
+  const message = success
+    ? `Your post has been published on ${provider}.`
+    : `Failed to publish post on ${provider}.`;
+
   const notification = await createNotification({
     userId,
     type: "POST_STATUS",
-    message: `Your post has been published on Twitter.`,
+    message,
   });
 
-  // Trigger SSE event
   await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId, notification }),
   });
-
-  return { provider: "twitter", response: tweetResponse };
 }

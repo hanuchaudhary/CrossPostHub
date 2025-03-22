@@ -4,7 +4,7 @@ import axios from "axios";
 import FormData from "form-data";
 
 interface uploadMediaToTwitterProps {
-  media: any; // Expecting a Buffer or File
+  media: Buffer | File;
   oauth_token: string;
   oauth_token_secret: string;
   media_category?: string;

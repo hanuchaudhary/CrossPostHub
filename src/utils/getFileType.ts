@@ -1,6 +1,12 @@
 import { fileTypeFromBuffer } from "file-type";
 
-export async function getTwitterFileType(buffer: Buffer): Promise<string> {
+export enum TwiiterFileType {
+  TWEET_IMAGE = "tweet_image",
+  TWEET_GIF = "tweet_gif",
+  TWEET_VIDEO = "tweet_video",
+}
+
+export async function getTwitterFileType(buffer: Buffer): Promise<TwiiterFileType> {
   const fileType = await fileTypeFromBuffer(buffer);
 
   if (!fileType) {
@@ -11,13 +17,13 @@ export async function getTwitterFileType(buffer: Buffer): Promise<string> {
 
   if (mime.startsWith("image/")) {
     if (mime === "image/gif") {
-      return "tweet_gif";
+      return TwiiterFileType.TWEET_GIF;
     }
-    return "tweet_image";
+    return TwiiterFileType.TWEET_IMAGE;
   }
 
   if (mime.startsWith("video/")) {
-    return "tweet_video";
+    return TwiiterFileType.TWEET_VIDEO
   }
 
   throw new Error("Invalid file type " + mime);
