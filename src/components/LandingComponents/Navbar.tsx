@@ -1,8 +1,10 @@
 import React from "react";
-import MobileNav from "./MobileNav";
+// import MobileNav from "./MobileNav";
 import NavItems from "./NavItems";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import MobileNavbar from "./MobileNavbar";
+import ThemeToggle from "../Tools/ThemeToggle";
 
 export default function Navbar() {
   return (
@@ -18,9 +20,13 @@ export default function Navbar() {
       </div>
       <div className="md:hidden flex items-center gap-2">
         <Link href="/signin">
-          <Button variant={"default"} size={"sm"}>Signin</Button>
+          <Button variant={"default"} size={"sm"}>
+            Signin
+          </Button>
         </Link>
-        <MobileNav />
+        <ThemeToggle />
+        {/* <MobileNav /> */}
+        <MobileNavbar />
       </div>
     </header>
   );

@@ -85,7 +85,7 @@ export default function About() {
               <div className="dot1 absolute bottom-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
               <div className="dot1 absolute bottom-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
             </div>
-            <h3 className="font-ClashDisplayMedium text-lg leading-none">
+            <h3 className="font-ClashDisplayMedium md:text-lg leading-none">
               {feature.title}
             </h3>
             <AnimatePresence>

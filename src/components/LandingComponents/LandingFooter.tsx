@@ -18,7 +18,7 @@ export default function LandingFooter() {
   };
 
   return (
-    <footer className="relative w-full mt-40 bg-background/80 border  backdrop-blur-sm shadow-2xl rounded-t-3xl py-16 px-4 md:px-8">
+    <footer className="relative w-full md:mt-40 mt-20 bg-background/80 border  backdrop-blur-sm shadow-2xl rounded-t-3xl py-16 px-4 md:px-8">
       <div className="">
         <div className="flex flex-col md:flex-row justify-between mb-12">
           <div className="mb-8 md:mb-0">
@@ -56,7 +56,7 @@ export default function LandingFooter() {
 
           <button
             onClick={scrollToTop}
-            className="absolute right-8 top-36 flex items-center justify-center w-14 h-14 rounded-lg bg-primary-foreground border border-border hover:bg-muted transition-colors"
+            className="absolute md:right-8 right-5 md:top-36 top-[9.5rem] flex items-center justify-center w-14 h-14 md:rounded-lg rounded-full bg-primary-foreground border border-border hover:bg-muted transition-colors"
             aria-label="Scroll to top"
           >
             <ArrowUp className="h-7 w-7 dark:text-neutral-400" />
@@ -64,7 +64,7 @@ export default function LandingFooter() {
         </div>
 
         {/* Build in public credit */}
-        <div className="mt-8 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex items-center justify-between">
+        <div className="md:mt-8 mt-4 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex md:flex-row flex-col md:gap-0 gap-2 items-center justify-between">
           <p>
             Build in public by{" "}
             <a
@@ -85,8 +85,6 @@ export default function LandingFooter() {
               { href: "https://x.com/KushChaudharyOg", name: "Twitter" },
               { href: "#", name: "LinkedIn" },
               { href: "#", name: "Instagram" },
-              { href: "#", name: "YouTube" },
-              { href: "#", name: "Facebook" },
             ].map((social) => (
               <Link
                 href={social.href}
