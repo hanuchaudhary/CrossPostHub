@@ -14,7 +14,7 @@ type StatusResponse = {
   };
 };
 
-export class TwitterMediaUpload {
+export class TwitterUtilsV2 {
   private oauth: OAuth;
   private oauthToken: string;
   private oauthTokenSecret: string;
@@ -307,6 +307,58 @@ export class TwitterMediaUpload {
     } catch (error) {
       console.error("Error uploading large media:", error);
       throw error;
+    }
+  }
+
+  async createTweet({ text, mediaIds }: { text: string; mediaIds: string[] }) {
+    const requestData = {
+      url: "https://api.twitter.com/2/tweets",
+      method: "POST",
+      data: {
+        text,
+        ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
+      },
+    };
+
+    if (!text && mediaIds.length === 0) {
+      console.error("Text or media is required to create a tweet");
+      return null;
+    }
+
+    const headers = this.oauth.toHeader(
+      this.oauth.authorize(
+        {
+          url: requestData.url,
+          method: requestData.method,
+        },
+        {
+          key: this.oauthToken,
+          secret: this.oauthTokenSecret,
+        }
+      )
+    );
+
+    try {
+      console.log("Creating tweet...");
+      const response = await axios.post(requestData.url, requestData.data, {
+        headers: {
+          Authorization: headers.Authorization,
+          "Content-Type": "application/json",
+          "User-Agent": "PostmanRuntime/7.43.0",
+          Accept: "*/*",
+          "Accept-Encoding": "gzip, deflate, br",
+          Connection: "keep-alive",
+        },
+      });
+      console.log("Tweet created successfully");
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      console.error(
+        "Tweet creation failed:",
+        error.response?.data || error.message
+      );
     }
   }
 }

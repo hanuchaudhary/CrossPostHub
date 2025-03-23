@@ -4,17 +4,15 @@ import axios from "axios";
 import FormData from "form-data";
 
 interface uploadMediaToTwitterProps {
-  media: Buffer | File;
+  media: any; // Expecting a Buffer or File
   oauth_token: string;
   oauth_token_secret: string;
-  media_category?: string;
 }
 
 export async function uploadMediaToTwitter({
   media,
   oauth_token,
   oauth_token_secret,
-  media_category,
 }: uploadMediaToTwitterProps) {
   const oauth = new OAuth({
     consumer: {
@@ -23,16 +21,15 @@ export async function uploadMediaToTwitter({
     },
     signature_method: "HMAC-SHA1",
     hash_function(base_string, key) {
-      return crypto.createHmac("sha1", key).update(base_string).digest("base64");
+      return crypto
+        .createHmac("sha1", key)
+        .update(base_string)
+        .digest("base64");
     },
   });
 
   const formData = new FormData();
   formData.append("media", media);
-
-  if (media_category) {
-    formData.append("media_category", media_category);
-  }
 
   const requestData = {
     url: "https://upload.twitter.com/1.1/media/upload.json",
@@ -44,7 +41,7 @@ export async function uploadMediaToTwitter({
       {
         url: requestData.url,
         method: requestData.method,
-        data: {}, 
+        data: {},
       },
       {
         key: oauth_token,
@@ -73,7 +70,6 @@ export async function uploadMediaToTwitter({
   }
 }
 
-
 interface createTweetProps {
   text: string;
   mediaIds: string[];
@@ -101,9 +97,6 @@ export async function createTweet({
     },
   });
 
-  console.log("Media Ids:", mediaIds);
-  
-
   const requestData = {
     url: "https://api.twitter.com/2/tweets",
     method: "POST",
@@ -112,9 +105,6 @@ export async function createTweet({
       ...(mediaIds.length > 0 && { media: { media_ids: mediaIds } }),
     },
   };
-
-  console.log("Request Data:", requestData);
-  
 
   if (!text && mediaIds.length === 0) {
     console.error("Text or media is required to create a tweet");
