@@ -131,47 +131,22 @@ export function CreatePostForm() {
       return;
     }
 
-    try {
-      setIsLoading(true);
+    console.log("content.length", content.length);
+    console.log("selectedPlatforms", selectedPlatforms);
 
-      const formData = new FormData();
-      formData.append("postText", content);
-      formData.append("providers", JSON.stringify(selectedPlatforms));
-      if (isScheduled && scheduleDate && scheduleTime) {
-        const scheduledDateTime = new Date(
-          `${format(scheduleDate, "yyyy-MM-dd")}T${scheduleTime}`
-        ).toISOString();
-        formData.append("scheduleAt", scheduledDateTime);
-      }
-      images.forEach((image) => formData.append("images", image));
-
-      const response = await axios.post("/api/post", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
+    if (selectedPlatforms.includes("twitter") && content.length > 275) {
       toast({
-        title: isScheduled
-          ? "Post Scheduled Successfully"
-          : "Post Published Successfully",
+        title: "Twitter Character Limit Exceeded",
         description: (
           <div className="w-full">
-            <Badge
-              className="my-2"
-              variant={isScheduled ? "pending" : "success"}
-            >
-              {isScheduled ? "Scheduled" : "Published"}
+            <Badge className="my-2" variant="destructive">
+              Error
             </Badge>
             <div className="text-xs">
-              <p>{response.data.message}</p>
-              <p>Platforms: {selectedPlatforms.join(", ")}</p>
-              {isScheduled && (
-                <p>
-                  Scheduled for: {format(scheduleDate!, "PPP")} at{" "}
-                  {scheduleTime}
-                </p>
-              )}
+              <p>
+                Your Twitter post exceeds the character limit of 280 characters.
+                Please reduce the content length to continue.
+              </p>
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
               </span>
@@ -182,41 +157,95 @@ export function CreatePostForm() {
           </div>
         ),
       });
-
-      setContent("");
-      setSelectedPlatforms([]);
-      setImages([]);
-      setIsScheduled(false);
-      setScheduleDate(null);
-      setScheduleTime("");
-    } catch (error: any) {
-      console.error("CreatePost Error:", error);
-      toast({
-        title: "Post Creation Failed",
-        description: (
-          <div className="w-full">
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs">
-              <p>
-                {error.response?.data?.error ||
-                  "An error occurred while creating the post."}
-              </p>
-              <p>Please try again or contact support if the issue persists.</p>
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
-            </div>
-          </div>
-        ),
-      });
-    } finally {
-      setIsLoading(false);
+      return;
     }
+
+    // try {
+    //   setIsLoading(true);
+
+    //   const formData = new FormData();
+    //   formData.append("postText", content);
+    //   formData.append("providers", JSON.stringify(selectedPlatforms));
+    //   if (isScheduled && scheduleDate && scheduleTime) {
+    //     const scheduledDateTime = new Date(
+    //       `${format(scheduleDate, "yyyy-MM-dd")}T${scheduleTime}`
+    //     ).toISOString();
+    //     formData.append("scheduleAt", scheduledDateTime);
+    //   }
+    //   images.forEach((image) => formData.append("images", image));
+
+    //   const response = await axios.post("/api/post", formData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   });
+
+    //   toast({
+    //     title: isScheduled
+    //       ? "Post Scheduled Successfully"
+    //       : "Post Published Successfully",
+    //     description: (
+    //       <div className="w-full">
+    //         <Badge
+    //           className="my-2"
+    //           variant={isScheduled ? "pending" : "success"}
+    //         >
+    //           {isScheduled ? "Scheduled" : "Published"}
+    //         </Badge>
+    //         <div className="text-xs">
+    //           <p>{response.data.message}</p>
+    //           <p>Platforms: {selectedPlatforms.join(", ")}</p>
+    //           {isScheduled && (
+    //             <p>
+    //               Scheduled for: {format(scheduleDate!, "PPP")} at{" "}
+    //               {scheduleTime}
+    //             </p>
+    //           )}
+    //           <span className="text-neutral-500 text-xs">
+    //             {new Date().toLocaleDateString()}
+    //           </span>
+    //         </div>
+    //         <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+    //           CrossPostHub.
+    //         </p>
+    //       </div>
+    //     ),
+    //   });
+
+    //   setContent("");
+    //   setSelectedPlatforms([]);
+    //   setImages([]);
+    //   setIsScheduled(false);
+    //   setScheduleDate(null);
+    //   setScheduleTime("");
+    // } catch (error: any) {
+    //   console.error("CreatePost Error:", error);
+    //   toast({
+    //     title: "Post Creation Failed",
+    //     description: (
+    //       <div className="w-full">
+    //         <Badge className="my-2" variant="destructive">
+    //           Error
+    //         </Badge>
+    //         <div className="text-xs">
+    //           <p>
+    //             {error.response?.data?.error ||
+    //               "An error occurred while creating the post."}
+    //           </p>
+    //           <p>Please try again or contact support if the issue persists.</p>
+    //           <span className="text-neutral-500 text-xs">
+    //             {new Date().toLocaleDateString()}
+    //           </span>
+    //           <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
+    //             CrossPostHub.
+    //           </p>
+    //         </div>
+    //       </div>
+    //     ),
+    //   });
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (

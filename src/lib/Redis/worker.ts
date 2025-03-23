@@ -4,10 +4,6 @@ import {
   CreateTextPost,
   registerAndUploadMedia,
 } from "@/utils/LinkedInUtils/LinkedinUtils";
-import {
-  createTweet,
-  uploadMediaToTwitter,
-} from "@/utils/TwitterUtils/TwitterUtils";
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
@@ -122,47 +118,6 @@ const PublishPostWorker = new Worker(
           throw new Error("Twitter account not found.");
         }
 
-        // let mediaIds: string[] = [];
-        // if (imageBuffers.length > 0) {
-        //   console.log(
-        //     `Uploading ${imageBuffers.length} media files to Twitter...`
-        //   );
-        //   mediaIds = await Promise.all(
-        //     imageBuffers.map(async (imageBuffer: Buffer) => {
-        //       const mediaId = await uploadMediaToTwitter({
-        //         media: imageBuffer,
-        //         oauth_token: twitterAccount.access_token!,
-        //         oauth_token_secret: twitterAccount.access_token_secret!,
-        //       });
-        //       console.log(`Media uploaded: ${mediaId}`);
-        //       return mediaId;
-        //     })
-        //   );
-        // }
-
-        // if (!mediaIds) {
-        //   throw new Error("Failed to upload media to Twitter.");
-        // }
-
-        // const twitterUtils = new TwitterUtilsV2(
-        //   twitterAccount.access_token!,
-        //   twitterAccount.access_token_secret!
-        // );
-
-        // for (let i = 0; i < mediaIds.length; i++) {
-        //   const mediaId = mediaIds[i];
-        //   await twitterUtils.pollMediaStatus(mediaId);
-        // }
-
-        // console.log("Media IDs:", mediaIds);
-
-        // const tweetResponse = await createTweet({
-        //   text: postText,
-        //   mediaIds,
-        //   oauth_token: twitterAccount.access_token!,
-        //   oauth_token_secret: twitterAccount.access_token_secret!,
-        // });
-
         const tweetResponse = await twitterPostPublish(
           postText,
           twitterAccount.access_token!,
@@ -264,3 +219,49 @@ const twitterPostPublish = async (
 
   return createPostResponse;
 };
+
+
+
+
+
+// V1 Twitter Post Publish
+// let mediaIds: string[] = [];
+// if (imageBuffers.length > 0) {
+//   console.log(
+//     `Uploading ${imageBuffers.length} media files to Twitter...`
+//   );
+//   mediaIds = await Promise.all(
+//     imageBuffers.map(async (imageBuffer: Buffer) => {
+//       const mediaId = await uploadMediaToTwitter({
+//         media: imageBuffer,
+//         oauth_token: twitterAccount.access_token!,
+//         oauth_token_secret: twitterAccount.access_token_secret!,
+//       });
+//       console.log(`Media uploaded: ${mediaId}`);
+//       return mediaId;
+//     })
+//   );
+// }
+
+// if (!mediaIds) {
+//   throw new Error("Failed to upload media to Twitter.");
+// }
+
+// const twitterUtils = new TwitterUtilsV2(
+//   twitterAccount.access_token!,
+//   twitterAccount.access_token_secret!
+// );
+
+// for (let i = 0; i < mediaIds.length; i++) {
+//   const mediaId = mediaIds[i];
+//   await twitterUtils.pollMediaStatus(mediaId);
+// }
+
+// console.log("Media IDs:", mediaIds);
+
+// const tweetResponse = await createTweet({
+//   text: postText,
+//   mediaIds,
+//   oauth_token: twitterAccount.access_token!,
+//   oauth_token_secret: twitterAccount.access_token_secret!,
+// });

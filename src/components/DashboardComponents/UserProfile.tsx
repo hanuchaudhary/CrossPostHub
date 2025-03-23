@@ -1,10 +1,9 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { NavProfileLoader } from "../Loaders/NavProfileLoader";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import {
   Tooltip,
   TooltipContent,
@@ -13,20 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export const UserProfile: React.FC = () => {
-  const router = useRouter();
   const { data: session } = useSession();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut({
-        redirect: false,
-        callbackUrl: "/signin",
-      });
-      router.push("/signin");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
 
   if (!session) {
     return <NavProfileLoader />;

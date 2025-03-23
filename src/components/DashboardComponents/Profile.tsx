@@ -23,6 +23,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import TwitterUserDetails from "./TwitterUserDetails";
+import LogoutButton from "../Buttons/LogoutButton";
 
 export function Profile() {
   const { fetchDashboardData, dashboardData } = useDashboardStore();
@@ -170,18 +171,11 @@ export function Profile() {
             </Card>
           </div>
         </ScrollArea>
-        <div
-          onClick={() => {
-            signOut();
-            router.push("/");
-          }}
-        >
-          <Button className="absolute backdrop-blur-3xl bottom-4 right-4">
-            <span className="flex flex-row items-center space-x-1">
-              <LogOut className="h-4 w-4" /> <span>Logout</span>
-            </span>
-          </Button>
+
+        <div className="absolute backdrop-blur-3xl bottom-4 right-4">
+          <LogoutButton />
         </div>
+
         <DrawerClose className="absolute top-2 right-2">
           <Button variant="ghost" size="icon">
             <X className="h-4 w-4" />
