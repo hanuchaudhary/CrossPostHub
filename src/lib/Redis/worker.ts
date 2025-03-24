@@ -5,9 +5,7 @@ import { Worker, Queue, Job } from "bullmq";
 //   registerAndUploadMedia,
 // } from "@/utils/LinkedInUtils/LinkedinUtils";
 import prisma from "@/config/prismaConfig";
-import {
-  createNotification,
-} from "@/utils/Controllers/NotificationController";
+import { createNotification } from "@/utils/Controllers/NotificationController";
 import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
 import {
   getMimeType,
@@ -16,6 +14,7 @@ import {
 } from "@/utils/getFileType";
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import { sendSSEMessage } from "@/app/api/sse/route";
+import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 
 const connection = {
   host: process.env.REDIS_HOST,
@@ -32,13 +31,7 @@ const PublishPostWorker = new Worker(
     try {
       const { provider, postText, images, userId } = job.data;
 
-      console.log("Processing Job:", {
-        provider,
-        postText,
-        imagesCount: images.length,
-        userId,
-      });
-
+      console.log("Processing Job for provider:", provider);
       // Fetch user data
       const loggedUser = await prisma.user.findUnique({
         where: { id: userId },
@@ -97,6 +90,7 @@ const PublishPostWorker = new Worker(
         //         text: postText,
         //       });
 
+        // New LinkedIn post publish
         const postResponse = await linkedinPostPublish(
           postText,
           linkedinAccount.access_token!,
@@ -110,13 +104,23 @@ const PublishPostWorker = new Worker(
           type: "POST_STATUS",
           message: `Your post has been published on ${provider}.`,
         });
+        console.log("Notification Saed to database");
+
+        // Email notification
+        const res = await sendEmailNotification(
+          loggedUser.email,
+          "POST_SUCCESS",
+          {
+            platforms: [provider],
+          }
+        );
+        console.log("Email Sent", res?.data);
 
         // Trigger SSE event
         await sendSSEMessage(userId, {
           type: "post-success",
           message: notification.message,
         });
-        
 
         return { provider: "linkedin", response: postResponse };
       }
@@ -173,8 +177,7 @@ const PublishPostWorker = new Worker(
       await sendSSEMessage(job.data.userId, {
         type: "post-failed",
         message: notification.message,
-      }
-      )
+      });
 
       throw error;
     }
@@ -236,17 +239,13 @@ const linkedinPostPublish = async (
   linkedinPersonURN: string,
   mediaBuffers: Buffer[]
 ) => {
-  console.log("Publishing post on LinkedIn...");
-  console.log("Input text:", text);
-  console.log("Media buffers count:", mediaBuffers.length);
-
   const linkedinUtils = new LinkedinUtilsV2(
     linkedinAccessToken,
     `urn:li:person:${linkedinPersonURN}`
   );
 
   if (mediaBuffers.length === 0) {
-    console.log("No media provided, posting text only...");
+    console.log("Posting text to LinkedIn...");
     await linkedinUtils.postTextToLinkedIn(text);
     return { message: "Text posted successfully" };
   }
