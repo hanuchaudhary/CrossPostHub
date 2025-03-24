@@ -3,7 +3,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useTheme } from "next-themes";
 
 export default function MobileNavbar() {
   const [isOpen, setIsOpen] = React.useState(false);

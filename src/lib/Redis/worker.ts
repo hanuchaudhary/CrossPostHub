@@ -7,7 +7,12 @@ import {
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
-import { getTwitterFileType, TwiiterFileType } from "@/utils/getFileType";
+import {
+  getMimeType,
+  getTwitterFileType,
+  TwiiterFileType,
+} from "@/utils/getFileType";
+import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 
 const connection = {
   host: process.env.REDIS_HOST,
@@ -57,41 +62,44 @@ const PublishPostWorker = new Worker(
           throw new Error("LinkedIn access token is missing.");
         }
 
-        let assetURNs: string[] = [];
-        if (imageBuffers.length > 0) {
-          console.log(
-            `Uploading ${imageBuffers.length} media files to LinkedIn...`
-          );
-          assetURNs = await Promise.all(
-            imageBuffers.map(async (imageBuffer: Buffer) => {
-              const assetURN = await registerAndUploadMedia({
-                accessToken: linkedinAccount.access_token!,
-                personURN: linkedinAccount.providerAccountId!,
-                image: imageBuffer,
-              });
-              console.log(`Media uploaded: ${assetURN}`);
-              return assetURN;
-            })
-          );
-        }
+        // let assetURNs: string[] = [];
+        // if (imageBuffers.length > 0) {
+        //   console.log(
+        //     `Uploading ${imageBuffers.length} media files to LinkedIn...`
+        //   );
+        //   assetURNs = await Promise.all(
+        //     imageBuffers.map(async (imageBuffer: Buffer) => {
+        //       const assetURN = await registerAndUploadMedia({
+        //         accessToken: linkedinAccount.access_token!,
+        //         personURN: linkedinAccount.providerAccountId!,
+        //         image: imageBuffer,
+        //       });
+        //       console.log(`Media uploaded: ${assetURN}`);
+        //       return assetURN;
+        //     })
+        //   );
+        // }
 
-        const postResponse =
-          imageBuffers.length > 0
-            ? await CreatePostWithMedia({
-                accessToken: linkedinAccount.access_token!,
-                personURN: linkedinAccount.providerAccountId!,
-                assetURNs,
-                text: postText,
-              })
-            : await CreateTextPost({
-                accessToken: linkedinAccount.access_token!,
-                personURN: linkedinAccount.providerAccountId!,
-                text: postText,
-              });
+        // const postResponse =
+        //   imageBuffers.length > 0
+        //     ? await CreatePostWithMedia({
+        //         accessToken: linkedinAccount.access_token!,
+        //         personURN: linkedinAccount.providerAccountId!,
+        //         assetURNs,
+        //         text: postText,
+        //       })
+        //     : await CreateTextPost({
+        //         accessToken: linkedinAccount.access_token!,
+        //         personURN: linkedinAccount.providerAccountId!,
+        //         text: postText,
+        //       });
 
-        if (postResponse.error) {
-          throw new Error(postResponse.error);
-        }
+        const postResponse = await linkedinPostPublish(
+          postText,
+          linkedinAccount.access_token!,
+          linkedinAccount.providerAccountId!,
+          imageBuffers
+        );
 
         // Send success notification
         const notification = await createNotification({
@@ -220,9 +228,50 @@ const twitterPostPublish = async (
   return createPostResponse;
 };
 
+const linkedinPostPublish = async (
+  text: string,
+  linkedinAccessToken: string,
+  linkedinPersonURN: string,
+  mediaBuffers: Buffer[]
+) => {
+  console.log("Publishing post on LinkedIn...");
 
+  let assetURNs: string[] = [];
+  if (mediaBuffers.length > 0) {
+    console.log(`Uploading ${mediaBuffers.length} media files to LinkedIn...`);
+    const linkedinUtils = new LinkedinUtilsV2(
+      linkedinAccessToken,
+      `urn:li:person:${linkedinPersonURN}`
+    );
 
+    assetURNs = await Promise.all(
+      mediaBuffers.map(async (imageBuffer: Buffer) => {
+        const mineType = await getMimeType(imageBuffer);
+        const assetURN = await linkedinUtils.uploadMedia(
+          imageBuffer,
+          imageBuffer.length,
+          mineType
+        );
+        console.log(`Media uploaded: ${assetURN}`);
+        return assetURN;
+      })
+    );
 
+    console.log("Asset URNs:", assetURNs);
+
+    if (!assetURNs) {
+      throw new Error("Failed to upload media to LinkedIn.");
+    }
+
+    const postResponse = await linkedinUtils.postToLinkedIn(
+      assetURNs,
+      text,
+      await getMimeType(mediaBuffers[0])
+    );
+
+    return postResponse;
+  }
+};
 
 // V1 Twitter Post Publish
 // let mediaIds: string[] = [];

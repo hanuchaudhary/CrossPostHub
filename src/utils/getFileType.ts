@@ -6,7 +6,9 @@ export enum TwiiterFileType {
   TWEET_VIDEO = "tweet_video",
 }
 
-export async function getTwitterFileType(buffer: Buffer): Promise<TwiiterFileType> {
+export async function getTwitterFileType(
+  buffer: Buffer
+): Promise<TwiiterFileType> {
   const fileType = await fileTypeFromBuffer(buffer);
 
   if (!fileType) {
@@ -23,13 +25,11 @@ export async function getTwitterFileType(buffer: Buffer): Promise<TwiiterFileTyp
   }
 
   if (mime.startsWith("video/")) {
-    return TwiiterFileType.TWEET_VIDEO
+    return TwiiterFileType.TWEET_VIDEO;
   }
 
   throw new Error("Invalid file type " + mime);
 }
-
-
 
 export async function getLinkedInFileType(buffer: Buffer): Promise<string> {
   const fileType = await fileTypeFromBuffer(buffer);
@@ -49,4 +49,16 @@ export async function getLinkedInFileType(buffer: Buffer): Promise<string> {
   }
 
   throw new Error("Invalid file type " + mime);
+}
+
+export async function getMimeType(buffer: Buffer) {
+  const fileType = await fileTypeFromBuffer(buffer);
+
+  if (!fileType) {
+    throw new Error("File type not found");
+  }
+
+  const { mime } = fileType;
+  console.log("MIME: ", mime);
+  return mime;
 }
