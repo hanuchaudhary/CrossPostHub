@@ -131,9 +131,6 @@ export function CreatePostForm() {
       return;
     }
 
-    console.log("content.length", content.length);
-    console.log("selectedPlatforms", selectedPlatforms);
-
     if (selectedPlatforms.includes("twitter") && content.length > 275) {
       toast({
         title: "Twitter Character Limit Exceeded",
@@ -182,18 +179,18 @@ export function CreatePostForm() {
 
       toast({
         title: isScheduled
-          ? "Post Scheduled Successfully"
-          : "Post Published Successfully",
+          ? "Post Scheduled for Processing"
+          : "Post Sent for Processing",
         description: (
           <div className="w-full">
-            <Badge
-              className="my-2"
-              variant={isScheduled ? "pending" : "success"}
-            >
-              {isScheduled ? "Scheduled" : "Published"}
+            <Badge variant={"pending"} className="my-2">
+              {isScheduled ? "Scheduled" : "Processing"}
             </Badge>
             <div className="text-xs">
-              <p>{response.data.message}</p>
+              <p>
+                Your post is being processed. You will be notified once it is
+                published.
+              </p>
               <p>Platforms: {selectedPlatforms.join(", ")}</p>
               {isScheduled && (
                 <p>

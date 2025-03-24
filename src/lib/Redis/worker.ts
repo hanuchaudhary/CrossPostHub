@@ -1,11 +1,13 @@
 import { Worker, Queue, Job } from "bullmq";
-import {
-  CreatePostWithMedia,
-  CreateTextPost,
-  registerAndUploadMedia,
-} from "@/utils/LinkedInUtils/LinkedinUtils";
+// import {
+//   CreatePostWithMedia,
+//   CreateTextPost,
+//   registerAndUploadMedia,
+// } from "@/utils/LinkedInUtils/LinkedinUtils";
 import prisma from "@/config/prismaConfig";
-import { createNotification } from "@/utils/Controllers/NotificationController";
+import {
+  createNotification,
+} from "@/utils/Controllers/NotificationController";
 import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
 import {
   getMimeType,
@@ -13,6 +15,7 @@ import {
   TwiiterFileType,
 } from "@/utils/getFileType";
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
+import { sendSSEMessage } from "@/app/api/sse/route";
 
 const connection = {
   host: process.env.REDIS_HOST,
@@ -109,11 +112,11 @@ const PublishPostWorker = new Worker(
         });
 
         // Trigger SSE event
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, notification }),
+        await sendSSEMessage(userId, {
+          type: "post-success",
+          message: notification.message,
         });
+        
 
         return { provider: "linkedin", response: postResponse };
       }
@@ -145,10 +148,9 @@ const PublishPostWorker = new Worker(
         });
 
         // Trigger SSE event
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, notification }),
+        await sendSSEMessage(userId, {
+          type: "post-success",
+          message: notification.message,
         });
 
         return { provider: "twitter", response: tweetResponse };
@@ -168,11 +170,11 @@ const PublishPostWorker = new Worker(
       });
 
       // Trigger SSE event
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sse`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: job.data.userId, notification }),
-      });
+      await sendSSEMessage(job.data.userId, {
+        type: "post-failed",
+        message: notification.message,
+      }
+      )
 
       throw error;
     }

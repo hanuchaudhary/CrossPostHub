@@ -64,47 +64,54 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
           AI Content
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
+      <AlertDialogContent className="rounded-3xl">
+        <AlertDialogHeader className="space-y-0">
           <AlertDialogTitle className="text-2xl font-ClashDisplayMedium">
-            Unleash <AuroraText>Gemini&apos;s </AuroraText> Creative Power
+            <AuroraText>Generate Caption</AuroraText> with AI
           </AlertDialogTitle>
           <AlertDialogDescription className="text-base">
-            Spark your imagination with Gemini AI. Transform your ideas into
-            captivating content with just a prompt!
+            Describe your caption idea and let AI generate it for you.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="grid gap-4 py-4">
-          <Textarea
-            placeholder="Describe your magical content idea..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="md:text-lg h-32"
-          />
+          <div className="relative bg-secondary rounded-3xl">
+            <Textarea
+              placeholder="Describe your magical content idea..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="md:text-lg pb-20 border-none shadow-none min-h-[120px] resize-none rounded-2xl bg-secondary focus-visible:border-none focus-visible:ring-0"
+            />
+            <div className="flex items-center justify-end p-3 w-full gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPrompt("");
+                  setIsOpen(false);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                className="disabled:opacity-100"
+              >
+                {isGenerating ? (
+                  <SparklesText
+                    className="text-sm font-light"
+                    sparklesCount={5}
+                    text="Generating..."
+                  />
+                ) : (
+                  <>
+                    <GeminiIcon className="h-4 w-4  " />
+                    Generate
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating || !prompt.trim()}
-            className="disabled:opacity-100"
-          >
-            {isGenerating ? (
-              <>
-                <SparklesText
-                  className="text-sm font-light"
-                  sparklesCount={5}
-                  text="Conjuring..."
-                />
-              </>
-            ) : (
-              <>
-                <GeminiIcon className="h-5 w-5" />
-                Summon Content
-              </>
-            )}
-          </Button>
-        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

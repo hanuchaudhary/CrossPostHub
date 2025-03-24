@@ -118,11 +118,11 @@ export function ConnectAccounts() {
           selectedPlatforms={[disconnectedAppName!]}
           title={`Disconnecting from ${disconnectedAppName}`}
         />
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">
+        <CardHeader className="space-y-0">
+          <CardTitle className="md:text-2xl text-xl font-ClashDisplayMedium tracking-wide">
             Connect Social Media
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="md:text-base text-xs">
             Link your social media accounts to share your posts
           </CardDescription>
         </CardHeader>

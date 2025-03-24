@@ -1,40 +1,45 @@
 "use client";
-
-import { useEffect } from "react";
-import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
 import { toast } from "@/hooks/use-toast";
+import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
+import { useEffect } from "react";
 
 export default function SSEListener({ userId }: { userId: string }) {
   const { fetchNotifications } = useNotificationStore();
-
   useEffect(() => {
+    if (!userId) return;
+
     const eventSource = new EventSource(`/api/sse?userId=${userId}`);
 
-    eventSource.addEventListener("notification", (event) => {
-      const data = JSON.parse(event.data);
-      console.log("New notification:", data);
-      toast({
-        title: "Post Update",
-        description: `${data.message}`,
-        variant: "default",
-      });
-      // Fetch notifications to update the UI
-      fetchNotifications();
-    });
+    eventSource.onmessage = (event) => {
+      try {
+        const { type, message } = JSON.parse(event.data);
 
-    eventSource.addEventListener("connected", (event) => {
-      console.log("SSE connected:", event.data);
-    });
-
-    eventSource.onerror = (error) => {
-      console.error("SSE error:", error);
-      eventSource.close();
+        switch (type) {
+          case "post-success":
+            fetchNotifications();
+            toast({
+              title: "Post published successfully",
+              description: message,
+            });
+            break;
+          case "post-failed":
+            fetchNotifications();
+            toast({
+              title: "Post failed",
+              description: message,
+            });
+            break;
+          case "connected":
+            console.log("SSE connected to server");
+            break;
+        }
+      } catch (error) {
+        console.error("SSE parse error:", error);
+      }
     };
 
-    return () => {
-      eventSource.close();
-    };
-  }, [userId, fetchNotifications]);
+    return () => eventSource.close();
+  }, [userId]);
 
   return null;
 }
