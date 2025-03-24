@@ -3,12 +3,6 @@
 import {
   ArrowUp,
   Calendar,
-  Facebook,
-  Github,
-  Instagram,
-  Linkedin,
-  Twitter,
-  Youtube,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -87,6 +81,7 @@ export default function LandingFooter() {
               { href: "#", name: "Instagram" },
             ].map((social) => (
               <Link
+                key={social.name}
                 href={social.href}
                 target="_blank"
                 className="text-muted-foreground dark:text-neutral-400 hover:text-primary dark:hover:text-white transition-colors"
