@@ -51,7 +51,6 @@ export function ConnectAccounts() {
     fetchConnectedApps();
   }, [fetchConnectedApps]);
 
-  // Connect Logic
   const handleConnect = async (app: SocialApp) => {
     setLoading(app.provider);
     try {
@@ -65,27 +64,11 @@ export function ConnectAccounts() {
       } else if (res?.ok) {
         toast({
           title: `🎉 Connected to ${app.name}`,
-          description: (
-            <div>
-              <Badge className="my-2" variant="success">
-                Connected
-              </Badge>
-              <div className="text-sm">
-                <p>Your {app.name} account has been successfully connected</p>
-                <p>Now you can share your posts on {app.name}</p>
-                <span className="text-neutral-500 text-xs">
-                  {new Date().toLocaleDateString()}
-                </span>
-                <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                  CrossPostHub.
-                </p>
-              </div>
-            </div>
-          ),
+          description: `Your ${app.name} account has been successfully connected!`,
         });
         await fetchConnectedApps();
       }
-    } catch (error) {
+    } catch {
       toast({
         title: `Error connecting to ${app.name}`,
         description: "An unexpected error occurred",
@@ -96,7 +79,6 @@ export function ConnectAccounts() {
     }
   };
 
-  // Disconnect Logic
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const handleDisconnect = async (app: SocialApp) => {
     const connectedApp = connectedApps.find(
@@ -106,41 +88,17 @@ export function ConnectAccounts() {
       setDisconnectedAppName(connectedApp.provider!);
       try {
         setIsDisconnecting(true);
-        const res = await axios.put("/api/disconnect", {
+        await axios.put("/api/disconnect", {
           provider: connectedApp.provider,
           providerAccountId: connectedApp.providerAccountId,
         });
-        if (res.status === 200) {
-          toast({
-            title: `${app.name} Disconnected`,
-            description: (
-              <div>
-                <Badge className="my-2" variant="destructive">
-                  Disconnected
-                </Badge>
-                <div className="text-xs">
-                  <p>
-                    Your {app.name} account has been disconnected successfully
-                  </p>
-                  <p>
-                    You can connect your {app.name} account again to share your
-                    posts
-                  </p>
-                  <span className="text-neutral-500 text-xs">
-                    {new Date().toLocaleDateString()}
-                  </span>
-                  <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                    CrossPostHub.
-                  </p>
-                </div>
-              </div>
-            ),
-          });
-          fetchConnectedApps();
-        }
-      } catch (error: any) {
+        toast({
+          title: `${app.name} Disconnected`,
+          description: `Your ${app.name} account has been disconnected successfully.`,
+        });
+        fetchConnectedApps();
+      } catch {
         setDisconnectedAppName(null);
-        console.error("Disconnect Error:", error);
         toast({
           title: `Error disconnecting from ${app.name}`,
           description: "An unexpected error occurred",
@@ -149,12 +107,6 @@ export function ConnectAccounts() {
       } finally {
         setIsDisconnecting(false);
       }
-    } else {
-      toast({
-        title: `Error disconnecting from ${app.name}`,
-        description: "Connected app not found",
-        variant: "destructive",
-      });
     }
   };
 
@@ -166,11 +118,11 @@ export function ConnectAccounts() {
           selectedPlatforms={[disconnectedAppName!]}
           title={`Disconnecting from ${disconnectedAppName}`}
         />
-        <CardHeader className="space-y-0">
+        <CardHeader>
           <CardTitle className="text-2xl font-semibold">
             Connect Social Media
           </CardTitle>
-          <CardDescription className={""}>
+          <CardDescription>
             Link your social media accounts to share your posts
           </CardDescription>
         </CardHeader>
@@ -182,18 +134,27 @@ export function ConnectAccounts() {
             : socialApps.map((app) => (
                 <div
                   key={app.provider}
-                  className="flex relative overflow-hidden items-center justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
+                  className="flex relative items-center overflow-hidden justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
                 >
+                  {(app.provider === "instagram" ||
+                    app.provider === "threads") && (
+                    <div className="absolute inset-0 bg-secondary/95 flex items-center justify-center z-10">
+                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
+                        Coming Soon...
+                      </h2>
+                      <Lock className="h-5 w-5 ml-2" />
+                    </div>
+                  )}
                   <div className="flex items-center space-x-4">
                     <Image
                       height={45}
                       width={45}
-                      src={app.icon || "/placeholder.svg"}
+                      src={app.icon}
                       alt={`${app.name} logo`}
-                      className={`transition-all duration-300 ease-in-out ${
-                        (app.provider === "twitter" ||
-                          app.provider === "threads") &&
-                        "dark:invert"
+                      className={`${
+                        app.provider === "twitter" || app.provider === "threads"
+                          ? "dark:invert-[1]"
+                          : ""
                       }`}
                     />
                     <span className="font-medium">{app.name}</span>
@@ -216,33 +177,12 @@ export function ConnectAccounts() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
-                  ) : connectedApps.filter(
-                      (e) =>
-                        e.provider === "instagram" || e.provider === "threads"
-                    ) ? (
-                    <div className="h-full w-full select-none absolute top-0 left-0 bg-secondary/95 md:bg-secondary/70 flex items-center justify-center">
-                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
-                        Comming Soon...
-                      </h2>
-                      <span>
-                        <Lock className="h-5 w-5 ml-2" />
-                      </span>
-                    </div>
-                  ) : connectedApps.length === 2 ? (
-                    <div className="h-full w-full select-none absolute top-0 left-0 bg-secondary/95 md:bg-secondary/70 flex items-center justify-center">
-                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
-                        Upgrade to Add More Platforms
-                      </h2>
-                      <span>
-                        <Lock className="h-5 w-5 ml-2" />
-                      </span>
-                    </div>
                   ) : app.provider === "twitter" ? (
                     <TwitterConnectBTN />
                   ) : (
                     <Button
                       className="rounded-full"
-                      size={"sm"}
+                      size="sm"
                       onClick={() => handleConnect(app)}
                       disabled={loading === app.provider}
                     >

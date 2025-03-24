@@ -6,7 +6,7 @@ export class LinkedinUtilsV2 {
   private readonly apiBaseUrl = "https://api.linkedin.com/v2";
   private readonly accessToken: string;
   private readonly personURN: string;
-  private readonly chunkSize = 5 * 1024 * 1024; // Default chunk size: 5MB
+  private readonly chunkSize = 5 * 1024 * 1024; // 5MB
 
   constructor(accessToken: string, personURN: string) {
     this.accessToken = accessToken;
@@ -17,30 +17,19 @@ export class LinkedinUtilsV2 {
     media: Buffer
   ): Promise<"feedshare-image" | "feedshare-video"> {
     const fileType = await fileTypeFromBuffer(media);
-    if (!fileType) {
-      throw new Error("File type not found");
-    }
-
-    const { mime } = fileType;
-
-    if (mime.startsWith("image/")) {
-      return "feedshare-image";
-    } else if (mime.startsWith("video/")) {
-      return "feedshare-video";
-    }
-
-    throw new Error("Invalid file type " + mime);
+    if (!fileType) throw new Error("File type not found");
+    return fileType.mime.startsWith("image/")
+      ? "feedshare-image"
+      : "feedshare-video";
   }
 
   private isFileSizeLarge(fileSize: number): boolean {
-    return fileSize > 50 * 1024 * 1024; // 50MB
+    return fileSize > 30 * 1024 * 1024; // 30MB
   }
-
-  // Register media upload
 
   async registerMediaUpload(media: Buffer) {
     const fileType = await this.getFileType(media);
-    console.log("Media Type: " + fileType);
+    console.log(`[INFO] Registering media upload: ${fileType}`);
 
     const response = await axios.post(
       `${this.apiBaseUrl}/assets?action=registerUpload`,
@@ -63,115 +52,151 @@ export class LinkedinUtilsV2 {
         },
       }
     );
-    console.log("Registered response: ", {
-      uploadUrl:
-        response.data.value.uploadMechanism[
-          "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
-        ].uploadUrl,
-      assetURN: response.data.value.asset,
-    });
 
-    console.log(fileType + "Media Upload Registered!" + response.data);
-    return {
+    const data = {
       uploadUrl:
         response.data.value.uploadMechanism[
           "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
         ].uploadUrl,
       assetURN: response.data.value.asset,
     };
+    console.log(`[SUCCESS] Media upload registered. Asset: ${data.assetURN}`);
+    return data;
   }
 
-  // upload Large media > 50MB
-  async uploadLargeMedia(uploadURL: string, mediaFile: Buffer) {
-    let segmentStart = 1;
-    for (let i = 0; i < mediaFile.length; i += this.chunkSize) {
-      const chunk = mediaFile.slice(i, i + this.chunkSize);
-      await axios.put(`${uploadURL}?part=${segmentStart}`, chunk, {
-        headers: { Authorization: `Bearer ${this.accessToken}` },
-      });
-      console.log(`Uploaded chunk ${segmentStart}`);
-      segmentStart++;
-    }
-  }
-
-  // upload small media < 50MB
   private async uploadSmallFile(uploadUrl: string, fileBuffer: Buffer) {
-    console.log("Uploading small file on url: ", uploadUrl);
-    try {
-      const response = await axios.put(uploadUrl, fileBuffer, {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-          "Content-Type": await getMimeType(fileBuffer),
-        },
-      });
-      console.log("Small file uploaded!", response.data);
-    } catch (error: any) {
-      if (error instanceof AxiosError) {
-        if (error.response?.data) {
-          console.log("Error uploading small file: ", error.response.data);
+    console.log("[INFO] Uploading small file...");
+    await axios.put(uploadUrl, fileBuffer, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": await getMimeType(fileBuffer),
+      },
+    });
+    console.log("[SUCCESS] Small file uploaded!");
+  }
+
+  async uploadLargeMedia(uploadURL: string, mediaFile: Buffer) {
+    console.log("[INFO] Uploading large file in chunks...");
+    for (let start = 0; start < mediaFile.length; start += this.chunkSize) {
+      const end = Math.min(start + this.chunkSize, mediaFile.length) - 1;
+      const chunk = mediaFile.slice(start, end + 1);
+      const contentRange = `bytes ${start}-${end}/${mediaFile.length}`;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          await axios.put(uploadURL, chunk, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "Content-Range": contentRange,
+            },
+          });
+          console.log(`[SUCCESS] Chunk uploaded: ${start}-${end}`);
+          break;
+        } catch (error) {
+          console.log(`[ERROR] Retrying chunk upload (${attempt}/3)...`);
+          if (attempt === 3) throw error;
+          await new Promise((res) => setTimeout(res, 1000));
         }
       }
     }
   }
 
-  // Finalize media upload
-  async finalizeMediaUpload(uploadUrl: string, media: Buffer) {
-    await axios.put(uploadUrl, media, {
-      headers: { Authorization: `Bearer ${this.accessToken}` },
-    });
-    console.log("Media Uploaded!");
+  async checkProcessingStatus(assetURN: string) {
+    console.log("[INFO] Checking processing status...");
+    //urn:li:digitalmediaAsset:D5605AQFCHMu-W-M8uw to D5605AQFCHMu-W-M8uw
+    const splitURN = assetURN.split(":");
+    assetURN = splitURN[splitURN.length - 1];
+
+    for (let attempt = 1; attempt <= 10; attempt++) {
+      try {
+        const response = await axios.get(
+          `${this.apiBaseUrl}/assets/${assetURN}`,
+          {
+            headers: { Authorization: `Bearer ${this.accessToken}` },
+          }
+        );
+        if (response.data.status === "ALLOWED") {
+          console.log("[SUCCESS] Media processing complete!");
+          return;
+        }
+      } catch (error) {
+        console.log("[ERROR] Failed to check status, retrying...");
+      }
+      await new Promise((res) => setTimeout(res, 5000)); // Wait 5 seconds before retrying
+    }
+    console.log("[ERROR] Media processing timed out.");
+  }
+
+  async uploadMedia(fileBuffer: Buffer, fileSize: number) {
+    const { uploadUrl, assetURN } = await this.registerMediaUpload(fileBuffer);
+    if (this.isFileSizeLarge(fileSize)) {
+      await this.uploadLargeMedia(uploadUrl, fileBuffer);
+      await this.checkProcessingStatus(assetURN);
+    } else {
+      await this.uploadSmallFile(uploadUrl, fileBuffer);
+    }
+    return assetURN;
   }
 
   // CreatePost
   public async postToLinkedIn(
     assetURNs: string[],
     caption: string,
-    mimeType: string
+    mimeTypes: string[]
   ) {
-    const mediaType = mimeType.startsWith("image/") ? "IMAGE" : "VIDEO";
-    const mediaArray = assetURNs.map((asset) => ({
+    const mediaType = mimeTypes.every((m) => m.startsWith("image/"))
+      ? "IMAGE"
+      : "VIDEO"; // Adjust logic as needed
+    const mediaArray = assetURNs.map((asset, index) => ({
       status: "READY",
       media: asset,
-      title: { text: "Uploaded Media" },
+      title: { text: `Uploaded Media (${mimeTypes[index]})` },
     }));
-    await axios.post(
-      `${this.apiBaseUrl}/ugcPosts`,
-      {
-        author: this.personURN,
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: { text: caption },
-            shareMediaCategory: mediaType,
-            media: mediaArray,
-          },
+    const payload = {
+      author: this.personURN,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary: { text: caption },
+          shareMediaCategory: mediaType,
+          media: mediaArray,
         },
-        visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
       },
-      { headers: { Authorization: `Bearer ${this.accessToken}` } }
+      visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
+    };
+    console.log(
+      "[INFO] Posting to LinkedIn with payload:",
+      JSON.stringify(payload)
     );
-
+    await axios.post(`${this.apiBaseUrl}/ugcPosts`, payload, {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
     console.log("Media posted successfully!");
   }
 
-  // Main function
-  public async uploadMedia(
-    fileBuffer: Buffer,
-    fileSize: number,
-    mimeType: string
-  ) {
-    const { uploadUrl, assetURN } = await this.registerMediaUpload(fileBuffer);
-
-    if (this.isFileSizeLarge(fileSize)) {
-      console.log("Uploading large file...");
-      await this.uploadLargeMedia(uploadUrl, fileBuffer);
-      await this.finalizeMediaUpload(uploadUrl, fileBuffer);
-    } else {
-      console.log("Uploading small file...");
-      await this.uploadSmallFile(uploadUrl, fileBuffer);
-    }
-
-    console.log("Upload completed. Asset:", assetURN);
-    return assetURN;
+  // CreateTextPost
+  public async postTextToLinkedIn(text: string) {
+    const body = {
+      author: this.personURN,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary: {
+            text: text,
+          },
+          shareMediaCategory: "NONE",
+        },
+      },
+      visibility: {
+        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+      },
+    };
+    await axios.post(`${this.apiBaseUrl}/ugcPosts`, body, {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log("Text posted successfully!");
   }
 }

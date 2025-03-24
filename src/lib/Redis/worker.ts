@@ -235,42 +235,54 @@ const linkedinPostPublish = async (
   mediaBuffers: Buffer[]
 ) => {
   console.log("Publishing post on LinkedIn...");
+  console.log("Input text:", text);
+  console.log("Media buffers count:", mediaBuffers.length);
 
+  const linkedinUtils = new LinkedinUtilsV2(
+    linkedinAccessToken,
+    `urn:li:person:${linkedinPersonURN}`
+  );
+
+  if (mediaBuffers.length === 0) {
+    console.log("No media provided, posting text only...");
+    await linkedinUtils.postTextToLinkedIn(text);
+    return { message: "Text posted successfully" };
+  }
+
+  console.log(`Uploading ${mediaBuffers.length} media files to LinkedIn...`);
   let assetURNs: string[] = [];
-  if (mediaBuffers.length > 0) {
-    console.log(`Uploading ${mediaBuffers.length} media files to LinkedIn...`);
-    const linkedinUtils = new LinkedinUtilsV2(
-      linkedinAccessToken,
-      `urn:li:person:${linkedinPersonURN}`
-    );
-
+  try {
     assetURNs = await Promise.all(
-      mediaBuffers.map(async (imageBuffer: Buffer) => {
-        const mineType = await getMimeType(imageBuffer);
+      mediaBuffers.map(async (imageBuffer: Buffer, index: number) => {
+        console.log(
+          `[INFO] Uploading media ${index + 1}/${mediaBuffers.length}...`
+        );
         const assetURN = await linkedinUtils.uploadMedia(
           imageBuffer,
-          imageBuffer.length,
-          mineType
+          imageBuffer.length
         );
         console.log(`Media uploaded: ${assetURN}`);
         return assetURN;
       })
     );
-
-    console.log("Asset URNs:", assetURNs);
-
-    if (!assetURNs) {
-      throw new Error("Failed to upload media to LinkedIn.");
-    }
-
-    const postResponse = await linkedinUtils.postToLinkedIn(
-      assetURNs,
-      text,
-      await getMimeType(mediaBuffers[0])
-    );
-
-    return postResponse;
+  } catch (error: any) {
+    console.error("[ERROR] Failed to upload media:", error);
+    throw new Error(`Media upload failed: ${error.message}`);
   }
+
+  console.log("Asset URNs:", assetURNs);
+  const mimeTypes = await Promise.all(
+    mediaBuffers.map((buffer) => getMimeType(buffer))
+  );
+  console.log("MIME types:", mimeTypes);
+
+  const postResponse = await linkedinUtils.postToLinkedIn(
+    assetURNs,
+    text,
+    mimeTypes
+  );
+
+  return { postResponse };
 };
 
 // V1 Twitter Post Publish

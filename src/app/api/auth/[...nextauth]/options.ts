@@ -39,7 +39,10 @@ export const authOptions: NextAuthOptions = {
 
           if (!user) throw new Error("No user found with this email address");
           if (!password) throw new Error("Password is required");
-          if (!user.password) throw new Error("This email is registered with a Google account, please sign in with Google");
+          if (!user.password)
+            throw new Error(
+              "This email is registered with a Google account, please sign in with Google"
+            );
 
           const isPasswordValid = await bcryptjs.compare(
             password,
@@ -128,7 +131,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async signIn({user,account,profile}) {
+    async signIn({ user, account, profile }) {
       try {
         // Check if the user already exists
         const existingUser = await prisma.user.findUnique({
@@ -150,12 +153,31 @@ export const authOptions: NextAuthOptions = {
           });
         }
 
-        return true; 
+        if (account?.provider === "google") {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+          });
+
+          if (existingUser) {
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                type: account.type,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+              },
+            });
+          }
+        }
+
+        return true;
       } catch (error) {
         console.error("Error during sign-in:", error);
-        return false; 
+        return false;
       }
-  },
+    },
   },
   pages: {
     signIn: "/signin",
