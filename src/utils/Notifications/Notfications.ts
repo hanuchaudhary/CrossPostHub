@@ -45,3 +45,8 @@ export async function sendEmailNotification(
     console.error("Failed to send email", error);
   }
 }
+
+export const sendSSEMessage = async (email: string, data: any) => {
+  console.log("Sending SSE message to", email, data);
+  
+};

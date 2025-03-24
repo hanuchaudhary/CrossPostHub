@@ -13,7 +13,7 @@ import {
   TwiiterFileType,
 } from "@/utils/getFileType";
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
-import { sendSSEMessage } from "@/app/api/sse/route";
+import { sendSSEMessage } from "@/utils/Notifications/Notfications";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 
 const connection = {
