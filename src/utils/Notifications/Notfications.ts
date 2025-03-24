@@ -1,36 +1,39 @@
 import { Resend } from "resend";
+import EmailTemplate from "@/components/Tools/EmailTemplate";
+import { render } from "@react-email/render";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-type EmailTemplate = "POST_SUCCESS" | "POST_FAILED";
-
 const DOMAIN = process.env.DOMAIN || "notifications@kushchaudhary.systems";
 
 export async function sendEmailNotification(
   email: string,
-  template: EmailTemplate,
   data: {
-    postId?: string;
-    platforms?: string[];
+    username: string;
+    type: "SUCCESS" | "FAILED";
+    platform: string;
+    postTitle: string;
     error?: string;
   }
 ) {
-  const templates = {
-    POST_SUCCESS: {
-      subject: "✅ Your post was published!",
-      html: `<p>Successfully published to ${data.platforms?.join(", ")}</p>`,
-    },
-    POST_FAILED: {
-      subject: "❌ Post failed to publish",
-      html: `<p>Error: ${data.error || "Unknown error"}</p>`,
-    },
-  };
+  const html = await render(
+    EmailTemplate({
+      username: data.username,
+      type: data.type,
+      platform: data.platform,
+      postTitle: data.postTitle,
+      error: data.error,
+    })
+  ).then((html) => html);
 
   try {
     const res = await resend.emails.send({
       from: `CrossPostHub <${DOMAIN}>`,
       to: email,
-      ...templates[template],
+      subject: {
+        SUCCESS: "🎉Your post was published | CrossPostHub",
+        FAILED: "Post Failed to Publish | CrossPostHub",
+      }[data.type],
+      html,
     });
 
     if (res.error) {

@@ -43,6 +43,7 @@ import { usePricingStore } from "@/store/PricingStore/usePricingStore";
 import PageLoader from "../Loaders/PageLoader";
 import { TransactionDetailsModal } from "./TransactionDetailModal";
 import UpgradeButton from "../Buttons/UpgradeButton";
+import PostNotification from "../Tools/EmailTemplate";
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -201,8 +202,8 @@ export default function TransactionsPage() {
                                 transaction.status === "SUCCESS"
                                   ? "success"
                                   : transaction.status === "PENDING"
-                                  ? "pending"
-                                  : "destructive"
+                                    ? "pending"
+                                    : "destructive"
                               }
                               className="flex w-fit items-left gap-1"
                             >

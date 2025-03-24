@@ -104,16 +104,15 @@ const PublishPostWorker = new Worker(
           type: "POST_STATUS",
           message: `Your post has been published on ${provider}.`,
         });
-        console.log("Notification Saed to database");
+        console.log("Notification Saved to database");
 
         // Email notification
-        const res = await sendEmailNotification(
-          loggedUser.email,
-          "POST_SUCCESS",
-          {
-            platforms: [provider],
-          }
-        );
+        const res = await sendEmailNotification(loggedUser.email, {
+          username: loggedUser.name!,
+          type: "SUCCESS",
+          platform: provider,
+          postTitle: postText,
+        })
         console.log("Email Sent", res?.data);
 
         // Trigger SSE event
@@ -151,6 +150,14 @@ const PublishPostWorker = new Worker(
           message: `Your post has been published on ${provider}.`,
         });
 
+        // Email notification
+        const res = await sendEmailNotification(loggedUser.email, {
+          username: loggedUser.name!,
+          type: "SUCCESS",
+          platform: provider,
+          postTitle: postText,
+        });
+
         // Trigger SSE event
         await sendSSEMessage(userId, {
           type: "post-success",
@@ -163,7 +170,7 @@ const PublishPostWorker = new Worker(
       throw new Error(
         `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
       );
-    } catch (error) {
+    } catch (error : any) {
       console.error(`Job failed for provider: ${job.data.provider}`, error);
 
       // Send failure notification
@@ -172,6 +179,15 @@ const PublishPostWorker = new Worker(
         type: "POST_STATUS",
         message: `Failed to publish post on ${job.data.provider}.`,
       });
+
+      // Email notification
+      // const res = await sendEmailNotification("", {
+      //   username: "",
+      //   type: "FAILED",
+      //   platform: job.data.provider,
+      //   postTitle: job.data.postText,
+      //   error: error.message,
+      // });
 
       // Trigger SSE event
       await sendSSEMessage(job.data.userId, {
