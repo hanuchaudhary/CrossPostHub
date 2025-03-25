@@ -6,7 +6,8 @@ import { Providers } from "@/Types/Types";
 import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
-import { createNotification } from "@/utils/Controllers/NotificationController"; // Add this utility
+import { createNotification } from "@/utils/Controllers/NotificationController";
+import { validateMedia } from "@/utils/ValidateMedia";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Parse form data
     const formData = await request.formData();
     const postText = formData.get("postText") as string;
-    const images = formData.getAll("images") as File[];
+    const medias = formData.getAll("medias") as File[];
     const scheduleAt = formData.get("scheduleAt") as string;
     const providersJson = formData.get("providers") as string;
     const providers = JSON.parse(providersJson) as Providers[];
@@ -52,16 +53,24 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (!postText && images.length === 0) {
+    if (!postText && medias.length === 0) {
       return NextResponse.json(
         { error: "Please enter some text or upload an image" },
         { status: 400 }
       );
     }
 
-    // Convert images to Base64 (or upload to cloud storage)
-    const imagesBase64 = await Promise.all(
-      images.map(async (image) => {
+    try {
+      await validateMedia(medias);
+    } catch (error: any) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status || 400 }
+      );
+    }
+    // Convert medias to Base64
+    const mediasBase64 = await Promise.all(
+      medias.map(async (image) => {
         const buffer = await image.arrayBuffer();
         return Buffer.from(buffer).toString("base64");
       })
@@ -89,7 +98,7 @@ export async function POST(request: NextRequest) {
             {
               provider,
               postText,
-              images: imagesBase64,
+              medias: mediasBase64,
               userId: loggedUser.id,
               scheduledFor: scheduleAt || null,
             },
@@ -151,10 +160,10 @@ export async function POST(request: NextRequest) {
 //                 return NextResponse.json({ error: "LinkedIn account not found" }, { status: 400 });
 //             }
 
-//             if (images.length !== 0) {
+//             if (medias.length !== 0) {
 //                 const assetURNs: string[] = [];
 
-//                 for (const image of images) {
+//                 for (const image of medias) {
 //                     const assetURN = await registerAndUploadMedia({
 //                         accessToken: linkedinAccount.access_token!,
 //                         personURN: linkedinAccount.providerAccountId!,
@@ -199,9 +208,9 @@ export async function POST(request: NextRequest) {
 
 //             try {
 //                 let mediaIds: string[] = [];
-//                 if (images.length > 0) {
+//                 if (medias.length > 0) {
 //                     mediaIds = await Promise.all(
-//                         images.map(image =>
+//                         medias.map(image =>
 //                             uploadMediaToTwiiter({ media: image, oauth_token: twitterAccount.access_token!, oauth_token_secret: twitterAccount.access_token_secret! })
 //                         )
 //                     );

@@ -21,13 +21,13 @@ import {
 
 interface LinkedInPreviewProps {
   content: string;
-  images: File[];
+  medias: File[];
   user: any;
 }
 
 export function LinkedInPreview({
   content,
-  images,
+  medias,
   user,
 }: LinkedInPreviewProps) {
   const [expanded, setExpanded] = useState(false);
@@ -85,11 +85,11 @@ export function LinkedInPreview({
       </div>
 
       {/* Image */}
-      {images.length > 0 && (
+      {medias.length > 0 && (
         <div className="relative w-full">
           <Carousel className="w-full mx-auto">
             <CarouselContent>
-              {images.map((file, index) => (
+              {medias.map((file, index) => (
                 <CarouselItem key={index}>
                   {file.type.startsWith("image/") ? (
                     <Image
@@ -117,7 +117,7 @@ export function LinkedInPreview({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {images.length > 1 && (
+            {medias.length > 1 && (
               <>
                 <CarouselPrevious className="absolute left-2" />
                 <CarouselNext className="absolute right-2" />

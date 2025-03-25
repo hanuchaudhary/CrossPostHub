@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ImageUpload } from "@/components/CreatePost/ImageUpload";
+import { MediaUpload } from "@/components/CreatePost/MediaUpload";
 import { PostPreview } from "@/components/CreatePost/PostPreview";
 import { PlatformSelector } from "@/components/CreatePost/PlatformSelector";
 import { SchedulePost } from "@/components/CreatePost/SchedulePost";
@@ -26,7 +26,7 @@ type Platform = "instagram" | "twitter" | "linkedin";
 
 export function CreatePostForm() {
   const [content, setContent] = useState("");
-  const [images, setImages] = useState<File[]>([]);
+  const [medias, setMedias] = useState<File[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
@@ -48,7 +48,7 @@ export function CreatePostForm() {
 
   const handleImageChange = (files: FileList | null) => {
     if (files) {
-      setImages(Array.from(files));
+      setMedias(Array.from(files));
     }
   };
 
@@ -79,7 +79,7 @@ export function CreatePostForm() {
       return;
     }
 
-    if (!content.trim() && images.length === 0) {
+    if (!content.trim() && medias.length === 0) {
       toast({
         title: "Content Required",
         description: (
@@ -131,9 +131,14 @@ export function CreatePostForm() {
       return;
     }
 
-    if (selectedPlatforms.includes("twitter") && content.length > 275) {
+    if (
+      (selectedPlatforms.includes("twitter") && content.length > 275) ||
+      (selectedPlatforms.includes("linkedin") && content.length > 2900)
+    ) {
       toast({
-        title: "Twitter Character Limit Exceeded",
+        title: selectedPlatforms.includes("twitter")
+          ? "Twitter Character Limit Exceeded"
+          : "LinkedIn Character Limit Exceeded",
         description: (
           <div className="w-full">
             <Badge className="my-2" variant="destructive">
@@ -141,8 +146,9 @@ export function CreatePostForm() {
             </Badge>
             <div className="text-xs">
               <p>
-                Your Twitter post exceeds the character limit of 280 characters.
-                Please reduce the content length to continue.
+                {selectedPlatforms.includes("twitter")
+                  ? "Twitter posts cannot exceed 275 characters."
+                  : "LinkedIn posts cannot exceed 2900 characters."}
               </p>
               <span className="text-neutral-500 text-xs">
                 {new Date().toLocaleDateString()}
@@ -169,7 +175,7 @@ export function CreatePostForm() {
         ).toISOString();
         formData.append("scheduleAt", scheduledDateTime);
       }
-      images.forEach((image) => formData.append("images", image));
+      medias.forEach((media) => formData.append("medias", media));
 
       const response = await axios.post("/api/post", formData, {
         headers: {
@@ -211,7 +217,7 @@ export function CreatePostForm() {
 
       setContent("");
       setSelectedPlatforms([]);
-      setImages([]);
+      setMedias([]);
       setIsScheduled(false);
       setScheduleDate(null);
       setScheduleTime("");
@@ -288,7 +294,7 @@ export function CreatePostForm() {
                       rows={5}
                     />
                   </div>
-                  <ImageUpload onChange={handleImageChange} />
+                  <MediaUpload onChange={handleImageChange} />
                   <PlatformSelector
                     selectedPlatforms={selectedPlatforms}
                     setSelectedPlatforms={setSelectedPlatforms}
@@ -318,7 +324,7 @@ export function CreatePostForm() {
                   )}
                 </TabsContent>
                 <TabsContent value="preview">
-                  <PostPreview content={content} images={images} />
+                  <PostPreview content={content} medias={medias} />
                 </TabsContent>
               </Tabs>
               <div className="flex justify-end space-x-2 mt-4">
@@ -335,7 +341,7 @@ export function CreatePostForm() {
           </Card>
           <AnimatePresence>
             {isSinglePreview && (
-              <SimplePostPreview content={content} images={images} />
+              <SimplePostPreview content={content} medias={medias} />
             )}
           </AnimatePresence>
         </>

@@ -9,10 +9,10 @@ import { LinkedInPreview } from "@/components/Previews/LinkedinPreview";
 
 interface PostPreviewProps {
   content: string;
-  images: File[];
+  medias: File[];
 }
 
-export function PostPreview({ content, images }: PostPreviewProps) {
+export function PostPreview({ content, medias }: PostPreviewProps) {
   const { data: session, status } = useSession();
   interface User {
     id?: string;
@@ -31,7 +31,7 @@ export function PostPreview({ content, images }: PostPreviewProps) {
 
   const platforms = ["Linkedin", "X", "Instagram"];
 
-  if (!content && images.length === 0) {
+  if (!content && medias.length === 0) {
     return (
       <div className="w-full h-96 flex items-center justify-center">
         <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-10 py-3 text-lg">
@@ -55,11 +55,11 @@ export function PostPreview({ content, images }: PostPreviewProps) {
           </CardHeader>
           <CardContent className="p-0">
             {platform === "Linkedin" ? (
-              <LinkedInPreview content={content} images={images} user={user} />
+              <LinkedInPreview content={content} medias={medias} user={user} />
             ) : platform === "Instagram" ? (
-              <InstagramPreview content={content} images={images} user={user} />
+              <InstagramPreview content={content} medias={medias} user={user} />
             ) : platform === "X" ? (
-              <TwitterPreview content={content} images={images} user={user} />
+              <TwitterPreview content={content} medias={medias} user={user} />
             ) : null}
           </CardContent>
         </Card>

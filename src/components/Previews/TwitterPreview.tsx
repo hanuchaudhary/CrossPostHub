@@ -30,11 +30,11 @@ interface PreviewUser {
 
 interface TwitterPreviewProps {
   content: string;
-  images: File[];
+  medias: File[];
   user: PreviewUser | null;
 }
 
-export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
+export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
   const [expanded, setExpanded] = useState(false);
   const contentIsLong = content.length > 280;
 
@@ -76,10 +76,10 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
             )}
           </div>
 
-          {images.length > 0 && (
+          {medias.length > 0 && (
             <Carousel className="w-full mx-auto">
               <CarouselContent>
-                {images.map((file, index) => (
+                {medias.map((file, index) => (
                   <CarouselItem key={index}>
                     {file.type.startsWith("image/") ? (
                       <Image
@@ -108,10 +108,10 @@ export function TwitterPreview({ content, images, user }: TwitterPreviewProps) {
                 ))}
               </CarouselContent>
               <CarouselPrevious
-                className={`${images.length > 1 ? "flex" : "hidden"}`}
+                className={`${medias.length > 1 ? "flex" : "hidden"}`}
               />
               <CarouselNext
-                className={`${images.length > 1 ? "flex" : "hidden"}`}
+                className={`${medias.length > 1 ? "flex" : "hidden"}`}
               />
             </Carousel>
           )}

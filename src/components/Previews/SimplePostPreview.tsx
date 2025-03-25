@@ -14,12 +14,12 @@ import Image from "next/image";
 
 interface SimplePostPreviewProps {
   content: string;
-  images: File[];
+  medias: File[];
 }
 
 export const SimplePostPreview = memo(function SimplePostPreview({
   content,
-  images,
+  medias,
 }: SimplePostPreviewProps) {
   const [expanded, setExpanded] = React.useState(false);
   const contentIsLong = content.length > 280;
@@ -31,7 +31,7 @@ export const SimplePostPreview = memo(function SimplePostPreview({
       transition={{ type: "tween" }}
       className="w-full shadow-none md:border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
     >
-      {!content && images.length === 0 ? (
+      {!content && medias.length === 0 ? (
         <div className="w-96 px-2 select-none md:flex hidden nd:border-l h-full items-center justify-center">
           <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
             Post Preview
@@ -54,10 +54,10 @@ export const SimplePostPreview = memo(function SimplePostPreview({
             </button>
           )}
 
-          {images.length > 0 && (
+          {medias.length > 0 && (
             <Carousel className="w-full max-w-xs mx-auto">
               <CarouselContent>
-                {images.map((file, index) => (
+                {medias.map((file, index) => (
                   <CarouselItem key={index}>
                     <AspectRatio ratio={1}>
                       {file.type.startsWith("image/") ? (
@@ -91,10 +91,10 @@ export const SimplePostPreview = memo(function SimplePostPreview({
                 ))}
               </CarouselContent>
               <CarouselPrevious
-                className={`${images.length > 1 ? "flex" : "hidden"}`}
+                className={`${medias.length > 1 ? "flex" : "hidden"}`}
               />
               <CarouselNext
-                className={`${images.length > 1 ? "flex" : "hidden"}`}
+                className={`${medias.length > 1 ? "flex" : "hidden"}`}
               />
             </Carousel>
           )}

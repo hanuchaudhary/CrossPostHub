@@ -20,13 +20,13 @@ import {
 
 interface InstagramPreviewProps {
   content: string;
-  images: File[];
+  medias: File[];
   user: any;
 }
 
 export function InstagramPreview({
   content,
-  images,
+  medias,
   user,
 }: InstagramPreviewProps) {
   const [expanded, setExpanded] = React.useState(false);
@@ -53,10 +53,10 @@ export function InstagramPreview({
       </div>
 
       <div className="relative w-full">
-        {images.length > 0 && (
+        {medias.length > 0 && (
           <Carousel className="w-full mx-auto">
             <CarouselContent>
-              {images.map((file, index) => (
+              {medias.map((file, index) => (
                 <CarouselItem key={index}>
                   {file.type.startsWith("image/") ? (
                     <Image
@@ -88,10 +88,10 @@ export function InstagramPreview({
               ))}
             </CarouselContent>
             <CarouselPrevious
-              className={`${images.length > 1 ? "flex" : "hidden"}`}
+              className={`${medias.length > 1 ? "flex" : "hidden"}`}
             />
             <CarouselNext
-              className={`${images.length > 1 ? "flex" : "hidden"}`}
+              className={`${medias.length > 1 ? "flex" : "hidden"}`}
             />
           </Carousel>
         )}

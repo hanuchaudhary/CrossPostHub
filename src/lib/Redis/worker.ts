@@ -16,6 +16,7 @@ import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import { sendSSEMessage } from "@/utils/Notifications/Notfications";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 
+
 const connection = {
   host: process.env.REDIS_HOST,
   port: parseInt(process.env.REDIS_PORT!),
@@ -29,7 +30,7 @@ const PublishPostWorker = new Worker(
   "postQueue",
   async (job: Job) => {
     try {
-      const { provider, postText, images, userId } = job.data;
+      const { provider, postText, medias, userId } = job.data;
 
       console.log("Processing Job for provider:", provider);
       // Fetch user data
@@ -42,8 +43,8 @@ const PublishPostWorker = new Worker(
         throw new Error("User not found.");
       }
 
-      // Convert base64 images to buffers
-      const imageBuffers = images.map((imageBase64: string) =>
+      // Convert base64 medias to buffers
+      const mediaBuffers = medias.map((imageBase64: string) =>
         Buffer.from(imageBase64, "base64")
       );
 
@@ -59,12 +60,12 @@ const PublishPostWorker = new Worker(
         }
 
         // let assetURNs: string[] = [];
-        // if (imageBuffers.length > 0) {
+        // if (mediaBuffers.length > 0) {
         //   console.log(
-        //     `Uploading ${imageBuffers.length} media files to LinkedIn...`
+        //     `Uploading ${mediaBuffers.length} media files to LinkedIn...`
         //   );
         //   assetURNs = await Promise.all(
-        //     imageBuffers.map(async (imageBuffer: Buffer) => {
+        //     mediaBuffers.map(async (imageBuffer: Buffer) => {
         //       const assetURN = await registerAndUploadMedia({
         //         accessToken: linkedinAccount.access_token!,
         //         personURN: linkedinAccount.providerAccountId!,
@@ -77,7 +78,7 @@ const PublishPostWorker = new Worker(
         // }
 
         // const postResponse =
-        //   imageBuffers.length > 0
+        //   mediaBuffers.length > 0
         //     ? await CreatePostWithMedia({
         //         accessToken: linkedinAccount.access_token!,
         //         personURN: linkedinAccount.providerAccountId!,
@@ -95,7 +96,7 @@ const PublishPostWorker = new Worker(
           postText,
           linkedinAccount.access_token!,
           linkedinAccount.providerAccountId!,
-          imageBuffers
+          mediaBuffers
         );
 
         // Send success notification
@@ -136,7 +137,7 @@ const PublishPostWorker = new Worker(
           postText,
           twitterAccount.access_token!,
           twitterAccount.access_token_secret!,
-          imageBuffers
+          mediaBuffers
         );
 
         if (tweetResponse.error) {
@@ -304,7 +305,7 @@ const linkedinPostPublish = async (
 
 // V1 Twitter Post Publish
 // let mediaIds: string[] = [];
-// if (imageBuffers.length > 0) {
+// if (mediaBuffers.length > 0) {
 //   console.log(
 //     `Uploading ${imageBuffers.length} media files to Twitter...`
 //   );
