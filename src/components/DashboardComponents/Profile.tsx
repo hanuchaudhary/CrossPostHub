@@ -130,8 +130,8 @@ export function Profile() {
                     }}
                     className="h-[300px] w-full"
                   >
-                    {/* <BarChart data={dashboardData.monthlyData}> */}
-                    <BarChart data={postData}>
+                    <BarChart data={dashboardData.monthlyData}>
+                    {/* <BarChart data={postData}> */}
                       <XAxis dataKey="month" />
                       <Tooltip content={<ChartTooltipContent />} />
                       <Bar dataKey="twitter" fill="hsl(203, 89%, 53%)" />

@@ -24,7 +24,7 @@ export class LinkedinUtilsV2 {
   }
 
   private isFileSizeLarge(fileSize: number): boolean {
-    return fileSize > 30 * 1024 * 1024; // 30MB
+    return fileSize > 50 * 1024 * 1024; // 50MB
   }
 
   async registerMediaUpload(media: Buffer) {

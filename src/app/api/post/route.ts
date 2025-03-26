@@ -27,12 +27,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check post creation limit
-    const isAllowed = await CheckCreatedPostMiddleware(loggedUser.id);
-    if (!isAllowed) {
+    const result = await CheckCreatedPostMiddleware(loggedUser.id);
+    if (!result) {
       return NextResponse.json(
         {
-          error:
-            "You have reached your monthly limit of 5 posts. Upgrade your plan to Pro",
+          error: `Post limit reached for the month. Please upgrade your plan to create more posts.`,
         },
         { status: 400 }
       );
@@ -110,12 +109,6 @@ export async function POST(request: NextRequest) {
             message: `Processing post for ${provider}`,
             type: "POST_STATUS",
             userId: loggedUser.id as string,
-          });
-
-          await postSaveToDB({
-            postText,
-            userId: loggedUser.id,
-            provider,
           });
 
           return {

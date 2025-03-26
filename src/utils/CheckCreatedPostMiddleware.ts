@@ -1,50 +1,52 @@
 import prisma from "@/config/prismaConfig";
+import { startOfMonth } from "date-fns";
 
-const FREE_PLAN_POST_LIMIT = 10; // Configurable post limit for free users
-const PRO_PLAN_POST_LIMIT = 50; // Configurable post limit for pro users
-const PREMIUM_PLAN_POST_LIMIT = Infinity; // Configurable post limit for premium users
+const FREE_PLAN_POST_LIMIT = 10;
+const PRO_PLAN_POST_LIMIT = 50;
+const PREMIUM_PLAN_POST_LIMIT = Infinity;
 
 export async function CheckCreatedPostMiddleware(
   userId: string
 ): Promise<boolean> {
   try {
-    const user = await prisma.user.findUnique({
+    const currentMonthStart = startOfMonth(new Date());
+
+    const userWithData = await prisma.user.findUnique({
       where: { id: userId },
-      include: { subscriptions: true, _count: { select: { posts: true } } },
+      include: {
+        subscriptions: {
+          where: { status: "active" },
+          include: { plan: true },
+        },
+        _count: {
+          select: {
+            posts: {
+              where: {
+                status: "SUCCESS",
+                createdAt: { gte: currentMonthStart },
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!user) {
-      console.log(`User ${userId} not found.`);
-      return false;
+    if (!userWithData) {
+      throw new Error(`User ${userId} not found.`);
     }
 
-    // Fetch user with their plan and post count for the current month
-    const subscription = await prisma.subscription.findFirst({
-      where: { userId, status: "active" },
-      include: { plan: true },
-    });
+    const activeSubscription = userWithData.subscriptions[0]; // Get the first active subscription
+    const monthlyPostCount = userWithData._count.posts;
 
-    const monthlyPostCount = user?._count?.posts;
+    // Determine post limit based on subscription
+    const postLimit =
+      activeSubscription?.plan?.title === "Pro"
+        ? PRO_PLAN_POST_LIMIT
+        : activeSubscription?.plan?.title === "Premium"
+          ? PREMIUM_PLAN_POST_LIMIT
+          : FREE_PLAN_POST_LIMIT; // Default to Free plan if no active subscription
 
-    if (!subscription) {
-      console.log(`User ${userId} does not have an active subscription.`);
-      return false;
-    }
-
-    let postLimit = 0;
-    switch (subscription.plan.title) {
-      case "Free":
-        postLimit = FREE_PLAN_POST_LIMIT;
-        break;
-      case "Pro":
-        postLimit = PRO_PLAN_POST_LIMIT;
-        break;
-      case "Premium":
-        postLimit = PREMIUM_PLAN_POST_LIMIT;
-        break;
-      default:
-        postLimit = FREE_PLAN_POST_LIMIT;
-    }
+    console.log(`User ${userId} has ${monthlyPostCount} posts this month.`);
 
     if (monthlyPostCount >= postLimit) {
       console.log(`User ${userId} has reached their post limit for the month.`);

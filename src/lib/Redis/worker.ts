@@ -15,6 +15,7 @@ import {
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import { sendSSEMessage } from "@/utils/Notifications/Notfications";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
+import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 
 
 const connection = {
@@ -99,6 +100,14 @@ const PublishPostWorker = new Worker(
           mediaBuffers
         );
 
+        // Save post to database
+        await postSaveToDB({
+          postText,
+          userId,
+          provider,
+          status: "SUCCESS",
+        });
+
         // Send success notification
         const notification = await createNotification({
           userId,
@@ -144,6 +153,14 @@ const PublishPostWorker = new Worker(
           throw new Error(tweetResponse.error);
         }
 
+        // Save post to database
+        await postSaveToDB({
+          postText,
+          userId,
+          provider,
+          status: "SUCCESS",
+        });
+
         // Send success notification
         const notification = await createNotification({
           userId,
@@ -179,6 +196,13 @@ const PublishPostWorker = new Worker(
         userId: job.data.userId,
         type: "POST_STATUS",
         message: `Failed to publish post on ${job.data.provider}.`,
+      });
+
+      await postSaveToDB({
+        postText: job.data.postText,
+        userId: job.data.userId,
+        provider: job.data.provider,
+        status: "FAILED",
       });
 
       // Email notification

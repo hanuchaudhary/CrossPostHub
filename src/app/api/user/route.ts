@@ -16,13 +16,20 @@ export async function GET(request: NextRequest) {
     const cacheDashboardData = await redis.get(cacheDashboardDataKey);
     if (cacheDashboardData) {
       console.log("Cache hit");
-
       return NextResponse.json(JSON.parse(cacheDashboardData), { status: 200 });
     }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { accounts: true },
+      select:{
+        accounts: true,
+        posts: {
+          select: {
+            createdAt: true,
+            provider: true,
+          },
+        },
+      },
     });
 
     const twitterAccount = user?.accounts.find(
@@ -36,38 +43,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // const linkedinAccount = user?.accounts.find(
-    //   (account) => account.provider === "linkedin"
-    // );
-
-    // if (!linkedinAccount) {
-    //   return NextResponse.json(
-    //     { error: "LinkedIn account not found" },
-    //     { status: 404 }
-    //   );
-    // }
-
-    // const linkedInProfile = await getLinkedInProfile(
-    //   linkedinAccount?.access_token as string,
-    //   linkedinAccount?.providerAccountId as string
-    // );
-
-    // console.log("linkedinAccount", linkedinAccount);
-    
-    // console.log("linkedInProfile", linkedInProfile);
-
     const twitterUserDetails = await getTwitterUserDetails({
       oauth_token: twitterAccount?.access_token as string,
       oauth_token_secret: twitterAccount?.access_token_secret as string,
     });
 
-    const posts = await prisma.post.findMany({
-      where: { userId: session.user.id },
-      select: {
-        createdAt: true,
-        provider: true,
-      },
-    });
 
     type Provider = "twitter" | "linkedin" | "instagram";
 
@@ -82,7 +62,7 @@ export async function GET(request: NextRequest) {
     } = {};
 
     // Iterate through the posts and aggregate the data
-    posts.forEach((post) => {
+    user?.posts.forEach((post) => {
       const month = post.createdAt.toLocaleString("default", {
         month: "short",
       });
@@ -113,6 +93,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(dashboardData, { status: 200 });
   } catch (error) {
+    console.log("Error in GET /api/user:", error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
   }
 }

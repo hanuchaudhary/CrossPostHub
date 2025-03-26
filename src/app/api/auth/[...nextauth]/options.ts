@@ -131,45 +131,49 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       try {
-        // Check if the user already exists
+        if (!user.email) throw new Error("Email is required");
+
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
+          where: { email: user.email },
         });
 
         if (!existingUser) {
-          // Assign the Free Tier plan
-          const freePlanId = await getFreePlanId();
-
-          // Create a new user with the Free Tier plan
           await prisma.user.create({
             data: {
-              email: user.email!,
+              email: user.email,
               name: user.name,
               image: user.image,
-              planId: freePlanId,
+              planId: await getFreePlanId(),
             },
           });
+          console.log("New user created");
         }
 
-        if (account?.provider === "google") {
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! },
-          });
-
-          if (existingUser) {
-            await prisma.account.create({
-              data: {
-                userId: existingUser.id,
+        if (account && existingUser) {
+          await prisma.account.upsert({
+            where: {
+              provider_providerAccountId: {
                 provider: account.provider,
                 providerAccountId: account.providerAccountId,
-                type: account.type,
-                access_token: account.access_token,
-                refresh_token: account.refresh_token,
               },
-            });
-          }
+            },
+            update: {
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+            },
+            create: {
+              userId: existingUser.id,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+              type: account.type,
+              access_token: account.access_token,
+              refresh_token: account.refresh_token,
+            },
+          });
+
+          console.log("Account Details Updated || created");
         }
 
         return true;
