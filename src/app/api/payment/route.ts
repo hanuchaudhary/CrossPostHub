@@ -10,14 +10,41 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const transactions = await prisma.user.findUnique({
+    const userTransactions = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
-        transactions: true,
+        transactions: {
+          include: {
+            subscription: {
+              select: {
+                plan: true,
+              },
+            },
+          },
+          take: 5,
+        },
       },
     });
 
-    return NextResponse.json({ transactions :  transactions?.transactions }, { status: 200 });
+    console.log("userTransactions", userTransactions?.transactions);
+    
+
+    const usersubscriptions = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        subscriptions: {
+          where: { status: "active" },
+        },
+      },
+    });
+
+    return NextResponse.json(
+      {
+        transactions: userTransactions?.transactions,
+        subscriptions: usersubscriptions?.subscriptions,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to fetch transactions" },

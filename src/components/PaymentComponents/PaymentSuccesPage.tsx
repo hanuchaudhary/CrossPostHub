@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import confetti from "canvas-confetti";
-import { usePricingStore } from "@/store/PricingStore/useSubscriptionStore";
+import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore";
 import { useSearchParams } from "next/navigation";
 import PageLoader from "../Loaders/PageLoader";
 import html2canvas from "html2canvas";
@@ -27,7 +27,7 @@ export default function PaymentSuccessPage() {
     fetchSingleTransaction,
     singleTransaction,
     isFetchingSingleTransaction,
-  } = usePricingStore();
+  } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -183,7 +183,7 @@ export default function PaymentSuccessPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
                 <span className="font-medium">
-                  {singleTransaction?.plan.title}
+                  {singleTransaction?.subscription.plan.title}
                 </span>
               </div>
             </motion.div>
@@ -197,7 +197,7 @@ export default function PaymentSuccessPage() {
             >
               <h3 className="font-medium mb-2">Plan Features:</h3>
               <ul className="space-y-2">
-                {singleTransaction?.plan.features.map((feature, index) => (
+                {singleTransaction?.subscription.plan.features.map((feature, index) => (
                   <motion.li
                     key={index}
                     initial={{ x: -10, opacity: 0 }}

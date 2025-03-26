@@ -24,13 +24,13 @@ export const ReceiptTemplate = ({ transaction }: { transaction: TransactionType 
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Plan:</span>
-          <span className="font-medium">{transaction?.plan.title}</span>
+          <span className="font-medium">{transaction?.subscription.plan.title}</span>
         </div>
       </div>
       <div className="mt-4">
         <h3 className="font-medium mb-2">Plan Features:</h3>
         <ul className="space-y-1">
-          {transaction?.plan.features.map((feature, index) => (
+          {transaction?.subscription.plan.features.map((feature, index) => (
             <li key={index} className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-500" />
               <span>{feature}</span>

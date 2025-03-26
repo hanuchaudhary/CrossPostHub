@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
@@ -11,16 +10,12 @@ import {
   Filter,
   Search,
   XCircle,
-  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,7 +38,6 @@ import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore"
 import PageLoader from "../Loaders/PageLoader";
 import { TransactionDetailsModal } from "./TransactionDetailModal";
 import UpgradeButton from "../Buttons/UpgradeButton";
-import PostNotification from "../Tools/EmailTemplate";
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -185,7 +179,7 @@ export default function TransactionsPage() {
                             {transaction.order_id}
                           </TableCell>
                           <TableCell className="text-left">
-                            {/* {transaction.plan.title} */}
+                            {transaction.subscription.plan.title}
                           </TableCell>
                           <TableCell className="text-left font-medium">
                             $

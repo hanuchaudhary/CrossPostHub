@@ -99,7 +99,7 @@ export interface TransactionType {
   status: STATUS;
   paymentMethod?: string;
   invoiceId?: string;
-  captured?: Boolean;
+  captured?: boolean;
   description?: string;
   failureReason?: string;
   createdAt: Date;

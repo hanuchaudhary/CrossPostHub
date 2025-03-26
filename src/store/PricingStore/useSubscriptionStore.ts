@@ -1,4 +1,4 @@
-import { Plan, TransactionType } from "@/Types/Types";
+import { Plan, SubscriptionType, TransactionType } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
 
@@ -10,6 +10,7 @@ interface SubscriptionStore {
   fetchTransactions: VoidFunction;
   isFetchingTransactions: boolean;
   transactions: TransactionType[] | null;
+  subscription: SubscriptionType | null;
 
   fetchSingleTransaction: (order_id: string) => Promise<void>;
   isFetchingSingleTransaction: boolean;
@@ -32,10 +33,14 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
 
   isFetchingTransactions: true,
   transactions: null,
+  subscription: null,
   fetchTransactions: async () => {
     try {
       const { data } = await axios.get("/api/payment");
-      set({ transactions: data.transactions });
+      set({
+        transactions: data.transactions,
+        subscription: data.subscriptions[0],
+      });
     } catch (error: any) {
       console.error("Fetch Transactions Error:", error);
     } finally {

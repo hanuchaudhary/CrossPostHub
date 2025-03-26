@@ -39,7 +39,7 @@ export default function SSEListener({ userId }: { userId: string }) {
     };
 
     return () => eventSource.close();
-  }, [userId]);
+  }, [userId,fetchNotifications]);
 
   return null;
 }

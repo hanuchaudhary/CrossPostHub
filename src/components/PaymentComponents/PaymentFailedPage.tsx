@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {  useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -20,10 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { TransactionType } from "@/Types/Types";
-import { usePricingStore } from "@/store/PricingStore/useSubscriptionStore";
+import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore";
 import PageLoader from "../Loaders/PageLoader";
 
 export default function PaymentFailedPage() {
@@ -34,7 +32,7 @@ export default function PaymentFailedPage() {
     fetchSingleTransaction,
     singleTransaction,
     isFetchingSingleTransaction,
-  } = usePricingStore();
+  } = useSubscriptionStore();
 
   const fetchTransaction = useCallback(() => {
     if (orderId) {
@@ -157,7 +155,7 @@ export default function PaymentFailedPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
                 <span className="font-medium">
-                  {singleTransaction?.plan?.title}
+                  {singleTransaction?.subscription.plan.title}
                 </span>
               </div>
             </motion.div>
