@@ -23,7 +23,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { TransactionType } from "@/Types/Types";
-import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import { usePricingStore } from "@/store/PricingStore/useSubscriptionStore";
 import PageLoader from "../Loaders/PageLoader";
 
 export default function PaymentFailedPage() {

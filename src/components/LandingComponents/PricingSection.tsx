@@ -1,6 +1,6 @@
 "use client";
 
-import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore";
 import PricingCard from "./PricingCard";
 import { useCallback, useEffect } from "react";
 import PricingLoader from "../Loaders/PricingLoader";
@@ -54,7 +54,7 @@ export default function PricingSection() {
   ];
 
   const { fetchPricingPlans, isFetchingPlans, pricingPlans } =
-    usePricingStore();
+    useSubscriptionStore();
   const fetchPlans = useCallback(() => {
     fetchPricingPlans();
   }, [fetchPricingPlans]);

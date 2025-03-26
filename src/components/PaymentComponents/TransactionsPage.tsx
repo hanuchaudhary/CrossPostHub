@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore";
 import PageLoader from "../Loaders/PageLoader";
 import { TransactionDetailsModal } from "./TransactionDetailModal";
 import UpgradeButton from "../Buttons/UpgradeButton";
@@ -51,7 +51,7 @@ export default function TransactionsPage() {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const { fetchTransactions, transactions, isFetchingTransactions } =
-    usePricingStore();
+    useSubscriptionStore();
 
   useEffect(() => {
     fetchTransactions();
@@ -64,10 +64,7 @@ export default function TransactionsPage() {
       }
 
       const searchLower = searchTerm.toLowerCase();
-      return (
-        transaction.order_id.toLowerCase().includes(searchLower) ||
-        transaction.plan.title.toLowerCase().includes(searchLower)
-      );
+      return transaction?.order_id?.toLowerCase().includes(searchLower);
     })
     .sort((a, b) => {
       const dateA = new Date(a.createdAt);
@@ -188,7 +185,7 @@ export default function TransactionsPage() {
                             {transaction.order_id}
                           </TableCell>
                           <TableCell className="text-left">
-                            {transaction.plan.title}
+                            {/* {transaction.plan.title} */}
                           </TableCell>
                           <TableCell className="text-left font-medium">
                             $

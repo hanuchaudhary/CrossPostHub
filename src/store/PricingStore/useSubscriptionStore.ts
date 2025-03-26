@@ -2,7 +2,7 @@ import { Plan, TransactionType } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
 
-interface PricingStore {
+interface SubscriptionStore {
   fetchPricingPlans: VoidFunction;
   isFetchingPlans: boolean;
   pricingPlans: Plan[] | null;
@@ -16,7 +16,7 @@ interface PricingStore {
   singleTransaction: TransactionType | null;
 }
 
-export const usePricingStore = create<PricingStore>((set) => ({
+export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
   isFetchingPlans: true,
   pricingPlans: null,
   fetchPricingPlans: async () => {
@@ -50,7 +50,7 @@ export const usePricingStore = create<PricingStore>((set) => ({
     try {
       const { data } = await axios.post("/api/payment", { order_id });
       console.log("Single Transaction:", data);
-      
+
       set({ singleTransaction: data.transaction });
     } catch (error: any) {
       console.error("Fetch Single Transaction Error:", error);

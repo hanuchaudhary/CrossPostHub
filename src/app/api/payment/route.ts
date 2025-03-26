@@ -13,22 +13,11 @@ export async function GET(request: NextRequest) {
     const transactions = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
-        transactions: {
-          select: {
-            id: true,
-            createdAt: true,
-            status: true,
-            order_id: true,
-            paymentId: true,
-          },
-        },
+        transactions: true,
       },
     });
 
-    return NextResponse.json(
-      { transactions: transactions?.transactions },
-      { status: 200 }
-    );
+    return NextResponse.json({ transactions :  transactions?.transactions }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to fetch transactions" },

@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
                 image: true,
                 createdAt: true,
                 updatedAt: true,
-                plan: true,
                 posts: true,
                 planId: true
             }

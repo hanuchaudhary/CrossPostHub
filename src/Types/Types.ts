@@ -43,6 +43,20 @@ export interface Plan {
   transaction: TransactionType[];
 }
 
+export interface SubscriptionType {
+  id: string;
+  userId: string;
+  user: User;
+  planId: string;
+  plan: Plan;
+  razorpaySubscriptionId?: string;
+  status: string; 
+  nextBillingAt?: Date; 
+  createdAt: Date;
+  updatedAt: Date;
+  transactions: TransactionType[];
+}
+
 enum STATUS {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
@@ -76,13 +90,18 @@ export interface ConnectedApp {
 export interface TransactionType {
   id: string;
   userId: string;
-  planId: string;
-  status: STATUS;
-  amount: number;
-  order_id: string;
-  paymentId: string;
   user: User;
-  plan: Plan;
+  subscriptionId?: string;
+  subscription: SubscriptionType;
+  order_id?: string;
+  paymentId?: string;
+  amount?: number;
+  status: STATUS;
+  paymentMethod?: string;
+  invoiceId?: string;
+  captured?: Boolean;
+  description?: string;
+  failureReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }

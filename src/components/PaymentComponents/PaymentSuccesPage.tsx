@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import confetti from "canvas-confetti";
-import { usePricingStore } from "@/store/PricingStore/usePricingStore";
+import { usePricingStore } from "@/store/PricingStore/useSubscriptionStore";
 import { useSearchParams } from "next/navigation";
 import PageLoader from "../Loaders/PageLoader";
 import html2canvas from "html2canvas";

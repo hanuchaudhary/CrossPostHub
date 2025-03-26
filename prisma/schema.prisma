@@ -8,9 +8,11 @@ datasource db {
 }
 
 enum STATUS {
-  PENDING
   SUCCESS
   FAILED
+  PENDING
+  REFUNDED
+  CANCELLED
 }
 
 enum NOTIFICATION_TYPE {
@@ -76,34 +78,46 @@ model Plan {
   description    String
   features       String[]
   cta            String
-  razorpayPlanId String?  @unique // Razorpay Plan ID (optional for Free plan)
+  razorpayPlanId String?        @unique // Razorpay Plan ID (optional for Free plan)
   subscriptions  Subscription[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
 
 model Subscription {
-  id                     String    @id @default(uuid())
+  id                     String        @id @default(uuid())
   userId                 String
-  user                   User      @relation(fields: [userId], references: [id])
+  user                   User          @relation(fields: [userId], references: [id])
   planId                 String
-  plan                   Plan      @relation(fields: [planId], references: [id])
+  plan                   Plan          @relation(fields: [planId], references: [id])
   razorpaySubscriptionId String? // Razorpay Subscription ID (optional for Free plan)
   status                 String // e.g., "active", "paused", "cancelled"
   nextBillingAt          DateTime? // Next billing date
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  transactions            Transaction[]
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  order_id  String?
-  paymentId String?
-  status    String // e.g., "PENDING", "SUCCESS", "FAILED"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  order_id       String?
+  paymentId      String?
+  amount         Float?
+  status         STATUS
+  paymentMethod  String? // upi, card, netbanking, etc.
+  invoiceId      String?
+  captured       Boolean?      @default(false)
+  description    String?
+  failureReason  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([subscriptionId])
+  @@index([paymentId])
 }
 
 model Notification {

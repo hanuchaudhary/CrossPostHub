@@ -148,7 +148,7 @@
 
 "use client";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React from "react";
 import { Button } from "../ui/button";
 import Script from "next/script";
@@ -199,7 +199,9 @@ export default function BuySubscriptionButton({
       if (!short_url) {
         toast({
           title: "An error occurred",
-          description: "Failed to initiate subscription. Please try again.",
+          description:
+            response.data.error ||
+            "Failed to initiate subscription. Please try again.",
         });
         router.push("/payment/failed");
         return;
@@ -208,12 +210,16 @@ export default function BuySubscriptionButton({
       // Redirect the user to the Razorpay checkout page
       window.location.href = short_url;
     } catch (error) {
-      toast({
-        title: "An error occurred",
-        description: "Failed to initiate subscription. Please try again.",
-      });
+      if (error instanceof AxiosError) {
+        toast({
+          title: "An error occurred",
+          description:
+            error.response?.data.error ||
+            "Failed to initiate subscription. Please try again.",
+        });
+      }
       console.error(error);
-      router.push("/payment/failed");
+      // router.push("/payment/failed");
     } finally {
       setIsLoading(false);
     }
