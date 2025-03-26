@@ -16,13 +16,9 @@ export async function GET(request: NextRequest) {
         transactions: {
           select: {
             id: true,
-            amount: true,
             createdAt: true,
-            order_id: true,
-            plan: true,
-            planId: true,
             status: true,
-            updatedAt: true,
+            order_id: true,
             paymentId: true,
           },
         },
@@ -51,16 +47,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const transaction = await prisma.transaction.findUnique({
-      where: { order_id },
+      where: { id: order_id },
       select: {
         id: true,
-        amount: true,
+
         createdAt: true,
-        order_id: true,
-        plan: true,
-        planId: true,
         status: true,
+        order_id: true,
         paymentId: true,
+        updatedAt: true,
       },
     });
 

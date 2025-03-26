@@ -32,9 +32,9 @@ model User {
   updatedAt     DateTime       @updatedAt
   posts         Post[]
   planId        String?
-  plan          Plan?          @relation(fields: [planId], references: [id])
   transactions  Transaction[]
   notifications Notification[]
+  subscriptions Subscription[]
 }
 
 model Account {
@@ -63,34 +63,45 @@ model Post {
   text      String?
   provider  String?
   userId    String
+  status    STATUS   @default(PENDING)
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Plan {
-  id          String        @unique @default(cuid())
-  title       String?       @unique
-  description String?
-  features    String[]
-  cta         String?
-  price       Int?
-  users       User[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  transaction Transaction[]
+  id             String         @id @default(uuid())
+  title          String
+  price          Float
+  description    String
+  features       String[]
+  cta            String
+  razorpayPlanId String?  @unique // Razorpay Plan ID (optional for Free plan)
+  subscriptions  Subscription[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Subscription {
+  id                     String    @id @default(uuid())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [id])
+  planId                 String
+  plan                   Plan      @relation(fields: [planId], references: [id])
+  razorpaySubscriptionId String? // Razorpay Subscription ID (optional for Free plan)
+  status                 String // e.g., "active", "paused", "cancelled"
+  nextBillingAt          DateTime? // Next billing date
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
 
 model Transaction {
-  id        String   @unique @default(cuid())
+  id        String   @id @default(uuid())
   userId    String
-  planId    String
-  status    STATUS
-  amount    Int
-  order_id  String   @unique
-  paymentId String   @default("")
   user      User     @relation(fields: [userId], references: [id])
-  plan      Plan     @relation(fields: [planId], references: [id])
+  order_id  String?
+  paymentId String?
+  status    String // e.g., "PENDING", "SUCCESS", "FAILED"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
