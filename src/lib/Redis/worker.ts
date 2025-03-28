@@ -17,11 +17,11 @@ import { sendSSEMessage } from "@/utils/Notifications/Notfications";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 
-
 const connection = {
   host: process.env.REDIS_HOST,
   port: parseInt(process.env.REDIS_PORT!),
   password: process.env.REDIS_PASSWORD,
+  tls: { rejectUnauthorized: false }, // This is required for upstash redis
 };
 
 // Queue instance
@@ -122,7 +122,7 @@ const PublishPostWorker = new Worker(
           type: "SUCCESS",
           platform: provider,
           postTitle: postText,
-        })
+        });
         console.log("Email Sent", res?.data);
 
         // Trigger SSE event
@@ -188,7 +188,7 @@ const PublishPostWorker = new Worker(
       throw new Error(
         `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
       );
-    } catch (error : any) {
+    } catch (error: any) {
       console.error(`Job failed for provider: ${job.data.provider}`, error);
 
       // Send failure notification
