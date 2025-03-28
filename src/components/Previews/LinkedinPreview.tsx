@@ -52,7 +52,8 @@ export function LinkedInPreview({
               <span className="text-neutral-500 text-sm">• Following</span>
             </div>
             <p className="text-neutral-600 text-[13px] leading-tight">
-             CrossPostHub. is a platform that allows you to cross-post content to multiple social media platforms.
+              CrossPostHub. is a platform that allows you to cross-post content
+              to multiple social media platforms.
             </p>
             <div className="flex items-center gap-1 text-neutral-600 text-[13px]">
               <span>2h</span>
@@ -92,13 +93,17 @@ export function LinkedInPreview({
               {medias.map((file, index) => (
                 <CarouselItem key={index}>
                   {file.type.startsWith("image/") ? (
-                    <Image
-                      height={100}
-                      width={100}
-                      src={URL.createObjectURL(file) || "/placeholder.svg"}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full object-contain rounded"
-                    />
+                      <Image
+                        src={URL.createObjectURL(file) || "/placeholder.svg"}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full object-contain rounded"
+                        width={700}
+                        height={435}
+                        style={{
+                          aspectRatio: "5/3",
+                          height: "auto",
+                        }}
+                      />
                   ) : file.type.startsWith("video/") ? (
                     <video controls className="w-full object-contain rounded">
                       <source

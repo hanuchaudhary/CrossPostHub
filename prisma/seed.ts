@@ -32,7 +32,7 @@ const pricingPlans = [
       "Scheduling posts",
     ],
     cta: "Upgrade to Pro",
-    razorpayPlanId: "plan_QBIsuJtE1XLgPJ", // Will be updated after creating the Razorpay plan
+    razorpayPlanId: "plan_QC5riSH4mB0qzT", // Will be updated after creating the Razorpay plan
   },
   {
     id: "cm6au8r5c0002qx5cbfiz0puk",
@@ -48,7 +48,7 @@ const pricingPlans = [
       "Custom branding",
     ],
     cta: "Go Premium",
-    razorpayPlanId: "plan_QBIuHaG7tTfLgi", // Will be updated after creating the Razorpay plan
+    razorpayPlanId: "plan_QC5sAD6Kprg97s", // Will be updated after creating the Razorpay plan
   },
 ];
 

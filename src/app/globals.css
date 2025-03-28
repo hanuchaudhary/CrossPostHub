@@ -120,7 +120,7 @@ body {
 }
 @layer components {
   .bubble-button {
-    @apply relative z-[1] overflow-hidden text-black;
+    @apply relative z-[1] overflow-hidden ;
   }
 
   .bubble-button::after {

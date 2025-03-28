@@ -81,11 +81,15 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
                   <CarouselItem key={index}>
                     {file.type.startsWith("image/") ? (
                       <Image
-                        height={100}
-                        width={100}
                         src={URL.createObjectURL(file) || "/placeholder.svg"}
                         alt={`Preview ${index + 1}`}
                         className="w-full object-contain rounded"
+                        width={700}
+                        height={435}
+                        style={{
+                          aspectRatio: "5/3",
+                          height: "auto",
+                        }}
                       />
                     ) : file.type.startsWith("video/") ? (
                       <video controls className="w-full object-contain rounded">
@@ -105,12 +109,12 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious
-                className={`${medias.length > 1 ? "flex" : "hidden"}`}
-              />
-              <CarouselNext
-                className={`${medias.length > 1 ? "flex" : "hidden"}`}
-              />
+              {medias.length > 1 && (
+                <>
+                  <CarouselPrevious className="absolute left-2" />
+                  <CarouselNext className="absolute right-2" />
+                </>
+              )}
             </Carousel>
           )}
 

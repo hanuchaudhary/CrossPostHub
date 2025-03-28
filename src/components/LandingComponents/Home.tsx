@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Button } from "../ui/button";
 import Link from "next/link";
 import Guide from "../Guide";
 import { motion } from "framer-motion";
@@ -38,12 +37,14 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="flex items-center px-4 w-full justify-center md:py-20 gap-3"
+          className="flex items-center w-full justify-center md:py-20 md:gap-3 gap-1"
         >
           <Link href="/register">
             <BubbleButton />
           </Link>
-          <Guide size={"xl"} title="Learn How it works" />
+          <div className="mb-1">
+            <Guide size={"xl"} title="Learn How it works" />
+          </div>
         </motion.div>
       </div>
       {theme === "dark" ? (
