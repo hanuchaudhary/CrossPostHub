@@ -26,9 +26,6 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log("userTransactions", userTransactions?.transactions);
-    
-
     const usersubscriptions = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {

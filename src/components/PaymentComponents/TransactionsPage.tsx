@@ -53,25 +53,12 @@ export default function TransactionsPage() {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  console.log("Transactions:", transactions);
-  
-
-  const filteredTransactions = transactions
-    ?.filter((transaction) => {
-      if (statusFilter !== "ALL" && transaction.status !== statusFilter) {
-        return false;
-      }
-
-      const searchLower = searchTerm.toLowerCase();
-      return transaction?.order_id?.toLowerCase().includes(searchLower);
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      return sortOrder === "desc"
-        ? dateB.getTime() - dateA.getTime()
-        : dateA.getTime() - dateB.getTime();
-    });
+  const filteredTransactions = transactions?.filter((transaction) => {
+    if (statusFilter === "ALL") {
+      return transaction;
+    }
+    return transaction.status === statusFilter;
+  });
 
   // Show loading state while fetching transactions
   if (isFetchingTransactions || !transactions) {
@@ -86,17 +73,15 @@ export default function TransactionsPage() {
         transition={{ duration: 0.5 }}
         className="space-y-6"
       >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+        <div className="font-ClashDisplayMedium tracking-wide">
+          <h1 className="text-3xl">Transactions</h1>
           <p className="text-muted-foreground">
             View and manage all your payment transactions.
           </p>
         </div>
 
         {/* Current Subscription Card */}
-        <SubscriptionCard
-          subscription={subscription}
-        />
+        <SubscriptionCard subscription={subscription} />
 
         {transactions?.length === 0 ? (
           <div className="h-96 flex items-center justify-center">
@@ -115,15 +100,6 @@ export default function TransactionsPage() {
             <CardContent className="p-0 border-none shadow-none">
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search transactions..."
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
                   <div className="flex gap-2">
                     <Select
                       value={statusFilter}

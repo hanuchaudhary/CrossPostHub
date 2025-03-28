@@ -23,7 +23,9 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
             <div className="mt-4 grid gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="font-medium">
+                <span
+                  className={`${subscription?.plan.title === "Premium" ? "text-yellow-400" : "text-emerald-400"}`}
+                >
                   {subscription?.plan?.title || "No active plan"}
                 </span>
               </div>
@@ -83,9 +85,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
             <div className="flex justify-end">
               {subscription?.status != "active" && (
                 <Link href="/upgrade">
-                  <Button>
-                    Upgrade Plan
-                  </Button>
+                  <Button>Upgrade Plan</Button>
                 </Link>
               )}
             </div>
