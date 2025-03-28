@@ -67,13 +67,13 @@ export default function LandingFooter() {
             <div className="flex items-center gap-2">
               <Link
                 href="/privacy"
-                className="border-b border-dashed text-neutral-400 text-sm hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+                className="border-b border-dashed text-neutral-400 hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
               >
                 Privacy & Policy
               </Link>
               <Link
                 href="/terms"
-                className="border-b border-dashed text-neutral-400 text-sm hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+                className="border-b border-dashed text-neutral-400 hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
               >
                 Terms of Service
               </Link>
