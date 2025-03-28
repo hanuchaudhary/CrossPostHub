@@ -77,7 +77,7 @@ export function LinkedInPreview({
         {contentIsLong && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-neutral-600 text-sm font-medium hover:text-neutral-800 flex items-center mt-1"
+            className="text-neutral-500 text-sm flex items-center mt-1"
           >
             {expanded ? <>...less</> : <>...more</>}
           </button>

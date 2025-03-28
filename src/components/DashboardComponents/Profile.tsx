@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X, LogOut } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -19,11 +19,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import TwitterUserDetails from "./TwitterUserDetails";
 import LogoutButton from "../Buttons/LogoutButton";
+import LinkedinUserDetails from "./LinkedinUserDetails";
 
 export function Profile() {
   const { fetchDashboardData, dashboardData } = useDashboardStore();
@@ -79,32 +79,7 @@ export function Profile() {
                 <TwitterUserDetails dashboardData={dashboardData} />
               )}
 
-              <div className="bg-white dark:bg-secondary/30 border dark:border-secondary border-neutral-200 shadow-sm rounded-2xl p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Avatar className="h-14 w-14">
-                    <AvatarImage src={linkedInProfile.profileImageUrl} />
-                    <AvatarFallback>{linkedInProfile.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <h3 className="text-lg leading-none">
-                      {linkedInProfile.name}
-                    </h3>
-                    <p className="text-muted-foreground leading-none text-sm">
-                      {linkedInProfile.headline}
-                    </p>
-                  </div>
-                  <Image
-                    src={"/linkedin.svg"}
-                    height={70}
-                    width={70}
-                    alt="linkedin"
-                  />
-                </div>
-                <div className="flex gap-1 text-sm">
-                  <p className="font-medium">{linkedInProfile.connections}</p>
-                  <p className="text-muted-foreground">Connections</p>
-                </div>
-              </div>
+              <LinkedinUserDetails />
             </div>
 
             <Card className="border-none shadow-none bg-transparent">
@@ -131,7 +106,7 @@ export function Profile() {
                     className="h-[300px] w-full"
                   >
                     <BarChart data={dashboardData.monthlyData}>
-                    {/* <BarChart data={postData}> */}
+                      {/* <BarChart data={postData}> */}
                       <XAxis dataKey="month" />
                       <Tooltip content={<ChartTooltipContent />} />
                       <Bar dataKey="twitter" fill="hsl(203, 89%, 53%)" />
@@ -146,27 +121,6 @@ export function Profile() {
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-none bg-transparent">
-              <CardHeader>
-                <CardTitle>Posting Insights</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>
-                    Your Twitter posts have increased by 50% since January.
-                  </li>
-                  <li>LinkedIn shows steady growth in posting frequency.</li>
-                  <li>
-                    Instagram remains your most active platform for posts.
-                  </li>
-                  <li>
-                    Consider increasing your LinkedIn activity to match other
-                    platforms.
-                  </li>
-                </ul>
               </CardContent>
             </Card>
           </div>

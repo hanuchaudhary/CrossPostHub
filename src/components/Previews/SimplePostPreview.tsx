@@ -8,7 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -48,7 +47,7 @@ export const SimplePostPreview = memo(function SimplePostPreview({
           {contentIsLong && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="text-sm font-medium"
+              className="text-sm font-medium text-neutral-500"
             >
               {expanded ? <>...less</> : <>...more</>}
             </button>
@@ -59,7 +58,6 @@ export const SimplePostPreview = memo(function SimplePostPreview({
               <CarouselContent>
                 {medias.map((file, index) => (
                   <CarouselItem key={index}>
-                    <AspectRatio ratio={1}>
                       {file.type.startsWith("image/") ? (
                         <Image
                           height={100}
@@ -86,7 +84,6 @@ export const SimplePostPreview = memo(function SimplePostPreview({
                           </p>
                         </div>
                       )}
-                    </AspectRatio>
                   </CarouselItem>
                 ))}
               </CarouselContent>

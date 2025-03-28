@@ -8,15 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SubscriptionType } from "@/Types/Types";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "motion/react";
 
 interface SubscriptionCardProps {
   subscription?: SubscriptionType | null;
 }
 
 export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
+  const isPremium = subscription?.plan?.title === "Premium";
+
   return (
-    <Card className="overflow-hidden border bg-background">
-      <CardContent className="p-6">
+    <Card className="border-2">
+      <CardContent className="p-3">
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <h3 className="text-xl font-semibold">Current Subscription</h3>
@@ -24,7 +28,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Plan</span>
                 <span
-                  className={`${subscription?.plan.title === "Premium" ? "text-yellow-400" : "text-emerald-400"}`}
+                  className={`font-ClashDisplayMedium ${isPremium ? "text-yellow-400" : "text-emerald-400"}`}
                 >
                   {subscription?.plan?.title || "No active plan"}
                 </span>
@@ -65,8 +69,21 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
               <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
                 {subscription?.plan?.features?.map((feature, index) => (
                   <li key={index} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    {feature}
+                    <motion.li
+                      key={feature}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                      className="flex gap-2 text-sm"
+                    >
+                      <Image
+                        height={24}
+                        width={24}
+                        src="/PricingTick.svg"
+                        alt=""
+                      />{" "}
+                      <span>{feature}</span>
+                    </motion.li>
                   </li>
                 )) || (
                   <>

@@ -11,7 +11,6 @@ import {
   Share,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getImageUrl } from "@/lib/getImageUrl";
 import {
   Carousel,
   CarouselContent,
@@ -19,7 +18,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
-import { AspectRatio } from "../ui/aspect-ratio";
 
 interface PreviewUser {
   id?: string;
@@ -69,7 +67,7 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
             {contentIsLong && (
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="text-sm font-medium flex items-center mt-1"
+                className="text-sm font-medium flex items-center mt-1 text-neutral-500"
               >
                 {expanded ? <>...less</> : <>...more</>}
               </button>
@@ -116,7 +114,7 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
             </Carousel>
           )}
 
-          <div className="flex items-center justify-between text-neutral-500 max-w-md">
+          <div className="flex items-center justify-between text-neutral-500 max-w-md mt-3">
             <button className="flex items-center gap-2 hover:text-blue-400 group">
               <MessageCircle className="h-5 w-5" />
               <span className="text-sm group-hover:text-blue-400">20K</span>

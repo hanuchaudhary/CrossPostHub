@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
       where: {
         userId: session.user.id,
       },
-      orderBy: { updatedAt: "desc" }
+      include: {
+        plan: true,
+      },
+      orderBy: { updatedAt: "desc" }, // Get the latest subscription
     });
 
     if (!subscription) {
@@ -23,6 +26,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       status: subscription.status,
+      subscription: subscription,
     });
   } catch (error) {
     console.error("Error checking subscription status:", error);

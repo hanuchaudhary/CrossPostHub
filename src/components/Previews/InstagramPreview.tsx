@@ -131,7 +131,7 @@ export function InstagramPreview({
           {contentIsLong && (
             <button
               onClick={() => setExpanded(!expanded)}
-              className="text-xs flex items-center mt-1"
+              className="text-xs flex items-center mt-1 text-neutral-500"
             >
               {expanded ? <>...less</> : <>...more</>}
             </button>
