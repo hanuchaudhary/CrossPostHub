@@ -19,7 +19,7 @@ export default function NotFound() {
       setIsRedirecting(true);
       router.push("/");
     }
-  }, [countdown, isRedirecting]);
+  }, [countdown, isRedirecting, router]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4 text-center">
@@ -66,7 +66,7 @@ export default function NotFound() {
         >
           <h2 className="text-2xl font-bold tracking-tight">Page not found</h2>
           <p className="mt-2 text-muted-foreground">
-            Oops! The page you're looking for doesn't exist or has been moved.
+            Oops! The page you&#39;re looking for doesn&#39;t exist or has been moved.
           </p>
         </motion.div>
 

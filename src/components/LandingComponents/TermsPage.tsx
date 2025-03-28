@@ -25,8 +25,8 @@ export default function TermsPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
           <p>
-            Welcome to CrossPostHub ("we," "our," or "us"). These Terms of
-            Service ("Terms") govern your access to and use of the CrossPostHub
+            Welcome to CrossPostHub (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). These Terms of
+            Service (&quot;Terms&quot;) govern your access to and use of the CrossPostHub
             platform, including any associated mobile applications, websites,
             and services (collectively, the "Service").
           </p>

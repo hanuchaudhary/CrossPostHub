@@ -20,7 +20,8 @@ const eslintConfig = [
       "quotes": ["off"],
       "@typescript-eslint/quotes": ["off"],
       "@typescript-eslint/no-empty-object-type": ["off"],
-      "prefer-const": ["off"]
+      "prefer-const": ["off"],
+      "react/no-unescaped-entities": ["off"],
     },
   },
 ];

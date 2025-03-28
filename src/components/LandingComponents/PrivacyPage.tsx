@@ -25,11 +25,11 @@ export default function PrivacyPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
           <p>
-            CrossPostHub ("we," "our," or "us") is committed to protecting your
+            CrossPostHub (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your
             privacy. This Privacy Policy explains how we collect, use, disclose,
             and safeguard your information when you use our platform, including
             any associated mobile applications, websites, and services
-            (collectively, the "Service").
+            (collectively, the &quot;Service&quot;).
           </p>
           <p>
             By accessing or using the Service, you consent to the collection,
