@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ArrowUp,
-  Calendar,
-} from "lucide-react";
+import { ArrowUp, Calendar } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingFooter() {
@@ -12,7 +9,7 @@ export default function LandingFooter() {
   };
 
   return (
-    <footer className="relative w-full md:mt-40 mt-20 bg-background/80 border  backdrop-blur-sm shadow-2xl rounded-t-3xl py-16 px-4 md:px-8">
+    <footer className="relative w-full md:mt-40 mt-20 bg-background/80 border-t border-l border-r backdrop-blur-sm shadow-2xl rounded-t-3xl py-16 px-4 md:px-8">
       <div className="">
         <div className="flex flex-col md:flex-row justify-between mb-12">
           <div className="mb-8 md:mb-0">
@@ -27,12 +24,8 @@ export default function LandingFooter() {
           <div className="flex items-center space-x-4 bg-primary-foreground px-4 py-3 rounded-xl border">
             <Calendar className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm font-medium">
-                Next Release
-              </p>
-              <p className="text-xs text-muted-foreground">
-                April 2025
-              </p>
+              <p className="text-sm font-medium">Next Release</p>
+              <p className="text-xs text-muted-foreground">April 2025</p>
             </div>
           </div>
         </div>
@@ -59,21 +52,36 @@ export default function LandingFooter() {
 
         {/* Build in public credit */}
         <div className="md:mt-8 mt-4 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex md:flex-row flex-col md:gap-0 gap-2 items-center justify-between">
-          <p>
-            Build in public by{" "}
-            <a
-              href="https://x.com/KushChaudharyOg"
-              className="text-blue-400 font-ClashDisplayMedium underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              @KushChaudharyOg
-            </a>
-          </p>
+          <div className="space-y-2">  
+            <p>
+              Build in public by{" "}
+              <a
+                href="https://x.com/KushChaudharyOg"
+                className="text-blue-400 font-ClashDisplayMedium underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                @KushChaudharyOg
+              </a>
+            </p>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/privacy"
+                className="border-b border-dashed text-neutral-400 text-sm hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+              >
+                Privacy & Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="border-b border-dashed text-neutral-400 text-sm hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+              >
+                Terms of Service
+              </Link>
+            </div>
+          </div>
+
           <div className="flex space-x-4 md:ml-8">
-            <span className="font-ClashDisplayMedium">
-              Connect:
-            </span>
+            <span className="font-ClashDisplayMedium">Connect:</span>
             {[
               { href: "https://github.com/hanuchaudhary", name: "GitHub" },
               { href: "https://x.com/KushChaudharyOg", name: "Twitter" },
@@ -86,9 +94,7 @@ export default function LandingFooter() {
                 target="_blank"
                 className="text-muted-foreground dark:text-neutral-400 hover:text-primary dark:hover:text-white transition-colors"
               >
-                <span>
-                  {social.name}
-                </span>
+                <span>{social.name}</span>
               </Link>
             ))}
           </div>
