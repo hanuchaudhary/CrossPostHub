@@ -16,13 +16,16 @@ import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import { sendSSEMessage } from "@/utils/Notifications/Notfications";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
+import { connectRedis } from "@/config/redisConfig";
 
 const connection = {
   host: process.env.REDIS_HOST,
   port: parseInt(process.env.REDIS_PORT!),
   password: process.env.REDIS_PASSWORD,
-  tls: { rejectUnauthorized: false }, // This is required for upstash redis
+  tls: { rejectUnauthorized: false },
 };
+
+await connectRedis();
 
 // Queue instance
 export const postQueue = new Queue("postQueue", {

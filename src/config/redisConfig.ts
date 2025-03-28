@@ -10,11 +10,41 @@ const redis = createClient({
   },
 });
 
-redis.on("error", (err) => console.error("Redis error:", err));
+async function connectRedis() {
+  if (redis.isOpen) {
+    console.log("Redis client is already connected");
+    return redis;
+  }
+
+  try {
+    await redis.connect();
+    console.log("Redis client connected successfully");
+    return redis;
+  } catch (error) {
+    console.error("Failed to connect to Redis:", error);
+    throw error;
+  }
+}
 
 (async () => {
   await redis.connect();
   console.log("Redis connected");
 })();
 
-export { redis };
+redis.on("error", (err) => {
+  console.error("Redis error:", err);
+});
+
+redis.on("connect", () => {
+  console.log("Redis connected");
+});
+
+redis.on("reconnecting", () => {
+  console.log("Redis reconnecting...");
+});
+
+redis.on("end", () => {
+  console.log("Redis connection closed");
+});
+
+export { redis, connectRedis };
