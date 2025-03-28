@@ -16,7 +16,7 @@ export default function AuthWithGoogle() {
     setIsLoading(true);
     try {
       const result = await signIn("google", {
-        callbackUrl: "http://localhost:3000/dashboard",
+        callbackUrl: `${window.location.origin}/dashboard`,
         redirect: false,
         signInOptions: { popup: true },
       });

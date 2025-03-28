@@ -23,6 +23,7 @@ import AuthWithGoogle from "./AuthWithGoogle";
 import { UserPlus2 } from "lucide-react";
 import OrSeperator from "./OrSeperator";
 import { toast } from "@/hooks/use-toast";
+import { APP_URI } from "@/config";
 
 export default function SigninForm() {
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function SigninForm() {
       const result = await signIn("credentials", {
         ...values,
         redirect: false,
-        callbackUrl: "http://localhost:3000/dashboard", // Explicit callback URL
+        callbackUrl: `${APP_URI}/dashboard`, // Explicit callback URL
       });
 
       console.log(result);

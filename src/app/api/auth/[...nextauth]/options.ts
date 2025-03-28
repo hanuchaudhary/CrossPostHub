@@ -8,6 +8,7 @@ import InstagramProvider from "next-auth/providers/instagram";
 import LinkedinProvider from "next-auth/providers/linkedin";
 import { signinSchema } from "@/lib/validation";
 import { getFreePlanId } from "@/utils/Controllers/GETFreePlan";
+import { LINKEDIN_REDIRECT_URI } from "@/config";
 
 if (!process.env.NEXTAUTH_URL) {
   console.warn("Please set NEXTAUTH_URL environment variable");
@@ -91,7 +92,7 @@ export const authOptions: NextAuthOptions = {
       issuer: "https://www.linkedin.com/oauth",
       authorization: {
         params: {
-          redirect_uri: "http://localhost:3000/api/auth/callback/linkedin",
+          redirect_uri: LINKEDIN_REDIRECT_URI,
           scope: "email profile w_member_social openid",
           prompt: "consent",
           response_type: "code",
@@ -173,7 +174,6 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
-          console.log("Account Details Updated || created");
         }
 
         return true;
