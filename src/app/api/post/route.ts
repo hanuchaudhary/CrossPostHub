@@ -5,7 +5,6 @@ import prisma from "@/config/prismaConfig";
 import { Providers } from "@/Types/Types";
 import { postQueue } from "@/lib/Redis/worker";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
-import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { validateMedia } from "@/utils/ValidateMedia";
 

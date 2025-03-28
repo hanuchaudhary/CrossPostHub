@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const cachedPricingPlansKey = "pricingPlans";
     const cachedPricingPlans = await redis.get(cachedPricingPlansKey);
 
-    if (cachedPricingPlans) {
+    if (typeof cachedPricingPlans === "string") {
       console.log("Returning cached pricing plans");
       return NextResponse.json(
         { pricingPlans: JSON.parse(cachedPricingPlans) },
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Cache the pricing plans for 24 hours
     await redis.set(cachedPricingPlansKey, JSON.stringify(pricingPlans), {
-      EX: 24 * 60 * 60,
+      ex: 86400, // 24 hours in seconds
     });
 
     return NextResponse.json({ pricingPlans }, { status: 200 });
