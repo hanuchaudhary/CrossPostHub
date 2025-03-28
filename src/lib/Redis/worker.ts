@@ -25,9 +25,11 @@ const connection = {
 };
 
 // Queue instance
-export const postQueue = new Queue("postQueue", { connection });
+export const postQueue = new Queue("postQueue", {
+  connection,
+});
 
-const PublishPostWorker = new Worker(
+const publishPostWorker = new Worker(
   "postQueue",
   async (job: Job) => {
     try {
@@ -223,8 +225,31 @@ const PublishPostWorker = new Worker(
       throw error;
     }
   },
-  { connection }
+  {
+    connection,
+    lockDuration: 30000, // 30 seconds
+    lockRenewTime: 60000, // 1 minute
+    concurrency: 2,
+    removeOnComplete: {
+      age: 24 * 60 * 60, // 1 day
+    },
+    removeOnFail: {
+      age: 24 * 60 * 60, // 1 day
+    },
+  }
 );
+
+publishPostWorker.on("completed", (job) => {
+  console.log(`Job completed for provider: ${job.data.provider}`);
+});
+
+publishPostWorker.on("failed", (job, err) => {
+  console.error(`Job failed for provider: ${job?.data.provider}`, err);
+});
+
+publishPostWorker.on("error", (err) => {
+  console.error("Worker error:", err);
+});
 
 const twitterPostPublish = async (
   text: string,
