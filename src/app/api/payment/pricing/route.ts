@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
     const cachedPricingPlansKey = "pricingPlans";
     const cachedPricingPlans = await redis.get(cachedPricingPlansKey);
 
-    if (typeof cachedPricingPlans === "string") {
+    if (cachedPricingPlans) {
       console.log("Returning cached pricing plans");
       return NextResponse.json(
-        { pricingPlans: JSON.parse(cachedPricingPlans) },
+        { pricingPlans: cachedPricingPlans },
         { status: 200 }
       );
     }

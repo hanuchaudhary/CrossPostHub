@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const cacheDashboardData = await redis.get(cacheDashboardDataKey);
     if (cacheDashboardData) {
       console.log("Cache hit");
-      return NextResponse.json(JSON.parse(cacheDashboardData as string), { status: 200 });
+      return NextResponse.json(cacheDashboardData, { status: 200 });
     }
 
     const user = await prisma.user.findUnique({
