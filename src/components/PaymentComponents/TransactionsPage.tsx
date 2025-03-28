@@ -13,10 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -38,18 +35,26 @@ import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore"
 import PageLoader from "../Loaders/PageLoader";
 import { TransactionDetailsModal } from "./TransactionDetailModal";
 import UpgradeButton from "../Buttons/UpgradeButton";
+import { SubscriptionCard } from "./SubscriptionCard";
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  const { fetchTransactions, transactions, isFetchingTransactions } =
-    useSubscriptionStore();
+  const {
+    fetchTransactions,
+    transactions,
+    isFetchingTransactions,
+    subscription,
+  } = useSubscriptionStore();
 
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
+
+  console.log("Transactions:", transactions);
+  
 
   const filteredTransactions = transactions
     ?.filter((transaction) => {
@@ -75,32 +80,37 @@ export default function TransactionsPage() {
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-7xl">
-      {filteredTransactions?.length === 0 ? (
-        <div className="h-96 flex items-center justify-center">
-          <div className="select-none text-muted-foreground h-24 flex flex-col items-center justify-center font-ClashDisplayMedium group">
-            <p className="mb-2 text-lg group-hover:text-emerald-100/70 transition-colors duration-300">
-              No transactions found.
-            </p>
-            <p className="text-lg border-2 border-secondary/50 rounded-3xl p-4 space-x-4 group-hover:text-emerald-100/50 group-hover:border-emerald-100/50 transition-colors duration-300">
-              <UpgradeButton /> <span>to view transactions.</span>
-            </p>
-          </div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-6"
+      >
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+          <p className="text-muted-foreground">
+            View and manage all your payment transactions.
+          </p>
         </div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-6"
-        >
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
-            <p className="text-muted-foreground">
-              View and manage all your payment transactions.
-            </p>
-          </div>
 
-          {/* Transactions Table */}
+        {/* Current Subscription Card */}
+        <SubscriptionCard
+          subscription={subscription}
+        />
+
+        {transactions?.length === 0 ? (
+          <div className="h-96 flex items-center justify-center">
+            <div className="select-none text-muted-foreground h-24 flex flex-col items-center justify-center font-ClashDisplayMedium group">
+              <p className="mb-2 text-lg group-hover:text-emerald-100/70 transition-colors duration-300">
+                No transactions found.
+              </p>
+              <p className="text-lg border-2 border-secondary/50 rounded-3xl p-4 space-x-4 group-hover:text-emerald-100/50 group-hover:border-emerald-100/50 transition-colors duration-300">
+                <UpgradeButton /> <span>to view transactions.</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* Transactions Table */
           <Card className="shadow-none border-none">
             <CardContent className="p-0 border-none shadow-none">
               <div className="space-y-4">
@@ -179,7 +189,7 @@ export default function TransactionsPage() {
                             {transaction.order_id}
                           </TableCell>
                           <TableCell className="text-left">
-                            {transaction.subscription.plan.title}
+                            {transaction.subscription?.plan?.title}
                           </TableCell>
                           <TableCell className="text-left font-medium">
                             $
@@ -225,8 +235,8 @@ export default function TransactionsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
     </div>
   );
 }

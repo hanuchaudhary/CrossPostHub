@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
       where: { id: session.user.id },
       select: {
         subscriptions: {
-          where: { status: "active" },
+          // where: { status: "active" },
+          include:{
+            plan: true,
+          }
         },
       },
     });

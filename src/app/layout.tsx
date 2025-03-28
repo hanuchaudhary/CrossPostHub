@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ReactNode } from "react";
 import AuthProvider from "@/components/AuthComponents/AuthProvider";
 import { Toaster } from "@/components/ui/toaster";
+import RenewalPrompt from "@/components/PaymentComponents/RenewalPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,7 @@ export default function RootLayout({
           >
             {children}
             <Toaster />
+            <RenewalPrompt/>
           </ThemeProvider>
         </AuthProvider>
       </body>
