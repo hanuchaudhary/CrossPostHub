@@ -231,6 +231,16 @@ const publishPostWorker = new Worker(
     removeOnFail: {
       age: 24 * 60 * 60, // 1 day
     },
+    stalledInterval: 10000, // stalled interval means the time after which a job is considered stalled and will be retried
+    maxStalledCount: 3, // max number of times a job can be stalled before being removed
+    settings:{
+      backoffStrategy: (attemptsMade: number) => {
+        if (attemptsMade > 3) {
+          return 0; // No more retries after 3 attempts
+        }
+        return Math.pow(2, attemptsMade) * 1000; // Exponential backoff
+      }
+    }
   }
 );
 
