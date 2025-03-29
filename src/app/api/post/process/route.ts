@@ -16,7 +16,9 @@ import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { verifySignature } from "@upstash/qstash/nextjs";
 import { NextApiRequest } from "next";
 
-export const POST = verifySignature(async (request: NextApiRequest) => {
+verifySignature(async function POST(
+  request: NextApiRequest
+) {
   const jobData = await request.body;
 
   if (!jobData) {
