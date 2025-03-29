@@ -13,13 +13,12 @@ import {
   sendEmailNotification,
 } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
-import { verifySignature } from "@upstash/qstash/nextjs";
-import { NextApiRequest } from "next";
+import {  verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 
-verifySignature(async function POST(
-  request: NextApiRequest
+async function handler(
+  request: NextRequest
 ) {
-  const jobData = await request.body;
+  const jobData = await request.json();
 
   if (!jobData) {
     return NextResponse.json(
@@ -187,6 +186,12 @@ verifySignature(async function POST(
 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+
+export const POST = verifySignatureAppRouter(handler, {
+  currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
+  nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY,
 });
 
 async function twitterPostPublish(
