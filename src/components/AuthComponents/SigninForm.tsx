@@ -23,7 +23,7 @@ import AuthWithGoogle from "./AuthWithGoogle";
 import { UserPlus2 } from "lucide-react";
 import OrSeperator from "./OrSeperator";
 import { toast } from "@/hooks/use-toast";
-import { APP_URI } from "@/config";
+// import { APP_URI } from "@/config";
 
 export default function SigninForm() {
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export default function SigninForm() {
       const result = await signIn("credentials", {
         ...values,
         redirect: false,
-        callbackUrl: `${APP_URI}/dashboard`, // Explicit callback URL
+        callbackUrl: `${window.location.origin}/dashboard` // Explicit callback URL
       });
 
       console.log(result);
@@ -57,7 +57,7 @@ export default function SigninForm() {
         });
         setError(result.error);
       } else {
-        router.push("/dashboard");
+        router.push(result?.url || "/dashboard");
       }
     } catch (error) {
       setError("An unexpected error occurred. Please try again.");

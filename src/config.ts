@@ -11,6 +11,3 @@ export const LINKEDIN_REDIRECT_URI =
 
 export const INSTAGRAM_REDIRECT_URI =
   "http://localhost:3000/api/auth/callback/instagram";
-
-// export const APP_URI = "http://localhost:3000";
-export const APP_URI = "https://crossposthub.kushchaudhary.com";
