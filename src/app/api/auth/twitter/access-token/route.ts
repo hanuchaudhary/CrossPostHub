@@ -3,6 +3,7 @@ import crypto from "crypto"
 import { NextResponse } from "next/server"
 import prisma from "@/config/prismaConfig"
 import axios from "axios"
+import { encryptToken } from "@/lib/Crypto"
 
 const oauth = new OAuth({
     consumer: {
@@ -52,6 +53,10 @@ export async function POST(request: Request) {
             screen_name,
         } = Object.fromEntries(new URLSearchParams(response.data))
 
+        if (!accessToken || !accessTokenSecret || !user_id) {
+            return NextResponse.json({ error: "Failed to retrieve access token" }, { status: 500 })
+        }
+
         const existingUser = await prisma.user.findUnique({
             where: { id: loggedUserId },
             include: { accounts: true },
@@ -63,6 +68,22 @@ export async function POST(request: Request) {
 
         const existingUserTwitterAccount = existingUser.accounts.find((account) => account.provider === "twitter")
 
+        let encryptedAccessToken : string | undefined
+        let encryptedAccessTokenSecret : string | undefined
+        let accessTokenIv : string | undefined
+        let accessTokenSecretIv : string | undefined
+        if (accessToken) {
+            const { iv, encrypted } = encryptToken(accessToken)
+            encryptedAccessToken = encrypted
+            accessTokenIv = iv
+        }
+
+        if (accessTokenSecret) {
+            const { iv, encrypted } = encryptToken(accessTokenSecret)
+            encryptedAccessTokenSecret = encrypted
+            accessTokenSecretIv = iv
+        }
+
         if (existingUserTwitterAccount) {
             await prisma.account.update({
                 where: {
@@ -72,8 +93,10 @@ export async function POST(request: Request) {
                     },
                 },
                 data: {
-                    access_token: accessToken,
-                    access_token_secret: accessTokenSecret,
+                    access_token: encryptedAccessToken,
+                    access_token_secret: encryptedAccessTokenSecret,
+                    access_token_iv: accessTokenIv,
+                    access_token_secret_iv: accessTokenSecretIv,
                     updatedAt: new Date(),
                 },
             })
@@ -83,8 +106,10 @@ export async function POST(request: Request) {
                     provider: "twitter",
                     providerAccountId: user_id,
                     userId: loggedUserId,
-                    access_token: accessToken,
-                    access_token_secret: accessTokenSecret,
+                    access_token: encryptedAccessToken,
+                    access_token_secret: encryptedAccessTokenSecret,
+                    access_token_iv: accessTokenIv,
+                    access_token_secret_iv: accessTokenSecretIv,
                     scope: "tweet.read tweet.write users.read offline.access",
                     type: "oauth:1.0a",
                 },

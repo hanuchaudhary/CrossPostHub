@@ -9,6 +9,7 @@ import {
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
+import { decryptToken } from "@/lib/Crypto";
 
 async function handler(request: NextRequest) {
   const jobData = await request.json();
@@ -47,13 +48,20 @@ async function handler(request: NextRequest) {
       if (!linkedinAccount) {
         throw new Error("LinkedIn account not found.");
       }
-      if (!linkedinAccount.access_token) {
-        throw new Error("LinkedIn access token is missing.");
+     
+      if(!linkedinAccount.access_token || !linkedinAccount.access_token_iv) {
+        throw new Error("LinkedIn access token not found.");
       }
+
+      // Decrypt the access token 
+      const decryptedAccessToken = decryptToken(
+        linkedinAccount.access_token_iv,
+        linkedinAccount.access_token
+      );
 
       const postResponse = await linkedinPostPublish(
         postText,
-        linkedinAccount.access_token!,
+        decryptedAccessToken,
         linkedinAccount.providerAccountId!,
         mediaBuffers
       );
@@ -99,10 +107,24 @@ async function handler(request: NextRequest) {
         throw new Error("Twitter account not found.");
       }
 
+      if(!twitterAccount.access_token || !twitterAccount.access_token_secret) {
+        throw new Error("Twitter access token not found.");
+      }
+
+      let decryptedAccessToken = decryptToken(
+        twitterAccount.access_token_iv,
+        twitterAccount.access_token
+      );
+
+      let decryptedAccessTokenSecret = decryptToken(
+        twitterAccount.access_token_secret_iv,
+        twitterAccount.access_token_secret
+      );
+
       const tweetResponse = await twitterPostPublish(
         postText,
-        twitterAccount.access_token!,
-        twitterAccount.access_token_secret!,
+        decryptedAccessToken,
+        decryptedAccessTokenSecret,
         mediaBuffers
       );
 

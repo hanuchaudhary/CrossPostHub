@@ -45,6 +45,9 @@ model Account {
   provider            String
   providerAccountId   String
   refresh_token       String?
+  access_token_iv   String?
+  access_token_secret_iv String?  
+  refresh_token_iv    String?
   access_token        String?
   access_token_secret String?
   expires_at          Int?

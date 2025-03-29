@@ -9,6 +9,7 @@ import LinkedinProvider from "next-auth/providers/linkedin";
 import { signinSchema } from "@/lib/validation";
 import { getFreePlanId } from "@/utils/Controllers/GETFreePlan";
 import { LINKEDIN_REDIRECT_URI } from "@/config";
+import { encryptToken } from "@/lib/Crypto";
 
 if (!process.env.NEXTAUTH_URL) {
   console.warn("Please set NEXTAUTH_URL environment variable");
@@ -153,6 +154,22 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (account && existingUser) {
+          let accessTokenIv: string | undefined;
+          let accessTokenEncrypted: string | undefined;
+          let refreshTokenIv: string | undefined;
+          let refreshTokenEncrypted: string | undefined;
+
+          if (account.access_token) {
+            const { iv, encrypted } = encryptToken(account.access_token);
+            accessTokenIv = iv;
+            accessTokenEncrypted = encrypted;
+          }
+          if (account.refresh_token) {
+            const { iv, encrypted } = encryptToken(account.refresh_token);
+            refreshTokenIv = iv;
+            refreshTokenEncrypted = encrypted;
+          }
+
           await prisma.account.upsert({
             where: {
               provider_providerAccountId: {
@@ -161,19 +178,22 @@ export const authOptions: NextAuthOptions = {
               },
             },
             update: {
-              access_token: account.access_token,
-              refresh_token: account.refresh_token,
+              access_token: accessTokenEncrypted,
+              refresh_token: refreshTokenEncrypted,
+              access_token_iv: accessTokenIv,
+              refresh_token_iv: refreshTokenIv,
             },
             create: {
               userId: existingUser.id,
               provider: account.provider,
               providerAccountId: account.providerAccountId,
               type: account.type,
-              access_token: account.access_token,
-              refresh_token: account.refresh_token,
+              access_token: accessTokenEncrypted,
+              refresh_token: refreshTokenEncrypted,
+              access_token_iv: accessTokenIv,
+              refresh_token_iv: refreshTokenIv,
             },
           });
-
         }
 
         return true;
