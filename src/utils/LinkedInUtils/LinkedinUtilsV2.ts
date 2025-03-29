@@ -200,3 +200,52 @@ export class LinkedinUtilsV2 {
     console.log("Text posted successfully!");
   }
 }
+
+export async function linkedinPostPublish(
+  text: string,
+  linkedinAccessToken: string,
+  linkedinPersonURN: string,
+  mediaBuffers: Buffer[]
+) {
+  const linkedinUtils = new LinkedinUtilsV2(
+    linkedinAccessToken,
+    `urn:li:person:${linkedinPersonURN}`
+  );
+
+  if (mediaBuffers.length === 0) {
+    console.log("Posting text to LinkedIn...");
+    await linkedinUtils.postTextToLinkedIn(text);
+    return { message: "Text posted successfully" };
+  }
+
+  console.log(`Uploading ${mediaBuffers.length} media files to LinkedIn...`);
+  const assetURNs = await Promise.all(
+    mediaBuffers.map(async (imageBuffer: Buffer, index: number) => {
+      console.log(
+        `[INFO] Uploading media ${index + 1}/${mediaBuffers.length}...`
+      );
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+      try {
+        const assetURN = await linkedinUtils.uploadMedia(
+          imageBuffer,
+          imageBuffer.length
+        );
+        console.log(`Media uploaded: ${assetURN}`);
+        return assetURN;
+      } finally {
+        clearTimeout(timeout);
+      }
+    })
+  );
+
+  const mimeTypes = await Promise.all(
+    mediaBuffers.map((buffer) => getMimeType(buffer))
+  );
+  const postResponse = await linkedinUtils.postToLinkedIn(
+    assetURNs,
+    text,
+    mimeTypes
+  );
+  return { postResponse };
+}

@@ -23,7 +23,6 @@ import AuthWithGoogle from "./AuthWithGoogle";
 import { UserPlus2 } from "lucide-react";
 import OrSeperator from "./OrSeperator";
 import { toast } from "@/hooks/use-toast";
-// import { APP_URI } from "@/config";
 
 export default function SigninForm() {
   const [error, setError] = useState<string | null>(null);

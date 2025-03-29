@@ -2,17 +2,7 @@ import OAuth from "oauth-1.0a";
 import crypto from "crypto";
 import axios from "axios";
 import FormData from "form-data";
-
-type StatusResponse = {
-  media_id: number;
-  media_id_string: string;
-  media_key: string;
-  processing_info: {
-    state: string;
-    check_after_secs: number;
-    progress_percent: number;
-  };
-};
+import { getTwitterFileType, TwiiterFileType } from "../getFileType";
 
 export class TwitterUtilsV2 {
   private oauth: OAuth;
@@ -362,3 +352,51 @@ export class TwitterUtilsV2 {
     }
   }
 }
+
+export const twitterPostPublish = async (
+  text: string,
+  twitterAccessToken: string,
+  twitterAccessTokenSecret: string,
+  mediaBuffers: Buffer[]
+) => {
+  const twitterUtils = new TwitterUtilsV2(
+    twitterAccessToken,
+    twitterAccessTokenSecret
+  );
+  let mediaIds: string[] = [];
+  if (mediaBuffers.length > 0) {
+    console.log(`Uploading ${mediaBuffers.length} media files to Twitter...`);
+
+    // Determine media types
+    const mediaTypes = await Promise.all(
+      mediaBuffers.map(async (mediaBuffer) => getTwitterFileType(mediaBuffer))
+    );
+
+    for (let i = 0; i < mediaBuffers.length; i++) {
+      const mediaBuffer = mediaBuffers[i];
+      const mediaType = mediaTypes[i];
+
+      const mediaCategory =
+        mediaType === TwiiterFileType.TWEET_VIDEO
+          ? "tweet_video"
+          : "tweet_image";
+
+      const mediaId = await twitterUtils.uploadLargeMedia(
+        mediaBuffer,
+        mediaType === TwiiterFileType.TWEET_VIDEO ? "video/mp4" : "image/jpeg",
+        mediaCategory
+      );
+
+      console.log(`Media uploaded: ${mediaId}`);
+      mediaIds.push(mediaId);
+    }
+  }
+
+  if (!mediaIds) {
+    throw new Error("Failed to upload media to Twitter.");
+  }
+
+  const createPostResponse = await twitterUtils.createTweet({ mediaIds, text });
+
+  return createPostResponse;
+};

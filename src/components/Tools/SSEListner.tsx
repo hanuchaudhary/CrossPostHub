@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 export default function SSEListener({ userId }: { userId: string }) {
   const { fetchNotifications } = useNotificationStore();
+
   useEffect(() => {
     if (!userId) return;
 
@@ -32,6 +33,7 @@ export default function SSEListener({ userId }: { userId: string }) {
           case "connected":
             console.log("SSE connected to server");
             break;
+          default:
         }
       } catch (error) {
         console.error("SSE parse error:", error);
@@ -39,7 +41,7 @@ export default function SSEListener({ userId }: { userId: string }) {
     };
 
     return () => eventSource.close();
-  }, [userId,fetchNotifications]);
+  }, [userId, fetchNotifications]);
 
   return null;
 }

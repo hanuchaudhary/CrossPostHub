@@ -1,11 +1,11 @@
 import prisma from "@/config/prismaConfig";
-import { redis } from "@/config/redisConfig";
+import { redisClient } from "@/config/redisConfig";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
     const cachedPricingPlansKey = "pricingPlans";
-    const cachedPricingPlans = await redis.get(cachedPricingPlansKey);
+    const cachedPricingPlans = await redisClient.get(cachedPricingPlansKey);
 
     if (cachedPricingPlans) {
       console.log("Returning cached pricing plans");
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const pricingPlans = await prisma.plan.findMany();
 
     // Cache the pricing plans for 24 hours
-    await redis.set(cachedPricingPlansKey, JSON.stringify(pricingPlans), {
-      ex: 86400, // 24 hours in seconds
+    await redisClient.set(cachedPricingPlansKey, JSON.stringify(pricingPlans), {
+      ex: 86400, // Expire in 24 hours
     });
 
     return NextResponse.json({ pricingPlans }, { status: 200 });

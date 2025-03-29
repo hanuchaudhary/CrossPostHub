@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
 import { getTwitterUserDetails } from "@/utils/TwitterUtils/TwitterUtils";
-import { redis } from "@/config/redisConfig";
-import { getLinkedInProfile } from "@/utils/LinkedInUtils/LinkedinUtils";
+import { redisClient } from "@/config/redisConfig";
+// import { getLinkedInProfile } from "@/utils/LinkedInUtils/LinkedinUtils";
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     const cacheDashboardDataKey = `dashboardData-${session.user.id}`;
-    const cacheDashboardData = await redis.get(cacheDashboardDataKey);
+    const cacheDashboardData = await redisClient.get(cacheDashboardDataKey);
     if (cacheDashboardData) {
       console.log("Cache hit");
       return NextResponse.json(cacheDashboardData, { status: 200 });
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Cache the data
-    await redis.set(cacheDashboardDataKey, JSON.stringify(dashboardData), {
+    await redisClient.set(cacheDashboardDataKey, JSON.stringify(dashboardData), {
       ex: 24 * 60 * 60, // 24 hours
     });
 

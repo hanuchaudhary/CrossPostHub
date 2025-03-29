@@ -18,6 +18,23 @@ interface SubscriptionCardProps {
 export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   const isPremium = subscription?.plan?.title === "Premium";
 
+  if (!subscription) {
+    return (
+      <Card className="border-2">
+        <CardContent className="p-3">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col items-center justify-center h-full">
+              <h3 className="text-xl font-semibold">No active subscription</h3>
+              <Link href="/upgrade" className="mt-4">
+                <Button>Upgrade Plan</Button>
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-2">
       <CardContent className="p-3">

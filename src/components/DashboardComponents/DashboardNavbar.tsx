@@ -15,7 +15,6 @@ import Guide from "../Guide";
 import NotificationButton from "../Buttons/NotificationsButton";
 import { Profile } from "./Profile";
 import { MobileMenu } from "./MobileMenu";
-
 export default function DashboardNavbar() {
   const pathname = usePathname();
   const { data } = useSession();
@@ -50,7 +49,7 @@ export default function DashboardNavbar() {
             <Link
               key={href}
               href={href}
-              className={`md:flex hidden select-none items-center justify-center px-2 rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
+              className={`lg:flex hidden select-none items-center justify-center px-2 rounded-md text-sm font-medium transition-colors hover:text-emerald-300 ${
                 pathname === href ? "border-b-2 border-emerald-500 " : ""
               }`}
             >
@@ -66,7 +65,7 @@ export default function DashboardNavbar() {
             </button>
           </Link>
         ) : (
-          <Link href={"/dashboard"} className="md:hidden flex items-center">
+          <Link href={"/dashboard"} className="lg:hidden flex items-center">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Back</span>
@@ -74,17 +73,35 @@ export default function DashboardNavbar() {
           </Link>
         )}
 
-        <div className="hidden md:block">
+        <div className="lg:hidden md:flex hidden items-center gap-2">
+          {[
+            { href: "/dashboard", label: "Dashboard" },
+            { href: "/create", label: "Create" },
+            { href: "/edit", label: "Edit" },
+          ].map(({ href, label }) => (
+            <Link
+              key={label}
+              href={href}
+              className=""
+            >
+              <button className={`px-2 py-1 border-b-2 ${pathname === href ? "border-emerald-500" : ""} rounded-xl text-xs`}>
+                {label}
+              </button>
+            </Link>
+          ))}
+        </div>
+
+        <div className="hidden lg:block">
           <Guide />
         </div>
 
         <NotificationButton />
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Profile />
         </div>
 
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">

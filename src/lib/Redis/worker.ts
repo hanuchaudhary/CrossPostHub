@@ -1,3 +1,25 @@
+
+/**
+ * @file worker.ts
+ * 
+ * This file contains the implementation of a BullMQ worker for processing post publishing jobs
+ * to social media platforms such as LinkedIn and Twitter. The worker handles job processing,
+ * including media uploads, post creation, database updates, and notifications.
+ * 
+ * **Note:** This file is currently not in use because the application has transitioned to using 
+ * QStash for queue management. The decision to use QStash was made due to development limitations 
+ * on Vercel, as Vercel runs on edge infrastructure which does not support long-running processes 
+ * like BullMQ workers. 
+ * 
+ * If the application is deployed on an EC2 instance or any other environment that supports 
+ * long-running processes, this file can be revisited and utilized for queue management.
+ * 
+ * Current file used for posting is `/api/post/route.ts` and `/api/post/process/route.ts`.
+ * 
+ * @module worker
+ */
+
+
 import { Worker, Queue, Job } from "bullmq";
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
@@ -8,7 +30,7 @@ import {
   TwiiterFileType,
 } from "@/utils/getFileType";
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
-import { sendSSEMessage } from "@/utils/Notifications/Notfications";
+import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 
@@ -231,8 +253,6 @@ const publishPostWorker = new Worker(
     removeOnFail: {
       age: 24 * 60 * 60, // 1 day
     },
-    stalledInterval: 10000, // stalled interval means the time after which a job is considered stalled and will be retried
-    maxStalledCount: 3, // max number of times a job can be stalled before being removed
     settings:{
       backoffStrategy: (attemptsMade: number) => {
         if (attemptsMade > 3) {

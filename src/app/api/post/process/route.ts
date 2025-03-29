@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
-import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
+import { twitterPostPublish } from "@/utils/TwitterUtils/TwitterUtillsV2";
+import { linkedinPostPublish } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import {
-  getMimeType,
-  getTwitterFileType,
-  TwiiterFileType,
-} from "@/utils/getFileType";
-import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
-import {
-  sendSSEMessage,
   sendEmailNotification,
 } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
-import {  verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 
-async function handler(
-  request: NextRequest
-) {
+async function handler(request: NextRequest) {
   const jobData = await request.json();
 
   if (!jobData) {
@@ -188,103 +181,7 @@ async function handler(
   }
 }
 
-
 export const POST = verifySignatureAppRouter(handler, {
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
   nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY,
 });
-
-async function twitterPostPublish(
-  text: string,
-  twitterAccessToken: string,
-  twitterAccessTokenSecret: string,
-  mediaBuffers: Buffer[]
-) {
-  const twitterUtils = new TwitterUtilsV2(
-    twitterAccessToken,
-    twitterAccessTokenSecret
-  );
-  let mediaIds: string[] = [];
-  if (mediaBuffers.length > 0) {
-    console.log(`Uploading ${mediaBuffers.length} media files to Twitter...`);
-
-    const mediaTypes = await Promise.all(
-      mediaBuffers.map(async (mediaBuffer) => getTwitterFileType(mediaBuffer))
-    );
-
-    mediaIds = await Promise.all(
-      mediaBuffers.map(async (mediaBuffer, i) => {
-        const mediaType = mediaTypes[i];
-        const mediaCategory =
-          mediaType === TwiiterFileType.TWEET_VIDEO
-            ? "tweet_video"
-            : "tweet_image";
-        const mediaId = await twitterUtils.uploadLargeMedia(
-          mediaBuffer,
-          mediaType === TwiiterFileType.TWEET_VIDEO
-            ? "video/mp4"
-            : "image/jpeg",
-          mediaCategory
-        );
-        console.log(`Media uploaded: ${mediaId}`);
-        return mediaId;
-      })
-    );
-  }
-
-  if (mediaBuffers.length > 0 && !mediaIds.length) {
-    throw new Error("Failed to upload media to Twitter.");
-  }
-
-  const createPostResponse = await twitterUtils.createTweet({ mediaIds, text });
-  return createPostResponse;
-}
-
-async function linkedinPostPublish(
-  text: string,
-  linkedinAccessToken: string,
-  linkedinPersonURN: string,
-  mediaBuffers: Buffer[]
-) {
-  const linkedinUtils = new LinkedinUtilsV2(
-    linkedinAccessToken,
-    `urn:li:person:${linkedinPersonURN}`
-  );
-
-  if (mediaBuffers.length === 0) {
-    console.log("Posting text to LinkedIn...");
-    await linkedinUtils.postTextToLinkedIn(text);
-    return { message: "Text posted successfully" };
-  }
-
-  console.log(`Uploading ${mediaBuffers.length} media files to LinkedIn...`);
-  const assetURNs = await Promise.all(
-    mediaBuffers.map(async (imageBuffer: Buffer, index: number) => {
-      console.log(
-        `[INFO] Uploading media ${index + 1}/${mediaBuffers.length}...`
-      );
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000); // 10-second timeout
-      try {
-        const assetURN = await linkedinUtils.uploadMedia(
-          imageBuffer,
-          imageBuffer.length
-        );
-        console.log(`Media uploaded: ${assetURN}`);
-        return assetURN;
-      } finally {
-        clearTimeout(timeout);
-      }
-    })
-  );
-
-  const mimeTypes = await Promise.all(
-    mediaBuffers.map((buffer) => getMimeType(buffer))
-  );
-  const postResponse = await linkedinUtils.postToLinkedIn(
-    assetURNs,
-    text,
-    mimeTypes
-  );
-  return { postResponse };
-}
