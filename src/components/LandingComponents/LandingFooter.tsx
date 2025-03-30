@@ -52,7 +52,7 @@ export default function LandingFooter() {
 
         {/* Build in public credit */}
         <div className="md:mt-8 mt-4 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex md:flex-row flex-col md:gap-0 gap-2 items-center justify-between">
-          <div className="space-y-2">  
+          <div className="space-y-2">
             <p>
               Build in public by{" "}
               <a
@@ -67,13 +67,13 @@ export default function LandingFooter() {
             <div className="flex items-center gap-2">
               <Link
                 href="/privacy"
-                className="border-b border-dashed text-neutral-400 hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+                className="border-b border-dashed text-neutral-400 dark:hover:text-neutral-100 hover:text-neutral-800 transition-colors duration-150 hover:border-neutral-200 text-xs"
               >
                 Privacy & Policy
               </Link>
               <Link
                 href="/terms"
-                className="border-b border-dashed text-neutral-400 hover:text-neutral-100 transition-colors duration-150 hover:border-neutral-200 text-xs"
+                className="border-b border-dashed text-neutral-400 dark:hover:text-neutral-100 hover:text-neutral-800 transition-colors duration-150 hover:border-neutral-200 text-xs"
               >
                 Terms of Service
               </Link>

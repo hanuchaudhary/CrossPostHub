@@ -4,7 +4,7 @@ import LandingFooter from "./LandingFooter";
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-4xl px-4 py-16">
         <div className="mb-8">
           <Link
@@ -12,7 +12,6 @@ export default function TermsPage() {
             className="inline-flex items-center text-sm font-medium text-neutral-400 hover:text-emerald-500 transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to home
           </Link>
         </div>
 
