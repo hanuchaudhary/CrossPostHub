@@ -13,6 +13,8 @@
     "postinstall": "bunx prisma generate"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.777.0",
+    "@aws-sdk/s3-request-presigner": "^3.777.0",
     "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.10.0",
     "@next-auth/prisma-adapter": "^1.0.7",

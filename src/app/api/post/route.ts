@@ -7,6 +7,7 @@ import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { validateMedia } from "@/utils/ValidateMedia";
 import { Client } from "@upstash/qstash";
+import { uploadToS3Bucket } from "@/config/s3Config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,11 +68,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert medias to Base64
-    const mediasBase64 = await Promise.all(
-      medias.map(async (image) => {
-        const buffer = await image.arrayBuffer();
-        return Buffer.from(buffer).toString("base64");
+    const mediaKeys = await Promise.all(
+      medias.map(async (media, index) => {
+        const buffer = Buffer.from(await media.arrayBuffer());
+        const key = `media/${loggedUser.id}/${Date.now()}-${index}-${media.name}`; // Unique key per user and file
+        await uploadToS3Bucket(buffer, key, media.type);
+        return key;
       })
     );
 
@@ -87,7 +89,7 @@ export async function POST(request: NextRequest) {
           const jobData = {
             provider,
             postText,
-            medias: mediasBase64, // Send base64-encoded media directly
+            mediaKeys, // Send s3 keys instead of base64
             userId: loggedUser.id,
             scheduledFor: scheduleAt || null,
           };

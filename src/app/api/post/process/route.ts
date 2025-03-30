@@ -3,13 +3,12 @@ import prisma from "@/config/prismaConfig";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { twitterPostPublish } from "@/utils/TwitterUtils/TwitterUtillsV2";
 import { linkedinPostPublish } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
-import {
-  sendEmailNotification,
-} from "@/utils/Notifications/Notfications";
+import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 import { decryptToken } from "@/lib/Crypto";
+import { deleteFromS3Bucket, getFromS3Bucket } from "@/config/s3Config";
 
 async function handler(request: NextRequest) {
   const jobData = await request.json();
@@ -21,7 +20,7 @@ async function handler(request: NextRequest) {
     );
   }
 
-  const { provider, postText, medias, userId, scheduledFor } = jobData;
+  const { provider, postText, mediaKeys, userId } = jobData;
 
   let loggedUser: any;
   try {
@@ -36,10 +35,18 @@ async function handler(request: NextRequest) {
       throw new Error("User not found.");
     }
 
-    // Convert base64 medias to buffers
-    const mediaBuffers = medias.map((imageBase64: string) =>
-      Buffer.from(imageBase64, "base64")
-    );
+    // Convert base64 mediaKeys to buffers
+    let mediaBuffers: Buffer[] = [];
+    try {
+      mediaBuffers = await Promise.all(
+        mediaKeys.map(async (key: string) => {
+          const buffer = await getFromS3Bucket(key);
+          return buffer;
+        })
+      );
+    } catch (error) {
+      throw new Error("Failed to retrieve media from S3");
+    }
 
     if (provider === "linkedin") {
       const linkedinAccount = loggedUser.accounts.find(
@@ -48,12 +55,12 @@ async function handler(request: NextRequest) {
       if (!linkedinAccount) {
         throw new Error("LinkedIn account not found.");
       }
-     
-      if(!linkedinAccount.access_token || !linkedinAccount.access_token_iv) {
+
+      if (!linkedinAccount.access_token || !linkedinAccount.access_token_iv) {
         throw new Error("LinkedIn access token not found.");
       }
 
-      // Decrypt the access token 
+      // Decrypt the access token
       const decryptedAccessToken = decryptToken(
         linkedinAccount.access_token_iv,
         linkedinAccount.access_token
@@ -107,7 +114,7 @@ async function handler(request: NextRequest) {
         throw new Error("Twitter account not found.");
       }
 
-      if(!twitterAccount.access_token || !twitterAccount.access_token_secret) {
+      if (!twitterAccount.access_token || !twitterAccount.access_token_secret) {
         throw new Error("Twitter access token not found.");
       }
 
@@ -159,6 +166,13 @@ async function handler(request: NextRequest) {
         }),
       ]);
 
+      // Delete media from S3 after successful posting
+      await Promise.all(
+        mediaKeys.map(async (key: string) => {
+          await deleteFromS3Bucket(key);
+        })
+      );
+
       return NextResponse.json({
         provider: "twitter",
         response: tweetResponse,
@@ -170,6 +184,16 @@ async function handler(request: NextRequest) {
     );
   } catch (error: any) {
     console.error(`Job failed for provider: ${provider}`, error);
+
+    try {
+      await Promise.all(
+        mediaKeys.map(async (key: string) => {
+          await deleteFromS3Bucket(key);
+        })
+      );
+    } catch (deleteError) {
+      console.error("Failed to delete media from S3:", deleteError);
+    }
 
     await Promise.all([
       postSaveToDB({
