@@ -14,7 +14,7 @@ export default function ThemeToggle() {
     <div>
       <motion.button
         onClick={toggleTheme}
-        className="p-2 rounded-full bg-primary-foreground"
+        className="p-2 rounded-full bg-primary-foreground/50"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}

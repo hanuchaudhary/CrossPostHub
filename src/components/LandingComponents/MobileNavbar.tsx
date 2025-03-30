@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 export default function MobileNavbar() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -45,7 +46,23 @@ export default function MobileNavbar() {
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? "Close menu" : "Open menu"}
         >
-          {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
+          {isOpen ? (
+            <Image
+              src={"/CloseIcon.svg"}
+              alt="close"
+              width={30}
+              height={30}
+              className="h-7 w-7 invert-[1] dark:invert-[0]"
+            />
+          ) : (
+            <Image
+              src={"/MenuIcon.svg"}
+              alt="menu"
+              width={30}
+              height={30}
+              className="h-7 w-7 invert-[1] dark:invert-[0]"
+            />
+          )}
         </button>
       </div>
 
