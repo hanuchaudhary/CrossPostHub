@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import LandingFooter from "./LandingFooter";
+import LandingFooter from "../LandingFooter";
 
 export default function PrivacyPage() {
   return (

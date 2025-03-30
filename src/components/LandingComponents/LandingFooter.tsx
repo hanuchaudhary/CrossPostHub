@@ -65,18 +65,32 @@ export default function LandingFooter() {
               </a>
             </p>
             <div className="flex items-center gap-2">
-              <Link
-                href="/privacy"
-                className="border-b border-dashed text-neutral-400 dark:hover:text-neutral-100 hover:text-neutral-800 transition-colors duration-150 hover:border-neutral-200 text-xs"
-              >
-                Privacy & Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="border-b border-dashed text-neutral-400 dark:hover:text-neutral-100 hover:text-neutral-800 transition-colors duration-150 hover:border-neutral-200 text-xs"
-              >
-                Terms of Service
-              </Link>
+              {[
+                {
+                  href: "/contact",
+                  name: "Contact",
+                },
+                {
+                  href: "/refund-cancellation",
+                  name: "Refund & Cancellation",
+                },
+                {
+                  href: "/terms",
+                  name: "Terms",
+                },
+                {
+                  href: "/privacy",
+                  name: "Privacy",
+                },
+              ].map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="border-b border-dashed text-neutral-400 dark:hover:text-neutral-100 hover:text-neutral-800 transition-colors duration-150 hover:border-neutral-200 text-xs"
+                >
+                  {link.name}
+                </Link>
+              ))}
             </div>
           </div>
 
