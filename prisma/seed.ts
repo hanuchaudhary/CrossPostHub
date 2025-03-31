@@ -11,9 +11,10 @@ const pricingPlans = [
       "Perfect for individuals managing personal accounts with basic needs.",
     features: [
       "Connect only 2 platforms",
-      "5 posts/month",
+      "10 posts/month",
       "Basic analytics",
       "Community support",
+      "Single media support"
     ],
     cta: "Get Started",
     razorpayPlanId: "", // Free plan doesn’t need a Razorpay plan
@@ -21,15 +22,16 @@ const pricingPlans = [
   {
     id: "cm6au8r5c0001qx5ccwbife9l",
     title: "Pro",
-    price: 15,
+    price: 10,
     description:
       "Great for professionals managing multiple accounts and looking for advanced tools.",
     features: [
-      "Connect up to 5 platforms",
-      "Unlimited posts",
+      "Connect up to 2 platforms",
+      "50 posts/month",
+      "Post scheduling",
+      "Multiple media support",
       "Advanced analytics",
       "Priority support",
-      "Scheduling posts",
     ],
     cta: "Upgrade to Pro",
     razorpayPlanId: "plan_QC5riSH4mB0qzT", 
@@ -37,7 +39,7 @@ const pricingPlans = [
   {
     id: "cm6au8r5c0002qx5cbfiz0puk",
     title: "Premium",
-    price: 30,
+    price: 20,
     description:
       "Ideal for businesses and teams requiring full flexibility and premium features.",
     features: [
@@ -45,7 +47,7 @@ const pricingPlans = [
       "Unlimited posts and scheduling",
       "Team collaboration",
       "Premium support",
-      "Custom branding",
+      "Other",
     ],
     cta: "Go Premium",
     razorpayPlanId: "plan_QC5sAD6Kprg97s", 
