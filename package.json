@@ -41,6 +41,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@react-email/components": "^0.0.34",
     "@react-email/tailwind": "^1.0.4",
+    "@tabler/icons-react": "^3.31.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/fabric": "^5.3.9",
     "@types/multer": "^1.4.12",

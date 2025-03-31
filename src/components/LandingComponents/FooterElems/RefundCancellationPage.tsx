@@ -18,7 +18,7 @@ export default function RefundCancellationPage() {
       </h1>
       <div className="prose max-w-none">
         <p className="mb-6">
-          At KUSH CHAUDHARY, we offer subscription-based services that users can
+          At CrosspostHub, we offer subscription-based services that users can
           cancel at any time. However, refunds are not possible once a
           subscription has been initiated.
         </p>
@@ -56,7 +56,7 @@ export default function RefundCancellationPage() {
         <p className="mb-6">
           If you have any questions regarding cancellations, please contact us
           at:
-          <span className="font-medium"> hanuchaudharyog@gmail.com</span>
+          <span className="font-medium">hanuchaudharyog@gmail.com</span>
         </p>
 
         <div className="mt-10 border-t pt-6">

@@ -24,11 +24,11 @@ export default function PrivacyPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
           <p>
-            CrossPostHub is committed to protecting your
-            privacy. This Privacy Policy explains how we collect, use, and
-            safeguard your information when you use our platform to manage
-            social media posting (the &apos;Service&apos;). By using the Service, you
-            consent to these practices.
+            CrossPostHub is committed to protecting your privacy. This Privacy
+            Policy explains how we collect, use, and safeguard your information
+            when you use our platform to manage social media posting (the
+            &apos;Service&apos;). By using the Service, you consent to these
+            practices.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">7. Contact Us</h2>
           <p>For questions about this Privacy Policy, contact us at:</p>
-          <p>Email: kush@kushchaudhary.com</p>
+          <p>Email: hanuchaudharyog@gmail.com</p>
         </div>
       </div>
 

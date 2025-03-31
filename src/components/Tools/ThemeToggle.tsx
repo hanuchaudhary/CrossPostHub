@@ -4,6 +4,7 @@ import React from "react";
 import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { IconMoonFilled, IconSunFilled } from "@tabler/icons-react";
 
 export default function ThemeToggle() {
   const { setTheme, theme } = useTheme();
@@ -27,9 +28,9 @@ export default function ThemeToggle() {
           transition={{ duration: 0.3 }}
         >
           {theme === "dark" ? (
-            <Moon className="h-5 w-5" />
+            <IconMoonFilled className="h-5 w-5" />
           ) : (
-            <Sun className="h-5 w-5" />
+            <IconSunFilled className="h-5 w-5" />
           )}
         </motion.div>
       </motion.button>

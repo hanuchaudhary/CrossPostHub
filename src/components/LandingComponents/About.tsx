@@ -1,59 +1,50 @@
 "use client";
 
-import {
-  AlignVerticalJustifyCenter,
-  BellIcon,
-  Captions,
-  Code2,
-  EditIcon,
-  IndianRupee,
-  SquareChevronDown,
-  SquareSquare,
-} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { IconAi, IconBellRinging2, IconClockHour10, IconCode, IconCoinRupeeFilled, IconLayoutDashboardFilled, IconPassword, IconPhotoEdit } from "@tabler/icons-react";
 
 export default function About() {
   const features = [
     {
-      icon: Captions,
+      icon: <IconAi />,
       title: "AI-Generated Captions",
       description: "Generate captions for your posts with AI.",
     },
     {
-      icon: EditIcon,
+      icon: <IconPhotoEdit />,
       title: "Inbuilt Image Editor",
       description: "Edit images within the platform.",
     },
     {
-      icon: Code2,
+      icon: <IconCode />,
       title: "Code-to-Image Converter",
       description: "Convert code snippets into images.",
     },
     {
-      icon: AlignVerticalJustifyCenter,
+      icon: <IconLayoutDashboardFilled />,
       title: "Analytics",
       description: "Track your post performance with analytics.",
     },
     {
-      icon: SquareSquare,
+      icon: <IconPassword />,
       title: "Security",
       description:
         "Secure login and integrations with social media platforms to keep your accounts safe.",
     },
     {
-      icon: IndianRupee,
+      icon: <IconCoinRupeeFilled />,
       title: "Affordable Pricing",
       description: "Affordable pricing plans for all users.",
     },
     {
-      icon: BellIcon,
+      icon: <IconBellRinging2 />,
       title: "Notifications",
       description: "Get notified about your posts and account activity.",
     },
     {
-      icon: SquareChevronDown,
+      icon: <IconClockHour10 />,
       title: "Scheduling",
       description: "Schedule posts for the future.",
     },
@@ -79,13 +70,13 @@ export default function About() {
             whileHover={{ scale: 1.05 }}
           >
             <div className="relative dark:bg-muted bg-neutral-200/20 border dark:border-neutral-700/30 border-neutral-300/30` p-5 flex items-center justify-center rounded-2xl">
-              <feature.icon className="h-6 w-6 text-primary" />
+              {feature.icon}
               <div className="dot1 absolute top-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
               <div className="dot1 absolute top-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
               <div className="dot1 absolute bottom-2 left-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
               <div className="dot1 absolute bottom-2 right-2 rounded-full bg-muted-foreground/50 h-1 w-1"></div>
             </div>
-            <h3 className="font-ClashDisplayMedium md:text-lg leading-none">
+            <h3 className="font-ClashDisplayMedium md:text-base leading-tight">
               {feature.title}
             </h3>
             <AnimatePresence>
@@ -96,7 +87,7 @@ export default function About() {
                 transition={{ duration: 0.3 }}
                 className="absolute inset-0 h-full w-full bg-primary-foreground flex items-center justify-center rounded-3xl"
               >
-                <p className="text-primary text-lg font-ClashDisplayMedium leading-5 p-4 flex flex-wrap gap-1 items-center justify-center">
+                <p className="text-primary text-base font-ClashDisplayMedium leading-5 p-4 flex flex-wrap gap-1 items-center justify-center">
                   {feature.description.split(" ").map((word, index) => (
                     <span
                       key={index}
