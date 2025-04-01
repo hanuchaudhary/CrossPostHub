@@ -28,11 +28,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isLoading: true });
     try {
       const response = await axios.post("/api/auth/register", props);
-
-      if (response.status !== 200) {
-        throw new Error("An error occurred");
-      }
-
       onSuccess();
     } catch (error: any) {
       if (axios.isAxiosError(error)) {

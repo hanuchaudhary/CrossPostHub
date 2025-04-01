@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const userExistWithEmail = await prisma.user.findFirst({
       where: { email },
     });
+    
     if (userExistWithEmail) {
       return NextResponse.json(
         { error: "User already exists with this email" },

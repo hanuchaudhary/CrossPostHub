@@ -87,6 +87,7 @@ export default function PricingSection() {
             : pricingPlans &&
               pricingPlans.map((plan) => (
                 <PricingCard
+                  planId={plan.razorpayPlanId!}
                   classname={`${
                     plan.title === "Pro" &&
                     "md:scale-110 bg-emerald-950/10 dark:bg-emerald-950 border-emerald-950/20"

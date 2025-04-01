@@ -19,6 +19,7 @@ import { UserProfile } from "./UserProfile";
 import UpgradeButton from "../Buttons/UpgradeButton";
 import NotificationButton from "../Buttons/NotificationsButton";
 import Guide from "../Guide";
+import LogoutButton from "../Buttons/LogoutButton";
 
 export function MobileMenu() {
   const pathname = usePathname();
@@ -113,14 +114,7 @@ export function MobileMenu() {
       <Separator className="my-4" />
 
       <div className="mt-auto">
-        <Button
-          variant="destructive"
-          className="w-full justify-start"
-          size="sm"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </Button>
+         <LogoutButton />
       </div>
     </div>
   );

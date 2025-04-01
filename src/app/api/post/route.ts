@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             body: jobData,
             retries: 3,
             delay: scheduleAt
-              ? Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000)
+              ? Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000) // Delay in secondhui-\s
               : undefined,
           });
 

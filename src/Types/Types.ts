@@ -33,14 +33,14 @@ export interface Account {
 export interface Plan {
   id: string;
   title: string;
+  price: number;
   description: string;
   features: string[];
   cta: string;
-  price: number;
-  users: User[];
+  razorpayPlanId?: string;
+  subscriptions: SubscriptionType[];
   createdAt: Date;
   updatedAt: Date;
-  transaction: TransactionType[];
 }
 
 export interface SubscriptionType {
@@ -50,8 +50,8 @@ export interface SubscriptionType {
   planId: string;
   plan: Plan;
   razorpaySubscriptionId?: string;
-  status: string; 
-  nextBillingAt?: Date; 
+  status: string;
+  nextBillingAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   transactions: TransactionType[];

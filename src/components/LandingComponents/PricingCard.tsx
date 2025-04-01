@@ -6,22 +6,22 @@ import Image from "next/image";
 import BuySubscriptionButton from "../Buttons/BuySubscriptionButton";
 
 export interface PricingCardProps {
-  id: string;
   title: string;
   description: string;
   price: number;
   features: string[];
   classname?: string;
   cta: string;
+  planId: string;
 }
 
 export default function PricingCard({
-  id,
   title,
   description,
   price,
   features,
   classname,
+  planId,
   cta,
 }: PricingCardProps) {
   return (
@@ -83,7 +83,7 @@ export default function PricingCard({
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <BuySubscriptionButton
-              planId={id}
+              planId={planId}
               buttonTitle={cta}
               price={price}
             />
