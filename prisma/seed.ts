@@ -8,13 +8,13 @@ const pricingPlans = [
     title: "Free",
     price: 0,
     description:
-      "Perfect for individuals managing personal accounts with basic needs.",
+      "Get started for free – ideal for individuals dipping their toes into social media management with essential tools, no payment setup required.",
     features: [
       "Connect only 2 platforms",
       "10 posts/month",
       "Basic analytics",
       "Community support",
-      "Single media support"
+      "Single media support",
     ],
     cta: "Get Started",
     razorpayPlanId: "", // Free plan doesn’t need a Razorpay plan
@@ -24,7 +24,7 @@ const pricingPlans = [
     title: "Pro",
     price: 10,
     description:
-      "Great for professionals managing multiple accounts and looking for advanced tools.",
+      "Step up to Pro – perfect for creators and pros who need advanced scheduling and analytics, seamlessly powered by Razorpay billing.",
     features: [
       "Connect up to 2 platforms",
       "50 posts/month",
@@ -34,14 +34,14 @@ const pricingPlans = [
       "Priority support",
     ],
     cta: "Upgrade to Pro",
-    razorpayPlanId: "plan_QC5riSH4mB0qzT", 
+    razorpayPlanId: process.env.RAZORPAY_PRO_PLAN_ID, // Replace with your Razorpay Pro plan ID
   },
   {
     id: "cm6au8r5c0002qx5cbfiz0puk",
     title: "Premium",
     price: 20,
     description:
-      "Ideal for businesses and teams requiring full flexibility and premium features.",
+      "Go all-in with Premium – built for businesses and teams demanding unlimited scale and premium support, backed by effortless Razorpay payments.",
     features: [
       "Connect unlimited platforms",
       "Unlimited posts and scheduling",
@@ -50,7 +50,7 @@ const pricingPlans = [
       "Other",
     ],
     cta: "Go Premium",
-    razorpayPlanId: "plan_QC5sAD6Kprg97s", 
+    razorpayPlanId: process.env.RAZORPAY_PREMIUM_PLAN_ID, // Replace with your Razorpay Premium plan ID
   },
 ];
 

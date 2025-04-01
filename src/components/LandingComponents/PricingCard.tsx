@@ -45,7 +45,7 @@ export default function PricingCard({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-10 flex flex-col items-start justify-center"
+            className="mb-6 flex flex-col items-start justify-center"
           >
             <div>
               {price !== 0 && (
