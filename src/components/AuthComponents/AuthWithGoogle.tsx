@@ -1,33 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 
 export default function AuthWithGoogle() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (status === "authenticated" && !isLoading) {
+      toast({
+        title: "Success",
+        description: "You have successfully signed in with Google.",
+      });
+      router.push("/dashboard");
+    }
+  }, [status, isLoading, router]);
+
   const handleGoogleSignIn = async () => {
-    if (isLoading) return;
+    if (isLoading || status === "authenticated") return;
     setIsLoading(true);
     try {
       const result = await signIn("google", {
         callbackUrl: `${window.location.origin}/dashboard`,
         redirect: false,
-        signInOptions: { popup: true },
       });
 
-      if (result?.ok) {
-        toast({
-          title: "Success",
-          description: "You have successfully signed in with Google.",
-        });
-        router.push("/dashboard");
-      } else if (result?.error) {
+      if (result?.error) {
         toast({
           title: "Error",
           description: result.error,
@@ -49,7 +53,7 @@ export default function AuthWithGoogle() {
   return (
     <button
       onClick={handleGoogleSignIn}
-      disabled={isLoading}
+      disabled={isLoading || status === "authenticated"}
       className="w-full rounded-full border py-3 flex items-center justify-center gap-1 dark:border-neutral-600"
       aria-label="Sign in with Google"
     >

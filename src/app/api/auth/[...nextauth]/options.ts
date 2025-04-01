@@ -135,14 +135,23 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user, account }) {
       try {
-        if (!user.email) throw new Error("Email is required");
+        if (!user.email) {
+          console.error("Sign-in failed: No email provided");
+          throw new Error("Email is required");
+        }
 
+        console.log("Sign-in attempt for email:", user.email);
+
+        // Check for an existing user
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
+        console.log("Existing user:", existingUser ? existingUser.id : "None");
 
+        // If no existing user, create one
+        let userId: string;
         if (!existingUser) {
-          await prisma.user.create({
+          const newUser = await prisma.user.create({
             data: {
               email: user.email,
               name: user.name,
@@ -150,10 +159,21 @@ export const authOptions: NextAuthOptions = {
               planId: await getFreePlanId(),
             },
           });
-          console.log("New user created");
+          userId = newUser.id;
+          console.log("New user created with ID:", userId);
+        } else {
+          userId = existingUser.id;
         }
 
-        if (account && existingUser) {
+        // Link the account if provided
+        if (account) {
+          console.log(
+            "Linking account for provider:",
+            account.provider,
+            "ID:",
+            account.providerAccountId
+          );
+
           let accessTokenIv: string | undefined;
           let accessTokenEncrypted: string | undefined;
           let refreshTokenIv: string | undefined;
@@ -184,7 +204,7 @@ export const authOptions: NextAuthOptions = {
               refresh_token_iv: refreshTokenIv,
             },
             create: {
-              userId: existingUser.id,
+              userId: userId, // Use the existing or new user ID
               provider: account.provider,
               providerAccountId: account.providerAccountId,
               type: account.type,
@@ -194,12 +214,13 @@ export const authOptions: NextAuthOptions = {
               refresh_token_iv: refreshTokenIv,
             },
           });
+          console.log("Account linked successfully");
         }
 
-        return true;
+        return true; // Allow sign-in to proceed
       } catch (error) {
         console.error("Error during sign-in:", error);
-        return false;
+        return false; // Deny sign-in and trigger error redirect
       }
     },
   },
