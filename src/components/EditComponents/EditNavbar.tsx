@@ -1,5 +1,5 @@
 "use client";
-import { Camera, Code2, Twitter, Monitor } from "lucide-react";
+import { Camera, Code2, Twitter, Monitor, icons } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -59,14 +59,14 @@ export function EditorNavbar() {
         />
       )}
 
-      {navItems.map((item, index) => {
+      {navItems.map((item) => {
         const isActive = activeMode === item.mode;
 
         return (
           <Link key={item.mode} href={item.href} className=" z-10">
             <button
               className={`flex items-center justify-center gap-1 rounded-lg w-full relative py-1 px-3 ${
-                isActive ? "bg-primary text-black" : ""
+                isActive ? "bg-primary text-primary-foreground" : ""
               }`}
             >
               <AnimatePresence>
@@ -77,7 +77,13 @@ export function EditorNavbar() {
                     exit={{ scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Image src={item.icon} alt="image" height={25} width={25} />
+                    <Image
+                      src={item.icon}
+                      alt="image"
+                      className={`${item.title === "Tweet" ? "invert-[1] dark:invert-0" : ""}`}
+                      height={25}
+                      width={25}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
