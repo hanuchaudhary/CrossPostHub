@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "STATUS" ADD VALUE 'PAUSED';

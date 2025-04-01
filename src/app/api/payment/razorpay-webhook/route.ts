@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get("x-razorpay-signature");
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
 
-  // Verify signature
   const generatedSignature = crypto
     .createHmac("sha256", secret)
     .update(body)
@@ -20,9 +19,8 @@ export async function POST(request: NextRequest) {
   const payload = JSON.parse(body);
   const event = payload.event;
   const subscriptionData = payload.payload.subscription.entity;
-  
+
   try {
-    // Find subscription by razorpaySubscriptionId (not id)
     const dbSubscription = await prisma.subscription.findFirst({
       where: { razorpaySubscriptionId: subscriptionData.id },
     });
@@ -34,23 +32,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Event received:", event, subscriptionData);
+
     if (event === "subscription.charged") {
-      // Update the subscription
-      let nextBillingDate = null;
-      if (subscriptionData.current_end) {
-        nextBillingDate = new Date(subscriptionData.current_end * 1000); // Convert to milliseconds
-        console.log("Next billing date:", nextBillingDate);
-      }
+      const nextBillingDate = subscriptionData.current_end
+        ? new Date(subscriptionData.current_end * 1000)
+        : null;
 
       await prisma.subscription.update({
         where: { id: dbSubscription.id },
-        data: {
-          status: "active",
-          nextBillingAt: nextBillingDate,
-        },
+        data: { status: "active", nextBillingAt: nextBillingDate },
       });
 
-      // Create transaction record
       const payment = payload.payload.payment.entity;
       await prisma.transaction.create({
         data: {
@@ -65,56 +58,73 @@ export async function POST(request: NextRequest) {
           description: "Subscription payment",
         },
       });
-    }
-    if (event === "subscription.failed") {
-      // Update the subscription
+    } else if (event === "subscription.failed") {
+      await prisma.subscription.update({
+        where: { id: dbSubscription.id },
+        data: { status: "failed" },
+      });
+
+      const payment = payload.payload.payment?.entity || {};
+      if (payment.id) {
+        await prisma.transaction.create({
+          data: {
+            userId: dbSubscription.userId,
+            order_id: payment.order_id,
+            paymentId: payment.id,
+            status: "FAILED",
+            amount: payment.amount / 100,
+            captured: false,
+            paymentMethod: subscriptionData.payment_method,
+            subscriptionId: dbSubscription.id,
+            description: "Subscription payment",
+          },
+        });
+      }
+    } else if (event === "subscription.paused") {
+      await prisma.subscription.update({
+        where: { id: dbSubscription.id },
+        data: { status: "paused" },
+      });
+
+      const payment = payload.payload.payment?.entity || {};
+      if (payment.id) {
+        await prisma.transaction.create({
+          data: {
+            userId: dbSubscription.userId,
+            order_id: payment.order_id,
+            paymentId: payment.id,
+            status: "PAUSED", // Changed from CANCELLED
+            amount: payment.amount / 100,
+            captured: false,
+            paymentMethod: subscriptionData.payment_method,
+            subscriptionId: dbSubscription.id,
+            description: "Subscription paused",
+          },
+        });
+      }
+    } else if (event === "subscription.activated") {
       await prisma.subscription.update({
         where: { id: dbSubscription.id },
         data: {
-          status: "failed",
+          status: "active",
+          nextBillingAt: subscriptionData.current_end
+            ? new Date(subscriptionData.current_end * 1000)
+            : null,
         },
       });
-
-      // Create transaction record
-      const payment = payload.payload.payment.entity;
-      await prisma.transaction.create({
-        data: {
-          userId: dbSubscription.userId,
-          order_id: payment.order_id,
-          paymentId: payment.id,
-          status: "FAILED",
-          amount: payment.amount / 100,
-          captured: false,
-          paymentMethod: subscriptionData.payment_method,
-          subscriptionId: dbSubscription.id,
-          description: "Subscription payment",
-        },
-      });
-    }
-    if (event === "subscription.paused") {
-      // Update the subscription
+    } else if (event === "subscription.cancelled") {
       await prisma.subscription.update({
         where: { id: dbSubscription.id },
-        data: {
-          status: "paused",
-        },
+        data: { status: "cancelled" },
       });
-
-      // Create transaction record
-      const payment = payload.payload.payment.entity;
-      await prisma.transaction.create({
-        data: {
-          userId: dbSubscription.userId,
-          order_id: payment.order_id,
-          paymentId: payment.id,
-          status: "CANCELLED",
-          amount: payment.amount / 100,
-          captured: false,
-          paymentMethod: subscriptionData.payment_method,
-          subscriptionId: dbSubscription.id,
-          description: "Subscription payment",
-        },
+    } else if (event === "subscription.completed") {
+      await prisma.subscription.update({
+        where: { id: dbSubscription.id },
+        data: { status: "completed" },
       });
+    } else {
+      console.log("Unhandled event:", event);
+      return NextResponse.json({ status: "ignored" });
     }
 
     return NextResponse.json({ status: "success" });

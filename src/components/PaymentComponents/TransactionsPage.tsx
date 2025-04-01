@@ -38,7 +38,6 @@ import UpgradeButton from "../Buttons/UpgradeButton";
 import { SubscriptionCard } from "./SubscriptionCard";
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -60,7 +59,6 @@ export default function TransactionsPage() {
     return transaction.status === statusFilter;
   });
 
-  // Show loading state while fetching transactions
   if (isFetchingTransactions || !transactions) {
     return <PageLoader loading={isFetchingTransactions} />;
   }
