@@ -20,7 +20,7 @@ async function handler(request: NextRequest) {
     );
   }
 
-  const { provider, postText, mediaKeys, userId } = jobData;
+  const { provider, postText, mediaKeys, userId, postId } = jobData;
 
   let loggedUser: any;
   try {
@@ -35,7 +35,7 @@ async function handler(request: NextRequest) {
       throw new Error("User not found.");
     }
 
-    // Convert base64 mediaKeys to buffers
+    // Convert mediaKeys to buffers
     let mediaBuffers: Buffer[] = [];
     try {
       mediaBuffers = await Promise.all(
@@ -48,6 +48,7 @@ async function handler(request: NextRequest) {
       throw new Error("Failed to retrieve media from S3");
     }
 
+    let postResponse;
     if (provider === "linkedin") {
       const linkedinAccount = loggedUser.accounts.find(
         (acc: { provider: string }) => acc.provider === "linkedin"
@@ -60,53 +61,18 @@ async function handler(request: NextRequest) {
         throw new Error("LinkedIn access token not found.");
       }
 
-      // Decrypt the access token
       const decryptedAccessToken = decryptToken(
         linkedinAccount.access_token_iv,
         linkedinAccount.access_token
       );
 
-      const postResponse = await linkedinPostPublish(
+      postResponse = await linkedinPostPublish(
         postText,
         decryptedAccessToken,
         linkedinAccount.providerAccountId!,
         mediaBuffers
       );
-
-      await Promise.all([
-        postSaveToDB({
-          postText,
-          userId,
-          provider,
-          status: "SUCCESS",
-        }),
-        createNotification({
-          userId,
-          type: "POST_STATUS",
-          message: `Your post has been published on ${provider}.`,
-        }).then(async (notification) => {
-          await Promise.all([
-            sendEmailNotification(loggedUser.email, {
-              username: loggedUser.name!,
-              type: "SUCCESS",
-              platform: provider,
-              postTitle: postText,
-            }).then((res) => console.log("Email Sent", res?.data)),
-            sendSSEMessage(userId, {
-              type: "post-success",
-              message: notification.message,
-            }),
-          ]);
-        }),
-      ]);
-
-      return NextResponse.json({
-        provider: "linkedin",
-        response: postResponse,
-      });
-    }
-
-    if (provider === "twitter") {
+    } else if (provider === "twitter") {
       const twitterAccount = loggedUser.accounts.find(
         (acc: { provider: string }) => acc.provider === "twitter"
       );
@@ -118,70 +84,69 @@ async function handler(request: NextRequest) {
         throw new Error("Twitter access token not found.");
       }
 
-      let decryptedAccessToken = decryptToken(
+      const decryptedAccessToken = decryptToken(
         twitterAccount.access_token_iv,
         twitterAccount.access_token
       );
 
-      let decryptedAccessTokenSecret = decryptToken(
+      const decryptedAccessTokenSecret = decryptToken(
         twitterAccount.access_token_secret_iv,
         twitterAccount.access_token_secret
       );
 
-      const tweetResponse = await twitterPostPublish(
+      postResponse = await twitterPostPublish(
         postText,
         decryptedAccessToken,
         decryptedAccessTokenSecret,
         mediaBuffers
       );
 
-      if (tweetResponse.error) {
-        throw new Error(tweetResponse.error);
+      if (postResponse.error) {
+        throw new Error(postResponse.error);
       }
+    } else {
+      throw new Error(
+        `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
+      );
+    }
 
-      await Promise.all([
-        postSaveToDB({
-          postText,
-          userId,
-          provider,
-          status: "SUCCESS",
-        }),
-        createNotification({
-          userId,
-          type: "POST_STATUS",
-          message: `Your post has been published on ${provider}.`,
-        }).then(async (notification) => {
-          await Promise.all([
-            sendEmailNotification(loggedUser.email, {
-              username: loggedUser.name!,
-              type: "SUCCESS",
-              platform: provider,
-              postTitle: postText,
-            }).then((res) => console.log("Email Sent", res?.data)),
-            sendSSEMessage(userId, {
-              type: "post-success",
-              message: notification.message,
-            }),
-          ]);
-        }),
-      ]);
-
-      // Delete media from S3 after successful posting
-      await Promise.all(
+    // Parallelize post saving, notifications, and media deletion
+    await Promise.all([
+      postSaveToDB({
+        postText,
+        userId,
+        provider,
+        status: "SUCCESS",
+      }),
+      createNotification({
+        userId,
+        type: "POST_STATUS",
+        message: `Your post has been published on ${provider}.`,
+      }).then(async (notification) => {
+        await Promise.all([
+          sendEmailNotification(loggedUser.email, {
+            username: loggedUser.name!,
+            type: "SUCCESS",
+            platform: provider,
+            postTitle: postText,
+          }).then((res) => console.log("Email Sent", res?.data)),
+          sendSSEMessage(userId, {
+            type: "post-success",
+            message: notification.message,
+          }),
+        ]);
+      }),
+      Promise.all(
         mediaKeys.map(async (key: string) => {
           await deleteFromS3Bucket(key);
         })
-      );
+      ),
+    ]);
 
-      return NextResponse.json({
-        provider: "twitter",
-        response: tweetResponse,
-      });
-    }
-
-    throw new Error(
-      `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
-    );
+    return NextResponse.json({
+      provider,
+      response: postResponse,
+    });
   } catch (error: any) {
     console.error(`Job failed for provider: ${provider}`, error);
 

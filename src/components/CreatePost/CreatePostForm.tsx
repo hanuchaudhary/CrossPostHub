@@ -26,7 +26,14 @@ type Platform = "instagram" | "twitter" | "linkedin";
 
 export function CreatePostForm() {
   const [content, setContent] = useState("");
-  const [medias, setMedias] = useState<File[]>([]);
+  const [medias, setMedias] = useState<{
+    files: File[] | [] | null;
+    mediaKeys: string[] | [] | null;
+  }>({
+    files: null,
+    mediaKeys: null,
+  });
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
@@ -46,9 +53,14 @@ export function CreatePostForm() {
     );
   };
 
-  const handleImageChange = (files: FileList | null) => {
-    if (files) {
-      setMedias(Array.from(files));
+  const handleImageChange = (data: {
+    files: File[] | null;
+    mediaKeys: string[] | null;
+    isUploading: boolean;
+  }) => {
+    if (data.files) {
+      setMedias(data);
+      setIsUploadingMedia(data.isUploading);
     }
   };
 
@@ -79,7 +91,7 @@ export function CreatePostForm() {
       return;
     }
 
-    if (!content.trim() && medias.length === 0) {
+    if (!content.trim() && medias.files?.length === 0) {
       toast({
         title: "Content Required",
         description: (
@@ -175,8 +187,11 @@ export function CreatePostForm() {
         ).toISOString();
         formData.append("scheduleAt", scheduledDateTime);
       }
-      medias.forEach((media) => formData.append("medias", media));
-
+      // medias.forEach((media) => formData.append("medias", media));
+      formData.append(
+        "mediaKeys",
+        medias.mediaKeys ? JSON.stringify(medias.mediaKeys) : "[]"
+      );
       const response = await axios.post("/api/post", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -217,7 +232,10 @@ export function CreatePostForm() {
 
       setContent("");
       setSelectedPlatforms([]);
-      setMedias([]);
+      setMedias({
+        files: null,
+        mediaKeys: null,
+      });
       setIsScheduled(false);
       setScheduleDate(null);
       setScheduleTime("");
@@ -324,7 +342,7 @@ export function CreatePostForm() {
                   )}
                 </TabsContent>
                 <TabsContent value="preview">
-                  <PostPreview content={content} medias={medias} />
+                  <PostPreview content={content} medias={medias.files!} />
                 </TabsContent>
               </Tabs>
               <div className="flex justify-end space-x-2 mt-4">
@@ -341,7 +359,7 @@ export function CreatePostForm() {
           </Card>
           <AnimatePresence>
             {isSinglePreview && (
-              <SimplePostPreview content={content} medias={medias} />
+              <SimplePostPreview isUploading={isUploadingMedia} content={content} medias={medias.files!} />
             )}
           </AnimatePresence>
         </>

@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
     // Parse form data
     const formData = await request.formData();
     const postText = formData.get("postText") as string;
-    const medias = formData.getAll("medias") as File[];
+    const mediaKeysJson = formData.get("mediaKeys") as string;
+    const mediaKeys = mediaKeysJson ? JSON.parse(mediaKeysJson) : [];
     const scheduleAt = formData.get("scheduleAt") as string;
     const providersJson = formData.get("providers") as string;
     const providers = JSON.parse(providersJson) as Providers[];
@@ -52,35 +53,34 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    if (!postText && medias.length === 0) {
+    if (!postText && mediaKeys.length === 0) {
       return NextResponse.json(
         { error: "Please enter some text or upload an image" },
         { status: 400 }
       );
     }
 
-    try {
-      await validateMedia(medias);
-    } catch (error: any) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.status || 400 }
-      );
-    }
-
-    const mediaKeys = await Promise.all(
-      medias.map(async (media, index) => {
-        const buffer = Buffer.from(await media.arrayBuffer());
-        const key = `media/${loggedUser.id}/${Date.now()}-${index}-${media.name}`; // Unique key per user and file
-        await uploadToS3Bucket(buffer, key, media.type);
-        return key;
-      })
-    );
+    const post = await prisma.post.create({
+      data: {
+        userId: loggedUser.id,
+        text: postText,
+        status: "PENDING",
+        mediaKeys, // Store S3 media keys directly
+        scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
+        provider: providers.join(","),
+      },
+    });
 
     // Initialize QStash client
     const qstashClient = new Client({
       token: process.env.QSTASH_TOKEN!,
     });
+    
+    // Use ngrok URL for local development
+    const URL = process.env.NEXTAUTH_URL;
+    if (!URL) {
+      return NextResponse.json({ error: "Invalid URL" }, { status: 500 });
+    }
 
     // Add jobs to QStash for each provider
     const results = await Promise.allSettled(
@@ -92,13 +92,8 @@ export async function POST(request: NextRequest) {
             mediaKeys, // Send s3 keys instead of base64
             userId: loggedUser.id,
             scheduledFor: scheduleAt || null,
+            postId: post.id,
           };
-
-          // Use ngrok URL for local development
-          const URL = process.env.NEXTAUTH_URL;
-          if (!URL) {
-            return NextResponse.json({ error: "Invalid URL" }, { status: 500 });
-          }
 
           // Publish the message to QStash
           const publishResponse = await qstashClient.publishJSON({
@@ -106,7 +101,7 @@ export async function POST(request: NextRequest) {
             body: jobData,
             retries: 3,
             delay: scheduleAt
-              ? Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000) // Delay in secondhui-\s
+              ? Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000) // Delay in seconds
               : undefined,
           });
 

@@ -4,6 +4,7 @@ import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
 import { getTwitterUserDetails } from "@/utils/TwitterUtils/TwitterUtils";
 import { redisClient } from "@/config/redisConfig";
+import { decryptToken } from "@/lib/Crypto";
 // import { getLinkedInProfile } from "@/utils/LinkedInUtils/LinkedinUtils";
 
 export async function GET(request: NextRequest) {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select:{
+      select: {
         accounts: true,
         posts: {
           select: {
@@ -43,11 +44,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const twitterUserDetails = await getTwitterUserDetails({
-      oauth_token: twitterAccount?.access_token as string,
-      oauth_token_secret: twitterAccount?.access_token_secret as string,
-    });
+    const twitterAccessToken = decryptToken(
+      twitterAccount.access_token_iv!,
+      twitterAccount.access_token!
+    );
+    const twitterAccessTokenSecret = decryptToken(
+      twitterAccount.access_token_secret_iv!,
+      twitterAccount.access_token_secret!
+    );
 
+    const twitterUserDetails = await getTwitterUserDetails({
+      oauth_token: twitterAccessToken,
+      oauth_token_secret: twitterAccessTokenSecret,
+    });
 
     type Provider = "twitter" | "linkedin" | "instagram";
 
@@ -87,9 +96,13 @@ export async function GET(request: NextRequest) {
     };
 
     // Cache the data
-    await redisClient.set(cacheDashboardDataKey, JSON.stringify(dashboardData), {
-      ex: 24 * 60 * 60, // 24 hours
-    });
+    await redisClient.set(
+      cacheDashboardDataKey,
+      JSON.stringify(dashboardData),
+      {
+        ex: 24 * 60 * 60, // 24 hours
+      }
+    );
 
     return NextResponse.json(dashboardData, { status: 200 });
   } catch (error) {

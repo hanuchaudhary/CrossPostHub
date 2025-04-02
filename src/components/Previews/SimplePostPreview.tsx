@@ -14,14 +14,20 @@ import Image from "next/image";
 interface SimplePostPreviewProps {
   content: string;
   medias: File[];
+  isUploading?: boolean;
 }
 
 export const SimplePostPreview = memo(function SimplePostPreview({
   content,
   medias,
+  isUploading,
 }: SimplePostPreviewProps) {
   const [expanded, setExpanded] = React.useState(false);
   const contentIsLong = content.length > 280;
+
+  console.log("islong", isUploading);
+  
+
   return (
     <motion.div
       initial={{ x: "100%" }}
@@ -30,7 +36,13 @@ export const SimplePostPreview = memo(function SimplePostPreview({
       transition={{ type: "tween" }}
       className="w-full shadow-none md:border-l border-t-0 border-b-0 border-r-0 rounded-none max-w-sm mx-auto"
     >
-      {!content && medias.length === 0 ? (
+      {isUploading ? (
+        <div className="w-96 px-2 select-none md:flex hidden nd:border-l h-full items-center justify-center">
+          <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
+            Uploading...
+          </h2>
+        </div>
+      ) : !content && !medias ? (
         <div className="w-96 px-2 select-none md:flex hidden nd:border-l h-full items-center justify-center">
           <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-7 py-3 text-base">
             Post Preview
@@ -58,32 +70,32 @@ export const SimplePostPreview = memo(function SimplePostPreview({
               <CarouselContent>
                 {medias.map((file, index) => (
                   <CarouselItem key={index}>
-                      {file.type.startsWith("image/") ? (
-                        <Image
-                          height={100}
-                          width={100}
-                          src={URL.createObjectURL(file) || "/placeholder.svg"}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-contain rounded"
+                    {file.type.startsWith("image/") ? (
+                      <Image
+                        height={100}
+                        width={100}
+                        src={URL.createObjectURL(file) || "/placeholder.svg"}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-contain rounded"
+                      />
+                    ) : file.type.startsWith("video/") ? (
+                      <video
+                        controls
+                        className="w-full h-full object-contain rounded"
+                      >
+                        <source
+                          src={URL.createObjectURL(file)}
+                          type={file.type}
                         />
-                      ) : file.type.startsWith("video/") ? (
-                        <video
-                          controls
-                          className="w-full h-full object-contain rounded"
-                        >
-                          <source
-                            src={URL.createObjectURL(file)}
-                            type={file.type}
-                          />
-                          Your browser does not support the video tag.
-                        </video>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-secondary/50 rounded">
-                          <p className="text-sm text-muted-foreground">
-                            Unsupported file type
-                          </p>
-                        </div>
-                      )}
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-secondary/50 rounded">
+                        <p className="text-sm text-muted-foreground">
+                          Unsupported file type
+                        </p>
+                      </div>
+                    )}
                   </CarouselItem>
                 ))}
               </CarouselContent>
