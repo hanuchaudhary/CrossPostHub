@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
           select: {
             createdAt: true,
             provider: true,
+            status: true,
           },
         },
       },
@@ -75,6 +76,7 @@ export async function GET(request: NextRequest) {
       const month = post.createdAt.toLocaleString("default", {
         month: "short",
       });
+
       const provider = (post.provider!.charAt(0) +
         post.provider!.slice(1)) as Provider;
 

@@ -20,7 +20,7 @@ async function handler(request: NextRequest) {
     );
   }
 
-  const { provider, postText, mediaKeys, userId, postId } = jobData;
+  const { provider, postText, mediaKeys, userId } = jobData;
 
   let loggedUser: any;
   try {
