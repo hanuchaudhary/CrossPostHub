@@ -31,6 +31,7 @@ export function InstagramPreview({
 }: InstagramPreviewProps) {
   const [expanded, setExpanded] = React.useState(false);
   const contentIsLong = content.length > 280;
+
   return (
     <div className="max-w-[468px] bg-black text-white font-sans">
       {/* Header */}
@@ -53,7 +54,7 @@ export function InstagramPreview({
       </div>
 
       <div className="relative w-full">
-        {medias.length > 0 && (
+        {medias?.length > 0 && medias !== null && (
           <Carousel className="w-full mx-auto">
             <CarouselContent>
               {medias.map((file, index) => (
@@ -91,7 +92,7 @@ export function InstagramPreview({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {medias.length > 1 && (
+            {medias?.length > 1 && medias !== null && (
               <>
                 <CarouselPrevious className="absolute left-2" />
                 <CarouselNext className="absolute right-2" />

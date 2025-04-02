@@ -45,7 +45,7 @@ export function CreatePostForm() {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
-
+  
   const handleAIAssist = (generatedContent: string) => {
     setContent(
       (prevContent) =>

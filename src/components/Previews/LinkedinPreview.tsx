@@ -86,24 +86,24 @@ export function LinkedInPreview({
       </div>
 
       {/* Image */}
-      {medias.length > 0 && (
+      {medias?.length > 0 && medias !== null && (
         <div className="relative w-full">
           <Carousel className="w-full mx-auto">
             <CarouselContent>
               {medias.map((file, index) => (
                 <CarouselItem key={index}>
                   {file.type.startsWith("image/") ? (
-                      <Image
-                        src={URL.createObjectURL(file) || "/placeholder.svg"}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full object-contain rounded"
-                        width={700}
-                        height={435}
-                        style={{
-                          aspectRatio: "5/3",
-                          height: "auto",
-                        }}
-                      />
+                    <Image
+                      src={URL.createObjectURL(file) || "/placeholder.svg"}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full object-contain rounded"
+                      width={700}
+                      height={435}
+                      style={{
+                        aspectRatio: "5/3",
+                        height: "auto",
+                      }}
+                    />
                   ) : file.type.startsWith("video/") ? (
                     <video controls className="w-full object-contain rounded">
                       <source
@@ -122,7 +122,7 @@ export function LinkedInPreview({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {medias.length > 1 && (
+            {medias?.length > 1 && medias !== null && (
               <>
                 <CarouselPrevious className="absolute left-2" />
                 <CarouselNext className="absolute right-2" />

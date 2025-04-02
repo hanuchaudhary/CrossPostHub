@@ -31,7 +31,7 @@ export function PostPreview({ content, medias }: PostPreviewProps) {
 
   const platforms = ["Linkedin", "X", "Instagram"];
 
-  if (!content && medias.length === 0) {
+  if (!content && medias) {
     return (
       <div className="w-full h-96 flex items-center justify-center">
         <h2 className="font-ClashDisplayMedium bg-secondary/50 rounded-xl leading-none border border-secondary px-10 py-3 text-lg">

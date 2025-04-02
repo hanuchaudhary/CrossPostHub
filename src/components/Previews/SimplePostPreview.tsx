@@ -25,9 +25,6 @@ export const SimplePostPreview = memo(function SimplePostPreview({
   const [expanded, setExpanded] = React.useState(false);
   const contentIsLong = content.length > 280;
 
-  console.log("islong", isUploading);
-  
-
   return (
     <motion.div
       initial={{ x: "100%" }}
@@ -65,7 +62,7 @@ export const SimplePostPreview = memo(function SimplePostPreview({
             </button>
           )}
 
-          {medias.length > 0 && (
+          {medias?.length > 0 && medias !== null && (
             <Carousel className="w-full max-w-xs mx-auto">
               <CarouselContent>
                 {medias.map((file, index) => (

@@ -74,7 +74,7 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
             )}
           </div>
 
-          {medias.length > 0 && (
+          {medias?.length > 0 && medias !== null && (
             <Carousel className="w-full mx-auto">
               <CarouselContent>
                 {medias.map((file, index) => (
@@ -109,7 +109,7 @@ export function TwitterPreview({ content, medias, user }: TwitterPreviewProps) {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              {medias.length > 1 && (
+              {medias?.length > 0 && medias !== null && (
                 <>
                   <CarouselPrevious className="absolute left-2" />
                   <CarouselNext className="absolute right-2" />

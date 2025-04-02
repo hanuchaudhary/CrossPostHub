@@ -6,8 +6,8 @@ import axios from "axios";
 
 interface MediaUploadProps {
   onChange: (data: {
-    files: File[] | [];
-    mediaKeys: string[] | [];
+    files: File[] | [] | null;
+    mediaKeys: string[] | [] | null;
     isUploading: boolean;
   }) => void;
 }
