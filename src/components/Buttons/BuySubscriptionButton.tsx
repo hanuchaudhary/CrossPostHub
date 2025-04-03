@@ -42,7 +42,6 @@ export default function BuySubscriptionButton({
       // Call your API to create a Razorpay subscription
       const response = await axios.post("/api/payment/subscribe", {
         planId,
-        userId: data.user.id,
       });
 
       const { short_url, subscriptionId } = response.data;

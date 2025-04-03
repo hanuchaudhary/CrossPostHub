@@ -16,17 +16,25 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { planId, userId } = await request.json();
+    const { planId } = await request.json();
 
-    if (!planId || !userId) {
+    const userExists = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!userExists) {
+      return NextResponse.json({ error: "Invalid user" }, { status: 400 });
+    }
+    
+    if (!planId) {
       return NextResponse.json(
-        { error: "Missing required parameters" },
+        { error: "Plan ID is required" },
         { status: 400 }
       );
     }
 
     const plan = await prisma.plan.findUnique({
-      where: { id: planId },
+      where: { razorpayPlanId: planId },
     });
 
     if (!plan) {
@@ -34,7 +42,10 @@ export async function POST(request: NextRequest) {
     }
 
     const existingSubscription = await prisma.subscription.findFirst({
-      where: { userId, status: "active" },
+      where: {
+        userId: session.user.id,
+        status: "active",
+      },
     });
 
     if (existingSubscription) {
@@ -47,7 +58,7 @@ export async function POST(request: NextRequest) {
     if (plan.price === 0) {
       const subscription = await prisma.subscription.create({
         data: {
-          userId,
+          userId: session.user.id,
           planId: plan.id,
           razorpaySubscriptionId: null,
           status: "active",
@@ -61,20 +72,22 @@ export async function POST(request: NextRequest) {
         redirect: "/dashboard",
       });
     } else {
+      // Create a Razorpay subscription for paid plans
       const subscription = await razorpay.subscriptions.create({
         plan_id: plan.razorpayPlanId!,
         customer_notify: 1,
         total_count: 12,
         notes: {
-          userId: userId,
+          userId: session.user.id,
           planId: planId,
-        }
+        },
       });
 
+      // Save the subscription details in your database
       const dbSubscription = await prisma.subscription.create({
         data: {
           id: subscription.id,
-          userId,
+          userId: session.user.id,
           planId: plan.id,
           razorpaySubscriptionId: subscription.id,
           status: subscription.status,

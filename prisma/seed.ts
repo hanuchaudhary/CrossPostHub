@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const pricingPlans = [
   {
-    id: "cm6au8r5a0000qx5cd3my4bjx",
+    id: "free", // Free plan ID
     title: "Free",
     price: 0,
     description:
@@ -20,7 +20,7 @@ const pricingPlans = [
     razorpayPlanId: "", // Free plan doesn’t need a Razorpay plan
   },
   {
-    id: "cm6au8r5c0001qx5ccwbife9l",
+    id: process.env.RAZORPAY_PRO_PLAN_ID, // Replace with your Razorpay Pro plan ID
     title: "Pro",
     price: 10,
     description:
@@ -37,7 +37,7 @@ const pricingPlans = [
     razorpayPlanId: process.env.RAZORPAY_PRO_PLAN_ID, // Replace with your Razorpay Pro plan ID
   },
   {
-    id: "cm6au8r5c0002qx5cbfiz0puk",
+    id: process.env.RAZORPAY_PREMIUM_PLAN_ID, // Replace with your Razorpay Premium plan ID
     title: "Premium",
     price: 20,
     description:
