@@ -7,8 +7,7 @@ export async function createOrderId(amount: number, currency: string, planId: st
             currency: "INR",
             planId,
         });
-
-        console.log("Order Response:", response.data);
+        
         return response.data.orderId;
     } catch (error) {
         console.error(error);

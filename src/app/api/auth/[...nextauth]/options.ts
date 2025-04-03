@@ -27,7 +27,6 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials) throw new Error("Credentials not provided");
         const { email, password } = credentials;
-        console.log("Credentials", credentials);
 
         const { success } = signinSchema.safeParse({ email, password });
         if (!success) throw new Error("Invalid credentials");
@@ -140,13 +139,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email is required");
         }
 
-        console.log("Sign-in attempt for email:", user.email);
-
         // Check for an existing user
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
-        console.log("Existing user:", existingUser ? existingUser.id : "None");
 
         // If no existing user, create one
         let userId: string;
@@ -160,6 +156,7 @@ export const authOptions: NextAuthOptions = {
             },
           });
           userId = newUser.id;
+
           console.log("New user created with ID:", userId);
         } else {
           userId = existingUser.id;
@@ -167,12 +164,6 @@ export const authOptions: NextAuthOptions = {
 
         // Link the account if provided
         if (account) {
-          console.log(
-            "Linking account for provider:",
-            account.provider,
-            "ID:",
-            account.providerAccountId
-          );
 
           let accessTokenIv: string | undefined;
           let accessTokenEncrypted: string | undefined;
@@ -233,5 +224,4 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
 };

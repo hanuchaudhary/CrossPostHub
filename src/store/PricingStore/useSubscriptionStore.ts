@@ -54,8 +54,6 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
     set({ isFetchingSingleTransaction: true });
     try {
       const { data } = await axios.post("/api/payment", { order_id });
-      console.log("Single Transaction:", data);
-
       set({ singleTransaction: data.transaction });
     } catch (error: any) {
       console.error("Fetch Single Transaction Error:", error);

@@ -45,8 +45,6 @@ export default function SigninForm() {
         redirect: false,
         callbackUrl: `${window.location.origin}/dashboard` // Explicit callback URL
       });
-
-      console.log(result);
       
 
       if (result?.error) {

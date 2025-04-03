@@ -65,7 +65,7 @@ export default function DashboardNavbar() {
             </button>
           </Link>
         ) : (
-          <Link href={"/dashboard"} className="lg:hidden flex items-center">
+          <Link href={"/dashboard"} className="md:hidden flex items-center">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Back</span>

@@ -43,10 +43,7 @@ export async function POST(request: Request) {
 
     const presignedUrl = await getSignedUrl(s3Client, command, {
       expiresIn: 3600,
-    }); // URL expires in 1 hour
-
-    console.log("Presigned URL:", presignedUrl);
-    
+    }); // URL expires in 1 hour    
 
     return NextResponse.json({ url: presignedUrl, key }, { status: 200 });
   } catch (error) {

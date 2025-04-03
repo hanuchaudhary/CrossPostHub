@@ -15,9 +15,7 @@ export function CustomCodeBlock({
   highlightLines,
   langauge = "tsx",
   filename = "filename.tsx",
-}: CodeBlockDemoProps) {
-  console.log("CodeBlockDemo", code, highlightLines, langauge, filename);
-  useEffect(() => {
+}: CodeBlockDemoProps) {useEffect(() => {
     console.log(
       "CodeBlockDemo useEffect",
       code,

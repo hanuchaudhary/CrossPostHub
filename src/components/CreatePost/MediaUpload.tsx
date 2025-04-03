@@ -204,14 +204,9 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
               }
 
               const { url, key } = response.data;
-              console.log("Presigned URL:", url);
-              console.log("Key:", key);
-
               const uploadResponse = await axios.put(url, file, {
                 headers: { "Content-Type": file.type },
               });
-
-              console.log("Upload response:", uploadResponse);
 
               if (!uploadResponse.status) {
                 throw new Error(`Failed to upload ${file.name} to S3`);

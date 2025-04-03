@@ -1,12 +1,12 @@
 
 // File: src/config.ts
-// Use http://localhost:3000 for local development in place of the http://localhost:3000
+// Use http://localhost:3000 for local development in place of the https://crossposthub.kushchaudhary.com
 
 export const TWITTER_CALLBACK_URL =
-  "http://localhost:3000/api/auth/callback/twitter";
+  "https://crossposthub.kushchaudhary.com/api/auth/callback/twitter";
 
 export const LINKEDIN_REDIRECT_URI =
-  "http://localhost:3000/api/auth/callback/linkedin";
+  "https://crossposthub.kushchaudhary.com/api/auth/callback/linkedin";
 
 export const INSTAGRAM_REDIRECT_URI =
-  "http://localhost:3000/api/auth/callback/instagram";
+  "https://crossposthub.kushchaudhary.com/api/auth/callback/instagram";
