@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { customToast } from "../CreatePost/customToast";
 
 export default function BuySubscriptionButton({
   buttonTitle,
@@ -47,11 +48,12 @@ export default function BuySubscriptionButton({
       const { short_url, subscriptionId } = response.data;
 
       if (!short_url) {
-        toast({
-          title: "An error occurred",
+        customToast({
+          title: "Subscription failed",
           description:
             response.data.error ||
             "Failed to initiate subscription. Please try again.",
+          badgeVariant: "destructive",
         });
         router.push("/payment/failed");
         return;
@@ -61,11 +63,12 @@ export default function BuySubscriptionButton({
       window.location.href = short_url;
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast({
-          title: "An error occurred",
+        customToast({
+          title: "Subscription failed",
           description:
             error.response?.data.error ||
             "Failed to initiate subscription. Please try again.",
+          badgeVariant: "destructive",
         });
       }
       console.error(error);

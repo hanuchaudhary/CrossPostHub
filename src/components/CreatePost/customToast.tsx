@@ -1,21 +1,38 @@
 import { toast } from "@/hooks/use-toast";
-import { Badge } from "../ui/badge";
+import { Badge, badgeVariants } from "../ui/badge";
 
-export const customToast = (message: string) => {
+type CustomToastProps = {
+  title: string;
+  description: string;
+  badgeVariant?:
+    | "default"
+    | "destructive"
+    | "success"
+    | "secondary"
+    | "outline"
+    | "pending";
+};
+
+export const customToast = (props: CustomToastProps) => {
   toast({
-    title: "Twitter Character Limit Exceeded",
+    title: props.title,
     description: (
       <div className="w-full">
-        <Badge className="my-2" variant="destructive">
-          Error
+        <Badge className="my-2" variant={props.badgeVariant || "default"}>
+          {props.badgeVariant === "success"
+            ? "Success"
+            : props.badgeVariant === "pending"
+              ? "Processing"
+              : "Error"}
         </Badge>
         <div className="text-xs">
-          <p>
-            Your Twitter post exceeds the character limit of 280 characters.
-            Please reduce the content length to continue.
-          </p>
+          <p>{props.description}</p>
           <span className="text-neutral-500 text-xs">
-            {new Date().toLocaleDateString()}
+            {new Date().toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </span>
         </div>
         <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
@@ -24,4 +41,5 @@ export const customToast = (message: string) => {
       </div>
     ),
   });
+  return null;
 };

@@ -1,10 +1,44 @@
+/**
+ * MediaUpload Component
+ *
+ * This component allows users to upload media files (images or videos) for a post.
+ * It validates the uploaded files based on the selected platform's requirements
+ * and uploads them to an S3 bucket using presigned URLs.
+ *
+ * @param {MediaUploadProps} props - The props for the MediaUpload component.
+ * @param {(media: { files: File[]; mediaKeys: string[]; isUploading: boolean }) => void} props.onChange -
+ * A callback function that is triggered when the media files are uploaded or validated.
+ * It provides the uploaded files, their corresponding S3 keys, and the upload status.
+ * @param {string[]} props.platforms - The selected platforms for the post.
+ * This is used to analyze and validate the media files (e.g., video duration)
+ * according to the platform's specific requirements.
+ *
+ * @remarks
+ * - Supports uploading up to 4 images or 1 video per post.
+ * - Validates file types (JPEG, PNG, GIF for images; MP4 for videos).
+ * - Ensures file size does not exceed 200 MB.
+ * - Checks video duration to ensure compatibility with all selected platforms.
+ * - Displays error messages using `toast` for invalid files or upload errors.
+ *
+ * @example
+ * ```tsx
+ * <MediaUpload
+ *   platforms={['X', 'LinkedIn', 'Instagram']}
+ *   onChange={(media) => console.log(media)}
+ * />
+ * ```
+ */
+
 import React, { useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
+import { getVideoDuration } from "@/utils/getVideoDuration";
+import { customToast } from "./customToast";
 
 interface MediaUploadProps {
+  platforms?: string[] | null;
   onChange: (data: {
     files: File[] | [] | null;
     mediaKeys: string[] | [] | null;
@@ -12,28 +46,21 @@ interface MediaUploadProps {
   }) => void;
 }
 
-export function MediaUpload({ onChange }: MediaUploadProps) {
+export function MediaUpload({ onChange, platforms }: MediaUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-
   const handleClick = () => {
+    if (!platforms || platforms.length === 0) {
+      // If no platforms are selected, show a toast message and return null
+      customToast({
+        title: "Select a platform first.",
+        description:
+          "Please select a platform before uploading media because the media upload is based on the platform's requirements.",
+        badgeVariant: "destructive",
+      });
+      return null;
+    }
     fileInputRef.current?.click();
-  };
-
-  // Helper function to check video duration
-  const getVideoDuration = (file: File): Promise<number> => {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement("video");
-      video.preload = "metadata";
-      video.onloadedmetadata = () => {
-        window.URL.revokeObjectURL(video.src);
-        resolve(video.duration);
-      };
-      video.onerror = () => {
-        reject(new Error("Failed to load video metadata"));
-      };
-      video.src = window.URL.createObjectURL(file);
-    });
   };
 
   const handleFileChange = useCallback(
@@ -59,11 +86,11 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
             (file) =>
               !file.type.startsWith("image/") && !file.type.startsWith("video/")
           );
-          toast({
-            title: `File "${invalidFile?.name}" is not a valid media file.`,
+          customToast({
+            title: `File "${invalidFile?.name}" is not a valid image or video.`,
             description:
-              "Please upload images (JPEG, PNG, GIF) or a video (MP4).",
-            variant: "destructive",
+              "Please upload a valid image (JPEG, PNG, GIF) or video (MP4) file.",
+            badgeVariant: "destructive",
           });
           isValid = false;
         }
@@ -73,11 +100,11 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
           fileTypes.filter((type) => type !== "invalid")
         );
         if (uniqueTypes.size > 1) {
-          toast({
+          customToast({
             title: "Mixed Media Types",
             description:
               "Please upload either all images or one video, but not both.",
-            variant: "destructive",
+            badgeVariant: "destructive",
           });
           isValid = false;
         }
@@ -89,11 +116,11 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
           if (mediaType === "image") {
             // Quantity limit: 4 images max (X's limit)
             if (files.length > 4) {
-              toast({
+              customToast({
                 title: "Too Many Images",
                 description:
                   "You can upload up to 4 images. Please select fewer images.",
-                variant: "destructive",
+                badgeVariant: "destructive",
               });
               isValid = false;
             }
@@ -103,10 +130,10 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
               const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
               for (const file of Array.from(files)) {
                 if (!validImageTypes.includes(file.type)) {
-                  toast({
+                  customToast({
                     title: `File "${file.name}" is not a valid image.`,
                     description: "Please upload a JPEG, PNG, or GIF file.",
-                    variant: "destructive",
+                    badgeVariant: "destructive",
                   });
                   isValid = false;
                   break;
@@ -114,10 +141,10 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
 
                 // Check file size (200 MB max)
                 if (file.size > 200 * 1024 * 1024) {
-                  toast({
+                  customToast({
                     title: `Image file "${file.name}" exceeds the maximum size of 200 MB.`,
                     description: "Please upload a smaller image.",
-                    variant: "destructive",
+                    badgeVariant: "destructive",
                   });
                   isValid = false;
                   break;
@@ -129,10 +156,10 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
           } else if (mediaType === "video") {
             // Quantity limit: 1 video max
             if (files.length > 1) {
-              toast({
+              customToast({
                 title: "Too Many Videos",
                 description: "Only one video can be uploaded per post.",
-                variant: "destructive",
+                badgeVariant: "destructive",
               });
               isValid = false;
             }
@@ -142,18 +169,18 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
               const file = files[0];
               const validVideoTypes = ["video/mp4"];
               if (!validVideoTypes.includes(file.type)) {
-                toast({
+                customToast({
                   title: `File "${file.name}" is not a valid video.`,
                   description: "Please upload an MP4 file.",
-                  variant: "destructive",
+                  badgeVariant: "destructive",
                 });
                 isValid = false;
               } else if (file.size > 200 * 1024 * 1024) {
                 // Updated to 200 MB max
-                toast({
+                customToast({
                   title: `Video file "${file.name}" exceeds the maximum size of 200 MB.`,
                   description: "Please upload a smaller video.",
-                  variant: "destructive",
+                  badgeVariant: "destructive",
                 });
                 isValid = false;
               } else {
@@ -162,21 +189,40 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
                   const duration = await getVideoDuration(file);
                   // X: 140 seconds, LinkedIn: 10 minutes (600 seconds), Instagram: 60 seconds
                   // Use the most restrictive limit (Instagram: 60 seconds) to ensure compatibility
-                  if (duration > 200) {
-                    toast({
+                  //TODO: Check if the video is too long for all platforms✅
+
+                  if (duration > 60 && platforms?.includes("Instagram")) {
+                    // instagram: 60 seconds
+                    customToast({
+                      title: `Video "${file.name}" is too long for Instagram.`,
+                      description:
+                        "Videos must be 60 seconds or shorter to be compatible with Instagram.",
+                    });
+                    isValid = false;
+                  } else if (duration > 140) {
+                    // X: 140 seconds
+                    customToast({
                       title: `Video "${file.name}" is too long.`,
                       description:
-                        "Videos must be 60 seconds or shorter to be compatible with all platforms.",
+                        "Videos must be 140 seconds or shorter to be compatible with X.",
+                    });
+                    isValid = false;
+                  } else if (duration > 600) {
+                    // LinkedIn: 10 minutes (600 seconds)
+                    customToast({
+                      title: `Video "${file.name}" is too long for LinkedIn.`,
+                      description:
+                        "Videos must be 10 minutes or shorter to be compatible with LinkedIn.",
                     });
                     isValid = false;
                   } else {
                     validFiles.push(file);
                   }
                 } catch (error) {
-                  toast({
+                  customToast({
                     title: `Error validating video "${file.name}".`,
                     description: "Unable to check video duration.",
-                    variant: "destructive",
+                    badgeVariant: "destructive",
                   });
                   isValid = false;
                 }
@@ -222,10 +268,10 @@ export function MediaUpload({ onChange }: MediaUploadProps) {
               isUploading,
             });
           } catch (error) {
-            toast({
+            customToast({
               title: "Upload Error",
               description: "Failed to upload media to S3. Please try again.",
-              variant: "destructive",
+              badgeVariant: "destructive",
             });
             onChange({ files: [], mediaKeys: [], isUploading: false });
           } finally {

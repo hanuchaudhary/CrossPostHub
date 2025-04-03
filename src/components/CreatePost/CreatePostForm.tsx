@@ -21,6 +21,7 @@ import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
 import { AnimatePresence } from "framer-motion";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
+import { customToast } from "./customToast";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -45,7 +46,7 @@ export function CreatePostForm() {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
-  
+
   const handleAIAssist = (generatedContent: string) => {
     setContent(
       (prevContent) =>
@@ -66,80 +67,32 @@ export function CreatePostForm() {
 
   const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
-      toast({
+      customToast({
         title: "Platform Selection Required",
-        description: (
-          <div>
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs leading-none opacity-90">
-              <p>
-                Please select at least one platform to publish your post. You
-                can choose from Instagram, Twitter, or LinkedIn.
-              </p>
-              <span className="text-neutral-400 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-              CrossPostHub.
-            </p>
-          </div>
-        ),
+        description:
+          "Please select at least one platform to publish your post. You can choose from Instagram, Twitter, or LinkedIn.",
+        badgeVariant: "destructive",
       });
       return;
     }
 
     if (!content.trim() && medias.files?.length === 0) {
-      toast({
+      customToast({
         title: "Content Required",
-        description: (
-          <div>
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs bg-opacity-90">
-              <p>
-                Your post needs either text content or images. Please add some
-                content or upload images to continue.
-              </p>
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-              CrossPostHub.
-            </p>
-          </div>
-        ),
+        description:
+          "Please enter some content or upload media to publish your post.",
+        badgeVariant: "destructive",
       });
       return;
     }
 
     if (isScheduled && (!scheduleDate || !scheduleTime)) {
-      toast({
-        title: "Invalid Schedule",
-        description: (
-          <div className="w-full">
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs opacity-90">
-              <p>
-                Your scheduled post is missing date or time information. Please
-                set both a valid date and time for scheduling.
-              </p>
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-              CrossPostHub.
-            </p>
-          </div>
-        ),
+      customToast({
+        title: "Schedule Date and Time Required",
+        description: "Please select a date and time for scheduling your post.",
+        badgeVariant: "destructive",
       });
+
       return;
     }
 
@@ -147,30 +100,14 @@ export function CreatePostForm() {
       (selectedPlatforms.includes("twitter") && content.length > 275) ||
       (selectedPlatforms.includes("linkedin") && content.length > 2900)
     ) {
-      toast({
+      customToast({
         title: selectedPlatforms.includes("twitter")
           ? "Twitter Character Limit Exceeded"
           : "LinkedIn Character Limit Exceeded",
-        description: (
-          <div className="w-full">
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs">
-              <p>
-                {selectedPlatforms.includes("twitter")
-                  ? "Twitter posts cannot exceed 275 characters."
-                  : "LinkedIn posts cannot exceed 2900 characters."}
-              </p>
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-              CrossPostHub.
-            </p>
-          </div>
-        ),
+        description: selectedPlatforms.includes("twitter")
+          ? "Twitter posts cannot exceed 275 characters."
+          : "LinkedIn posts cannot exceed 2900 characters.",
+        badgeVariant: "destructive",
       });
       return;
     }
@@ -198,36 +135,13 @@ export function CreatePostForm() {
         },
       });
 
-      toast({
+      customToast({
         title: isScheduled
           ? "Post Scheduled for Processing"
           : "Post Sent for Processing",
-        description: (
-          <div className="w-full">
-            <Badge variant={"pending"} className="my-2">
-              {isScheduled ? "Scheduled" : "Processing"}
-            </Badge>
-            <div className="text-xs">
-              <p>
-                Your post is being processed. You will be notified once it is
-                published.
-              </p>
-              <p>Platforms: {selectedPlatforms.join(", ")}</p>
-              {isScheduled && (
-                <p>
-                  Scheduled for: {format(scheduleDate!, "PPP")} at{" "}
-                  {scheduleTime}
-                </p>
-              )}
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-            </div>
-            <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-              CrossPostHub.
-            </p>
-          </div>
-        ),
+        description:
+          "Your post is being processed. You will be notified once it is published.",
+        badgeVariant: "pending",
       });
 
       setContent("");
@@ -241,28 +155,12 @@ export function CreatePostForm() {
       setScheduleTime("");
     } catch (error: any) {
       console.error("CreatePost Error:", error);
-      toast({
+      customToast({
         title: "Post Creation Failed",
-        description: (
-          <div className="w-full">
-            <Badge className="my-2" variant="destructive">
-              Error
-            </Badge>
-            <div className="text-xs">
-              <p>
-                {error.response?.data?.error ||
-                  "An error occurred while creating the post."}
-              </p>
-              <p>Please try again or contact support if the issue persists.</p>
-              <span className="text-neutral-500 text-xs">
-                {new Date().toLocaleDateString()}
-              </span>
-              <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
-                CrossPostHub.
-              </p>
-            </div>
-          </div>
-        ),
+        description:
+          error.response?.data?.error ||
+          "An error occurred while creating the post.",
+        badgeVariant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -312,7 +210,10 @@ export function CreatePostForm() {
                       rows={5}
                     />
                   </div>
-                  <MediaUpload onChange={handleImageChange} />
+                  <MediaUpload
+                    platforms={selectedPlatforms}
+                    onChange={handleImageChange}
+                  />
                   <PlatformSelector
                     selectedPlatforms={selectedPlatforms}
                     setSelectedPlatforms={setSelectedPlatforms}
@@ -359,7 +260,11 @@ export function CreatePostForm() {
           </Card>
           <AnimatePresence>
             {isSinglePreview && (
-              <SimplePostPreview isUploading={isUploadingMedia} content={content} medias={medias.files!} />
+              <SimplePostPreview
+                isUploading={isUploadingMedia}
+                content={content}
+                medias={medias.files!}
+              />
             )}
           </AnimatePresence>
         </>
