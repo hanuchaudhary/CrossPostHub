@@ -8,7 +8,12 @@ import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 import { decryptToken } from "@/lib/Crypto";
-import { deleteFromS3Bucket, getFromS3Bucket } from "@/config/s3Config";
+import { getFromS3Bucket } from "@/config/s3Config";
+import { Client } from "@upstash/qstash";
+
+const qstashClient = new Client({
+  token: process.env.QSTASH_TOKEN!,
+});
 
 async function handler(request: NextRequest) {
   const jobData = await request.json();
@@ -20,11 +25,20 @@ async function handler(request: NextRequest) {
     );
   }
 
-  const { provider, postText, mediaKeys, userId } = jobData;
+  const { provider, postText, mediaKeys, userId, postId } = jobData;
 
   let loggedUser: any;
   try {
-    console.log("Processing Job for provider:", provider);
+    console.log("Processing Job for provider:", provider, "postId:", postId);
+
+    // Fetch the post to check its status
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      throw new Error("Post not found.");
+    }
 
     loggedUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -110,7 +124,18 @@ async function handler(request: NextRequest) {
       );
     }
 
-    // Parallelize post saving, notifications, and media deletion
+    console.log(
+      "Request headers:",
+      Object.fromEntries(request.headers.entries())
+    );
+
+    // Update post status to SUCCESS
+    await prisma.post.update({
+      where: { id: postId },
+      data: { status: "SUCCESS" },
+    });
+
+    // Parallelize post saving and notifications
     await Promise.all([
       postSaveToDB({
         postText,
@@ -136,12 +161,16 @@ async function handler(request: NextRequest) {
           }),
         ]);
       }),
-      Promise.all(
-        mediaKeys.map(async (key: string) => {
-          await deleteFromS3Bucket(key);
-        })
-      ),
     ]);
+
+    // Schedule a separate QStash job to delete media from S3
+    await qstashClient.publishJSON({
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/post/delete`,
+      body: {
+        mediaKeys,
+      },
+      delay: 60, // Delay deletion by 60 seconds to ensure all operations are complete
+    });
 
     return NextResponse.json({
       provider,
@@ -150,43 +179,70 @@ async function handler(request: NextRequest) {
   } catch (error: any) {
     console.error(`Job failed for provider: ${provider}`, error);
 
-    try {
-      await Promise.all(
-        mediaKeys.map(async (key: string) => {
-          await deleteFromS3Bucket(key);
-        })
-      );
-    } catch (deleteError) {
-      console.error("Failed to delete media from S3:", deleteError);
-    }
-
-    await Promise.all([
-      postSaveToDB({
-        postText,
-        userId,
-        provider,
-        status: "FAILED",
-      }),
-      createNotification({
+    // Check if a failure notification already exists for this post and provider
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
         userId,
         type: "POST_STATUS",
-        message: `Failed to publish post on ${provider}: ${error.message}`,
-      }).then(async (notification) => {
-        await Promise.all([
-          sendEmailNotification(loggedUser?.email || "", {
-            username: loggedUser?.name || "User",
-            type: "FAILED",
-            platform: provider,
-            postTitle: postText,
-            error: error.message,
-          }),
-          sendSSEMessage(userId, {
-            type: "post-failed",
-            message: notification.message,
-          }),
-        ]);
-      }),
-    ]);
+        message: {
+          contains: `Failed to publish post on ${provider}`,
+        },
+      },
+    });
+
+    // Update post status to FAILED with the error message
+    await prisma.post.update({
+      where: { id: postId },
+      data: {
+        status: "FAILED",
+        text: error.message,
+      },
+    });
+
+    // Only send notifications if this is the first failure
+    if (!existingNotification) {
+      await Promise.all([
+        postSaveToDB({
+          postText,
+          userId,
+          provider,
+          status: "FAILED",
+        }),
+        createNotification({
+          userId,
+          type: "POST_STATUS",
+          message: `Failed to publish post on ${provider}: ${error.message}`,
+        }).then(async (notification) => {
+          await Promise.all([
+            sendEmailNotification(loggedUser?.email || "", {
+              username: loggedUser?.name || "User",
+              type: "FAILED",
+              platform: provider,
+              postTitle: postText,
+              error: error.message,
+            }),
+            sendSSEMessage(userId, {
+              type: "post-failed",
+              message: notification.message,
+            }),
+          ]);
+        }),
+      ]);
+    }
+
+    // If this is the last retry, schedule media deletion
+    const retryCount = request.headers.get("x-qstash-retry-count") || "0";
+    const maxRetries = process.env.QSTASH_MAX_RETRIES || "3"; // Set max retries in your env
+    if (parseInt(retryCount) >= parseInt(maxRetries)) {
+      console.log("Max retries reached, scheduling media deletion...");
+      await qstashClient.publishJSON({
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/post/delete`,
+        body: {
+          mediaKeys,
+        },
+        delay: 60,
+      });
+    }
 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

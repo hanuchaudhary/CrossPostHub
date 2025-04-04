@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
         })
 
         const filterApp = connectedApps.filter((app) => {
-            if (app.provider !== "google") {
-            return app;
+            if (app.provider !== "google" && app.provider !== "credentials") {
+              return app;
             }
         });
         

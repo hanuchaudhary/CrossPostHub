@@ -7,7 +7,7 @@ type Props = {
 
 export default function EditLayout({ children }: Props) {
   return (
-    <div className="max-w-6xl mx-auto pt-4 pb-8">
+    <div className="max-w-6xl mx-auto pt-4 pb-8 px-4">
       <div className="inline-block mb-4">
         <EditorNavbar />
       </div>

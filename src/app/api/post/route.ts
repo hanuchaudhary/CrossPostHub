@@ -5,9 +5,7 @@ import prisma from "@/config/prismaConfig";
 import { Providers } from "@/Types/Types";
 import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 import { createNotification } from "@/utils/Controllers/NotificationController";
-import { validateMedia } from "@/utils/ValidateMedia";
 import { Client } from "@upstash/qstash";
-import { uploadToS3Bucket } from "@/config/s3Config";
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,16 +58,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // const post = await prisma.post.create({
-    //   data: {
-    //     userId: loggedUser.id,
-    //     text: postText,
-    //     status: "PENDING",
-    //     mediaKeys, // Store S3 media keys directly
-    //     scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
-    //     provider: providers[0], // Use the first provider for the post
-    //   },
-    // });
+    const post = await prisma.post.create({
+      data: {
+        userId: loggedUser.id,
+        text: postText,
+        status: "PENDING",
+        mediaKeys, // Store S3 media keys directly
+        scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
+      },
+    });
 
     // Initialize QStash client
     const qstashClient = new Client({
@@ -92,7 +89,7 @@ export async function POST(request: NextRequest) {
             mediaKeys, // Send s3 keys instead of base64
             userId: loggedUser.id,
             scheduledFor: scheduleAt || null,
-            // postId: post.id,
+            postId: post.id,
           };
 
           // Publish the message to QStash
