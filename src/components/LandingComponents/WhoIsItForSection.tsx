@@ -3,7 +3,7 @@ import {
   IconTerminal2,
   IconAugmentedReality2,
   IconTie,
-  IconBrandAsana
+  IconBrandAsana,
 } from "@tabler/icons-react";
 
 export function WhoIsItFor() {
@@ -35,22 +35,24 @@ export function WhoIsItFor() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto md:h-screen flex items-center justify-center flex-col">
+    <div className="md:h-screen flex items-center justify-center flex-col">
       <div className="font-ClashDisplaySemibold md:text-4xl text-2xl mt-8 mb-12">
         <h2 className="text-center w-full">
           Who is <span className="text-emerald-500">CrossPostHub</span> For?
         </h2>
-        <p className="md:text-base text-sm text-center font-ClashDisplayRegular text-muted-foreground">
+        <p className="md:text-base pb-12 max-w-3xl text-sm text-center font-ClashDisplayRegular text-muted-foreground">
           CrossPostHub is designed for anyone who wants to post to multiple
           platforms with one click—whether you're a developer sharing your work
           or just someone looking to simplify social media. Here's who's loving
           it:
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  relative z-10 py-10 max-w-7xl mx-auto">
-        {audiences.map((data, index) => (
-          <AudienceCard key={data.title} {...data} index={index} />
-        ))}
+      <div className="border-t border-b border-dashed w-full">
+        <div className="max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10 mx-auto">
+          {audiences.map((data, index) => (
+            <AudienceCard key={data.title} {...data} index={index} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -72,7 +74,7 @@ const AudienceCard = ({
       className={cn(
         "flex flex-col lg:border-r  py-10 relative group/feature dark:border-neutral-800",
         (index === 0 || index === 4) && "lg:border-l dark:border-neutral-800",
-        index < 4 && "lg:border-b dark:border-neutral-800"
+        index < 4 && "md:border-b dark:border-neutral-800"
       )}
     >
       {index < 4 && (

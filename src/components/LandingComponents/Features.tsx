@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import {
-  Calendar,
   Video,
   Mic,
   MessageSquare,
