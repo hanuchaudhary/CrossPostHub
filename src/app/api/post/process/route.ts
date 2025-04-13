@@ -124,11 +124,6 @@ async function handler(request: NextRequest) {
       );
     }
 
-    console.log(
-      "Request headers:",
-      Object.fromEntries(request.headers.entries())
-    );
-
     // Update post status to SUCCESS
     await prisma.post.update({
       where: { id: postId },

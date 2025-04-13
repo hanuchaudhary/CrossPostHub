@@ -59,12 +59,12 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="default" className="group">
-          <GeminiIcon className="h-5 w-5 transition-transform group-hover:scale-110" />
-          AI Content
-        </Button>
+        <button className="rounded-3xl px-3 py-1 border-[1.2px] font-ClashDisplayRegular border-neutral-500 dark:text-neutral-300 hover:text-neutral-200 transition duration-200 text-xs group flex items-center gap-2 dark:hover:bg-neutral-600 hover:bg-neutral-800">
+          <GeminiIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
+          Generate
+        </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="rounded-3xl">
+      <AlertDialogContent className="rounded-3xl border-none dark:bg-neutral-900">
         <AlertDialogHeader className="space-y-0">
           <AlertDialogTitle className="text-2xl font-ClashDisplayMedium">
             <AuroraText>Generate Caption</AuroraText> with AI
@@ -73,43 +73,41 @@ export function AIAssist({ onGenerate }: AIAssistProps) {
             Describe your caption idea and let AI generate it for you.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="relative bg-secondary rounded-3xl">
-            <Textarea
-              placeholder="Describe your magical content idea..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="md:text-lg pb-20 border-none shadow-none min-h-[120px] resize-none rounded-2xl bg-secondary focus-visible:border-none focus-visible:ring-0"
-            />
-            <div className="flex items-center justify-end p-3 w-full gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setPrompt("");
-                  setIsOpen(false);
-                }}
-              >
-                Close
-              </Button>
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating || !prompt.trim()}
-                className="disabled:opacity-100"
-              >
-                {isGenerating ? (
-                  <SparklesText
-                    className="text-sm font-light"
-                    sparklesCount={5}
-                    text="Generating..."
-                  />
-                ) : (
-                  <>
-                    <GeminiIcon className="h-4 w-4  " />
-                    Generate
-                  </>
-                )}
-              </Button>
-            </div>
+        <div className="relative dark:bg-neutral-800 rounded-2xl border-4 dark:border-neutral-700 bg-neutral-100">
+          <Textarea
+            placeholder="Describe your magical content idea..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="md:text-lg pb-20 border-none shadow-none min-h-[120px] resize-none rounded-2xl bg-secondary focus-visible:border-none focus-visible:ring-0"
+          />
+          <div className="flex items-center justify-end p-3 w-full gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPrompt("");
+                setIsOpen(false);
+              }}
+            >
+              Close
+            </Button>
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating || !prompt.trim()}
+              className="disabled:opacity-100"
+            >
+              {isGenerating ? (
+                <SparklesText
+                  className="text-sm font-light"
+                  sparklesCount={5}
+                  text="Generating..."
+                />
+              ) : (
+                <>
+                  <GeminiIcon className="h-4 w-4  " />
+                  Generate
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </AlertDialogContent>

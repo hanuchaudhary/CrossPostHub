@@ -12,16 +12,15 @@ import { PostPreview } from "@/components/CreatePost/PostPreview";
 import { PlatformSelector } from "@/components/CreatePost/PlatformSelector";
 import { SchedulePost } from "@/components/CreatePost/SchedulePost";
 import { AIAssist } from "@/components/CreatePost/AiAssist";
-import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import axios from "axios";
 import BottomLoader from "../Loaders/BottomLoader";
-import { Badge } from "@/components/ui/badge";
 import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
 import { AnimatePresence } from "framer-motion";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 import { customToast } from "./customToast";
+import EnhanceCaption from "./EnhanceCaption";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -201,14 +200,23 @@ export function CreatePostForm() {
                       <h2 className="text-lg font-ClashDisplayMedium leading-none">
                         Post Content
                       </h2>
-                      <AIAssist onGenerate={handleAIAssist} />
                     </div>
-                    <Textarea
-                      placeholder="What's on your mind?"
-                      value={content}
-                      onChange={handleContentChange}
-                      rows={5}
-                    />
+                    <div className="dark:bg-neutral-900 bg-neutral-100 h-full w-full rounded-2xl border">
+                      <Textarea
+                        className="border-none py-3 focus-visible:ring-0 focus-visible:outline-none shadow-none"
+                        placeholder="What's on your mind?"
+                        value={content}
+                        onChange={handleContentChange}
+                        rows={6}
+                      />
+                      <div className="flex justify-end gap-2 items-center p-2 rounded-2xl">
+                        <EnhanceCaption
+                          content={content}
+                          setContent={setContent}
+                        />
+                        <AIAssist onGenerate={handleAIAssist} />
+                      </div>
+                    </div>
                   </div>
                   <MediaUpload
                     platforms={selectedPlatforms}

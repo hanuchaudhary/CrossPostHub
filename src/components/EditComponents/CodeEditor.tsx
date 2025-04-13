@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Prism from "prismjs";
+import { useState, useRef } from "react";
 import { toPng } from "html-to-image";
 import {
   Settings2,
@@ -9,12 +8,10 @@ import {
   PaintBucket,
   Download,
   Monitor,
-  Layout,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -88,7 +85,6 @@ const detectLanguage = (code: string): string => {
     return "json";
   return "jsx"; // default
 };
-
 
 //TODO: ADD svgs of all images and add more also
 
