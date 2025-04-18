@@ -203,7 +203,7 @@ export function CreatePostForm() {
                     </div>
                     <div className="dark:bg-neutral-900 bg-neutral-100 h-full w-full rounded-2xl border">
                       <Textarea
-                        className="border-none py-3 focus-visible:ring-0 focus-visible:outline-none shadow-none"
+                        className="border-none py-3 focus-visible:ring-0 focus-visible:outline-none shadow-none resize-none"
                         placeholder="What's on your mind?"
                         value={content}
                         onChange={handleContentChange}

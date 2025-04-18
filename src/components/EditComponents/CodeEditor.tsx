@@ -19,7 +19,6 @@ import {
   CODE_THEMES,
   LOCAL_IMAGES,
   PREDEFINED_GRADIENTS,
-  PREDEFINED_IMAGES,
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants";
 import { useCodeEditorStore } from "@/store/EditStore/useEditStore";
@@ -60,12 +59,32 @@ const CodeEditor: React.FC = () => {
   } = useCodeEditorStore();
 
   const exportRef = useRef<HTMLDivElement>(null);
+  const [openCollapsibles, setOpenCollapsibles] = useState<string[]>([
+    "Code Settings",
+    "Select Frame",
+  ]);
+
+  // Handler to manage Collapsible open/close
+  const handleCollapsibleToggle = (trigger: string, isOpen: boolean) => {
+    setOpenCollapsibles((prev) => {
+      if (isOpen) {
+        // Opening a Collapsible
+        const newOpen = [...prev, trigger];
+        // If more than 2 are open, close the oldest (first in array)
+        if (newOpen.length > 2) {
+          return newOpen.slice(1); // Keep the last two
+        }
+        return newOpen;
+      } else {
+        // Closing a Collapsible
+        return prev.filter((item) => item !== trigger);
+      }
+    });
+  };
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
   };
-
-  // const [currentOpenDropdown, setCurrentOpenDropdown] = useState([{}]);
 
   // Compute background style for the outer frame
   const getBackgroundStyle = useMemo(() => {
@@ -106,17 +125,14 @@ const CodeEditor: React.FC = () => {
 
     try {
       const canvas = await html2canvas(exportRef.current, {
-        scale: 3, // High resolution for Retina displays
-        backgroundColor: null, // Preserve background (gradient/image)
-        useCORS: true, // Handle CDN images
-        logging: false, // Disable debug logs
-        // letterRendering: true, // Sharper text
-        // dpi: window.devicePixelRatio * 96, // Match device DPI
-        width: exportRef.current.offsetWidth, // Exact dimensions
+        scale: 3,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false,
+        width: exportRef.current.offsetWidth,
         height: exportRef.current.offsetHeight,
       });
 
-      // Convert canvas to PNG and trigger download
       const link = document.createElement("a");
       link.href = canvas.toDataURL("image/png");
       link.download = `${fileName || "code"}.png`;
@@ -147,14 +163,21 @@ const CodeEditor: React.FC = () => {
           <Textarea
             value={code}
             onChange={(e) => handleCodeChange(e.target.value)}
-            className="min-h-80 resize-none rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
+            className="md:min-h-80 min-h-52 md:text-sm text-xs resize-none rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
             placeholder="Paste your code here..."
             style={{
               fontFamily: "'JetBrains Mono', monospace",
             }}
           />
 
-          <Collapsible trigger="Code Settings" open={true} buttonClassName="w-full">
+          <Collapsible
+            trigger="Code Settings"
+            open={openCollapsibles.includes("Code Settings")}
+            onOpenChange={(isOpen) =>
+              handleCollapsibleToggle("Code Settings", isOpen)
+            }
+            buttonClassName="w-full"
+          >
             <div className="relative">
               <Popover>
                 <PopoverTrigger asChild>
@@ -227,12 +250,18 @@ const CodeEditor: React.FC = () => {
               />
             </div>
           </Collapsible>
-          <Collapsible trigger="Themes" buttonClassName="w-full">
+
+          <Collapsible
+            trigger="Themes"
+            open={openCollapsibles.includes("Themes")}
+            onOpenChange={(isOpen) => handleCollapsibleToggle("Themes", isOpen)}
+            buttonClassName="w-full"
+          >
             <ScrollArea className="h-64">
               {CODE_THEMES.map((theme) => (
                 <button
                   onClick={() => setTheme(theme.value)}
-                  className="custor-pointer select-none"
+                  className="cursor-pointer select-none"
                   key={theme.label}
                 >
                   <SyntaxHighlighter
@@ -260,8 +289,8 @@ const CodeEditor: React.FC = () => {
           ref={exportRef}
           style={{
             ...getBackgroundStyle,
-            backdropFilter: `blur(10px)`, // Apply blur
-            WebkitBackdropFilter: `blur(${background.blur}px)`, // For Safari support
+            backdropFilter: `blur(${background.blur}px)`, // Fixed blur application
+            WebkitBackdropFilter: `blur(${background.blur}px)`,
           }}
           className="w-full h-full flex items-center justify-center"
         >
@@ -289,7 +318,13 @@ const CodeEditor: React.FC = () => {
       {/* Window Frame and Background Settings */}
       <div className="bg-secondary/30 rounded-2xl border w-full p-2 space-y-2">
         <div className="flex space-x-2">
-          <Collapsible open={true} trigger="Select Frame">
+          <Collapsible
+            trigger="Select Frame"
+            open={openCollapsibles.includes("Select Frame")}
+            onOpenChange={(isOpen) =>
+              handleCollapsibleToggle("Select Frame", isOpen)
+            }
+          >
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-2">
                 {[
@@ -350,7 +385,14 @@ const CodeEditor: React.FC = () => {
           </Collapsible>
         </div>
         <div>
-          <Collapsible trigger="Background" buttonClassName="w-full">
+          <Collapsible
+            trigger="Background"
+            open={openCollapsibles.includes("Background")}
+            onOpenChange={(isOpen) =>
+              handleCollapsibleToggle("Background", isOpen)
+            }
+            buttonClassName="w-full"
+          >
             <ul className="grid grid-cols-4 gap-2 mb-4">
               {[
                 { label: "None", value: "none" },
@@ -409,7 +451,6 @@ const CodeEditor: React.FC = () => {
               {background.type !== "none" && background.type !== "solid" && (
                 <div className="space-y-2">
                   <Slider
-                    // label={`Background Blur (${background.blur}px)`}
                     label="Blur"
                     min={2}
                     max={20}
@@ -472,9 +513,19 @@ const CodeEditor: React.FC = () => {
           </Collapsible>
         </div>
         <div>
-          <Collapsible trigger="Border">
+          <Collapsible
+            trigger="Border"
+            open={openCollapsibles.includes("Border")}
+            onOpenChange={(isOpen) => handleCollapsibleToggle("Border", isOpen)}
+          >
             <div className="space-y-2">
-              <Collapsible trigger="Border Type">
+              <Collapsible
+                trigger="Border Type"
+                open={openCollapsibles.includes("Border Type")}
+                onOpenChange={(isOpen) =>
+                  handleCollapsibleToggle("Border Type", isOpen)
+                }
+              >
                 <div className="space-y-1">
                   {["none", "solid", "dashed", "dotted"].map((e) => (
                     <Button
@@ -577,6 +628,7 @@ const CodeEditor: React.FC = () => {
                 colorized: false,
               });
               setTheme(atomDark);
+              setOpenCollapsibles([]); // Close all Collapsibles on reset
             }}
           >
             Reset

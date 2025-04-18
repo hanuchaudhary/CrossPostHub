@@ -1,5 +1,5 @@
 "use client";
-import { Camera, Code2, Twitter, Monitor, icons } from "lucide-react";
+import { Camera, Code2, Twitter, Monitor, icons, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -38,10 +38,13 @@ export function EditorNavbar() {
   const activeIndex = navItems.findIndex((item) => item.mode === activeMode);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex md:gap-2 items-center">
       <Link href={"/dashboard"}>
-        <Button variant={"secondary"} className="py-5">
-          Back to dashboard
+        <Button variant={"secondary"} className="md:py-5 p-4 md:flex hidden">
+          <ArrowLeft/>
+        </Button>
+        <Button variant={"ghost"} className="md:py-5 p-4 md:hidden flex items-center justify-center">
+          <ArrowLeft/>
         </Button>
       </Link>
       <div className="bg-secondary/30 border flex items-center gap-2 rounded-xl p-1.5 relative">
@@ -71,7 +74,7 @@ export function EditorNavbar() {
                   isActive ? "bg-primary text-primary-foreground" : ""
                 }`}
               >
-                <span className="text-sm">{item.title}</span>
+                <span className="md:text-sm text-xs">{item.title}</span>
               </button>
             </Link>
           );

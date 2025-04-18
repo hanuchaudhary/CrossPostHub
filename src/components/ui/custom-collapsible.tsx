@@ -1,30 +1,45 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
+import type React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface CollapsibleProps {
-  trigger: React.ReactNode
-  children: React.ReactNode
-  className?: string
-  buttonClassName?: string
-  contentClassName?: string
-  open?: boolean
+  trigger: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  buttonClassName?: string;
+  contentClassName?: string;
+  open?: boolean; // Controlled open state
+  onOpenChange?: (isOpen: boolean) => void; // Callback to notify parent of state changes
 }
 
-export function Collapsible({ trigger, children, className, buttonClassName, contentClassName,open = false }: CollapsibleProps) {
-const [isOpen, setIsOpen] = useState(open)
+export function Collapsible({
+  trigger,
+  children,
+  className,
+  buttonClassName,
+  contentClassName,
+  open = false,
+  onOpenChange,
+}: CollapsibleProps) {
+  // No internal useState; use the controlled `open` prop directly
+  const handleToggle = () => {
+    const newOpenState = !open;
+    onOpenChange?.(newOpenState); // Notify parent of the toggle
+  };
 
   return (
     <div className={cn("relative w-full", className)}>
       <div className="border rounded-2xl overflow-hidden bg-secondary/30">
-        <button className={cn("w-full text-sm py-2", buttonClassName)} onClick={() => setIsOpen(!isOpen)}>
+        <button
+          className={cn("w-full text-sm py-2", buttonClassName)}
+          onClick={handleToggle}
+        >
           {trigger}
         </button>
         <AnimatePresence>
-          {isOpen && (
+          {open && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{
@@ -55,5 +70,5 @@ const [isOpen, setIsOpen] = useState(open)
         </AnimatePresence>
       </div>
     </div>
-  )
+  );
 }

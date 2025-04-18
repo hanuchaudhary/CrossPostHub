@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
+
 export async function POST(request: NextRequest) {
   try {
     const {
       content,
-      tone = "engaging", // Default tone is "engaging"
-      platform = "twitter", // Default platform is "LinkedIn"
+      tone = "exciting", // Default tone is "exciting"
+      platform = "twitter", // Default platform is "twitter"
     } = await request.json();
 
     if (!content) {
@@ -16,20 +20,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = `Write a single, engaging caption for the following content: "${content}". 
-  The caption should be suitable for ${platform} and have a ${tone} tone. 
-  Keep it concise and under 150 characters.`;
-
-    const groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
-    });
-
-    if (!groq) {
-      return NextResponse.json(
-        { error: "Groq API key is missing or invalid." },
-        { status: 500 }
-      );
-    }
+    const prompt = `Generate only the caption for: "${content}". 
+      Imagine a developer sharing their project with passion. The caption must:
+      - Be for ${platform} (e.g., hashtags/emojis for Twitter, polished for LinkedIn).
+      - Be exciting, simple, professional, with a human touch (like a dev hyped about their work).
+      - Stay under 150 characters, including spaces, hashtags, and mentions.
+      - Capture the joy of building something new.
+      - Include no explanations, just the caption.
+      Twitter example: "Revamping my app’s core! 🚀 Join the beta! #DevLife #Coding @user"
+      LinkedIn example: "Proud to launch my app’s new feature! Months of work. 💻 #Tech #Development @user"`;
 
     const caption = await groq.chat.completions
       .create({
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
           {
             role: "system",
             content:
-              "You are a creative assistant that generates engaging social media captions.",
+              "You are a passionate developer who writes exciting, simple, professional social media captions with a human touch.",
           },
           {
             role: "user",
@@ -51,16 +50,14 @@ export async function POST(request: NextRequest) {
         throw new Error("Failed to generate response from AI");
       });
 
-    console.log("Generated caption:", caption);
-
     return NextResponse.json({ caption: caption.choices[0].message.content });
   } catch (error: any) {
-    console.error("Error in Gemini AI caption generation:", error);
+    console.error("Error in caption generation:", error);
 
     const errorResponse = error.message.includes("API key is missing")
       ? {
           error:
-            "Gemini API key is missing or invalid. Please configure it properly.",
+            "Groq API key is missing or invalid. Please configure it properly.",
         }
       : { error: error.message || "An unexpected error occurred." };
 
@@ -71,14 +68,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const content = request.nextUrl.searchParams.get("content");
-    const tone = request.nextUrl.searchParams.get("tone") || "engaging"; // Default tone is "engaging"
-    const platform = request.nextUrl.searchParams.get("platform") || "twitter"; // Default platform is "LinkedIn"
-
-    console.log("GET request parameters:", {
-      content,
-      tone,
-      platform,
-    });
+    const tone = request.nextUrl.searchParams.get("tone") || "exciting"; // Default tone is "exciting"
+    const platform = request.nextUrl.searchParams.get("platform") || "twitter"; // Default platform is "twitter"
 
     if (!content) {
       return NextResponse.json(
@@ -87,19 +78,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const prompt = `Enhance the following caption to make it more engaging and impactful: "${content}". 
-    Ensure the caption is suitable for ${platform}, maintains a ${tone} tone.`
-
-    const groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
-    });
-
-    if (!groq) {
-      return NextResponse.json(
-        { error: "Groq API key is missing or invalid." },
-        { status: 500 }
-      );
-    }
+    const prompt = `Refine and output only the caption for: "${content}". 
+      Picture a developer perfecting their post about their work. The caption must:
+      - Be for ${platform} (e.g., hashtags/emojis for Twitter, professional for LinkedIn).
+      - Be exciting, simple, professional, with a human touch (like a dev stoked about their project).
+      - Stay under 150 characters, including spaces, hashtags, and mentions.
+      - Highlight the thrill of creating something awesome.
+      - Include no explanations, just the caption.
+      Twitter example: "New tool alert! 🔥 Built for devs, by devs. #DevTools #Programming @user"
+      LinkedIn example: "Excited to share my new dev tool! Built with passion. 💻 #Tech #Development @user"`;
 
     const caption = await groq.chat.completions
       .create({
@@ -108,7 +95,7 @@ export async function GET(request: NextRequest) {
           {
             role: "system",
             content:
-              "You are a creative assistant that generates engaging social media captions.",
+              "You are a passionate developer who refines social media captions to be exciting, simple, and professional with a human touch.",
           },
           {
             role: "user",
@@ -120,17 +107,14 @@ export async function GET(request: NextRequest) {
         console.error("Groq API Error:", error);
         throw new Error("Failed to generate response from AI");
       });
-
-    console.log("Generated caption:", caption);
-
     return NextResponse.json({ caption: caption.choices[0].message.content });
   } catch (error: any) {
-    console.error("Error in Gemini AI caption generation:", error);
+    console.error("Error in caption generation:", error);
 
     const errorResponse = error.message.includes("API key is missing")
       ? {
           error:
-            "Gemini API key is missing or invalid. Please configure it properly.",
+            "Groq API key is missing or invalid. Please configure it properly.",
         }
       : { error: error.message || "An unexpected error occurred." };
 

@@ -36,7 +36,7 @@ export const CodeBlock = ({
 
   return (
     <div
-      className="relative max-w-7xl w-[780px] rounded-lg bg-slate-900 p-4 font-mono text-sm"
+      className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 p-4 font-mono text-sm"
       style={{
         backgroundColor,
         borderRadius: border.radius,
