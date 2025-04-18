@@ -2,87 +2,50 @@
 import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { IconCheck, IconCopy } from "@tabler/icons-react";
 
 type CodeBlockProps = {
   language: string;
   filename: string;
   highlightLines?: number[];
-} & (
-  | {
-      code: string;
-      tabs?: never;
-    }
-  | {
-      code?: never;
-      tabs: Array<{
-        name: string;
-        code: string;
-        language?: string;
-        highlightLines?: number[];
-      }>;
-    }
-);
+  backgroundColor?: string;
+  code: string;
+};
+
 
 export const CodeBlock = ({
+  backgroundColor = "transparent",
   language,
   filename,
   code,
   highlightLines = [],
-  tabs = [],
 }: CodeBlockProps) => {
-  const [activeTab, setActiveTab] = React.useState(0);
-
-  const tabsExist = tabs.length > 0;
-
-  const activeCode = tabsExist ? tabs[activeTab].code : code;
-  const activeLanguage = tabsExist
-    ? tabs[activeTab].language || language
-    : language;
-  const activeHighlightLines = tabsExist
-    ? tabs[activeTab].highlightLines || []
-    : highlightLines;
-
+  const fontSize = code.length > 1000 ? "0.6rem" : "0.875rem"; // Adjust font size based on code length
+  console.log(code.length, fontSize);
+  
   return (
-    <div className="relative w-full rounded-lg bg-slate-900 p-4 font-mono text-sm">
-      <div className="flex flex-col gap-2">
-        {tabsExist && (
-          <div className="flex  overflow-x-auto">
-            {tabs.map((tab, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveTab(index)}
-                className={`px-3 !py-2 text-xs transition-colors font-sans ${
-                  activeTab === index
-                    ? "text-white"
-                    : "text-zinc-400 hover:text-zinc-200"
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </div>
-        )}
-        {!tabsExist && filename && (
-          <div className="flex justify-between items-center py-2">
-            <div className="text-xs text-zinc-400">{filename}</div>
-          </div>
-        )}
-      </div>
+    <div
+      className="relative max-w-5xl w-[880px] rounded-lg bg-slate-900 p-4 font-mono text-sm"
+      style={{ backgroundColor }}
+    >
+      {filename && (
+        <div className="flex justify-between items-center py-2">
+          <div className="text-xs text-neutral-400">{filename}</div>
+        </div>
+      )}
       <SyntaxHighlighter
-        language={activeLanguage}
+        language={language}
         style={atomDark}
         customStyle={{
           margin: 0,
           padding: 0,
           background: "transparent",
-          fontSize: "0.875rem", // text-sm equivalent
+          fontSize
         }}
         wrapLines={true}
         showLineNumbers={true}
         lineProps={(lineNumber) => ({
           style: {
-            backgroundColor: activeHighlightLines.includes(lineNumber)
+            backgroundColor: highlightLines.includes(lineNumber)
               ? "rgba(255,255,255,0.1)"
               : "transparent",
             display: "block",
@@ -91,7 +54,7 @@ export const CodeBlock = ({
         })}
         PreTag="div"
       >
-        {String(activeCode)}
+        {String(code)}
       </SyntaxHighlighter>
     </div>
   );

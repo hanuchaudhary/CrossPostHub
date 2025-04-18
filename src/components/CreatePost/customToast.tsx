@@ -1,5 +1,5 @@
 import { toast } from "@/hooks/use-toast";
-import { Badge, badgeVariants } from "../ui/badge";
+import { Badge } from "../ui/badge";
 
 type CustomToastProps = {
   title: string;

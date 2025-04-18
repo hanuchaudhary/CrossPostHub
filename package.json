@@ -9,8 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "bunx prisma generate"
+    "lint": "next lint"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.777.0",
@@ -44,7 +43,6 @@
     "@tabler/icons-react": "^3.31.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/fabric": "^5.3.9",
-    "@types/multer": "^1.4.12",
     "@types/node-cron": "^3.0.11",
     "@types/oauth": "^0.9.6",
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -82,6 +80,7 @@
     "prismjs": "^1.29.0",
     "razorpay": "^2.9.5",
     "react": "^19.0.0",
+    "react-colorful": "^5.6.1",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",

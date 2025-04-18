@@ -14,16 +14,16 @@ const navItems = [
     mode: "edit",
   },
   {
-    title: "Tweet",
-    icon: "/twitter.svg",
-    href: "/edit/tweet",
-    mode: "tweet",
-  },
-  {
     title: "Code",
     icon: "/code.svg",
     href: "/edit/code",
     mode: "code",
+  },
+  {
+    title: "Tweet",
+    icon: "/twitter.svg",
+    href: "/edit/tweet",
+    mode: "tweet",
   },
   {
     title: "Mockup",
