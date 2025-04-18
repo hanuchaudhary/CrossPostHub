@@ -1,22 +1,37 @@
-export const BACKGROUND_IMAGES = [
-  "https://images.unsplash.com/photo-1617691819961-77948b5ece7c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fHdpbmRvd3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D", // Placeholder for demo
-  "https://images.unsplash.com/photo-1499428665502-503f6c608263?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzh8fHdpbmRvd3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D", // Placeholder for demo
-  "https://images.unsplash.com/photo-1499428665502-503f6c608263?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzh8fHdpbmRvd3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D", // Placeholder for demo
-  "https://images.unsplash.com/photo-1499428665502-503f6c608263?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzh8fHdpbmRvd3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D", // Placeholder for demo
+export const PREDEFINED_IMAGES = [
+  { id: "img1", url: "https://images.unsplash.com/photo-1557683316-973673baf926", label: "Abstract Blue" },
+  { id: "img2", url: "https://images.unsplash.com/photo-1557682250-33bd709cbe85", label: "Purple Haze" },
+  { id: "img3", url: "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5", label: "Neon Glow" },
+  { id: "img4", url: "https://images.unsplash.com/photo-1557682260-96773eb01377", label: "Dark Waves" },
+  { id: "img5", url: "https://images.unsplash.com/photo-1557682268-9b00e19d9a0b", label: "Soft Gradient" },
+  { id: "img6", url: "https://images.unsplash.com/photo-1557682257-2f9c5810fd99", label: "Cosmic Dust" },
+  { id: "img7", url: "https://images.unsplash.com/photo-1557682282-9e19f4c3e4b9", label: "Aurora" },
+  { id: "img8", url: "https://images.unsplash.com/photo-1557682293-6b9a23677597", label: "Blurry Lights" },
+  { id: "img9", url: "https://images.unsplash.com/photo-1557682302-9f1b1b8f8c9f", label: "Ocean Breeze" },
+  { id: "img10", url: "https://images.unsplash.com/photo-1557682317-7c9b8c8f8c9f", label: "Night Sky" },
+  { id: "img11", url: "https://images.unsplash.com/photo-1557682324-9c9b8c8f8c9f", label: "Fire Glow" },
+  { id: "img12", url: "https://images.unsplash.com/photo-1557682335-9c9b8c8f8c9f", label: "Minimal Wave" },
+  { id: "img13", url: "https://images.unsplash.com/photo-1557682346-9c9b8c8f8c9f", label: "Pastel Dream" },
+  { id: "img14", url: "https://images.unsplash.com/photo-1557682357-9c9b8c8f8c9f", label: "Vivid Abstract" },
+  { id: "img15", url: "https://images.unsplash.com/photo-1557682368-9c9b8c8f8c9f", label: "Twilight" },
 ];
 
-export const MACOS_BACKGROUNDS = [
-  "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWFjb3N8ZW58MHx8MHx8fDA%3D",
-  "https://images.unsplash.com/photo-1620120966883-d977b57a96ec?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fG1hY29zfGVufDB8fDB8fHww",
-  "https://images.unsplash.com/photo-1620121684840-edffcfc4b878?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fG1hY29zfGVufDB8fDB8fHww",
-  "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjZ8fG1hY29zfGVufDB8fDB8fHww",
-];
-
-export const WINDOWS_BACKGROUNDS = [
-  "https://images.unsplash.com/photo-1637937267030-6d571ad57f3f?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8d2luZG93cyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D",
-  "https://images.unsplash.com/photo-1511300636408-a63a89df3482?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWFjb3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D",
-  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8bWFjb3MlMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D",
-  "https://images.unsplash.com/photo-1557683311-eac922347aa1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzZ8fG1hY29zJTIwd2FsbHBhcGVyfGVufDB8fDB8fHww",
+export const PREDEFINED_GRADIENTS = [
+  { id: "grad1", value: "linear-gradient(90deg, #ff6b6b, #ff8e53)", label: "Sunset Glow" },
+  { id: "grad2", value: "linear-gradient(45deg, #6b48ff, #00ddeb)", label: "Neon Pulse" },
+  { id: "grad3", value: "linear-gradient(135deg, #2afadf, #4c83ff)", label: "Aqua Dream" },
+  { id: "grad4", value: "linear-gradient(0deg, #1a1a3d, #4a4a8d)", label: "Midnight Sky" },
+  { id: "grad5", value: "linear-gradient(90deg, #ff9966, #ff5e62)", label: "Coral Reef" },
+  { id: "grad6", value: "linear-gradient(45deg, #f3ec78, #af4261)", label: "Retro Wave" },
+  { id: "grad7", value: "linear-gradient(135deg, #667eea, #764ba2)", label: "Purple Haze" },
+  { id: "grad8", value: "linear-gradient(90degLAPTOP, #00c9ff, #92fe9d)", label: "Tropical Breeze" },
+  { id: "grad9", value: "linear-gradient(0deg, #434343, #000000)", label: "Dark Void" },
+  { id: "grad10", value: "linear-gradient(45deg, #ffafbd, #ffc3a0)", label: "Peach Blossom" },
+  { id: "grad11", value: "linear-gradient(135deg, #e0c3fc, #8ec5fc)", label: "Pastel Sky" },
+  { id: "grad12", value: "linear-gradient(90deg, #12c2e9, #c471ed)", label: "Vivid Horizon" },
+  { id: "grad13", value: "linear-gradient(45deg, #f12711, #f5af19)", label: "Fire Storm" },
+  { id: "grad14", value: "linear-gradient(0deg, #a8ff78, #78ffd6)", label: "Lime Aqua" },
+  { id: "grad15", value: "linear-gradient(135deg, #ed4264, #ffedbc)", label: "Candy Floss" },
 ];
 
 export const GRADIENT_BACKGROUNDS = [

@@ -20,14 +20,25 @@ interface CodeEditorStore {
   fileName: string;
   setFileName: (name: string) => void;
 
-  backgroundType: string;
-  setBackgroundType: (type: string) => void;
-
-  gradientBackground: string;
-  setGradientBackground: (gradient: string) => void;
-
-  background: string;
-  setBackground: (background: string) => void;
+  background: {
+    type: "none" | "image" | "gradient" | "solid";
+    image: string;
+    gradient: string;
+    solid: string;
+    blur: number;
+  };
+  setBackground: ({
+    type,
+    image,
+    gradient,
+    solid,
+  }: {
+    type: "none" | "image" | "gradient" | "solid";
+    image?: string;
+    gradient?: string;
+    solid?: string;
+    blur?: number;
+  }) => void;
 
   windowFrame: {
     type?: "none" | "macos" | "browser" | "window" | "arc";
@@ -42,6 +53,24 @@ interface CodeEditorStore {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent?: boolean | undefined;
     colorized?: boolean | undefined;
+  }) => void;
+
+  border: {
+    type?: "none" | "solid" | "dashed" | "dotted";
+    color: string;
+    width: number;
+    radius: number;
+  };
+  setBorder: ({
+    type,
+    color,
+    width,
+    radius,
+  }: {
+    type?: "none" | "solid" | "dashed" | "dotted";
+    color?: string;
+    width?: number;
+    radius?: number;
   }) => void;
 }
 
@@ -64,15 +93,6 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
   language: "tsx",
   setLanguage: (lang) => set({ language: lang }),
 
-  backgroundType: "image",
-  setBackgroundType: (type) => set({ backgroundType: type }),
-
-  gradientBackground: "",
-  setGradientBackground: (gradient) => set({ gradientBackground: gradient }),
-
-  background: "",
-  setBackground: (background) => set({ background }),
-
   windowFrame: {
     type: "none",
     transparent: false,
@@ -85,6 +105,42 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
         type: type ?? state.windowFrame.type,
         transparent: transparent ?? state.windowFrame.transparent,
         colorized: colorized ?? state.windowFrame.colorized,
+      },
+    })),
+
+  background: {
+    type: "none",
+    image: "",
+    gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
+    solid: "#ffffff",
+    blur: 0,
+  },
+  setBackground: ({ type, image, gradient, solid }) =>
+    set((state) => ({
+      background: {
+        ...state.background,
+        type: type ?? state.background.type,
+        image: image ?? state.background.image,
+        gradient: gradient ?? state.background.gradient,
+        solid: solid ?? state.background.solid,
+        blur: state.background.blur,
+      },
+    })),
+
+  border: {
+    type: "solid",
+    color: "#333333",
+    width: 1,
+    radius: 15,
+  },
+  setBorder: ({ type, color, width, radius }) =>
+    set((state) => ({
+      border: {
+        ...state.border,
+        type: type ?? state.border.type,
+        color: color ?? state.border.color,
+        width: width ?? state.border.width,
+        radius: radius ?? state.border.radius,
       },
     })),
 }));

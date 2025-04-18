@@ -7,8 +7,8 @@ type Props = {
 
 export default function EditLayout({ children }: Props) {
   return (
-    <div className="mx-auto p-4">
-      <div className="inline-block mb-4">
+    <div className="p-3 w-full">
+      <div className="inline-block mb-2">
         <EditorNavbar />
       </div>
       {children}
