@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -50,7 +49,7 @@ const [isOpen, setIsOpen] = useState(open)
               }}
               className={cn("overflow-hidden", contentClassName)}
             >
-              <div className="p-4">{children}</div>
+              <div className="pb-3 px-3">{children}</div>
             </motion.div>
           )}
         </AnimatePresence>

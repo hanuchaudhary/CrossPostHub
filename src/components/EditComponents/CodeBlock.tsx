@@ -15,6 +15,7 @@ type CodeBlockProps = {
     width: number;
     radius: number;
   };
+  theme?: string;
 };
 
 export const CodeBlock = ({
@@ -29,8 +30,10 @@ export const CodeBlock = ({
     width: 1,
     radius: 20,
   },
+  theme,
 }: CodeBlockProps) => {
   const fontSize = code.length > 1000 ? "0.6rem" : "0.875rem";
+
   return (
     <div
       className="relative max-w-7xl w-[780px] rounded-lg bg-slate-900 p-4 font-mono text-sm"
@@ -49,7 +52,7 @@ export const CodeBlock = ({
       )}
       <SyntaxHighlighter
         language={language}
-        style={atomDark}
+        style={theme ? (theme as any) : atomDark}
         customStyle={{
           margin: 0,
           padding: 0,

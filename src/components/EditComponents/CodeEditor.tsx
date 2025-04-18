@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import { Download } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 import { WindowFrame } from "@/components/EditComponents/WindowFrame";
 import {
+  CODE_THEMES,
+  LOCAL_IMAGES,
   PREDEFINED_GRADIENTS,
   PREDEFINED_IMAGES,
   SUPPORTED_LANGUAGES,
@@ -32,6 +34,8 @@ import { ScrollArea } from "../ui/scroll-area";
 import html2canvas from "html2canvas";
 import { customToast } from "../CreatePost/customToast";
 import { Slider } from "../ui/slider";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const CodeEditor: React.FC = () => {
   const {
@@ -51,6 +55,8 @@ const CodeEditor: React.FC = () => {
     setBackground,
     border,
     setBorder,
+    theme,
+    setTheme,
   } = useCodeEditorStore();
 
   const exportRef = useRef<HTMLDivElement>(null);
@@ -58,6 +64,8 @@ const CodeEditor: React.FC = () => {
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
   };
+
+  // const [currentOpenDropdown, setCurrentOpenDropdown] = useState([{}]);
 
   // Compute background style for the outer frame
   const getBackgroundStyle = useMemo(() => {
@@ -122,6 +130,15 @@ const CodeEditor: React.FC = () => {
     }
   }, [fileName]);
 
+  useEffect(() => {
+    if (windowFrame.type !== "none") {
+      setBorder({
+        radius: 0,
+        width: 0,
+      });
+    }
+  }, [windowFrame.type, setBorder]);
+
   return (
     <div className="flex md:flex-row flex-col gap-2 min-h-[70vh]">
       {/* Code Editor Section */}
@@ -137,87 +154,103 @@ const CodeEditor: React.FC = () => {
             }}
           />
 
-          <div className="relative">
-            <Popover>
-              <PopoverTrigger asChild>
-                <div>
-                  <Label className="text-sm">Code Background Color</Label>
-                  <div className="relative mt-2">
-                    <span
-                      className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
-                      style={{ backgroundColor: codeBackgroundColor }}
-                    ></span>
-                    <Input
-                      value={codeBackgroundColor}
-                      onChange={(e) => setCodeBackgroundColor(e.target.value)}
-                      placeholder="Code Background Color"
-                      className="rounded-[12px] border border-border bg-secondary/40 p-4 pl-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-                    />
+          <Collapsible trigger="Code Settings" open={true} buttonClassName="w-full">
+            <div className="relative">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div>
+                    <Label className="text-sm">Code Background Color</Label>
+                    <div className="relative mt-2">
+                      <span
+                        className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
+                        style={{ backgroundColor: codeBackgroundColor }}
+                      ></span>
+                      <Input
+                        value={codeBackgroundColor}
+                        onChange={(e) => setCodeBackgroundColor(e.target.value)}
+                        placeholder="Code Background Color"
+                        className="rounded-[12px] border border-border bg-secondary/40 p-4 pl-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
+                      />
+                    </div>
                   </div>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3" align="start">
-                <HexColorPicker
-                  color={codeBackgroundColor}
-                  onChange={(color) => {
-                    setCodeBackgroundColor(color);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3" align="start">
+                  <HexColorPicker
+                    color={codeBackgroundColor}
+                    onChange={(color) => {
+                      setCodeBackgroundColor(color);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-          <div className="space-y-2">
-            <Label>Language</Label>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_LANGUAGES.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label>Language</Label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div>
-            <Label>File Name</Label>
-            <Input
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              placeholder="Enter file name"
-              className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-            />
-          </div>
+            <div>
+              <Label>File Name</Label>
+              <Input
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                placeholder="Enter file name"
+                className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label>Highlight Lines</Label>
-            <Input
-              onChange={(e) => {
-                const lines = e.target.value
-                  .split(",")
-                  .map(Number)
-                  .filter(Boolean);
-                setHighlightedCodeLines(lines);
-              }}
-              type="text"
-              placeholder="Enter line numbers separated by commas"
-              className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Button
-              className="w-full flex items-center justify-center gap-2"
-              onClick={handleExport}
-            >
-              <Download className="h-4 w-4" />
-              Download
-            </Button>
-          </div>
+            <div className="space-y-2">
+              <Label>Highlight Lines</Label>
+              <Input
+                onChange={(e) => {
+                  const lines = e.target.value
+                    .split(",")
+                    .map(Number)
+                    .filter(Boolean);
+                  setHighlightedCodeLines(lines);
+                }}
+                type="text"
+                placeholder="Enter line numbers separated by commas"
+                className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
+              />
+            </div>
+          </Collapsible>
+          <Collapsible trigger="Themes" buttonClassName="w-full">
+            <ScrollArea className="h-64">
+              {CODE_THEMES.map((theme) => (
+                <button
+                  onClick={() => setTheme(theme.value)}
+                  className="custor-pointer select-none"
+                  key={theme.label}
+                >
+                  <SyntaxHighlighter
+                    language={"javascript"}
+                    style={theme.value}
+                    wrapLines={true}
+                    showLineNumbers={true}
+                    PreTag="div"
+                    customStyle={{
+                      fontSize: "0.75rem",
+                    }}
+                  >
+                    {`console.log("CrosspostHub")`}
+                  </SyntaxHighlighter>
+                </button>
+              ))}
+            </ScrollArea>
+          </Collapsible>
         </div>
       </div>
 
@@ -227,15 +260,12 @@ const CodeEditor: React.FC = () => {
           ref={exportRef}
           style={{
             ...getBackgroundStyle,
-            backdropFilter: `blur(${background.blur}px)`, // Apply blur
+            backdropFilter: `blur(10px)`, // Apply blur
             WebkitBackdropFilter: `blur(${background.blur}px)`, // For Safari support
           }}
           className="w-full h-full flex items-center justify-center"
         >
-          <Card
-            className=" border-none bg-none transition-all duration-200 backdrop-blur-sm rounded-xl p-0 shadow-xl w-full"
-            style={{ boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)" }} // Match shadow in image
-          >
+          <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
             <WindowFrame
               title={fileName}
               type={windowFrame.type}
@@ -243,6 +273,7 @@ const CodeEditor: React.FC = () => {
               colorized={windowFrame.colorized}
             >
               <CodeBlock
+                theme={theme}
                 border={border}
                 backgroundColor={codeBackgroundColor}
                 code={code}
@@ -378,8 +409,9 @@ const CodeEditor: React.FC = () => {
               {background.type !== "none" && background.type !== "solid" && (
                 <div className="space-y-2">
                   <Slider
-                    label={`Background Blur (${background.blur}px)`}
-                    min={0}
+                    // label={`Background Blur (${background.blur}px)`}
+                    label="Blur"
+                    min={2}
                     max={20}
                     step={1}
                     value={[background.blur]}
@@ -414,13 +446,12 @@ const CodeEditor: React.FC = () => {
 
               {background.type === "image" && (
                 <div className="space-y-4">
-                  <Label>Predefined Images</Label>
                   <div className="grid grid-cols-3 gap-2">
-                    {PREDEFINED_IMAGES.map((img) => (
+                    {LOCAL_IMAGES.map((img) => (
                       <img
                         key={img.id}
                         src={img.url}
-                        alt={img.label}
+                        alt={img.id}
                         className="h-10 w-full object-cover rounded cursor-pointer border"
                         loading="lazy"
                         onClick={() =>
@@ -432,18 +463,9 @@ const CodeEditor: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <Label>Custom Image</Label>
                   <div className="border-dashed border-2 p-4 rounded-lg text-center cursor-pointer">
                     <p>Drag & drop an image or click to upload</p>
                   </div>
-                  {background.image && (
-                    <img
-                      src={background.image}
-                      alt="Custom Background Preview"
-                      className="h-20 w-20 object-cover rounded"
-                      loading="lazy"
-                    />
-                  )}
                 </div>
               )}
             </div>
@@ -453,7 +475,7 @@ const CodeEditor: React.FC = () => {
           <Collapsible trigger="Border">
             <div className="space-y-2">
               <Collapsible trigger="Border Type">
-                <div>
+                <div className="space-y-1">
                   {["none", "solid", "dashed", "dotted"].map((e) => (
                     <Button
                       key={e}
@@ -530,6 +552,44 @@ const CodeEditor: React.FC = () => {
               </div>
             </div>
           </Collapsible>
+        </div>
+        <div className="space-y-2">
+          <Button
+            className="w-full flex items-center justify-center gap-2"
+            onClick={() => {
+              setHighlightedCodeLines([]);
+              setBackground({
+                type: "none",
+                image: "",
+                gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
+                solid: "#ffffff",
+                blur: 0,
+              });
+              setBorder({
+                type: "solid",
+                color: "#333333",
+                width: 1,
+                radius: 15,
+              });
+              setWindowFrame({
+                type: "none",
+                transparent: false,
+                colorized: false,
+              });
+              setTheme(atomDark);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+        <div className="space-y-2">
+          <Button
+            className="w-full flex items-center justify-center gap-2"
+            onClick={handleExport}
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </Button>
         </div>
       </div>
     </div>

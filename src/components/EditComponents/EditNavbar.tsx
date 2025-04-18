@@ -10,25 +10,21 @@ import { Button } from "../ui/button";
 const navItems = [
   {
     title: "Screenshot",
-    icon: "/camera.svg",
     href: "/edit",
     mode: "edit",
   },
   {
     title: "Code",
-    icon: "/code.svg",
     href: "/edit/code",
     mode: "code",
   },
   {
     title: "Tweet",
-    icon: "/twitter.svg",
     href: "/edit/tweet",
     mode: "tweet",
   },
   {
     title: "Mockup",
-    icon: "/mockup.svg",
     href: "/edit/mockup",
     mode: "mockup",
   },
@@ -75,24 +71,6 @@ export function EditorNavbar() {
                   isActive ? "bg-primary text-primary-foreground" : ""
                 }`}
               >
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      initial={{ scale: 0.9 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0.9 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Image
-                        src={item.icon}
-                        alt="image"
-                        className={`${item.title === "Tweet" ? "invert-[1] dark:invert-0" : ""}`}
-                        height={25}
-                        width={25}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 <span className="text-sm">{item.title}</span>
               </button>
             </Link>

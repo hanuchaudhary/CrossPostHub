@@ -21,7 +21,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
     return <>{children}</>;
   }
 
-  const bgClass = transparent ? "bg-transparent" : "bg-neutral-900";
+  const bgClass = transparent ? "bg-secondary/60 backdrop-blur-md" : "bg-neutral-900";
   const borderClass = "border-b border-neutral-800";
 
   // Common dots for macOS style windows

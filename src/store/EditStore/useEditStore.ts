@@ -72,6 +72,9 @@ interface CodeEditorStore {
     width?: number;
     radius?: number;
   }) => void;
+
+  theme?: any;
+  setTheme: (theme: any) => void;
 }
 
 export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
@@ -110,10 +113,10 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
 
   background: {
     type: "none",
-    image: "",
+    image: "/wallpaper/w1.jpg",
     gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
     solid: "#ffffff",
-    blur: 0,
+    blur: 2,
   },
   setBackground: ({ type, image, gradient, solid }) =>
     set((state) => ({
@@ -143,4 +146,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
         radius: radius ?? state.border.radius,
       },
     })),
+
+  theme: "",
+  setTheme: (theme) => set({ theme }),
 }));
