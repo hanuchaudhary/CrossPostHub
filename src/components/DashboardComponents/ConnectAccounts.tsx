@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Lock, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +25,7 @@ import {
 import BottomLoader from "../Loaders/BottomLoader";
 import TwitterConnectBTN from "../TwitterConnectButton";
 import axios from "axios";
+import { IconLoader, IconLockFilled } from "@tabler/icons-react";
 
 interface SocialApp {
   name: string;
@@ -142,7 +143,7 @@ export function ConnectAccounts() {
                       <h2 className="font-ClashDisplayMedium md:text-base text-sm">
                         Coming Soon...
                       </h2>
-                      <Lock className="h-5 w-5 ml-2" />
+                      <IconLockFilled className="h-5 w-5 ml-2" />
                     </div>
                   )}
                   <div className="flex items-center space-x-4">
@@ -187,7 +188,7 @@ export function ConnectAccounts() {
                       disabled={loading === app.provider}
                     >
                       {loading === app.provider ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <IconLoader className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
                         "Connect"
                       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 import { customToast } from "./customToast";
 import EnhanceCaption from "./EnhanceCaption";
+import { useSearchParams } from "next/navigation";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -41,6 +42,25 @@ export function CreatePostForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSinglePreview, setIsSinglePreview] = useState(true);
   const { connectedApps } = useDashboardStore();
+
+  // TODO: Uncomment this when the Image Upload funtionality Modified
+  
+  // const params = useSearchParams();
+  // const from = params.get("from");
+
+  // useEffect(() => {
+  //   if (from === "code-editor") {
+  //     const storedImage = sessionStorage.getItem("codeEditorImage");
+  //     if (storedImage) {
+  //       console.log("storedImage", storedImage);
+  //       setMedias((prev) => ({
+  //         ...prev,
+  //         files: [new File([storedImage], "code-editor-image.png")],
+  //       }));
+  //       sessionStorage.removeItem("codeEditorImage");
+  //     }
+  //   }
+  // }, [from]);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);

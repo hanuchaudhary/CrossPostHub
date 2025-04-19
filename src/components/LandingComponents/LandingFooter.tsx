@@ -99,8 +99,8 @@ export default function LandingFooter() {
             {[
               { href: "https://github.com/hanuchaudhary", name: "GitHub" },
               { href: "https://x.com/KushChaudharyOg", name: "Twitter" },
-              { href: "#", name: "LinkedIn" },
-              { href: "#", name: "Instagram" },
+              { href: "https://www.linkedin.com/in/kush-chaudhary-54448628a", name: "LinkedIn" },
+              { href: "https://www.instagram.com/kush.chaudhary.1", name: "Instagram" },
             ].map((social) => (
               <Link
                 key={social.name}

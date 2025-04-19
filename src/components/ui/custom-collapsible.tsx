@@ -52,7 +52,7 @@ export function Collapsible({
                     damping: 30,
                   },
                   opacity: { duration: 0.2 },
-                },
+                },  
               }}
               exit={{
                 opacity: 0,

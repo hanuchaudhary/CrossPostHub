@@ -31,11 +31,10 @@
 
 import React, { useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ImagePlus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import { getVideoDuration } from "@/utils/getVideoDuration";
 import { customToast } from "./customToast";
+import { IconPhotoFilled } from "@tabler/icons-react";
 
 interface MediaUploadProps {
   platforms?: string[] | null;
@@ -307,7 +306,7 @@ export function MediaUpload({ onChange, platforms }: MediaUploadProps) {
         onClick={handleClick}
         disabled={isUploading}
       >
-        <ImagePlus className="mr-2 h-4 w-4" />
+        <IconPhotoFilled className="h-4 w-4" />
         {isUploading ? "Uploading..." : "Add Images or Video"}
       </Button>
     </div>

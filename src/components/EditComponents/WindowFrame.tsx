@@ -8,9 +8,11 @@ interface WindowFrameProps {
   transparent?: boolean;
   colorized?: boolean;
   title?: string;
+  username?: string;
 }
 
 export const WindowFrame: React.FC<WindowFrameProps> = ({
+  username,
   children,
   type = "none",
   transparent = false,
@@ -65,7 +67,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           <div className="flex-1 mx-2">
             <div className="bg-neutral-800 rounded-full px-2 py-1 text-xs text-neutral-400 flex items-center justify-center">
               <span className="truncate">
-                https://example.com/{title.toLowerCase().replace(".", "-")}
+                https://{username}.com/{title.toLowerCase().replace(".", "-")}
               </span>
             </div>
           </div>
@@ -90,7 +92,9 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
                 </div>
               </div>
               <div className="bg-neutral-800 rounded-full px-3 py-1 text-xs text-neutral-400">
-                <span className="truncate">example.com</span>
+                <span className="truncate">
+                  {username}.codes/{title.toLowerCase()}
+                </span>
               </div>
             </div>
           </div>

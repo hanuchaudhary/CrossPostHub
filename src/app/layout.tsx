@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CrossPost Hub. | Post Once, Share Everywhere!",
+  title: "CrosspostHub | Post Once, Share Everywhere!",
   description:
     "Effortlessly share content to Instagram, LinkedIn, Twitter, and more — all at once.",
   icons: [

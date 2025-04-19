@@ -4,7 +4,7 @@ import NavItems from "./NavItems";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import MobileNavbar from "./MobileNavbar";
-import ThemeToggle from "../Tools/ThemeToggle";
+import { ThemeToggle } from "../Tools/ThemeToggle";
 
 export default function Navbar() {
   return (
@@ -13,7 +13,7 @@ export default function Navbar() {
         href="/"
         className="font-ClashDisplayMedium text-emerald-500 text-xl"
       >
-        CrossPost Hub.
+        CrosspostHub
       </Link>
       <div className="md:block hidden">
         <NavItems />

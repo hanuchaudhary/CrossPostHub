@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BellIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import NotificationDropdown from "./DropdownNotification";
 import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
+import { IconBellFilled } from "@tabler/icons-react";
 
 export default function NotificationButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,7 @@ export default function NotificationButton() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative inline-flex md:h-10 md:w-10 h-6 w-6  items-center justify-center rounded-full border bg-background shadow-sm transition-colors hover:bg-accent"
       >
-        <BellIcon className="md:h-5 md:w-5 h-3 w-3" />
+        <IconBellFilled className="md:h-5 md:w-5 h-3 w-3" />
         {unreadCount > 0 && (
           <Badge
             variant="destructive"

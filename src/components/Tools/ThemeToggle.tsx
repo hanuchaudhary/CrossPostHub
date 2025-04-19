@@ -1,12 +1,11 @@
 "use client";
 
 import React from "react";
-import { Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { IconMoonFilled, IconSunFilled } from "@tabler/icons-react";
 
-export default function ThemeToggle() {
+export function ThemeToggle() {
   const { setTheme, theme } = useTheme();
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");

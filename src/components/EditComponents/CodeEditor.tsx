@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type React from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Download } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 import { WindowFrame } from "@/components/EditComponents/WindowFrame";
 import {
@@ -35,8 +34,40 @@ import { customToast } from "../CreatePost/customToast";
 import { Slider } from "../ui/slider";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useSession } from "next-auth/react";
+import {
+  IconCircleArrowDownFilled,
+  IconFileDownloadFilled,
+  IconLoader,
+  IconLockFilled,
+  IconReload,
+} from "@tabler/icons-react";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+const ThemePreview = React.memo(
+  ({ theme, onClick }: { theme: any; onClick: () => void }) => (
+    <button onClick={onClick} className="cursor-pointer select-none">
+      <SyntaxHighlighter
+        language={"javascript"}
+        style={theme.value}
+        wrapLines={true}
+        showLineNumbers={true}
+        PreTag="div"
+        customStyle={{
+          fontSize: "0.75rem",
+        }}
+      >
+        {`console.log("CrosspostHub")`}
+      </SyntaxHighlighter>
+    </button>
+  )
+);
+ThemePreview.displayName = "ThemePreview";
 
 const CodeEditor: React.FC = () => {
+  const { data } = useSession();
   const {
     highlightedCodeLines,
     setHighlightedCodeLines,
@@ -59,6 +90,8 @@ const CodeEditor: React.FC = () => {
   } = useCodeEditorStore();
 
   const exportRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState<boolean>(false);
+  const router = useRouter();
   const [openCollapsibles, setOpenCollapsibles] = useState<string[]>([
     "Code Settings",
     "Select Frame",
@@ -120,9 +153,11 @@ const CodeEditor: React.FC = () => {
     }
   }, [background]);
 
-  const handleExport = useCallback(async () => {
-    if (!exportRef.current) return;
-
+  // Function to capture the image of the code block
+  const captureImage = useCallback(async (): Promise<string | null> => {
+    if (!exportRef.current) return null;
+    setOpenCollapsibles([]); // Close all collapsibles before capturing
+    setDownloading(true);
     try {
       const canvas = await html2canvas(exportRef.current, {
         scale: 3,
@@ -132,19 +167,40 @@ const CodeEditor: React.FC = () => {
         width: exportRef.current.offsetWidth,
         height: exportRef.current.offsetHeight,
       });
+      return canvas.toDataURL("image/png");
+    } catch (error) {
+      console.error("Image capture failed:", error);
+      customToast({
+        title: "Capture Failed",
+        description: "An error occurred while capturing the image.",
+      });
+      return null;
+    } finally {
+      setDownloading(false);
+    }
+  }, []);
 
+  // Function to handle export button click
+  const handleExport = useCallback(async () => {
+    const imageData = await captureImage();
+    if (imageData) {
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
+      link.href = imageData;
       link.download = `${fileName || "code"}.png`;
       link.click();
-    } catch (error) {
-      console.error("Export failed:", error);
-      customToast({
-        title: "Export Failed",
-        description: "An error occurred while exporting the image.",
-      });
     }
-  }, [fileName]);
+  }, [fileName, captureImage]);
+
+  // Function to handle share with CrosspostHub button click
+  const handleShareWithCrosspostHub = useCallback(async () => {
+    const imageData = await captureImage();
+    if (imageData) {
+      // Store the image in sessionStorage
+      sessionStorage.setItem("codeEditorImage", imageData);
+      // Redirect to /create route with query parameter from=code-editor
+      router.push("/create?from=code-editor");
+    }
+  }, [captureImage]);
 
   useEffect(() => {
     if (windowFrame.type !== "none") {
@@ -259,24 +315,11 @@ const CodeEditor: React.FC = () => {
           >
             <ScrollArea className="h-64">
               {CODE_THEMES.map((theme) => (
-                <button
-                  onClick={() => setTheme(theme.value)}
-                  className="cursor-pointer select-none"
+                <ThemePreview
                   key={theme.label}
-                >
-                  <SyntaxHighlighter
-                    language={"javascript"}
-                    style={theme.value}
-                    wrapLines={true}
-                    showLineNumbers={true}
-                    PreTag="div"
-                    customStyle={{
-                      fontSize: "0.75rem",
-                    }}
-                  >
-                    {`console.log("CrosspostHub")`}
-                  </SyntaxHighlighter>
-                </button>
+                  theme={theme}
+                  onClick={() => setTheme(theme.value)}
+                />
               ))}
             </ScrollArea>
           </Collapsible>
@@ -296,6 +339,7 @@ const CodeEditor: React.FC = () => {
         >
           <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
             <WindowFrame
+              username={data?.user?.name?.toLowerCase().replace(" ", "")}
               title={fileName}
               type={windowFrame.type}
               transparent={windowFrame.transparent}
@@ -316,8 +360,8 @@ const CodeEditor: React.FC = () => {
       </div>
 
       {/* Window Frame and Background Settings */}
-      <div className="bg-secondary/30 rounded-2xl border w-full p-2 space-y-2">
-        <div className="flex space-x-2">
+      <div className="bg-secondary/30 rounded-2xl border w-full p-2 flex flex-col gap-2 justify-between">
+        <div className="space-y-2">
           <Collapsible
             trigger="Select Frame"
             open={openCollapsibles.includes("Select Frame")}
@@ -383,8 +427,7 @@ const CodeEditor: React.FC = () => {
               </div>
             </div>
           </Collapsible>
-        </div>
-        <div>
+
           <Collapsible
             trigger="Background"
             open={openCollapsibles.includes("Background")}
@@ -489,7 +532,9 @@ const CodeEditor: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
                     {LOCAL_IMAGES.map((img) => (
-                      <img
+                      <Image
+                        width={100}
+                        height={100}
                         key={img.id}
                         src={img.url}
                         alt={img.id}
@@ -511,8 +556,7 @@ const CodeEditor: React.FC = () => {
               )}
             </div>
           </Collapsible>
-        </div>
-        <div>
+
           <Collapsible
             trigger="Border"
             open={openCollapsibles.includes("Border")}
@@ -604,45 +648,112 @@ const CodeEditor: React.FC = () => {
             </div>
           </Collapsible>
         </div>
-        <div className="space-y-2">
+
+        <div className="border rounded-2xl p-2 space-y-2 bg-secondary/50">
+          <div className="flex items-center gap-1.5">
+            <Button
+              className="flex items-center justify-center gap-2 px-3"
+              size={"icon"}
+              onClick={() => {
+                setHighlightedCodeLines([]);
+                setBackground({
+                  type: "none",
+                  image: "",
+                  gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
+                  solid: "#ffffff",
+                  blur: 0,
+                });
+                setBorder({
+                  type: "solid",
+                  color: "#333333",
+                  width: 1,
+                  radius: 15,
+                });
+                setWindowFrame({
+                  type: "none",
+                  transparent: false,
+                  colorized: false,
+                });
+                setTheme(atomDark);
+              }}
+            >
+              <IconReload />
+            </Button>
+            <Button
+              className="flex w-full items-center justify-center gap-2"
+              onClick={() => {
+                setBackground({
+                  type: "image",
+                  image: "/wallpaper/w1.jpg",
+                });
+                setWindowFrame({
+                  type: "arc",
+                  colorized: true,
+                });
+                setFileName("example-code.tsx");
+                setOpenCollapsibles([]);
+              }}
+            >
+              Quick Edit
+            </Button>
+          </div>
           <Button
-            className="w-full flex items-center justify-center gap-2"
-            onClick={() => {
-              setHighlightedCodeLines([]);
-              setBackground({
-                type: "none",
-                image: "",
-                gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
-                solid: "#ffffff",
-                blur: 0,
-              });
-              setBorder({
-                type: "solid",
-                color: "#333333",
-                width: 1,
-                radius: 15,
-              });
-              setWindowFrame({
-                type: "none",
-                transparent: false,
-                colorized: false,
-              });
-              setTheme(atomDark);
-              setOpenCollapsibles([]); // Close all Collapsibles on reset
-            }}
-          >
-            Reset
-          </Button>
-        </div>
-        <div className="space-y-2">
-          <Button
-            className="w-full flex items-center justify-center gap-2"
+            className="w-full"
             onClick={handleExport}
+            disabled={downloading}
           >
-            <Download className="h-4 w-4" />
-            Download
+            {!downloading ? (
+              <div className="flex items-center justify-center gap-1">
+                <IconCircleArrowDownFilled className="h-5 w-5" />
+                Download
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-1">
+                <IconLoader className="h-5 w-5 animate-spin" />
+                Downloading
+              </div>
+            )}
           </Button>
         </div>
+      </div>
+      <div className="md:flex hidden fixed top-3 right-3 border rounded-2xl p-1 gap-2 bg-secondary/50">
+        <Button
+          size={"sm"}
+          className="w-full flex items-center justify-center gap-1"
+          onClick={() => {
+            useCodeEditorStore.getState().saveDraft();
+            toast({
+              title: "Draft Saved",
+            });
+          }}
+        >
+          <IconFileDownloadFilled /> Save as Draft
+        </Button>
+
+        <Button
+          size={"sm"}
+          variant={"secondary"}
+          className="w-full flex items-center justify-center gap-2"
+          onClick={() => {
+            const state = useCodeEditorStore.getState().loadDraft();
+            console.log("state", state);
+
+            toast({
+              title: "Your saved draft has been loaded.",
+            });
+          }}
+        >
+          Load Draft
+        </Button>
+
+        <Button
+          disabled
+          size={"sm"}
+          className="w-full flex items-center justify-center gap-1"
+          onClick={handleShareWithCrosspostHub}
+        >
+          Share <IconLockFilled />
+        </Button>
       </div>
     </div>
   );

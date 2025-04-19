@@ -1,7 +1,7 @@
 import { DEFAULT_CODE } from "@/lib/constants";
 import { create } from "zustand";
 
-interface CodeEditorStore {
+export interface CodeEditorStore {
   code: string;
   setCode: (code: string) => void;
 
@@ -32,6 +32,7 @@ interface CodeEditorStore {
     image,
     gradient,
     solid,
+    blur,
   }: {
     type: "none" | "image" | "gradient" | "solid";
     image?: string;
@@ -75,9 +76,12 @@ interface CodeEditorStore {
 
   theme?: any;
   setTheme: (theme: any) => void;
+
+  saveDraft: () => void;
+  loadDraft: () => void;
 }
 
-export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
+export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
   code: DEFAULT_CODE,
   setCode: (code) => set({ code }),
 
@@ -118,7 +122,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
     solid: "#ffffff",
     blur: 2,
   },
-  setBackground: ({ type, image, gradient, solid }) =>
+  setBackground: ({ type, image, gradient, solid, blur }) =>
     set((state) => ({
       background: {
         ...state.background,
@@ -126,7 +130,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
         image: image ?? state.background.image,
         gradient: gradient ?? state.background.gradient,
         solid: solid ?? state.background.solid,
-        blur: state.background.blur,
+        blur: blur ?? state.background.blur,
       },
     })),
 
@@ -149,4 +153,18 @@ export const useCodeEditorStore = create<CodeEditorStore>((set) => ({
 
   theme: "",
   setTheme: (theme) => set({ theme }),
+
+  saveDraft: () => {
+    const state = get();
+    const { saveDraft, loadDraft, ...stateToSave } = state;
+    localStorage.setItem("codeEditorDraft", JSON.stringify(stateToSave));
+  },
+
+  loadDraft: () => {
+    const draft = localStorage.getItem("codeEditorDraft");
+    if (draft) {
+      const parsedDraft = JSON.parse(draft);
+      set(parsedDraft);
+    }
+  },
 }));

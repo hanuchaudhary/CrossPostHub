@@ -1,11 +1,11 @@
 import DashboardNavbar from "@/components/DashboardComponents/DashboardNavbar";
 import PageLoader from "@/components/Loaders/PageLoader";
-import ThemeToggle from "@/components/Tools/ThemeToggle";
+import { ThemeToggle } from "@/components/Tools/ThemeToggle";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "CrossPost Hub. | Post Once, Share Everywhere!",
+  title: "CrosspostHub | Post Once, Share Everywhere!",
   description:
     "Effortlessly share content to Instagram, LinkedIn, Twitter, and more — all at once.",
 };

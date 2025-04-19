@@ -31,7 +31,7 @@ export default function MobileNav() {
       <SheetContent className="rounded-l-2xl">
         <SheetHeader>
           <SheetTitle className="text-left">
-            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500">CrossPost Hub.</h1>
+            <h1 className="font-ClashDisplayMedium text-xl text-emerald-500">CrosspostHub</h1>
             <SheetDescription className="text-neutral-500 dark:text-neutral-400">
               All your social media in one place.
             </SheetDescription>
