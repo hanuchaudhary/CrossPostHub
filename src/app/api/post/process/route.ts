@@ -6,7 +6,6 @@ import { linkedinPostPublish } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
-import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 import { decryptToken } from "@/lib/Crypto";
 import { getFromS3Bucket } from "@/config/s3Config";
 import { Client } from "@upstash/qstash";
@@ -140,7 +139,7 @@ async function handler(request: NextRequest) {
       }),
       createNotification({
         userId,
-        type: "POST_STATUS",
+        type: "POST_STATUS_SUCCESS",
         message: `Your post has been published on ${provider}.`,
       }).then(async (notification) => {
         await Promise.all([
@@ -150,10 +149,6 @@ async function handler(request: NextRequest) {
             platform: provider,
             postTitle: postText,
           }).then((res) => console.log("Email Sent", res?.data)),
-          sendSSEMessage(userId, {
-            type: "post-success",
-            message: notification.message,
-          }),
         ]);
       }),
     ]);
@@ -178,7 +173,7 @@ async function handler(request: NextRequest) {
     const existingNotification = await prisma.notification.findFirst({
       where: {
         userId,
-        type: "POST_STATUS",
+        type: "POST_STATUS_FAILED",
         message: {
           contains: `Failed to publish post on ${provider}`,
         },
@@ -205,7 +200,7 @@ async function handler(request: NextRequest) {
         }),
         createNotification({
           userId,
-          type: "POST_STATUS",
+          type: "POST_STATUS_FAILED",
           message: `Failed to publish post on ${provider}: ${error.message}`,
         }).then(async (notification) => {
           await Promise.all([
@@ -215,10 +210,6 @@ async function handler(request: NextRequest) {
               platform: provider,
               postTitle: postText,
               error: error.message,
-            }),
-            sendSSEMessage(userId, {
-              type: "post-failed",
-              message: notification.message,
             }),
           ]);
         }),

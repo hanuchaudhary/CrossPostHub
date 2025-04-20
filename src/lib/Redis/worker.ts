@@ -30,7 +30,6 @@ import {
   TwiiterFileType,
 } from "@/utils/getFileType";
 import { LinkedinUtilsV2 } from "@/utils/LinkedInUtils/LinkedinUtilsV2";
-import { sendSSEMessage } from "@/utils/Notifications/SSE/sse";
 import { sendEmailNotification } from "@/utils/Notifications/Notfications";
 import { postSaveToDB } from "@/utils/Controllers/PostSaveToDb";
 
@@ -130,7 +129,7 @@ const publishPostWorker = new Worker(
         // Send success notification
         const notification = await createNotification({
           userId,
-          type: "POST_STATUS",
+          type: "POST_STATUS_SUCCESS",
           message: `Your post has been published on ${provider}.`,
         });
         console.log("Notification Saved to database");
@@ -143,12 +142,6 @@ const publishPostWorker = new Worker(
           postTitle: postText,
         });
         console.log("Email Sent", res?.data);
-
-        // Trigger SSE event
-        await sendSSEMessage(userId, {
-          type: "post-success",
-          message: notification.message,
-        });
 
         return { provider: "linkedin", response: postResponse };
       }
@@ -183,7 +176,7 @@ const publishPostWorker = new Worker(
         // Send success notification
         const notification = await createNotification({
           userId,
-          type: "POST_STATUS",
+          type: "POST_STATUS_SUCCESS",
           message: `Your post has been published on ${provider}.`,
         });
 
@@ -193,12 +186,6 @@ const publishPostWorker = new Worker(
           type: "SUCCESS",
           platform: provider,
           postTitle: postText,
-        });
-
-        // Trigger SSE event
-        await sendSSEMessage(userId, {
-          type: "post-success",
-          message: notification.message,
         });
 
         return { provider: "twitter", response: tweetResponse };
@@ -213,7 +200,7 @@ const publishPostWorker = new Worker(
       // Send failure notification
       const notification = await createNotification({
         userId: job.data.userId,
-        type: "POST_STATUS",
+        type: "POST_STATUS_FAILED",
         message: `Failed to publish post on ${job.data.provider}.`,
       });
 
@@ -233,11 +220,6 @@ const publishPostWorker = new Worker(
       //   error: error.message,
       // });
 
-      // Trigger SSE event
-      await sendSSEMessage(job.data.userId, {
-        type: "post-failed",
-        message: notification.message,
-      });
 
       throw error;
     }

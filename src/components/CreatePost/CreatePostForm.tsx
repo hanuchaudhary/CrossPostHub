@@ -24,6 +24,7 @@ import EnhanceCaption from "./EnhanceCaption";
 import { useMediaStore } from "@/store/MainStore/usePostStore";
 import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams } from "next/navigation";
+import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
 
 export type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -36,6 +37,8 @@ export function CreatePostForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSinglePreview, setIsSinglePreview] = useState(true);
   const { connectedApps } = useDashboardStore();
+  const { fetchNotifications, notifications } = useNotificationStore();
+  const [isPollingNotifications, setIsPollingNotifications] = useState(false);
 
   // Zustand store for media
   const { medias, isUploadingMedia, resetMedias, handleFileUpload } =
@@ -57,6 +60,70 @@ export function CreatePostForm() {
     );
   };
 
+  const POLLING_INTERVAL = 2000; // 2 seconds
+  const POLLING_DURATION = 20000; // 20 seconds
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
+    if (isPollingNotifications) {
+      interval = setInterval(async () => {
+        try {
+          await fetchNotifications();
+
+          // Check recent FAILED or SUCCESS notifications within the last 30 seconds
+          const recentPublishedNotification = notifications.find(
+            (notification) =>
+              (notification.type === "POST_STATUS_FAILED" ||
+                notification.type === "POST_STATUS_SUCCESS") &&
+              new Date(notification.createdAt).getTime() > Date.now() - 30000
+          );
+
+          if (recentPublishedNotification) {
+            // Stop polling if the desired notification is received
+            setIsPollingNotifications(false);
+            if (recentPublishedNotification.type === "POST_STATUS_SUCCESS") {
+              customToast({
+                title: "Post Published",
+                description: "Your post has been published successfully!"
+              });
+            } else {
+              customToast({
+                title: "Post Failed",
+                description: "Your post failed to publish. Please try again.",
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Polling error:", error);
+          customToast({
+            title: "Polling Error",
+            description: "An error occurred while checking for updates.",
+            badgeVariant: "destructive",
+          });
+        }
+      }, POLLING_INTERVAL);
+
+      // Clear the interval after 20 seconds if not stopped earlier
+      timeout = setTimeout(() => {
+        setIsPollingNotifications(false);
+        customToast({
+          title: "Notification Polling Stopped",
+          description:
+            "Stopped checking for notifications. You can check manually if needed.",
+          badgeVariant: "default",
+        });
+      }, POLLING_DURATION);
+    }
+
+    // Cleanup on unmount or when polling stops
+    return () => {
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [isPollingNotifications, notifications]); // Add notifications as a dependency
+
   // TODO: Uncomment this when the Image Upload funtionality Modified ✅
   const params = useSearchParams();
   const from = params.get("from");
@@ -75,21 +142,21 @@ export function CreatePostForm() {
             bytes[i] = binaryString.charCodeAt(i);
           }
           const imageBlob = new Blob([bytes], { type: "image/png" });
-  
+
           // Create a File object
           const file = new File([imageBlob], "code-editor-image.png", {
             type: "image/png",
           });
-  
+
           // Convert File to FileList
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(file);
           const fileList = dataTransfer.files;
-  
+
           // Set platform and trigger upload
           setSelectedPlatforms(["twitter"]);
           handleFileUpload(fileList, ["twitter"]);
-          
+
           // Clean up sessionStorage
           sessionStorage.removeItem("codeEditorImage");
         } catch (error) {
@@ -97,12 +164,11 @@ export function CreatePostForm() {
           customToast({
             title: "Image Processing Failed",
             description: "Unable to load the image from the code editor.",
-            badgeVariant: "destructive",
           });
         }
       }
     }
-  }, [from, handleFileUpload]); 
+  }, [from, handleFileUpload]);
 
   const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
@@ -110,7 +176,6 @@ export function CreatePostForm() {
         title: "Platform Selection Required",
         description:
           "Please select at least one platform to publish your post. You can choose from Instagram, Twitter, or LinkedIn.",
-        badgeVariant: "destructive",
       });
       return;
     }
@@ -120,7 +185,6 @@ export function CreatePostForm() {
         title: "Content Required",
         description:
           "Please enter some content or upload media to publish your post.",
-        badgeVariant: "destructive",
       });
       return;
     }
@@ -129,7 +193,6 @@ export function CreatePostForm() {
       customToast({
         title: "Schedule Date and Time Required",
         description: "Please select a date and time for scheduling your post.",
-        badgeVariant: "destructive",
       });
       return;
     }
@@ -145,7 +208,6 @@ export function CreatePostForm() {
         description: selectedPlatforms.includes("twitter")
           ? "Twitter posts cannot exceed 275 characters."
           : "LinkedIn posts cannot exceed 2900 characters.",
-        badgeVariant: "destructive",
       });
       return;
     }
@@ -179,7 +241,6 @@ export function CreatePostForm() {
           : "Post Sent for Processing",
         description:
           "Your post is being processed. You will be notified once it is published.",
-        badgeVariant: "pending",
       });
 
       setContent("");
@@ -189,6 +250,9 @@ export function CreatePostForm() {
       setScheduleDate(null);
       setScheduleTime("");
       useMediaStore.getState().resetMedias(); // Reset media state in Zustand store
+
+      // Start polling for notifications
+      setIsPollingNotifications(true);
     } catch (error: any) {
       console.error("CreatePost Error:", error);
       customToast({
@@ -196,7 +260,6 @@ export function CreatePostForm() {
         description:
           error.response?.data?.error ||
           "An error occurred while creating the post.",
-        badgeVariant: "destructive",
       });
     } finally {
       setIsLoading(false);

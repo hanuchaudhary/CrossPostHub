@@ -2,7 +2,7 @@ import prisma from "@/config/prismaConfig";
 
 type createNotificationProps = {
   userId: string;
-  type: "POST_STATUS" | "SYSTEM_ALERT";
+  type: "POST_STATUS_PROCESSING" | "POST_STATUS_SUCCESS" | "POST_STATUS_FAILED" | "SYSTEM_ALERT";
   message: string;
 };
 

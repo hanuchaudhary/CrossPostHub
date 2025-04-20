@@ -9,7 +9,6 @@ import { ArrowLeft, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/AuthStore/useAuthStore";
-import SSEListener from "../Tools/SSEListner";
 import UpgradeButton from "../Buttons/UpgradeButton";
 import Guide from "../Guide";
 import NotificationButton from "../Buttons/NotificationsButton";
@@ -26,7 +25,6 @@ export default function DashboardNavbar() {
 
   return (
     <header className="w-full flex items-center justify-between py-4 px-4 md:max-w-7xl mx-auto">
-      {data?.user.id && <SSEListener userId={data.user.id} />}
       <div className="flex items-center gap-2 md:gap-4">
         <Link href="/dashboard" className="flex items-center">
           <span className="text-lg font-ClashDisplayMedium text-emerald-500">

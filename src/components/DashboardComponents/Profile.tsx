@@ -13,14 +13,12 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserProfile } from "./UserProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import TwitterUserDetails from "./TwitterUserDetails";
 import LogoutButton from "../Buttons/LogoutButton";
 import LinkedinUserDetails from "./LinkedinUserDetails";
@@ -36,13 +34,13 @@ export function Profile() {
 
   // Dummy LinkedIn profile data
   const linkedInProfile = {
-    name: "Kush Cjaudhary",
+    name: "Kush Chaudhary",
     headline: "Software Engineer at Tech Co.",
     profileImageUrl: "https://randomuser.me/api/portraits",
     connections: 500,
   };
 
-  // Dummy graph data for posts on different platforms
+  // MOCK DATA
   const postData = [
     { month: "Jan", twitter: 15, linkedin: 8, instagram: 20 },
     { month: "Feb", twitter: 20, linkedin: 10, instagram: 25 },
@@ -63,15 +61,16 @@ export function Profile() {
       <DrawerTrigger>
         <UserProfile />
       </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle className="font-ClashDisplayRegular text-2xl mb-2 text-emerald-500">
-            Profile
-          </DrawerTitle>
-          <DrawerDescription>
-            Your connected platforms and their details.
-          </DrawerDescription>
-        </DrawerHeader>
+      <DrawerContent className="rounded-3xl">
+        <div className="px-4 pt-3">
+          <h2 className="font-ClashDisplayMedium text-2xl text-emerald-500">
+            Profile Dashboard
+          </h2>
+          <p className="text-muted-foreground text-sm font-ClashDisplayRegular">
+            Analytics overview for your connected platforms and posting
+            activity.
+          </p>
+        </div>
         <ScrollArea className="p-4">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">

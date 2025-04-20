@@ -3,6 +3,7 @@ import { create } from "zustand";
 import axios from "axios";
 import { customToast } from "@/components/CreatePost/customToast";
 import { getVideoDuration } from "@/utils/getVideoDuration";
+import { deleteFromS3Bucket } from "@/config/s3Config";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -365,28 +366,41 @@ export const useMediaStore = create<MediaState>((set, get) => ({
 
   removeMedia: async (fileName: string) => {
     const { medias } = get();
-
-    // const mediaKey = medias.mediaKeys?.find(
-    //   (_, index) => medias.files?.[index]?.name === fileName
-    // );
-    // console.log("mediakey",mediaKey);
-    
-    // if (mediaKey) {
-    //   await deleteFromS3Bucket(mediaKey); // Delete the file from S3 if it was uploaded
-    // }
-
-    const updatedFiles = (medias.files || []).filter(
-      (file) => file.name !== fileName
+    const mediaKey = medias.mediaKeys?.find(
+      (_, index) => medias.files?.[index]?.name === fileName
     );
-    const updatedMediaKeys = (medias.mediaKeys || []).filter(
-      (_, index) => medias.files?.[index]?.name !== fileName
-    );
+    if (mediaKey) {
+      const updatedFiles = (medias.files || []).filter(
+        (file) => file.name !== fileName
+      );
+      const updatedMediaKeys = (medias.mediaKeys || []).filter(
+        (_, index) => medias.files?.[index]?.name === fileName
+      );
 
-    set({
-      medias: {
-        files: updatedFiles.length > 0 ? updatedFiles : null,
-        mediaKeys: updatedMediaKeys.length > 0 ? updatedMediaKeys : null,
-      },
-    });
+      set({
+        medias: {
+          files: updatedFiles.length > 0 ? updatedFiles : null,
+          mediaKeys: updatedMediaKeys.length > 0 ? updatedMediaKeys : null,
+        },
+      });
+
+      customToast({
+        title: "File Removed",
+        description: `The file ${fileName} has been removed.`,
+      });
+
+      // Attempt to delete the file from S3
+      try {
+        await axios.post(`/api/post/delete/media`, {
+          mediaKey,
+        });
+      } catch (error) {
+        console.error(`Failed to delete ${fileName} from S3:`, error);
+        customToast({
+          title: "S3 Deletion Failed",
+          description: `The file ${fileName} was removed, but we couldn't delete it from S3.`,
+        });
+      }
+    }
   },
 }));

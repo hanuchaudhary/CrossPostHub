@@ -109,7 +109,11 @@ export interface TransactionType {
 export interface NotificationType {
   id: number;
   message: string;
-  type: string;
+  type:
+    | "POST_STATUS_PROCESSING"
+    | "POST_STATUS_SUCCESS"
+    | "POST_STATUS_FAILED"
+    | "SYSTEM_ALERT";
   userId: string;
   read: boolean;
   createdAt: Date;
@@ -119,11 +123,18 @@ export interface NotificationType {
 export interface TwitterUser {
   id: string;
   name: string;
-  screen_name: string; // Username/handle
-  profile_name: string; // Display name
+  screen_name: string;
+  location: string;
+  description: string;
+  url: string | null;
+  profile_image_url: string;
   followers_count: number;
   friends_count: number;
+  createdAt: string; // Twitter uses ISO strings for dates
+  verified: boolean;
   profile_image_url_https: string;
+  profile_banner_url?: string;
+  profile_background_color?: string;
 }
 
 export type Providers = "twitter" | "linkedin" | "instagram" | "threads";
