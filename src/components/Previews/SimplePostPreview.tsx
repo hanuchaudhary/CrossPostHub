@@ -35,6 +35,7 @@ const ContentPreview = memo(({ content }: { content: string }) => {
     </div>
   );
 });
+ContentPreview.displayName = "ContentPreview";
 
 // Separate component for rendering media because at every keystroke in the editor, the entire SimplePostPreview component re-renders, causing blinking in the carousel.
 const MediaPreview = memo(({ medias }: { medias: File[] }) => {
@@ -46,13 +47,23 @@ const MediaPreview = memo(({ medias }: { medias: File[] }) => {
         {medias.map((file, index) => (
           <CarouselItem key={index}>
             {file.type.startsWith("image/") ? (
-              <Image
-                height={100}
-                width={100}
-                src={URL.createObjectURL(file) || "/placeholder.svg"}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-full object-contain rounded"
-              />
+              <div className="relative">
+                <Image
+                  height={100}
+                  width={100}
+                  src={URL.createObjectURL(file) || "/placeholder.svg"}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-full object-contain rounded"
+                />
+                <div
+                  onClick={() => {
+                    useMediaStore.getState().removeMedia(file.name);
+                  }}
+                  className="absolute top-2 right-2 cursor-pointer opacity-50 hover:opacity-100 transition duration-200 ease-in-out"
+                >
+                  <IconCircleXFilled />
+                </div>
+              </div>
             ) : file.type.startsWith("video/") ? (
               <video controls className="w-full h-full object-contain rounded">
                 <source src={URL.createObjectURL(file)} type={file.type} />
@@ -75,6 +86,7 @@ const MediaPreview = memo(({ medias }: { medias: File[] }) => {
     </Carousel>
   ) : null;
 });
+MediaPreview.displayName = "MediaPreview";
 
 const CircularProgress = ({ value }: { value: number }) => {
   const circumference = 2 * Math.PI * 40; // 40 is the radius
@@ -156,6 +168,7 @@ const UploadProgressItem = memo(
     );
   }
 );
+UploadProgressItem.displayName = "UploadProgressItem";
 
 interface SimplePostPreviewProps {
   content: string;

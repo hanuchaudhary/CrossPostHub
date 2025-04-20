@@ -1,5 +1,4 @@
 import { toast } from "@/hooks/use-toast";
-import { Badge } from "../ui/badge";
 
 type CustomToastProps = {
   title: string;
@@ -18,22 +17,15 @@ export const customToast = (props: CustomToastProps) => {
     title: props.title,
     description: (
       <div className="w-full">
-        <Badge className="my-2" variant={props.badgeVariant || "default"}>
-          {props.badgeVariant === "success"
-            ? "Success"
-            : props.badgeVariant === "pending"
-              ? "Processing"
-              : "Error"}
-        </Badge>
         <div className="text-xs">
           <p>{props.description}</p>
-          <span className="text-neutral-500 text-xs">
+          {/* <span className="text-neutral-500 text-xs">
             {new Date().toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",
               year: "numeric",
             })}
-          </span>
+          </span> */}
         </div>
         <p className="font-ClashDisplayMedium text-right pt-3 tracking-tighter text-emerald-500">
           CrossPostHub.

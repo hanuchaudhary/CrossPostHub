@@ -1,6 +1,6 @@
 // stores/mediaStore.ts
 import { create } from "zustand";
-import axios, { CancelTokenSource } from "axios";
+import axios from "axios";
 import { customToast } from "@/components/CreatePost/customToast";
 import { getVideoDuration } from "@/utils/getVideoDuration";
 
@@ -9,7 +9,7 @@ type Platform = "instagram" | "twitter" | "linkedin";
 interface UploadProgress {
   fileName: string;
   progress: number; // Percentage (0-100)
-  cancelTokenSource?: CancelTokenSource; // Optional CancelTokenSource for cancellation
+  abortController?: AbortController; // Store the AbortController for cancellation
 }
 
 interface MediaState {
@@ -58,8 +58,6 @@ export const useMediaStore = create<MediaState>((set, get) => ({
       });
       return;
     }
-
-    console.log("Selected files:", platforms);
 
     if (!platforms || platforms.length === 0) {
       customToast({
@@ -231,18 +229,24 @@ export const useMediaStore = create<MediaState>((set, get) => ({
 
     // Step 3: If valid, upload files to S3 using presigned URLs
     if (isValid && validFiles.length > 0) {
-      set({
-        isUploadingMedia: true,
-        uploadProgress: validFiles.map((file) => ({
-          fileName: file.name,
-          progress: 0,
-        })),
-      });
+      // Initialize upload progress with AbortController for each file
+      const uploadProgress = validFiles.map((file) => ({
+        fileName: file.name,
+        progress: 0,
+        abortController: new AbortController(),
+      }));
+      set({ isUploadingMedia: true, uploadProgress });
+
       try {
         const mediaKeys: string[] = [];
+        const uploadedFiles: File[] = [];
 
-        // Get presigned URLs and upload each file
+        // Upload each file
         for (const file of validFiles) {
+          const abortController = uploadProgress.find(
+            (item) => item.fileName === file.name
+          )?.abortController;
+
           const response = await axios.post("/api/post/preSignedUrl", {
             fileName: file.name,
             fileType: file.type,
@@ -256,6 +260,7 @@ export const useMediaStore = create<MediaState>((set, get) => ({
           const { url, key } = response.data;
           const uploadResponse = await axios.put(url, file, {
             headers: { "Content-Type": file.type },
+            signal: abortController?.signal, // Attach AbortSignal
             onUploadProgress: (progressEvent) => {
               const percentCompleted = Math.round(
                 (progressEvent.loaded * 100) / (progressEvent.total || 1)
@@ -273,25 +278,24 @@ export const useMediaStore = create<MediaState>((set, get) => ({
           if (!uploadResponse.status) {
             throw new Error(`Failed to upload ${file.name} to S3`);
           }
-
           mediaKeys.push(key);
+          uploadedFiles.push(file);
         }
 
         // Step 4: Update state with files and mediaKeys
         set({
           medias: {
-            files: validFiles,
+            files: uploadedFiles,
             mediaKeys,
           },
           isUploadingMedia: false,
-          uploadProgress: [], // Clear progress after upload
+          uploadProgress: [],
         });
-      } catch (error) {
-        customToast({
-          title: "Upload Error",
-          description: "Failed to upload media to S3. Please try again.",
-          badgeVariant: "destructive",
-        });
+      } catch (error: any) {
+        if (error.name === "AbortError") {
+          // If aborted, the state will be updated by cancelUpload
+          return;
+        }
         set({
           medias: { files: [], mediaKeys: [] },
           isUploadingMedia: false,
@@ -307,17 +311,25 @@ export const useMediaStore = create<MediaState>((set, get) => ({
     }
   },
 
-  cancelUpload: (fileName: string) => {
+  cancelUpload: async (fileName: string) => {
     const { uploadProgress, medias } = get();
 
-    // Find the CancelTokenSource for the file
+    // Find the AbortController for the file
     const progressItem = uploadProgress.find(
       (item) => item.fileName === fileName
     );
-    if (progressItem && progressItem.cancelTokenSource) {
-      progressItem.cancelTokenSource.cancel(
+
+    if (progressItem && progressItem.abortController) {
+      progressItem.abortController.abort(
         `Upload of ${fileName} canceled by user.`
       );
+
+      // const mediaKey = medias.mediaKeys?.find(
+      //   (_, index) => medias.files?.[index]?.name === fileName
+      // );
+      // if (mediaKey) {
+      //   await deleteFromS3Bucket(mediaKey); // Delete the file from S3 if it was uploaded
+      // }
     }
 
     // Remove the canceled file from uploadProgress
@@ -348,12 +360,21 @@ export const useMediaStore = create<MediaState>((set, get) => ({
     customToast({
       title: `Upload Canceled`,
       description: `The upload of ${fileName} has been canceled.`,
-      badgeVariant: "destructive",
     });
   },
 
-  removeMedia: (fileName: string) => {
+  removeMedia: async (fileName: string) => {
     const { medias } = get();
+
+    // const mediaKey = medias.mediaKeys?.find(
+    //   (_, index) => medias.files?.[index]?.name === fileName
+    // );
+    // console.log("mediakey",mediaKey);
+    
+    // if (mediaKey) {
+    //   await deleteFromS3Bucket(mediaKey); // Delete the file from S3 if it was uploaded
+    // }
+
     const updatedFiles = (medias.files || []).filter(
       (file) => file.name !== fileName
     );

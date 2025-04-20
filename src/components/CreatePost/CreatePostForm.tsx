@@ -188,6 +188,7 @@ export function CreatePostForm() {
       setIsScheduled(false);
       setScheduleDate(null);
       setScheduleTime("");
+      useMediaStore.getState().resetMedias(); // Reset media state in Zustand store
     } catch (error: any) {
       console.error("CreatePost Error:", error);
       customToast({

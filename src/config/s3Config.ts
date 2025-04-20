@@ -7,7 +7,7 @@ import {
 
 // This is the S3 client configuration file. It initializes the S3 client with the necessary credentials and region.
 export const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION || "ap-south-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
