@@ -2,7 +2,7 @@ import React, { Ref } from "react";
 import { Card } from "../ui/card";
 import { CodeBlock } from "./CodeBlock";
 import { WindowFrame } from "./WindowFrame";
-import { CodeEditorStore } from "@/store/EditStore/useEditStore";
+import { CodeEditorStore } from "@/store/MainStore/useEditStore";
 
 interface CodePreviewProps {
   getBackgroundStyle: any;

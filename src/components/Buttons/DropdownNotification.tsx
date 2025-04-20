@@ -12,6 +12,7 @@ import {
 import { formatDate } from "@/lib/formatDate";
 import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
 import Image from "next/image";
+import { useTheme } from "next-themes";
 
 interface NotificationDropdownProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export default function NotificationDropdown({
     clearAll,
   } = useNotificationStore();
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const { theme } = useTheme();
 
   return (
     <AnimatePresence>
@@ -86,16 +88,16 @@ export default function NotificationDropdown({
                               notification.message.includes("linkedin")
                                 ? "/linkedin.svg"
                                 : notification.message.includes("twitter")
-                                ? "/twitter.svg"
-                                : "/instagram.svg"
+                                  ? notification.read
+                                    ? theme === "dark"
+                                      ? "/twitter-light.svg"  
+                                      : "/twitter.svg"
+                                    : theme === "dark"
+                                      ? "/twitter.svg"
+                                      : "/twitter-light.svg"
+                                  : "/instagram.svg"
                             }
                             height={40}
-                            className={
-                              notification.message.includes("twitter") &&
-                              notification.read
-                                ? "dark:invert-[1]"
-                                : ""
-                            }
                             width={40}
                             alt="provider"
                           />

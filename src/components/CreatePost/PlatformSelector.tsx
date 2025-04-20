@@ -44,7 +44,7 @@ export function PlatformSelector({
             ))
           : connectedApps.map((app) => (
               <motion.button
-                key={app.id_token}
+                key={app.provider}
                 className={cn(
                   "flex items-center justify-center p-2 rounded-xl transition-all duration-300 ease-in-out",
                   selectedPlatforms.includes(app.provider as Platform)

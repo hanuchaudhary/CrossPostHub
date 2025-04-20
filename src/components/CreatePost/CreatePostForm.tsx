@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,20 +21,14 @@ import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 import { customToast } from "./customToast";
 import EnhanceCaption from "./EnhanceCaption";
+import { useMediaStore } from "@/store/MainStore/usePostStore";
+import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams } from "next/navigation";
 
-type Platform = "instagram" | "twitter" | "linkedin";
+export type Platform = "instagram" | "twitter" | "linkedin";
 
 export function CreatePostForm() {
   const [content, setContent] = useState("");
-  const [medias, setMedias] = useState<{
-    files: File[] | [] | null;
-    mediaKeys: string[] | [] | null;
-  }>({
-    files: null,
-    mediaKeys: null,
-  });
-  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
@@ -43,24 +37,14 @@ export function CreatePostForm() {
   const [isSinglePreview, setIsSinglePreview] = useState(true);
   const { connectedApps } = useDashboardStore();
 
-  // TODO: Uncomment this when the Image Upload funtionality Modified
-  
-  // const params = useSearchParams();
-  // const from = params.get("from");
+  // Zustand store for media
+  const { medias, isUploadingMedia, resetMedias, handleFileUpload } =
+    useMediaStore();
 
-  // useEffect(() => {
-  //   if (from === "code-editor") {
-  //     const storedImage = sessionStorage.getItem("codeEditorImage");
-  //     if (storedImage) {
-  //       console.log("storedImage", storedImage);
-  //       setMedias((prev) => ({
-  //         ...prev,
-  //         files: [new File([storedImage], "code-editor-image.png")],
-  //       }));
-  //       sessionStorage.removeItem("codeEditorImage");
-  //     }
-  //   }
-  // }, [from]);
+  const memoizedMedias = React.useMemo(
+    () => medias.files || [],
+    [medias.files]
+  );
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -73,16 +57,52 @@ export function CreatePostForm() {
     );
   };
 
-  const handleImageChange = (data: {
-    files: File[] | null;
-    mediaKeys: string[] | null;
-    isUploading: boolean;
-  }) => {
-    if (data.files) {
-      setMedias(data);
-      setIsUploadingMedia(data.isUploading);
+  // TODO: Uncomment this when the Image Upload funtionality Modified ✅
+  const params = useSearchParams();
+  const from = params.get("from");
+
+  useEffect(() => {
+    if (from === "code-editor") {
+      const storedImage = sessionStorage.getItem("codeEditorImage");
+      if (storedImage) {
+        try {
+          // Decode base64 string to binary data
+          // Remove the prefix "data:image/png;base64," if present
+          const binaryString = atob(storedImage.split(",")[1]);
+          const bytes = new Uint8Array(binaryString.length);
+          // Convert binary string to byte array
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const imageBlob = new Blob([bytes], { type: "image/png" });
+  
+          // Create a File object
+          const file = new File([imageBlob], "code-editor-image.png", {
+            type: "image/png",
+          });
+  
+          // Convert File to FileList
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          const fileList = dataTransfer.files;
+  
+          // Set platform and trigger upload
+          setSelectedPlatforms(["twitter"]);
+          handleFileUpload(fileList, ["twitter"]);
+          
+          // Clean up sessionStorage
+          sessionStorage.removeItem("codeEditorImage");
+        } catch (error) {
+          console.error("Failed to process code-editor image:", error);
+          customToast({
+            title: "Image Processing Failed",
+            description: "Unable to load the image from the code editor.",
+            badgeVariant: "destructive",
+          });
+        }
+      }
     }
-  };
+  }, [from, handleFileUpload]); 
 
   const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
@@ -95,7 +115,7 @@ export function CreatePostForm() {
       return;
     }
 
-    if (!content.trim() && medias.files?.length === 0) {
+    if (!content.trim() && (!medias.files || medias.files.length === 0)) {
       customToast({
         title: "Content Required",
         description:
@@ -111,7 +131,6 @@ export function CreatePostForm() {
         description: "Please select a date and time for scheduling your post.",
         badgeVariant: "destructive",
       });
-
       return;
     }
 
@@ -143,11 +162,11 @@ export function CreatePostForm() {
         ).toISOString();
         formData.append("scheduleAt", scheduledDateTime);
       }
-      // medias.forEach((media) => formData.append("medias", media));
       formData.append(
         "mediaKeys",
         medias.mediaKeys ? JSON.stringify(medias.mediaKeys) : "[]"
       );
+
       const response = await axios.post("/api/post", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -165,10 +184,7 @@ export function CreatePostForm() {
 
       setContent("");
       setSelectedPlatforms([]);
-      setMedias({
-        files: null,
-        mediaKeys: null,
-      });
+      resetMedias(); // Reset media state
       setIsScheduled(false);
       setScheduleDate(null);
       setScheduleTime("");
@@ -238,10 +254,7 @@ export function CreatePostForm() {
                       </div>
                     </div>
                   </div>
-                  <MediaUpload
-                    platforms={selectedPlatforms}
-                    onChange={handleImageChange}
-                  />
+                  <MediaUpload platforms={selectedPlatforms} />
                   <PlatformSelector
                     selectedPlatforms={selectedPlatforms}
                     setSelectedPlatforms={setSelectedPlatforms}
@@ -271,17 +284,37 @@ export function CreatePostForm() {
                   )}
                 </TabsContent>
                 <TabsContent value="preview">
-                  <PostPreview content={content} medias={medias.files!} />
+                  <PostPreview content={content} medias={memoizedMedias} />
                 </TabsContent>
               </Tabs>
               <div className="flex justify-end space-x-2 mt-4">
                 <Button
-                  disabled={isLoading}
+                  disabled={
+                    isLoading ||
+                    isUploadingMedia ||
+                    (!content.trim() &&
+                      (!medias.mediaKeys || !medias.mediaKeys.length)) ||
+                    !selectedPlatforms.length
+                  }
                   variant={"default"}
                   className="rounded-full"
                   onClick={handlePublishPost}
                 >
-                  {isScheduled ? "Schedule Post" : "Publish Now"}
+                  {isLoading ? (
+                    <span className="flex items-center gap-1">
+                      <IconLoader className="animate-spin" />
+                      Publishing
+                    </span>
+                  ) : isUploadingMedia ? (
+                    <span className="flex items-center gap-1">
+                      <IconLoader className="animate-spin" />
+                      Uploading Media
+                    </span>
+                  ) : isScheduled ? (
+                    "Schedule Post"
+                  ) : (
+                    "Publish Post"
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -291,7 +324,7 @@ export function CreatePostForm() {
               <SimplePostPreview
                 isUploading={isUploadingMedia}
                 content={content}
-                medias={medias.files!}
+                medias={medias.files || []}
               />
             )}
           </AnimatePresence>

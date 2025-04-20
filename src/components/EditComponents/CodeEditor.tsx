@@ -20,7 +20,7 @@ import {
   PREDEFINED_GRADIENTS,
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants";
-import { useCodeEditorStore } from "@/store/EditStore/useEditStore";
+import { useCodeEditorStore } from "@/store/MainStore/useEditStore";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -41,10 +41,12 @@ import {
   IconLoader,
   IconLockFilled,
   IconReload,
+  IconSend,
 } from "@tabler/icons-react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 const ThemePreview = React.memo(
   ({ theme, onClick }: { theme: any; onClick: () => void }) => (
@@ -193,6 +195,22 @@ const CodeEditor: React.FC = () => {
 
   // Function to handle share with CrosspostHub button click
   const handleShareWithCrosspostHub = useCallback(async () => {
+    // Check if the user is logged in
+    if (!data?.user) {
+      toast({
+        title: "Please login to continue",
+        description: "You need to login to continue.",
+        action: (
+          <Link href="/signin">
+            <Button variant={"default"} size={"sm"}>
+              Login
+            </Button>
+          </Link>
+        ),
+      });
+      return;
+    }
+
     const imageData = await captureImage();
     if (imageData) {
       // Store the image in sessionStorage
@@ -735,9 +753,7 @@ const CodeEditor: React.FC = () => {
           variant={"secondary"}
           className="w-full flex items-center justify-center gap-2"
           onClick={() => {
-            const state = useCodeEditorStore.getState().loadDraft();
-            console.log("state", state);
-
+            useCodeEditorStore.getState().loadDraft();
             toast({
               title: "Your saved draft has been loaded.",
             });
@@ -747,12 +763,19 @@ const CodeEditor: React.FC = () => {
         </Button>
 
         <Button
-          disabled
           size={"sm"}
-          className="w-full flex items-center justify-center gap-1"
+          className="w-full"
           onClick={handleShareWithCrosspostHub}
         >
-          Share <IconLockFilled />
+          {!data?.user.name ? (
+            <span className=" flex items-center justify-center gap-1">
+              Share <IconLockFilled />
+            </span>
+          ) : (
+            <span className=" flex items-center justify-center gap-1">
+              Share <IconSend />
+            </span>
+          )}
         </Button>
       </div>
     </div>
