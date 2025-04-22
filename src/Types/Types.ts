@@ -138,3 +138,5 @@ export interface TwitterUser {
 }
 
 export type Providers = "twitter" | "linkedin" | "instagram" | "threads";
+export type BorderStyle = "solid" | "double" | "dashed" | "dotted" | "none";
+

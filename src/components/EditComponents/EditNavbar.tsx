@@ -47,7 +47,7 @@ export function EditorNavbar() {
           <ArrowLeft/>
         </Button>
       </Link>
-      <div className="bg-secondary/30 border flex items-center gap-2 rounded-xl p-1.5 relative">
+      <div className="bg-secondary/30 border flex items-center gap-2 rounded-xl p-1 relative">
         {activeIndex !== -1 && (
           <motion.div
             className="absolute h-[80%] rounded-lg"

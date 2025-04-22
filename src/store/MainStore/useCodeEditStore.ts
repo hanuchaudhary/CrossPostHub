@@ -1,4 +1,5 @@
 import { DEFAULT_CODE } from "@/lib/constants";
+import { BorderStyle } from "@/Types/Types";
 import { create } from "zustand";
 
 export interface CodeEditorStore {
@@ -45,6 +46,12 @@ export interface CodeEditorStore {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent: boolean | undefined;
     colorized: boolean | undefined;
+    frameBorder: {
+      type?: BorderStyle;
+      color: string;
+      width: number;
+      radius: number;
+    };
   };
   setWindowFrame: ({
     type,
@@ -54,10 +61,16 @@ export interface CodeEditorStore {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent?: boolean | undefined;
     colorized?: boolean | undefined;
+    frameBorder?: {
+      type?: BorderStyle;
+      color: string;
+      width: number;
+      radius: number;
+    };
   }) => void;
 
   border: {
-    type?: "none" | "solid" | "dashed" | "dotted";
+    type?: BorderStyle;
     color: string;
     width: number;
     radius: number;
@@ -68,7 +81,7 @@ export interface CodeEditorStore {
     width,
     radius,
   }: {
-    type?: "none" | "solid" | "dashed" | "dotted";
+    type?: BorderStyle;
     color?: string;
     width?: number;
     radius?: number;
@@ -104,14 +117,27 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
     type: "none",
     transparent: false,
     colorized: false,
+    frameBorder: {
+      type: "solid",
+      color: "#333333",
+      width: 1,
+      radius: 15,
+    },
   },
-  setWindowFrame: ({ type, transparent, colorized }) =>
+  setWindowFrame: ({ type, transparent, colorized, frameBorder }) =>
     set((state) => ({
       windowFrame: {
         ...state.windowFrame,
         type: type ?? state.windowFrame.type,
         transparent: transparent ?? state.windowFrame.transparent,
         colorized: colorized ?? state.windowFrame.colorized,
+        frameBorder: {
+          ...state.windowFrame.frameBorder,
+          type: frameBorder?.type ?? state.windowFrame.frameBorder.type,
+          color: frameBorder?.color ?? state.windowFrame.frameBorder.color,
+          radius: frameBorder?.radius ?? state.windowFrame.frameBorder.radius,
+          width: frameBorder?.width ?? state.windowFrame.frameBorder.width,
+        },
       },
     })),
 

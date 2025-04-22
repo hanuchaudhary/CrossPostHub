@@ -17,7 +17,7 @@ export const customToast = (props: CustomToastProps) => {
     title: props.title,
     description: (
       <div className="w-full">
-        <div className="text-xs">
+        <div className="text-xs text-muted-foreground">
           <p>{props.description}</p>
           {/* <span className="text-neutral-500 text-xs">
             {new Date().toLocaleDateString("en-US", {

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { HexColorPicker } from "react-colorful";
+import { HexColorPicker, RgbaColorPicker } from "react-colorful";
 import { WindowFrame } from "@/components/EditComponents/WindowFrame";
 import {
   CODE_THEMES,
@@ -20,7 +20,7 @@ import {
   PREDEFINED_GRADIENTS,
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants";
-import { useCodeEditorStore } from "@/store/MainStore/useEditStore";
+import { useCodeEditorStore } from "@/store/MainStore/useCodeEditStore";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -47,6 +47,9 @@ import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { BorderStyle } from "@/Types/Types";
+import { parseRgba } from "@/lib/parseRGBA";
 
 const ThemePreview = React.memo(
   ({ theme, onClick }: { theme: any; onClick: () => void }) => (
@@ -357,6 +360,7 @@ const CodeEditor: React.FC = () => {
         >
           <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
             <WindowFrame
+              border={windowFrame.frameBorder}
               username={data?.user?.name?.toLowerCase().replace(" ", "")}
               title={fileName}
               type={windowFrame.type}
@@ -414,7 +418,131 @@ const CodeEditor: React.FC = () => {
                 ))}
               </div>
               <Separator />
-              <div className="space-y-2 p-3">
+              <div className="space-y-2">
+                <Collapsible
+                  trigger="Frame Border"
+                  open={openCollapsibles.includes("Window Frame Border")}
+                  onOpenChange={(isOpen) =>
+                    handleCollapsibleToggle("Window Frame Border", isOpen)
+                  }
+                  // className="space-y-2"
+                >
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Border Style</Label>
+                      <div className="flex flex-wrap items-center gap-2 justify-center">
+                        {["none", "solid", "dashed", "dotted", "double"].map(
+                          (e) => (
+                            <div
+                              key={e}
+                              onClick={() => {
+                                setWindowFrame({
+                                  ...windowFrame,
+                                  frameBorder: {
+                                    ...windowFrame.frameBorder,
+                                    type: e as BorderStyle,
+                                  },
+                                });
+                              }}
+                              className={cn(
+                                "w-10 h-8 rounded flex items-center justify-center cursor-pointer border border-border",
+                                border.type === e && "bg-primary/30",
+                                e === "solid" && "border-2 border-neutral-400",
+                                e === "double" &&
+                                  "border-4 border-double border-neutral-400",
+                                e === "dashed" &&
+                                  "border-2 border-dashed border-neutral-400",
+                                e === "dotted" &&
+                                  "border-2 border-dotted border-neutral-400"
+                              )}
+                            />
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Slider
+                        label={`Border width (${windowFrame.frameBorder.width}px)`}
+                        min={0}
+                        max={6}
+                        step={0.1}
+                        value={[windowFrame.frameBorder.width]}
+                        onValueChange={([value]) =>
+                          setWindowFrame({
+                            ...windowFrame,
+                            frameBorder: {
+                              ...windowFrame.frameBorder,
+                              width: value,
+                            },
+                          })
+                        }
+                      />
+                      <Slider
+                        label={`Border Radius (${windowFrame.frameBorder.radius}px)`}
+                        min={0}
+                        max={30}
+                        step={0.5}
+                        value={[windowFrame.frameBorder.radius]}
+                        onValueChange={([value]) =>
+                          setWindowFrame({
+                            ...windowFrame,
+                            frameBorder: {
+                              ...windowFrame.frameBorder,
+                              radius: value,
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="relative">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <div>
+                            <Label className="text-sm">Border Color</Label>
+                            <div className="relative mt-2">
+                              <span
+                                className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
+                                style={{
+                                  backgroundColor:
+                                    windowFrame.frameBorder.color,
+                                }}
+                              ></span>
+                              <Input
+                                value={windowFrame.frameBorder.color}
+                                onChange={(e) =>
+                                  setWindowFrame({
+                                    ...windowFrame,
+                                    frameBorder: {
+                                      ...windowFrame.frameBorder,
+                                      color: e.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder="Border color"
+                                className="rounded-[12px] border border-border bg-secondary/40 p-4 pl-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
+                              />
+                            </div>
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-3" align="start">
+                          <RgbaColorPicker
+                            color={parseRgba(windowFrame.frameBorder.color)}
+                            onChange={(rgba) => {
+                              setWindowFrame({
+                                ...windowFrame,
+                                frameBorder: {
+                                  ...windowFrame.frameBorder,
+                                  color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`,
+                                },
+                              });
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                </Collapsible>
                 <div className="flex items-center justify-between">
                   <Label>Transparency</Label>
                   <Switch
@@ -579,53 +707,59 @@ const CodeEditor: React.FC = () => {
             trigger="Border"
             open={openCollapsibles.includes("Border")}
             onOpenChange={(isOpen) => handleCollapsibleToggle("Border", isOpen)}
+            // className="space-y-2"
           >
-            <div className="space-y-2">
-              <Collapsible
-                trigger="Border Type"
-                open={openCollapsibles.includes("Border Type")}
-                onOpenChange={(isOpen) =>
-                  handleCollapsibleToggle("Border Type", isOpen)
-                }
-              >
-                <div className="space-y-1">
-                  {["none", "solid", "dashed", "dotted"].map((e) => (
-                    <Button
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label>Border Style</Label>
+                <div className="flex flex-wrap items-center gap-2 justify-center">
+                  {["none", "solid", "dashed", "dotted", "double"].map((e) => (
+                    <div
                       key={e}
-                      variant={border.type === e ? "default" : "secondary"}
-                      className="w-full"
                       onClick={() => {
                         setBorder({
                           ...border,
-                          type: e as "none" | "solid" | "dashed" | "dotted",
+                          type: e as BorderStyle,
                         });
                       }}
-                    >
-                      {e.charAt(0).toUpperCase() + e.slice(1)}
-                    </Button>
+                      className={cn(
+                        "w-10 h-8 rounded flex items-center justify-center cursor-pointer border border-border",
+                        border.type === e && "bg-primary/30",
+                        e === "solid" && "border-2 border-neutral-400",
+                        e === "double" &&
+                          "border-4 border-double border-neutral-400",
+                        e === "dashed" &&
+                          "border-2 border-dashed border-neutral-400",
+                        e === "dotted" &&
+                          "border-2 border-dotted border-neutral-400"
+                      )}
+                    />
                   ))}
                 </div>
-              </Collapsible>
-              <Slider
-                label={`Border width (${border.width}px)`}
-                min={0}
-                max={6}
-                step={0.1}
-                value={[border.width]}
-                onValueChange={([value]) =>
-                  setBorder({ ...border, width: value })
-                }
-              />
-              <Slider
-                label={`Border Radius (${border.radius}px)`}
-                min={0}
-                max={30}
-                step={0.5}
-                value={[border.radius]}
-                onValueChange={([value]) =>
-                  setBorder({ ...border, radius: value })
-                }
-              />
+              </div>
+
+              <div className="space-y-2">
+                <Slider
+                  label={`Border width (${border.width}px)`}
+                  min={0}
+                  max={6}
+                  step={0.1}
+                  value={[border.width]}
+                  onValueChange={([value]) =>
+                    setBorder({ ...border, width: value })
+                  }
+                />
+                <Slider
+                  label={`Border Radius (${border.radius}px)`}
+                  min={0}
+                  max={30}
+                  step={0.5}
+                  value={[border.radius]}
+                  onValueChange={([value]) =>
+                    setBorder({ ...border, radius: value })
+                  }
+                />
+              </div>
               <div className="relative">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -651,12 +785,12 @@ const CodeEditor: React.FC = () => {
                     </div>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3" align="start">
-                    <HexColorPicker
-                      color={border.color}
-                      onChange={(color) => {
+                    <RgbaColorPicker
+                      color={parseRgba(border.color)}
+                      onChange={(rgba) => {
                         setBorder({
                           ...border,
-                          color,
+                          color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`,
                         });
                       }}
                     />
@@ -707,6 +841,12 @@ const CodeEditor: React.FC = () => {
                 setWindowFrame({
                   type: "arc",
                   colorized: true,
+                  frameBorder: {
+                    type: "solid",
+                    color: "#333333",
+                    radius: 20,
+                    width: 1,
+                  },
                 });
                 setFileName("example-code.tsx");
                 setOpenCollapsibles([]);

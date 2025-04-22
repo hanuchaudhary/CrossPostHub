@@ -1,3 +1,4 @@
+import { BorderStyle } from "@/Types/Types";
 import { IconBoxMultiple, IconMinus } from "@tabler/icons-react";
 import { X } from "lucide-react";
 import type React from "react";
@@ -9,6 +10,12 @@ interface WindowFrameProps {
   colorized?: boolean;
   title?: string;
   username?: string;
+  border: {
+    type?: BorderStyle;
+    color: string;
+    width: number;
+    radius: number;
+  };
 }
 
 export const WindowFrame: React.FC<WindowFrameProps> = ({
@@ -18,12 +25,15 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
   transparent = false,
   colorized = false,
   title = "code-snippet.tsx",
+  border,
 }) => {
   if (type === "none") {
     return <>{children}</>;
   }
 
-  const bgClass = transparent ? "bg-secondary/60 backdrop-blur-md" : "bg-neutral-900";
+  const bgClass = transparent
+    ? "bg-secondary/60 backdrop-blur-md"
+    : "bg-neutral-900";
   const borderClass = "border-b border-neutral-800";
 
   // Common dots for macOS style windows
@@ -43,7 +53,15 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
 
   if (type === "macos") {
     return (
-      <div className="overflow-hidden rounded-lg border border-neutral-800">
+      <div
+        style={{
+          borderRadius: border.radius,
+          borderWidth: border.width,
+          borderStyle: border.type,
+          borderColor: border.color,
+        }}
+        className="overflow-hidden rounded-lg border border-neutral-800"
+      >
         <div
           className={`flex items-center gap-2 p-3 ${bgClass} ${borderClass}`}
         >
@@ -59,7 +77,15 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
 
   if (type === "browser") {
     return (
-      <div className="overflow-hidden rounded-lg border border-neutral-800">
+      <div
+        style={{
+          borderRadius: border.radius,
+          borderWidth: border.width,
+          borderStyle: border.type,
+          borderColor: border.color,
+        }}
+        className="overflow-hidden rounded-lg border border-neutral-800"
+      >
         <div
           className={`flex items-center gap-2 p-3 ${bgClass} ${borderClass}`}
         >
@@ -79,7 +105,15 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
 
   if (type === "arc") {
     return (
-      <div className="overflow-hidden rounded-xl border border-neutral-800">
+      <div
+        style={{
+          borderRadius: border.radius,
+          borderWidth: border.width,
+          borderStyle: border.type,
+          borderColor: border.color,
+        }}
+        className="overflow-hidden rounded-xl border border-neutral-800"
+      >
         <div
           className={`flex items-center gap-2 p-2 ${bgClass} ${borderClass}`}
         >
@@ -106,7 +140,15 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
 
   if (type === "window") {
     return (
-      <div className="overflow-hidden rounded-lg border border-neutral-800">
+      <div
+        style={{
+          borderRadius: border.radius,
+          borderWidth: border.width,
+          borderStyle: border.type,
+          borderColor: border.color,
+        }}
+        className="overflow-hidden rounded-lg border border-neutral-800"
+      >
         <div
           className={`flex items-center justify-between p-2 ${bgClass} ${borderClass}`}
         >
