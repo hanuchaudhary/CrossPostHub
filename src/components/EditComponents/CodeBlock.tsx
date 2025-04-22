@@ -24,7 +24,6 @@ export const CodeBlock = React.memo(
   ({
     backgroundColor = "transparent",
     language,
-    filename,
     code,
     highlightLines = [],
     border = {
@@ -39,7 +38,7 @@ export const CodeBlock = React.memo(
 
     return (
       <div
-        className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 px-2 pb-2 font-mono text-sm"
+        className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 p-2 font-mono text-sm"
         style={{
           backgroundColor,
           borderRadius: border.radius,
@@ -48,11 +47,6 @@ export const CodeBlock = React.memo(
           borderColor: border.color,
         }}
       >
-        {filename && (
-          <div className="flex justify-between items-center py-2 px-4">
-            <div className="text-xs text-neutral-400 bg-secondary/50 px-2 rounded-full border">{filename}</div>
-          </div>
-        )}
         <SyntaxHighlighter
           language={language}
           style={theme ? (theme as any) : atomDark}

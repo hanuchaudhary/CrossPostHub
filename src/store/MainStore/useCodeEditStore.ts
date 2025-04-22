@@ -116,7 +116,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
   windowFrame: {
     type: "none",
     transparent: false,
-    colorized: false,
+    colorized: true,
     frameBorder: {
       type: "solid",
       color: "#333333",

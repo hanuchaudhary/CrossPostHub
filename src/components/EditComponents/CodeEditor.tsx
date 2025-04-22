@@ -235,7 +235,7 @@ const CodeEditor: React.FC = () => {
   return (
     <div className="flex md:flex-row flex-col gap-2 min-h-[70vh]">
       {/* Code Editor Section */}
-      <div className="w-full bg-secondary/30 rounded-2xl p-[10px] border border-border flex flex-col gap-6">
+      <div className="scroll-custom md:h-[calc(100vh-70px)] overflow-y-auto w-full bg-secondary/30 rounded-2xl p-[10px] border border-border flex flex-col gap-6">
         <div className="space-y-2">
           <Textarea
             value={code}
@@ -382,7 +382,7 @@ const CodeEditor: React.FC = () => {
       </div>
 
       {/* Window Frame and Background Settings */}
-      <div className="bg-secondary/30 rounded-2xl border w-full p-2 flex flex-col gap-2 justify-between">
+      <div className="scroll-custom bg-secondary/30 md:h-[calc(100vh-70px)] overflow-y-auto rounded-2xl border w-full p-2 flex flex-col gap-2 justify-between">
         <div className="space-y-2">
           <Collapsible
             trigger="Select Frame"
@@ -418,15 +418,8 @@ const CodeEditor: React.FC = () => {
                 ))}
               </div>
               <Separator />
-              <div className="space-y-2">
-                <Collapsible
-                  trigger="Frame Border"
-                  open={openCollapsibles.includes("Window Frame Border")}
-                  onOpenChange={(isOpen) =>
-                    handleCollapsibleToggle("Window Frame Border", isOpen)
-                  }
-                  // className="space-y-2"
-                >
+              {windowFrame.type !== "none" && (
+                <div className="space-y-2">
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label>Border Style</Label>
@@ -542,35 +535,35 @@ const CodeEditor: React.FC = () => {
                       </Popover>
                     </div>
                   </div>
-                </Collapsible>
-                <div className="flex items-center justify-between">
-                  <Label>Transparency</Label>
-                  <Switch
-                    checked={windowFrame.transparent}
-                    onCheckedChange={(checked) =>
-                      setWindowFrame({
-                        ...windowFrame,
-                        transparent: checked,
-                      })
-                    }
-                    className="data-[state=checked]:bg-primary"
-                  />
-                </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Transparency</Label>
+                    <Switch
+                      checked={windowFrame.transparent}
+                      onCheckedChange={(checked) =>
+                        setWindowFrame({
+                          ...windowFrame,
+                          transparent: checked,
+                        })
+                      }
+                      className="data-[state=checked]:bg-primary"
+                    />
+                  </div>
 
-                <div className="flex items-center justify-between">
-                  <Label>Colorized Controls</Label>
-                  <Switch
-                    checked={windowFrame.colorized}
-                    onCheckedChange={(checked) =>
-                      setWindowFrame({
-                        ...windowFrame,
-                        colorized: checked,
-                      })
-                    }
-                    className="data-[state=checked]:bg-primary"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label>Colorized Controls</Label>
+                    <Switch
+                      checked={windowFrame.colorized}
+                      onCheckedChange={(checked) =>
+                        setWindowFrame({
+                          ...windowFrame,
+                          colorized: checked,
+                        })
+                      }
+                      className="data-[state=checked]:bg-primary"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </Collapsible>
 

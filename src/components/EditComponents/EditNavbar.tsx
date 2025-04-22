@@ -40,10 +40,10 @@ export function EditorNavbar() {
   return (
     <div className="flex md:gap-2 items-center">
       <Link href={"/dashboard"}>
-        <Button variant={"secondary"} className="md:py-5 p-4 md:flex hidden">
+        <Button variant={"secondary"} className="md:py-4 p-3 md:flex hidden">
           <ArrowLeft/>
         </Button>
-        <Button variant={"ghost"} className="md:py-5 p-4 md:hidden flex items-center justify-center">
+        <Button variant={"ghost"} className="md:py-4 p-3 md:hidden flex items-center justify-center">
           <ArrowLeft/>
         </Button>
       </Link>

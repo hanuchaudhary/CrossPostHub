@@ -136,6 +136,10 @@ body {
   }
 }
 
+.scroll-custom{
+  scrollbar-width: none
+}
+
 
 
 @layer base {

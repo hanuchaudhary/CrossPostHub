@@ -42,6 +42,7 @@ export const CodePreview = React.memo(
       >
         <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
           <WindowFrame
+            border={windowFrame.frameBorder}
             username={data?.user?.name?.toLowerCase().replace(" ", "")}
             title={fileName}
             type={windowFrame.type}

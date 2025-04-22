@@ -46,11 +46,11 @@ export function Collapsible({
                 opacity: 1,
                 height: "auto",
                 transition: {
-                  height: {
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30,
-                  },
+                  // height: {
+                  //   type: "inertia",
+                  //   stiffness: 500,
+                  //   damping: 30,
+                  // },
                   opacity: { duration: 0.2 },
                 },  
               }}
