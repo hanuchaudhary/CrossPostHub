@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { IconLoader } from "@tabler/icons-react";
 
 interface BottomLoaderProps {
   isLoading: boolean;
@@ -92,7 +92,7 @@ export default function BottomLoader({
               >
                 {title}
               </motion.div>
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <IconLoader className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           </motion.div>
         </motion.div>

@@ -89,80 +89,170 @@ export const PREDEFINED_IMAGES = [
   },
 ];
 
-export const PREDEFINED_GRADIENTS = [
+export const PREDEFINED_GRADIENTS: { label: string; gradient: string }[] = [
   {
-    id: "grad1",
-    value: "linear-gradient(90deg, #ff6b6b, #ff8e53)",
+    label: "Crimson Twilight",
+    gradient:
+      "linear-gradient( 109.6deg,  rgba(204,0,0,1) 11.2%, rgba(68,0,0,1) 100.6% )",
+  },
+  {
+    label: "Golden Rose",
+    gradient:
+      "linear-gradient( 177.5deg,  rgba(255,200,42,1) 28.3%, rgba(202,32,132,1) 79.8% )",
+  },
+  {
+    label: "Golden Oasis",
+    gradient:
+      "radial-gradient( circle 297px at 8% 45%,  rgba(245,234,176,1) 0%, rgba(133,239,212,1) 100.7% )",
+  },
+  {
+    label: "Aqua Horizon",
+    gradient:
+      "radial-gradient( circle farthest-corner at 10% 20%,  rgba(56,207,191,1) 0%, rgba(10,70,147,1) 90.2% )",
+  },
+  {
+    label: "Emerald Nightfall",
+    gradient:
+      "radial-gradient( circle farthest-corner at 96.1% 7.2%,  rgba(9,178,62,1) 0%, rgba(19,19,19,1) 100.2% )",
+  },
+  {
+    label: "Blush Blossom",
+    gradient:
+      "radial-gradient( circle farthest-corner at 10% 20%,  rgba(240, 139, 139, 1) 0%, rgba(243, 252, 166, 1) 90% )",
+  },
+  {
+    label: "Lavender Dream",
+    gradient:
+      "radial-gradient( circle 341px at 10% 20%,  rgba(132, 94, 194, 1) 0%, rgba(196, 243, 251, 1) 90% )",
+  },
+  {
+    label: "Sunrise Serenade",
+    gradient:
+      "linear-gradient(91.7deg, rgba(135, 206, 235, 1) 7.3%, rgba(255, 154, 139, 1) 40.3%, rgba(255, 195, 160, 1) 57.9%, rgba(255, 215, 0, 1) 93.5%)",
+  },
+  {
+    label: "Iridescent Waves",
+    gradient:
+      "linear-gradient(109.6deg, rgba(112, 246, 255, 0.33) 11.2%, rgba(221, 108, 241, 0.26) 42%, rgba(229, 106, 253, 0.71) 71.5%, rgba(123, 183, 253, 1) 100.2%)",
+  },
+  {
+    label: "Prismatic Bloom",
+    gradient:
+      "linear-gradient(68.1deg, rgba(196, 69, 69, 1) 9.2%, rgba(255, 167, 73, 0.82) 25%, rgba(253, 217, 82, 0.82) 43.4%, rgba(107, 225, 108, 0.82) 58.2%, rgba(107, 169, 225, 0.82) 75.1%, rgba(153, 41, 243, 0.82) 87.3%)",
+  },
+  {
+    label: "Peach Bliss",
+    gradient:
+      "linear-gradient(64.3deg, rgba(254, 122, 152, 0.81) 17.7%, rgba(255, 206, 134, 1) 64.7%, rgba(172, 253, 163, 0.64) 112.1%)",
+  },
+  {
+    label: "Amber Glow",
+    gradient:
+      "linear-gradient(107.7deg, rgba(235, 230, 44, 0.55) 8.4%, rgba(252, 152, 15, 1) 90.3%)",
+  },
+  {
+    label: "Ocean's Embrace",
+    gradient:
+      "radial-gradient(circle farthest-corner at 48.4% 47.5%, rgba(122, 183, 255, 1) 0%, rgba(21, 83, 161, 1) 90%)",
+  },
+  {
+    label: "Celestial Spectrum",
+    gradient:
+      "linear-gradient(226.4deg, rgba(255, 26, 1, 1) 28.9%, rgba(254, 155, 1, 1) 33%, rgba(255, 241, 0, 1) 48.6%, rgba(34, 218, 1, 1) 65.3%, rgba(0, 141, 254, 1) 80.6%, rgba(113, 63, 254, 1) 100.1%)",
+  },
+  {
+    label: "Silver Lining",
+    gradient:
+      "linear-gradient(180.3deg, rgba(221, 221, 221, 1) 5.5%, rgba(110, 136, 161, 1) 90.2%)",
+  },
+  {
+    label: "Golden Sunset",
+    gradient:
+      "linear-gradient(109.6deg, rgba(255,253,208,1) 11.2%, rgba(153,102,51,1) 91%)",
+  },
+  {
+    label: "Blackened Night",
+    gradient:
+      "linear-gradient(0.1deg, rgba(21, 13, 15, 1) 10.2%, rgba(21, 13, 15, 0.70) 99.8%, rgba(21, 13, 15, 0.29) 121.2%)",
+  },
+  {
+    label: "Sunset Overdrive",
+    gradient:
+      "linear-gradient(97.3deg, rgba(25, 50, 70, 0.81) 10.7%, rgba(155, 65, 25, 0.72) 39.5%, rgba(255, 192, 0, 0.81) 69.7%)",
+  },
+  {
+    label: "Red Sunset",
+    gradient:
+      "radial-gradient(circle farthest-corner at 10% 20%, rgba(235, 131, 130, 1) 0%, rgba(235, 131, 130, 0.75) 38.6%, rgba(211, 177, 125, 0.52) 72.1%, rgba(211, 177, 125, 0.24) 94.7%)",
+  },
+  {
+    label: "Blue Horizon",
+    gradient:
+      "radial-gradient(circle 1224px at 10.6% 8.8%, rgba(255, 255, 255, 1) 0%, rgba(153, 202, 251, 1) 100.2%)",
+  },
+  {
+    label: "Green Mist",
+    gradient:
+      "linear-gradient(113.7deg, rgba(90, 173, 173, 1) 16.4%, rgba(0, 0, 0, 1) 99.7%)",
+  },
+  {
+    gradient: "linear-gradient(90deg, #ff6b6b, #ff8e53)",
     label: "Sunset Glow",
   },
   {
-    id: "grad2",
-    value: "linear-gradient(45deg, #6b48ff, #00ddeb)",
+    gradient: "linear-gradient(45deg, #6b48ff, #00ddeb)",
     label: "Neon Pulse",
   },
   {
-    id: "grad3",
-    value: "linear-gradient(135deg, #2afadf, #4c83ff)",
+    gradient: "linear-gradient(135deg, #2afadf, #4c83ff)",
     label: "Aqua Dream",
   },
   {
-    id: "grad4",
-    value: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
+    gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
     label: "Midnight Sky",
   },
   {
-    id: "grad5",
-    value: "linear-gradient(90deg, #ff9966, #ff5e62)",
+    gradient: "linear-gradient(90deg, #ff9966, #ff5e62)",
     label: "Coral Reef",
   },
   {
-    id: "grad6",
-    value: "linear-gradient(45deg, #f3ec78, #af4261)",
+    gradient: "linear-gradient(45deg, #f3ec78, #af4261)",
     label: "Retro Wave",
   },
   {
-    id: "grad7",
-    value: "linear-gradient(135deg, #667eea, #764ba2)",
+    gradient: "linear-gradient(135deg, #667eea, #764ba2)",
     label: "Purple Haze",
   },
   {
-    id: "grad8",
-    value: "linear-gradient(90degLAPTOP, #00c9ff, #92fe9d)",
+    gradient: "linear-gradient(90degLAPTOP, #00c9ff, #92fe9d)",
     label: "Tropical Breeze",
   },
   {
-    id: "grad9",
-    value: "linear-gradient(0deg, #434343, #000000)",
+    gradient: "linear-gradient(0deg, #434343, #000000)",
     label: "Dark Void",
   },
   {
-    id: "grad10",
-    value: "linear-gradient(45deg, #ffafbd, #ffc3a0)",
+    gradient: "linear-gradient(45deg, #ffafbd, #ffc3a0)",
     label: "Peach Blossom",
   },
   {
-    id: "grad11",
-    value: "linear-gradient(135deg, #e0c3fc, #8ec5fc)",
+    gradient: "linear-gradient(135deg, #e0c3fc, #8ec5fc)",
     label: "Pastel Sky",
   },
   {
-    id: "grad12",
-    value: "linear-gradient(90deg, #12c2e9, #c471ed)",
+    gradient: "linear-gradient(90deg, #12c2e9, #c471ed)",
     label: "Vivid Horizon",
   },
   {
-    id: "grad13",
-    value: "linear-gradient(45deg, #f12711, #f5af19)",
+    gradient: "linear-gradient(45deg, #f12711, #f5af19)",
     label: "Fire Storm",
   },
   {
-    id: "grad14",
-    value: "linear-gradient(0deg, #a8ff78, #78ffd6)",
+    gradient: "linear-gradient(0deg, #a8ff78, #78ffd6)",
     label: "Lime Aqua",
   },
   {
-    id: "grad15",
-    value: "linear-gradient(135deg, #ed4264, #ffedbc)",
+    gradient: "linear-gradient(135deg, #ed4264, #ffedbc)",
     label: "Candy Floss",
   },
 ];

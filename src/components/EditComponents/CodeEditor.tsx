@@ -161,7 +161,7 @@ const CodeEditor: React.FC = () => {
   // Function to capture the image of the code block
   const captureImage = useCallback(async (): Promise<string | null> => {
     if (!exportRef.current) return null;
-    setOpenCollapsibles([]); // Close all collapsibles before capturing
+    // setOpenCollapsibles([]); // Close all collapsibles before capturing
     setDownloading(true);
     try {
       const canvas = await html2canvas(exportRef.current, {
@@ -169,8 +169,8 @@ const CodeEditor: React.FC = () => {
         backgroundColor: null,
         useCORS: true,
         logging: false,
-        width: exportRef.current.offsetWidth,
-        height: exportRef.current.offsetHeight,
+        width: exportRef.current.offsetWidth + 20,
+        height: exportRef.current.offsetHeight + 20,
       });
       return canvas.toDataURL("image/png");
     } catch (error) {
@@ -275,10 +275,12 @@ const CodeEditor: React.FC = () => {
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-3" align="start">
-                  <HexColorPicker
-                    color={codeBackgroundColor}
+                  <RgbaColorPicker
+                    color={parseRgba(codeBackgroundColor)}
                     onChange={(color) => {
-                      setCodeBackgroundColor(color);
+                      setCodeBackgroundColor(
+                        `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
+                      );
                     }}
                   />
                 </PopoverContent>
@@ -360,6 +362,7 @@ const CodeEditor: React.FC = () => {
         >
           <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
             <WindowFrame
+              shadow={windowFrame.shadow}
               border={windowFrame.frameBorder}
               username={data?.user?.name?.toLowerCase().replace(" ", "")}
               title={fileName}
@@ -650,13 +653,13 @@ const CodeEditor: React.FC = () => {
                     <div className="grid grid-cols-3 gap-2">
                       {PREDEFINED_GRADIENTS.map((grad) => (
                         <div
-                          key={grad.id}
+                          key={grad.label}
                           className="h-10 rounded cursor-pointer border"
-                          style={{ backgroundImage: grad.value }}
+                          style={{ backgroundImage: grad.gradient }}
                           onClick={() =>
                             setBackground({
                               ...background,
-                              gradient: grad.value,
+                              gradient: grad.gradient,
                             })
                           }
                           title={grad.label}
@@ -819,6 +822,7 @@ const CodeEditor: React.FC = () => {
                   transparent: false,
                   colorized: false,
                 });
+                setCodeBackgroundColor("");
                 setTheme(atomDark);
               }}
             >
@@ -828,9 +832,10 @@ const CodeEditor: React.FC = () => {
               className="flex w-full items-center justify-center gap-2"
               onClick={() => {
                 setBackground({
-                  type: "image",
-                  image: "/wallpaper/w1.jpg",
+                  type: "gradient",
+                  gradient: PREDEFINED_GRADIENTS[8].gradient,
                 });
+
                 setWindowFrame({
                   type: "arc",
                   colorized: true,
@@ -838,11 +843,12 @@ const CodeEditor: React.FC = () => {
                     type: "solid",
                     color: "#333333",
                     radius: 20,
-                    width: 1,
+                    width: 2,
                   },
                 });
-                setFileName("example-code.tsx");
-                setOpenCollapsibles([]);
+                setFileName("code.tsx");
+                setCodeBackgroundColor("rgba(2, 2, 2, 0.91)");
+                // setOpenCollapsibles([]);
               }}
             >
               Quick Edit
@@ -867,7 +873,7 @@ const CodeEditor: React.FC = () => {
           </Button>
         </div>
       </div>
-      <div className="md:flex hidden fixed top-3 right-3 border rounded-2xl p-1 gap-2 bg-secondary/50">
+      <div className="md:flex hidden fixed top-2 right-3 border rounded-2xl p-1 gap-2 bg-secondary/50">
         <Button
           size={"sm"}
           className="w-full flex items-center justify-center gap-1"

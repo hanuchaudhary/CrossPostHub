@@ -38,7 +38,7 @@ export const CodeBlock = React.memo(
 
     return (
       <div
-        className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 p-2 font-mono text-sm"
+        className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 backdrop-blur-xl p-2 font-mono text-sm"
         style={{
           backgroundColor,
           borderRadius: border.radius,

@@ -52,11 +52,14 @@ export interface CodeEditorStore {
       width: number;
       radius: number;
     };
+    shadow?: string
   };
   setWindowFrame: ({
     type,
     transparent,
     colorized,
+    frameBorder,
+    shadow
   }: {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent?: boolean | undefined;
@@ -67,6 +70,7 @@ export interface CodeEditorStore {
       width: number;
       radius: number;
     };
+    shadow?: string
   }) => void;
 
   border: {
@@ -104,7 +108,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
   backgroundImage: "",
   setBackgroundImage: (image) => set({ backgroundImage: image }),
 
-  codeBackgroundColor: "#0f172a",
+  codeBackgroundColor: "rgb(15 23 42 1)",
   setCodeBackgroundColor: (color) => set({ codeBackgroundColor: color }),
 
   fileName: "crossposthub.tsx",
@@ -120,11 +124,12 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
     frameBorder: {
       type: "solid",
       color: "#333333",
-      width: 1,
+      width: 2,
       radius: 15,
     },
+    shadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px",
   },
-  setWindowFrame: ({ type, transparent, colorized, frameBorder }) =>
+  setWindowFrame: ({ type, transparent, colorized, frameBorder,shadow }) =>
     set((state) => ({
       windowFrame: {
         ...state.windowFrame,
@@ -138,6 +143,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
           radius: frameBorder?.radius ?? state.windowFrame.frameBorder.radius,
           width: frameBorder?.width ?? state.windowFrame.frameBorder.width,
         },
+        shadow: shadow,
       },
     })),
 

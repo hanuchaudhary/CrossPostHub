@@ -16,9 +16,11 @@ interface WindowFrameProps {
     width: number;
     radius: number;
   };
+  shadow?: string;
 }
 
 export const WindowFrame: React.FC<WindowFrameProps> = ({
+  shadow,
   username,
   children,
   type = "none",
@@ -32,7 +34,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
   }
 
   const bgClass = transparent
-    ? "bg-secondary/60 backdrop-blur-md"
+    ? "bg-secondary/90 backdrop-blur-md"
     : "bg-neutral-900";
   const borderClass = "border-b border-neutral-800";
 
@@ -59,6 +61,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderWidth: border.width,
           borderStyle: border.type,
           borderColor: border.color,
+          boxShadow: shadow,
         }}
         className="overflow-hidden rounded-lg border border-neutral-800"
       >
@@ -83,6 +86,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderWidth: border.width,
           borderStyle: border.type,
           borderColor: border.color,
+          boxShadow: shadow,
         }}
         className="overflow-hidden rounded-lg border border-neutral-800"
       >
@@ -111,6 +115,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderWidth: border.width,
           borderStyle: border.type,
           borderColor: border.color,
+          boxShadow: shadow,
         }}
         className="overflow-hidden rounded-xl border border-neutral-800"
       >
@@ -146,6 +151,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderWidth: border.width,
           borderStyle: border.type,
           borderColor: border.color,
+          boxShadow: shadow,
         }}
         className="overflow-hidden rounded-lg border border-neutral-800"
       >

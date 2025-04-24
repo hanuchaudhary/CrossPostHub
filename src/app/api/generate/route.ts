@@ -24,9 +24,8 @@ export async function POST(request: NextRequest) {
       Imagine a developer sharing their project with passion. The caption must:
       - Be for ${platform} (e.g., hashtags/emojis for Twitter, polished for LinkedIn).
       - Be exciting, simple, professional, with a human touch (like a dev hyped about their work).
-      - Stay under 150 characters, including spaces, hashtags, and mentions.
+      - Stay under 280 characters, including spaces, hashtags, and mentions.
       - Capture the joy of building something new.
-      - Include no explanations, just the caption.
       Twitter example: "Revamping my app’s core! 🚀 Join the beta! #DevLife #Coding @user"
       LinkedIn example: "Proud to launch my app’s new feature! Months of work. 💻 #Tech #Development @user"`;
 
@@ -82,9 +81,8 @@ export async function GET(request: NextRequest) {
       Picture a developer perfecting their post about their work. The caption must:
       - Be for ${platform} (e.g., hashtags/emojis for Twitter, professional for LinkedIn).
       - Be exciting, simple, professional, with a human touch (like a dev stoked about their project).
-      - Stay under 150 characters, including spaces, hashtags, and mentions.
+      - Stay under 280 characters, including spaces, hashtags, and mentions.
       - Highlight the thrill of creating something awesome.
-      - Include no explanations, just the caption.
       Twitter example: "New tool alert! 🔥 Built for devs, by devs. #DevTools #Programming @user"
       LinkedIn example: "Excited to share my new dev tool! Built with passion. 💻 #Tech #Development @user"`;
 
