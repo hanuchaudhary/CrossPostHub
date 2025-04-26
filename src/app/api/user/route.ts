@@ -182,3 +182,37 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const { githubUsername } = await request.json();
+
+    // Fetch basic GitHub user profile
+    const userResult = await fetch(`https://api.github.com/users/${githubUsername}`);
+    const userData = await userResult.json();
+
+    // Fetch contribution graph data
+    const contributionsResult = await fetch(`https://github-contributions-api.jogruber.de/v4/${githubUsername}`);
+    const contributionsData = await contributionsResult.json();
+
+    if (!userData || !contributionsData) {
+      return NextResponse.json(
+        { error: "Failed to fetch GitHub data" },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json({
+      user: userData,
+      contributions: contributionsData,
+    });
+
+  } catch (error) {
+    console.error("Error in POST /api/user:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}
+

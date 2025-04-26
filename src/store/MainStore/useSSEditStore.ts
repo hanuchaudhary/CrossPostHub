@@ -117,7 +117,7 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
         resolution: { height, width },
       }));
     },
-    
+
     background: {
       type: "none",
       image: "",
@@ -140,12 +140,12 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
     windowFrame: {
       type: "none",
       transparent: false,
-      colorized: false,
+      colorized: true,
       frameBorder: {
-        type: "none",
-        color: "#000000",
-        width: 0,
-        radius: 0,
+        type: "solid",
+        color: "#262626",
+        width: 2,
+        radius: 22,
       },
     },
     setWindowFrame: ({ type, transparent, colorized, frameBorder }) =>
@@ -160,10 +160,10 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
       })),
 
     border: {
-      type: "none",
-      color: "#000000",
-      width: 0,
-      radius: 0,
+      type: "solid",
+      color: "#262626",
+      width: 2,
+      radius: 20,
     },
     setBorder: ({ type, color, width, radius }) =>
       set(() => ({

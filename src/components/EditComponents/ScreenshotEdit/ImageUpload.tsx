@@ -22,7 +22,7 @@ export const ImageUpload = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 border p-3 m-3 rounded-3xl bg-secondary/60 backdrop-blur-sm">
+    <div className="flex flex-col gap-2 border p-3 m-3 rounded-3xl bg-secondary/60 backdrop-blur-sm">
       <div className="grid grid-cols-2 gap-2">
         <Button
           onClick={handleInputClick}
@@ -41,6 +41,12 @@ export const ImageUpload = () => {
           />
         </Button>
         <Button
+          onClick={async () => {
+            const response = await fetch("/demo.png");
+            const blob = await response.blob();
+            const file = new File([blob], "demo.png", { type: blob.type });
+            ssStore.setScreenshot(file);
+          }}
           variant="outline"
           className="flex border items-center justify-center gap-2 rounded-full bg-neutral-800 text-white hover:bg-neutral-700"
         >

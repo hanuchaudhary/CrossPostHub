@@ -1,16 +1,6 @@
+import { cn } from "@/lib/utils";
 import { useScreenshotEditStore } from "@/store/MainStore/useSSEditStore";
-import Image from "next/image";
 import React from "react";
-
-// interface ScreenshotPreviewProps {
-//   shadow: string;
-//   border?: {
-//     type?: BorderStyle;
-//     color: string;
-//     width: number;
-//     radius: number;
-//   };
-// }
 
 export function ScreeshotPreview() {
   const ssStore = useScreenshotEditStore();
@@ -20,9 +10,18 @@ export function ScreeshotPreview() {
       {ssStore.screenshot && (
         <div className="relative h-full">
           <img
+            style={{
+              borderRadius: ssStore.border.radius,
+              borderStyle: ssStore.border.type,
+              borderWidth: ssStore.border.width,
+              borderColor: ssStore.border.color,
+            }}
             src={ssStore.screenshot}
             alt="Screenshot"
-            className="object-contain rounded-xl h-full"
+            className={cn(
+              "object-contain rounded-xl",
+              ssStore.windowFrame.type == "none" ? "h-[calc(100vh-300px)]" : ""
+            )}
           />
         </div>
       )}

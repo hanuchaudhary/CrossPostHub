@@ -26,7 +26,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
   type = "none",
   transparent = false,
   colorized = false,
-  title = "code-snippet.tsx",
+  title,
   border,
 }) => {
   if (type === "none") {
@@ -63,7 +63,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderColor: border.color,
           boxShadow: shadow,
         }}
-        className="overflow-hidden rounded-lg border border-neutral-800"
+        className="overflow-hidden bg-secondary/40 backdrop-blur-xl rounded-lg border border-neutral-800"
       >
         <div
           className={`flex items-center gap-2 p-3 ${bgClass} ${borderClass}`}
@@ -88,7 +88,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderColor: border.color,
           boxShadow: shadow,
         }}
-        className="overflow-hidden rounded-lg border border-neutral-800"
+        className="overflow-hidden bg-secondary/40 backdrop-blur-xl rounded-lg border border-neutral-800"
       >
         <div
           className={`flex items-center gap-2 p-3 ${bgClass} ${borderClass}`}
@@ -97,7 +97,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           <div className="flex-1 mx-2">
             <div className="bg-neutral-800 rounded-full px-2 py-1 text-xs text-neutral-400 flex items-center justify-center">
               <span className="truncate">
-                https://{username}.com/{title.toLowerCase().replace(".", "-")}
+                https://{username}.com/{title?.toLowerCase().replace(".", "-")}
               </span>
             </div>
           </div>
@@ -117,7 +117,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderColor: border.color,
           boxShadow: shadow,
         }}
-        className="overflow-hidden rounded-xl border border-neutral-800"
+        className="overflow-hidden bg-secondary/40 backdrop-blur-xl rounded-xl border border-neutral-800"
       >
         <div
           className={`flex items-center gap-2 p-2 ${bgClass} ${borderClass}`}
@@ -126,14 +126,14 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <MacOSDots />
-                <div className="text-xs text-neutral-400 font-medium">
-                  {title}
-                </div>
+                {title && (
+                  <div className="text-xs text-neutral-400 font-medium">
+                    {title}
+                  </div>
+                )}
               </div>
               <div className="bg-neutral-800 rounded-full px-3 py-1 text-xs text-neutral-400">
-                <span className="truncate">
-                  {username}.codes/{title.toLowerCase()}
-                </span>
+                <span className="truncate">{username}.codes</span>
               </div>
             </div>
           </div>
@@ -153,7 +153,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           borderColor: border.color,
           boxShadow: shadow,
         }}
-        className="overflow-hidden rounded-lg border border-neutral-800"
+        className="overflow-hidden bg-secondary/40 backdrop-blur-xl rounded-lg border border-neutral-800"
       >
         <div
           className={`flex items-center justify-between p-2 ${bgClass} ${borderClass}`}
@@ -161,7 +161,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
           <div className="text-xs text-neutral-400 font-medium px-2">
             {title}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pr-2">
             <IconMinus className="h-[14px] w-[14px] text-neutral-500" />
             <IconBoxMultiple className="h-[14px] w-[14px] text-neutral-500" />
             <div className="text-red-500">

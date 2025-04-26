@@ -832,8 +832,8 @@ const CodeEditor: React.FC = () => {
               className="flex w-full items-center justify-center gap-2"
               onClick={() => {
                 setBackground({
-                  type: "gradient",
-                  gradient: PREDEFINED_GRADIENTS[8].gradient,
+                  type: "image",
+                  image: "/wallpaper/w2.jpg",
                 });
 
                 setWindowFrame({
@@ -847,7 +847,7 @@ const CodeEditor: React.FC = () => {
                   },
                 });
                 setFileName("code.tsx");
-                setCodeBackgroundColor("rgba(2, 2, 2, 0.91)");
+                setCodeBackgroundColor("rgba(3, 3, 3, 0.8)");
                 // setOpenCollapsibles([]);
               }}
             >

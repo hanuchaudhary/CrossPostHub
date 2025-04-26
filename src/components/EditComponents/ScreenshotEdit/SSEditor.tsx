@@ -51,6 +51,7 @@ import { parseRgba } from "@/lib/parseRGBA";
 import { ImageUpload } from "./ImageUpload";
 import { ScreeshotPreview } from "./ScreeshotPreview";
 import { useScreenshotEditStore } from "@/store/MainStore/useSSEditStore";
+import { motion } from "motion/react";
 
 export const SSEditor: React.FC = () => {
   const { data } = useSession();
@@ -60,8 +61,8 @@ export const SSEditor: React.FC = () => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const router = useRouter();
   const [openCollapsibles, setOpenCollapsibles] = useState<string[]>([
-    "Code Settings",
     "Select Frame",
+    "Background ",
   ]);
 
   // Handler to manage Collapsible open/close
@@ -71,7 +72,7 @@ export const SSEditor: React.FC = () => {
         // Opening a Collapsible
         const newOpen = [...prev, trigger];
         // If more than 2 are open, close the oldest (first in array)
-        if (newOpen.length > 2) {
+        if (newOpen.length >= 2) {
           return newOpen.slice(1); // Keep the last two
         }
         return newOpen;
@@ -181,21 +182,29 @@ export const SSEditor: React.FC = () => {
     }
   }, [captureImage]);
 
-  // useEffect(() => {
-  //   if (store.windowFrame.type !== "none") {
-  //     store.setBorder({
-  //       radius: 0,
-  //       width: 0,
-  //       color : 
-  //     });
-  //   }
-  // }, [store.windowFrame.type, store.setBorder]);
+  useEffect(() => {
+    if (store.windowFrame.type != "none") {
+      store.setBorder({
+        type: "none",
+        radius: 0,
+        color: "",
+        width: 0,
+      });
+    }
+  }, [store.windowFrame]);
 
   return (
-    <div className="flex md:flex-row flex-col gap-2 min-h-[70vh]">
+    <div className="flex md:flex-row flex-col gap-2 h-[calc(100vh-70px)] w-full">
       {/* Screenshot   Preview Section */}
-      <div className="w-[1000px] h-[700px]  bg-secondary/30 relative rounded-2xl border">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+      <div className="group bg-secondary/30 w-full overflow-hidden relative rounded-2xl border">
+        <div
+          className={cn(
+            !store.screenshot
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100 ",
+            "transition-opacity duration-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50"
+          )}
+        >
           <ImageUpload />
         </div>
         <div
@@ -216,14 +225,14 @@ export const SSEditor: React.FC = () => {
               transparent={store.windowFrame.transparent}
               colorized={store.windowFrame.colorized}
             >
-            <ScreeshotPreview />
+              <ScreeshotPreview />
             </WindowFrame>
           </Card>
         </div>
       </div>
 
       {/* Window Frame and Background Settings */}
-      <div className="scroll-custom bg-secondary/30 md:h-[calc(100vh-70px)] overflow-y-auto rounded-2xl border w-full p-2 flex flex-col gap-2 justify-between">
+      <div className="scroll-custom bg-secondary/30 md:w-1/4 md:h-[calc(100vh-70px)] overflow-y-auto rounded-2xl border p-2 flex flex-col gap-2 justify-between">
         <div className="space-y-2">
           <Collapsible
             trigger="Select Frame"
@@ -244,7 +253,9 @@ export const SSEditor: React.FC = () => {
                   <Button
                     key={type.value}
                     variant={
-                      store.windowFrame.type === type.value ? "default" : "secondary"
+                      store.windowFrame.type === type.value
+                        ? "default"
+                        : "secondary"
                     }
                     className="w-full"
                     onClick={() => {
@@ -339,7 +350,7 @@ export const SSEditor: React.FC = () => {
                                 className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
                                 style={{
                                   backgroundColor:
-                                  store.windowFrame.frameBorder.color,
+                                    store.windowFrame.frameBorder.color,
                                 }}
                               ></span>
                               <Input
@@ -361,7 +372,9 @@ export const SSEditor: React.FC = () => {
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-3" align="start">
                           <RgbaColorPicker
-                            color={parseRgba(store.windowFrame.frameBorder.color)}
+                            color={parseRgba(
+                              store.windowFrame.frameBorder.color
+                            )}
                             onChange={(rgba) => {
                               store.setWindowFrame({
                                 ...store.windowFrame,
@@ -545,7 +558,6 @@ export const SSEditor: React.FC = () => {
             trigger="Border"
             open={openCollapsibles.includes("Border")}
             onOpenChange={(isOpen) => handleCollapsibleToggle("Border", isOpen)}
-            // className="space-y-2"
           >
             <div className="space-y-3">
               <div className="space-y-2">
@@ -580,7 +592,7 @@ export const SSEditor: React.FC = () => {
                 <Slider
                   label={`Border width (${store.border.width}px)`}
                   min={0}
-                  max={6}
+                  max={10}
                   step={0.1}
                   value={[store.border.width]}
                   onValueChange={([value]) =>
@@ -590,7 +602,7 @@ export const SSEditor: React.FC = () => {
                 <Slider
                   label={`Border Radius (${store.border.radius}px)`}
                   min={0}
-                  max={30}
+                  max={150}
                   step={0.5}
                   value={[store.border.radius]}
                   onValueChange={([value]) =>
@@ -671,20 +683,25 @@ export const SSEditor: React.FC = () => {
               className="flex w-full items-center justify-center gap-2"
               onClick={() => {
                 store.setBackground({
-                  type: "gradient",
-                  gradient: PREDEFINED_GRADIENTS[8].gradient,
+                  type: "image",
+                  image: "/wallpaper/w2.jpg",
                 });
 
-                store.setWindowFrame({
-                  type: "arc",
-                  colorized: true,
-                  frameBorder: {
-                    type: "solid",
-                    color: "#333333",
-                    radius: 20,
-                    width: 2,
-                  },
+                store.setBorder({
+                  color: "rgba(255, 255, 255, 0.2)",
+                  width: 8,
+                  radius: 30,
                 });
+                // store.setWindowFrame({
+                //   type: "arc",
+                //   colorized: true,
+                //   frameBorder: {
+                //     type: "solid",
+                //     color: "#333333",
+                //     radius: 20,
+                //     width: 2,
+                //   },
+                // });
               }}
             >
               Quick Edit

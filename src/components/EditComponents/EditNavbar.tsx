@@ -19,14 +19,9 @@ const navItems = [
     mode: "code",
   },
   {
-    title: "Tweet",
-    href: "/edit/tweet",
-    mode: "tweet",
-  },
-  {
-    title: "Mockup",
-    href: "/edit/mockup",
-    mode: "mockup",
+    title: "Github",
+    href: "/edit/github",
+    mode: "github",
   },
 ];
 
