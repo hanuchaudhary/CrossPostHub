@@ -131,12 +131,12 @@ async function handler(request: NextRequest) {
 
     // Parallelize post saving and notifications
     await Promise.all([
-      postSaveToDB({
-        postText,
-        userId,
-        provider,
-        status: "SUCCESS",
-      }),
+      // postSaveToDB({
+      //   postText,
+      //   userId,
+      //   provider,
+      //   status: "SUCCESS",
+      // }),
       createNotification({
         userId,
         type: "POST_STATUS_SUCCESS",

@@ -21,19 +21,17 @@ import {
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants";
 import { useCodeEditorStore } from "@/store/MainStore/useCodeEditStore";
-import { Textarea } from "../ui/textarea";
-import { Label } from "../ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CodeBlock } from "./CodeBlock";
-import { Switch } from "../ui/switch";
-import { Separator } from "../ui/separator";
-import { Collapsible } from "../ui/custom-collapsible";
-import { ScrollArea } from "../ui/scroll-area";
+import { Textarea } from "../../ui/textarea";
+import { Label } from "../../ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { CodeBlock } from "../CodeBlock";
+import { Switch } from "../../ui/switch";
+import { Separator } from "../../ui/separator";
+import { Collapsible } from "../../ui/custom-collapsible";
+import { ScrollArea } from "../../ui/scroll-area";
 import html2canvas from "html2canvas";
-import { customToast } from "../CreatePost/customToast";
-import { Slider } from "../ui/slider";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { customToast } from "../../CreatePost/customToast";
+import { Slider } from "../../ui/slider";
 import { useSession } from "next-auth/react";
 import {
   IconCircleArrowDownFilled,
@@ -50,49 +48,13 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { BorderStyle } from "@/Types/Types";
 import { parseRgba } from "@/lib/parseRGBA";
+import { ImageUpload } from "./ImageUpload";
+import { ScreeshotPreview } from "./ScreeshotPreview";
+import { useScreenshotEditStore } from "@/store/MainStore/useSSEditStore";
 
-const ThemePreview = React.memo(
-  ({ theme, onClick }: { theme: any; onClick: () => void }) => (
-    <button onClick={onClick} className="cursor-pointer select-none">
-      <SyntaxHighlighter
-        language={"javascript"}
-        style={theme.value}
-        wrapLines={true}
-        showLineNumbers={true}
-        PreTag="div"
-        customStyle={{
-          fontSize: "0.75rem",
-        }}
-      >
-        {`console.log("CrosspostHub")`}
-      </SyntaxHighlighter>
-    </button>
-  )
-);
-ThemePreview.displayName = "ThemePreview";
-
-const CodeEditor: React.FC = () => {
+export const SSEditor: React.FC = () => {
   const { data } = useSession();
-  const {
-    highlightedCodeLines,
-    setHighlightedCodeLines,
-    setCode,
-    language,
-    setLanguage,
-    fileName,
-    setFileName,
-    code,
-    codeBackgroundColor,
-    setCodeBackgroundColor,
-    windowFrame,
-    setWindowFrame,
-    background,
-    setBackground,
-    border,
-    setBorder,
-    theme,
-    setTheme,
-  } = useCodeEditorStore();
+  const store = useScreenshotEditStore();
 
   const exportRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState<boolean>(false);
@@ -120,22 +82,18 @@ const CodeEditor: React.FC = () => {
     });
   };
 
-  const handleCodeChange = (newCode: string) => {
-    setCode(newCode);
-  };
-
   // Compute background style for the outer frame
   const getBackgroundStyle = useMemo(() => {
-    switch (background.type) {
+    switch (store.background.type) {
       case "solid":
         return {
-          backgroundColor: background.solid,
+          backgroundColor: store.background.solid,
           borderRadius: "16px",
           padding: "24px",
         };
       case "gradient":
         return {
-          backgroundImage: background.gradient,
+          backgroundImage: store.background.gradient,
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRadius: "16px",
@@ -143,7 +101,7 @@ const CodeEditor: React.FC = () => {
         };
       case "image":
         return {
-          backgroundImage: `url(${background.image})`,
+          backgroundImage: `url(${store.background.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRadius: "16px",
@@ -156,7 +114,7 @@ const CodeEditor: React.FC = () => {
           padding: "24px",
         };
     }
-  }, [background]);
+  }, [store.background]);
 
   // Function to capture the image of the code block
   const captureImage = useCallback(async (): Promise<string | null> => {
@@ -191,10 +149,10 @@ const CodeEditor: React.FC = () => {
     if (imageData) {
       const link = document.createElement("a");
       link.href = imageData;
-      link.download = `${fileName || "code"}.png`;
+      link.download = `${"crossposthub"}.png`;
       link.click();
     }
-  }, [fileName, captureImage]);
+  }, [captureImage]);
 
   // Function to handle share with CrosspostHub button click
   const handleShareWithCrosspostHub = useCallback(async () => {
@@ -223,162 +181,42 @@ const CodeEditor: React.FC = () => {
     }
   }, [captureImage]);
 
-  useEffect(() => {
-    if (windowFrame.type !== "none") {
-      setBorder({
-        radius: 0,
-        width: 0,
-      });
-    }
-  }, [windowFrame.type, setBorder]);
+  // useEffect(() => {
+  //   if (store.windowFrame.type !== "none") {
+  //     store.setBorder({
+  //       radius: 0,
+  //       width: 0,
+  //       color : 
+  //     });
+  //   }
+  // }, [store.windowFrame.type, store.setBorder]);
 
   return (
     <div className="flex md:flex-row flex-col gap-2 min-h-[70vh]">
-      {/* Code Editor Section */}
-      <div className="scroll-custom md:h-[calc(100vh-70px)] overflow-y-auto w-full bg-secondary/30 rounded-2xl p-[10px] border border-border flex flex-col gap-6">
-        <div className="space-y-2">
-          <Textarea
-            value={code}
-            onChange={(e) => handleCodeChange(e.target.value)}
-            className="md:min-h-80 min-h-52 md:text-sm text-xs resize-none rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-            placeholder="Paste your code here..."
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          />
-
-          <Collapsible
-            trigger="Code Settings"
-            open={openCollapsibles.includes("Code Settings")}
-            onOpenChange={(isOpen) =>
-              handleCollapsibleToggle("Code Settings", isOpen)
-            }
-            buttonClassName="w-full"
-          >
-            <div className="relative">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <div>
-                    <Label className="text-sm">Code Background Color</Label>
-                    <div className="relative mt-2">
-                      <span
-                        className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
-                        style={{ backgroundColor: codeBackgroundColor }}
-                      ></span>
-                      <Input
-                        value={codeBackgroundColor}
-                        onChange={(e) => setCodeBackgroundColor(e.target.value)}
-                        placeholder="Code Background Color"
-                        className="rounded-[12px] border border-border bg-secondary/40 p-4 pl-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-                      />
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3" align="start">
-                  <RgbaColorPicker
-                    color={parseRgba(codeBackgroundColor)}
-                    onChange={(color) => {
-                      setCodeBackgroundColor(
-                        `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
-                      );
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Language</Label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_LANGUAGES.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>File Name</Label>
-              <Input
-                value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
-                placeholder="Enter file name"
-                className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Highlight Lines</Label>
-              <Input
-                onChange={(e) => {
-                  const lines = e.target.value
-                    .split(",")
-                    .map(Number)
-                    .filter(Boolean);
-                  setHighlightedCodeLines(lines);
-                }}
-                type="text"
-                placeholder="Enter line numbers separated by commas"
-                className="rounded-[12px] border border-border bg-secondary/40 p-4 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-secondary/80"
-              />
-            </div>
-          </Collapsible>
-
-          <Collapsible
-            trigger="Themes"
-            open={openCollapsibles.includes("Themes")}
-            onOpenChange={(isOpen) => handleCollapsibleToggle("Themes", isOpen)}
-            buttonClassName="w-full"
-          >
-            <ScrollArea className="h-64">
-              {CODE_THEMES.map((theme) => (
-                <ThemePreview
-                  key={theme.label}
-                  theme={theme}
-                  onClick={() => setTheme(theme.value)}
-                />
-              ))}
-            </ScrollArea>
-          </Collapsible>
+      {/* Screenshot   Preview Section */}
+      <div className="w-[1000px] h-[700px]  bg-secondary/30 relative rounded-2xl border">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+          <ImageUpload />
         </div>
-      </div>
-
-      {/* Code Preview Section */}
-      <div className="bg-secondary/30 rounded-2xl border">
         <div
           ref={exportRef}
           style={{
             ...getBackgroundStyle,
-            backdropFilter: `blur(${background.blur}px)`, // Fixed blur application
-            WebkitBackdropFilter: `blur(${background.blur}px)`,
+            backdropFilter: `blur(${store.background.blur}px)`, // Fixed blur application
+            WebkitBackdropFilter: `blur(${store.background.blur}px)`,
           }}
           className="w-full h-full flex items-center justify-center"
         >
           <Card className="border-none bg-transparent shadow-none transition-all duration-200 p-0 w-full">
             <WindowFrame
-              shadow={windowFrame.shadow}
-              border={windowFrame.frameBorder}
+              // shadow={store.windowFrame.shadow}
+              border={store.windowFrame.frameBorder}
               username={data?.user?.name?.toLowerCase().replace(" ", "")}
-              title={fileName}
-              type={windowFrame.type}
-              transparent={windowFrame.transparent}
-              colorized={windowFrame.colorized}
+              type={store.windowFrame.type}
+              transparent={store.windowFrame.transparent}
+              colorized={store.windowFrame.colorized}
             >
-              <CodeBlock
-                theme={theme}
-                border={border}
-                backgroundColor={codeBackgroundColor}
-                code={code}
-                language={language}
-                filename={fileName}
-                highlightLines={highlightedCodeLines}
-              />
+            <ScreeshotPreview />
             </WindowFrame>
           </Card>
         </div>
@@ -406,12 +244,12 @@ const CodeEditor: React.FC = () => {
                   <Button
                     key={type.value}
                     variant={
-                      windowFrame.type === type.value ? "default" : "secondary"
+                      store.windowFrame.type === type.value ? "default" : "secondary"
                     }
                     className="w-full"
                     onClick={() => {
-                      setWindowFrame({
-                        ...windowFrame,
+                      store.setWindowFrame({
+                        ...store.windowFrame,
                         type: type.value as "macos" | "browser" | "window",
                       });
                     }}
@@ -420,7 +258,7 @@ const CodeEditor: React.FC = () => {
                   </Button>
                 ))}
               </div>
-              {windowFrame.type !== "none" && (
+              {store.windowFrame.type !== "none" && (
                 <div className="space-y-2">
                   <Separator />
                   <div className="space-y-3">
@@ -432,17 +270,17 @@ const CodeEditor: React.FC = () => {
                             <div
                               key={e}
                               onClick={() => {
-                                setWindowFrame({
-                                  ...windowFrame,
+                                store.setWindowFrame({
+                                  ...store.windowFrame,
                                   frameBorder: {
-                                    ...windowFrame.frameBorder,
+                                    ...store.windowFrame.frameBorder,
                                     type: e as BorderStyle,
                                   },
                                 });
                               }}
                               className={cn(
                                 "w-10 h-8 rounded flex items-center justify-center cursor-pointer border border-border",
-                                border.type === e && "bg-primary/30",
+                                store.border.type === e && "bg-primary/30",
                                 e === "solid" && "border-2 border-neutral-400",
                                 e === "double" &&
                                   "border-4 border-double border-neutral-400",
@@ -459,32 +297,32 @@ const CodeEditor: React.FC = () => {
 
                     <div className="space-y-2">
                       <Slider
-                        label={`Border width (${windowFrame.frameBorder.width}px)`}
+                        label={`Border width (${store.windowFrame.frameBorder.width}px)`}
                         min={0}
                         max={6}
                         step={0.1}
-                        value={[windowFrame.frameBorder.width]}
+                        value={[store.windowFrame.frameBorder.width]}
                         onValueChange={([value]) =>
-                          setWindowFrame({
-                            ...windowFrame,
+                          store.setWindowFrame({
+                            ...store.windowFrame,
                             frameBorder: {
-                              ...windowFrame.frameBorder,
+                              ...store.windowFrame.frameBorder,
                               width: value,
                             },
                           })
                         }
                       />
                       <Slider
-                        label={`Border Radius (${windowFrame.frameBorder.radius}px)`}
+                        label={`Border Radius (${store.windowFrame.frameBorder.radius}px)`}
                         min={0}
                         max={30}
                         step={0.5}
-                        value={[windowFrame.frameBorder.radius]}
+                        value={[store.windowFrame.frameBorder.radius]}
                         onValueChange={([value]) =>
-                          setWindowFrame({
-                            ...windowFrame,
+                          store.setWindowFrame({
+                            ...store.windowFrame,
                             frameBorder: {
-                              ...windowFrame.frameBorder,
+                              ...store.windowFrame.frameBorder,
                               radius: value,
                             },
                           })
@@ -501,16 +339,16 @@ const CodeEditor: React.FC = () => {
                                 className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
                                 style={{
                                   backgroundColor:
-                                    windowFrame.frameBorder.color,
+                                  store.windowFrame.frameBorder.color,
                                 }}
                               ></span>
                               <Input
-                                value={windowFrame.frameBorder.color}
+                                value={store.windowFrame.frameBorder.color}
                                 onChange={(e) =>
-                                  setWindowFrame({
-                                    ...windowFrame,
+                                  store.setWindowFrame({
+                                    ...store.windowFrame,
                                     frameBorder: {
-                                      ...windowFrame.frameBorder,
+                                      ...store.windowFrame.frameBorder,
                                       color: e.target.value,
                                     },
                                   })
@@ -523,12 +361,12 @@ const CodeEditor: React.FC = () => {
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-3" align="start">
                           <RgbaColorPicker
-                            color={parseRgba(windowFrame.frameBorder.color)}
+                            color={parseRgba(store.windowFrame.frameBorder.color)}
                             onChange={(rgba) => {
-                              setWindowFrame({
-                                ...windowFrame,
+                              store.setWindowFrame({
+                                ...store.windowFrame,
                                 frameBorder: {
-                                  ...windowFrame.frameBorder,
+                                  ...store.windowFrame.frameBorder,
                                   color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`,
                                 },
                               });
@@ -541,10 +379,10 @@ const CodeEditor: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label>Transparency</Label>
                     <Switch
-                      checked={windowFrame.transparent}
+                      checked={store.windowFrame.transparent}
                       onCheckedChange={(checked) =>
-                        setWindowFrame({
-                          ...windowFrame,
+                        store.setWindowFrame({
+                          ...store.windowFrame,
                           transparent: checked,
                         })
                       }
@@ -555,10 +393,10 @@ const CodeEditor: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label>Colorized Controls</Label>
                     <Switch
-                      checked={windowFrame.colorized}
+                      checked={store.windowFrame.colorized}
                       onCheckedChange={(checked) =>
-                        setWindowFrame({
-                          ...windowFrame,
+                        store.setWindowFrame({
+                          ...store.windowFrame,
                           colorized: checked,
                         })
                       }
@@ -587,8 +425,8 @@ const CodeEditor: React.FC = () => {
               ].map((bg) => (
                 <li
                   onClick={() =>
-                    setBackground({
-                      ...background,
+                    store.setBackground({
+                      ...store.background,
                       type: bg.value as "none" | "image" | "gradient" | "solid",
                     })
                   }
@@ -599,12 +437,12 @@ const CodeEditor: React.FC = () => {
                     <div
                       style={{
                         backgroundColor:
-                          bg.value === "solid" ? background.solid : "",
+                          bg.value === "solid" ? store.background.solid : "",
                         backgroundImage:
                           bg.value === "gradient"
-                            ? background.gradient
+                            ? store.background.gradient
                             : bg.value === "image"
-                              ? `url(${background.image})`
+                              ? `url(${store.background.image})`
                               : "",
                         backgroundSize: "cover",
                         backgroundPosition: "center",
@@ -618,14 +456,14 @@ const CodeEditor: React.FC = () => {
             </ul>
 
             <div className="space-y-4">
-              {background.type === "solid" && (
+              {store.background.type === "solid" && (
                 <div className="space-y-2">
                   <Label>Solid Color</Label>
                   <HexColorPicker
-                    color={background.solid}
+                    color={store.background.solid}
                     onChange={(color) =>
-                      setBackground({
-                        ...background,
+                      store.setBackground({
+                        ...store.background,
                         solid: color,
                       })
                     }
@@ -633,21 +471,25 @@ const CodeEditor: React.FC = () => {
                 </div>
               )}
 
-              {background.type !== "none" && background.type !== "solid" && (
-                <div className="space-y-2">
-                  <Slider
-                    label="Blur"
-                    min={2}
-                    max={20}
-                    step={1}
-                    value={[background.blur]}
-                    onValueChange={([value]) =>
-                      setBackground({ ...background, blur: value })
-                    }
-                  />
-                </div>
-              )}
-              {background.type === "gradient" && (
+              {store.background.type !== "none" &&
+                store.background.type !== "solid" && (
+                  <div className="space-y-2">
+                    <Slider
+                      label="Blur"
+                      min={2}
+                      max={20}
+                      step={1}
+                      value={[store.background.blur]}
+                      onValueChange={([value]) =>
+                        store.setBackground({
+                          ...store.background,
+                          blur: value,
+                        })
+                      }
+                    />
+                  </div>
+                )}
+              {store.background.type === "gradient" && (
                 <div className="space-y-4">
                   <ScrollArea className="h-56">
                     <div className="grid grid-cols-3 gap-2">
@@ -657,8 +499,8 @@ const CodeEditor: React.FC = () => {
                           className="h-10 rounded cursor-pointer border"
                           style={{ backgroundImage: grad.gradient }}
                           onClick={() =>
-                            setBackground({
-                              ...background,
+                            store.setBackground({
+                              ...store.background,
                               gradient: grad.gradient,
                             })
                           }
@@ -670,7 +512,7 @@ const CodeEditor: React.FC = () => {
                 </div>
               )}
 
-              {background.type === "image" && (
+              {store.background.type === "image" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
                     {LOCAL_IMAGES.map((img) => (
@@ -683,8 +525,8 @@ const CodeEditor: React.FC = () => {
                         className="h-10 w-full object-cover rounded cursor-pointer border"
                         loading="lazy"
                         onClick={() =>
-                          setBackground({
-                            ...background,
+                          store.setBackground({
+                            ...store.background,
                             image: img.url,
                           })
                         }
@@ -713,14 +555,14 @@ const CodeEditor: React.FC = () => {
                     <div
                       key={e}
                       onClick={() => {
-                        setBorder({
-                          ...border,
+                        store.setBorder({
+                          ...store.border,
                           type: e as BorderStyle,
                         });
                       }}
                       className={cn(
                         "w-10 h-8 rounded flex items-center justify-center cursor-pointer border border-border",
-                        border.type === e && "bg-primary/30",
+                        store.border.type === e && "bg-primary/30",
                         e === "solid" && "border-2 border-neutral-400",
                         e === "double" &&
                           "border-4 border-double border-neutral-400",
@@ -736,23 +578,23 @@ const CodeEditor: React.FC = () => {
 
               <div className="space-y-2">
                 <Slider
-                  label={`Border width (${border.width}px)`}
+                  label={`Border width (${store.border.width}px)`}
                   min={0}
                   max={6}
                   step={0.1}
-                  value={[border.width]}
+                  value={[store.border.width]}
                   onValueChange={([value]) =>
-                    setBorder({ ...border, width: value })
+                    store.setBorder({ ...store.border, width: value })
                   }
                 />
                 <Slider
-                  label={`Border Radius (${border.radius}px)`}
+                  label={`Border Radius (${store.border.radius}px)`}
                   min={0}
                   max={30}
                   step={0.5}
-                  value={[border.radius]}
+                  value={[store.border.radius]}
                   onValueChange={([value]) =>
-                    setBorder({ ...border, radius: value })
+                    store.setBorder({ ...store.border, radius: value })
                   }
                 />
               </div>
@@ -764,13 +606,13 @@ const CodeEditor: React.FC = () => {
                       <div className="relative mt-2">
                         <span
                           className="w-6 h-6 rounded-full cursor-pointer aspect-square border border-primary/10 absolute left-2 top-1/2 -translate-y-1/2"
-                          style={{ backgroundColor: border.color }}
+                          style={{ backgroundColor: store.border.color }}
                         ></span>
                         <Input
-                          value={border.color}
+                          value={store.border.color}
                           onChange={(e) =>
-                            setBorder({
-                              ...border,
+                            store.setBorder({
+                              ...store.border,
                               color: e.target.value,
                             })
                           }
@@ -782,10 +624,10 @@ const CodeEditor: React.FC = () => {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3" align="start">
                     <RgbaColorPicker
-                      color={parseRgba(border.color)}
+                      color={parseRgba(store.border.color)}
                       onChange={(rgba) => {
-                        setBorder({
-                          ...border,
+                        store.setBorder({
+                          ...store.border,
                           color: `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`,
                         });
                       }}
@@ -803,27 +645,24 @@ const CodeEditor: React.FC = () => {
               className="flex items-center justify-center gap-2 px-3"
               size={"icon"}
               onClick={() => {
-                setHighlightedCodeLines([]);
-                setBackground({
+                store.setBackground({
                   type: "none",
                   image: "",
                   gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
                   solid: "#ffffff",
                   blur: 0,
                 });
-                setBorder({
+                store.setBorder({
                   type: "solid",
                   color: "#333333",
                   width: 1,
                   radius: 15,
                 });
-                setWindowFrame({
+                store.setWindowFrame({
                   type: "none",
                   transparent: false,
                   colorized: false,
                 });
-                setCodeBackgroundColor("");
-                setTheme(atomDark);
               }}
             >
               <IconReload />
@@ -831,12 +670,12 @@ const CodeEditor: React.FC = () => {
             <Button
               className="flex w-full items-center justify-center gap-2"
               onClick={() => {
-                setBackground({
+                store.setBackground({
                   type: "gradient",
                   gradient: PREDEFINED_GRADIENTS[8].gradient,
                 });
 
-                setWindowFrame({
+                store.setWindowFrame({
                   type: "arc",
                   colorized: true,
                   frameBorder: {
@@ -846,9 +685,6 @@ const CodeEditor: React.FC = () => {
                     width: 2,
                   },
                 });
-                setFileName("code.tsx");
-                setCodeBackgroundColor("rgba(2, 2, 2, 0.91)");
-                // setOpenCollapsibles([]);
               }}
             >
               Quick Edit
@@ -920,5 +756,3 @@ const CodeEditor: React.FC = () => {
     </div>
   );
 };
-
-export default CodeEditor;

@@ -1,97 +1,13 @@
 import { BorderStyle } from "@/Types/Types";
 import { create } from "zustand";
 
-type ResolutionPreset = {
-  id: string;
-  name: string;
-  label: string;
-  width: number;
-  height: number;
-  aspectRatio: string;
-};
-
-export const RESOLUTION_PRESETS: ResolutionPreset[] = [
-  {
-    id: "auto",
-    name: "Auto",
-    label: "Auto",
-    width: 0,
-    height: 0,
-    aspectRatio: "auto",
-  },
-  {
-    id: "square",
-    name: "Square",
-    label: "1:1",
-    width: 1080,
-    height: 1080,
-    aspectRatio: "1:1",
-  },
-  {
-    id: "standard",
-    name: "Standard",
-    label: "4:3",
-    width: 1280,
-    height: 960,
-    aspectRatio: "4:3",
-  },
-  {
-    id: "golden",
-    name: "Golden",
-    label: "1.618:1",
-    width: 1618,
-    height: 1000,
-    aspectRatio: "1.618:1",
-  },
-  {
-    id: "widescreen",
-    name: "Widescreen",
-    label: "16:9",
-    width: 1920,
-    height: 1080,
-    aspectRatio: "16:9",
-  },
-  {
-    id: "classic",
-    name: "Classic",
-    label: "3:2",
-    width: 1500,
-    height: 1000,
-    aspectRatio: "3:2",
-  },
-  {
-    id: "photo",
-    name: "Photo",
-    label: "5:4",
-    width: 1250,
-    height: 1000,
-    aspectRatio: "5:4",
-  },
-  {
-    id: "twitter-wide",
-    name: "X (Twitter)",
-    label: "16:9",
-    width: 1600,
-    height: 900,
-    aspectRatio: "16:9",
-  },
-  {
-    id: "twitter-header",
-    name: "X Header",
-    label: "3:1",
-    width: 1500,
-    height: 500,
-    aspectRatio: "3:1",
-  },
-];
-
 interface ScreenshotEditStore {
-  screenshot: File | null;
+  screenshot: string;
+  setScreenshot: (screenshot: File | null) => void;
   originalScreenshotDimension: {
     width: number;
     height: number;
   };
-  setScreenshot: (screenshot: File | null) => void;
 
   resolution: {
     height: number;
@@ -99,14 +15,14 @@ interface ScreenshotEditStore {
   };
   setResolution: ({ height, width }: { height: number; width: number }) => void;
 
-  screenshotBackground: {
+  background: {
     type: "none" | "image" | "gradient" | "solid";
     image: string;
     gradient: string;
     solid: string;
     blur: number;
   };
-  setScreenshotBackground: ({
+  setBackground: ({
     type,
     image,
     gradient,
@@ -120,7 +36,7 @@ interface ScreenshotEditStore {
     blur?: number;
   }) => void;
 
-  screenshotWindowFrame: {
+  windowFrame: {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent: boolean | undefined;
     colorized: boolean | undefined;
@@ -132,7 +48,7 @@ interface ScreenshotEditStore {
     };
   };
 
-  setScreenshotWindowFrame: ({
+  setWindowFrame: ({
     type,
     transparent,
     colorized,
@@ -148,13 +64,13 @@ interface ScreenshotEditStore {
     };
   }) => void;
 
-  screenshotBorder: {
+  border: {
     type?: BorderStyle;
     color: string;
     width: number;
     radius: number;
   };
-  setScreenshotBorder: ({
+  setBorder: ({
     type,
     color,
     width,
@@ -169,33 +85,27 @@ interface ScreenshotEditStore {
 
 export const useScreenshotEditStore = create<ScreenshotEditStore>(
   (set, get) => ({
-    screenshot: null,
+    screenshot: "",
     originalScreenshotDimension: {
       width: 0,
       height: 0,
     },
     setScreenshot: (screenshot) => {
-      // We'll need to get dimensions from an Image object
       if (screenshot) {
-        const img = new Image();
-        img.onload = () => {
-          URL.revokeObjectURL(img.src); // Clean up
-          set({
-            originalScreenshotDimension: {
-              width: img.width,
-              height: img.height,
-            },
-          });
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            const screenshotUrl = e.target.result as string;
+            set(() => ({
+              screenshot: screenshotUrl,
+              originalScreenshotDimension: screenshot
+                ? { width: 0, height: 0 }
+                : { width: 0, height: 0 },
+            }));
+          }
         };
-        img.src = URL.createObjectURL(screenshot);
+        reader.readAsDataURL(screenshot);
       }
-
-      return set(() => ({
-        screenshot,
-        originalScreenshotDimension: screenshot
-          ? { width: 0, height: 0 }
-          : { width: 0, height: 0 },
-      }));
     },
 
     resolution: {
@@ -207,26 +117,27 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
         resolution: { height, width },
       }));
     },
-    screenshotBackground: {
+    
+    background: {
       type: "none",
       image: "",
       gradient: "",
       solid: "",
       blur: 0,
     },
-    setScreenshotBackground: ({ type, image, gradient, solid, blur }) =>
+    setBackground: ({ type, image, gradient, solid, blur }) =>
       set((state) => ({
-        screenshotBackground: {
-          ...state.screenshotBackground,
-          type: type ?? state.screenshotBackground.type,
-          image: image ?? state.screenshotBackground.image,
-          gradient: gradient ?? state.screenshotBackground.gradient,
-          solid: solid ?? state.screenshotBackground.solid,
-          blur: blur ?? state.screenshotBackground.blur,
+        background: {
+          ...state.background,
+          type: type ?? state.background.type,
+          image: image ?? state.background.image,
+          gradient: gradient ?? state.background.gradient,
+          solid: solid ?? state.background.solid,
+          blur: blur ?? state.background.blur,
         },
       })),
 
-    screenshotWindowFrame: {
+    windowFrame: {
       type: "none",
       transparent: false,
       colorized: false,
@@ -237,26 +148,26 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
         radius: 0,
       },
     },
-    setScreenshotWindowFrame: ({ type, transparent, colorized, frameBorder }) =>
+    setWindowFrame: ({ type, transparent, colorized, frameBorder }) =>
       set((state) => ({
-        screenshotWindowFrame: {
-          ...state.screenshotWindowFrame,
-          type: type ?? state.screenshotWindowFrame.type,
-          transparent: transparent ?? state.screenshotWindowFrame.transparent,
-          colorized: colorized ?? state.screenshotWindowFrame.colorized,
-          frameBorder: frameBorder ?? state.screenshotWindowFrame.frameBorder,
+        windowFrame: {
+          ...state.windowFrame,
+          type: type ?? state.windowFrame.type,
+          transparent: transparent ?? state.windowFrame.transparent,
+          colorized: colorized ?? state.windowFrame.colorized,
+          frameBorder: frameBorder ?? state.windowFrame.frameBorder,
         },
       })),
 
-    screenshotBorder: {
+    border: {
       type: "none",
       color: "#000000",
       width: 0,
       radius: 0,
     },
-    setScreenshotBorder: ({ type, color, width, radius }) =>
+    setBorder: ({ type, color, width, radius }) =>
       set(() => ({
-        screenshotBorder: { type, color, width, radius },
+        border: { type, color, width, radius },
       })),
   })
 );

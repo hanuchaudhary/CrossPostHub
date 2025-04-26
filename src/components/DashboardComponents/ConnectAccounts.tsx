@@ -22,12 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import BottomLoader from "../Loaders/BottomLoader";
 import TwitterConnectBTN from "../TwitterConnectButton";
-import axios from "axios";
 import { IconLoader, IconLockFilled } from "@tabler/icons-react";
+import { Disconnect } from "./Disconnect";
 
-interface SocialApp {
+export interface SocialApp {
   name: string;
   icon: string;
   provider: string;
@@ -42,9 +41,6 @@ const socialApps: SocialApp[] = [
 
 export function ConnectAccounts() {
   const [loading, setLoading] = useState<string | null>(null);
-  const [disconnectedAppName, setDisconnectedAppName] = useState<string | null>(
-    null
-  );
   const { connectedApps, fetchConnectedApps, isFetchingApps } =
     useDashboardStore();
 
@@ -80,45 +76,9 @@ export function ConnectAccounts() {
     }
   };
 
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const handleDisconnect = async (app: SocialApp) => {
-    const connectedApp = connectedApps.find(
-      (ca) => ca.provider === app.provider
-    );
-    if (connectedApp) {
-      setDisconnectedAppName(connectedApp.provider!);
-      try {
-        setIsDisconnecting(true);
-        await axios.put("/api/disconnect", {
-          provider: connectedApp.provider,
-          providerAccountId: connectedApp.providerAccountId,
-        });
-        toast({
-          title: `${app.name} Disconnected`,
-          description: `Your ${app.name} account has been disconnected successfully.`,
-        });
-        fetchConnectedApps();
-      } catch {
-        setDisconnectedAppName(null);
-        toast({
-          title: `Error disconnecting from ${app.name}`,
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      } finally {
-        setIsDisconnecting(false);
-      }
-    }
-  };
-
   return (
     <div className="w-full relative h-full">
       <Card className="w-full max-w-2xl z-20 relative bg-transparent border-none shadow-none mx-auto">
-        <BottomLoader
-          isLoading={isDisconnecting}
-          selectedPlatforms={[disconnectedAppName!]}
-          title={`Disconnecting from ${disconnectedAppName}`}
-        />
         <CardHeader className="space-y-0">
           <CardTitle className="md:text-2xl text-xl font-ClashDisplayMedium tracking-wide">
             Connect Social Media
@@ -161,22 +121,9 @@ export function ConnectAccounts() {
                     <span className="font-medium">{app.name}</span>
                   </div>
                   {connectedApps.some((ca) => ca.provider === app.provider) ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-center space-x-2">
                       <Badge variant="success">Connected</Badge>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleDisconnect(app)}
-                          >
-                            Disconnect
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Disconnect app={app} />
                     </div>
                   ) : app.provider === "twitter" ? (
                     <TwitterConnectBTN />

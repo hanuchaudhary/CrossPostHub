@@ -61,7 +61,7 @@ export function Profile() {
       <DrawerTrigger>
         <UserProfile />
       </DrawerTrigger>
-      <DrawerContent className="rounded-3xl">
+      <DrawerContent>
         <div className="px-4 pt-3">
           <h2 className="font-ClashDisplayMedium text-2xl text-emerald-500">
             Profile Dashboard

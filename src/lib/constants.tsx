@@ -351,3 +351,88 @@ export const LOCAL_IMAGES = [
     url: "/wallpaper/w9.jpg",
   },
 ];
+
+
+type ResolutionPreset = {
+  id: string;
+  name: string;
+  label: string;
+  width: number;
+  height: number;
+  aspectRatio: string;
+};
+
+export const RESOLUTION_PRESETS: ResolutionPreset[] = [
+  {
+    id: "auto",
+    name: "Auto",
+    label: "Auto",
+    width: 0,
+    height: 0,
+    aspectRatio: "auto",
+  },
+  {
+    id: "square",
+    name: "Square",
+    label: "1:1",
+    width: 1080,
+    height: 1080,
+    aspectRatio: "1:1",
+  },
+  {
+    id: "standard",
+    name: "Standard",
+    label: "4:3",
+    width: 1280,
+    height: 960,
+    aspectRatio: "4:3",
+  },
+  {
+    id: "golden",
+    name: "Golden",
+    label: "1.618:1",
+    width: 1618,
+    height: 1000,
+    aspectRatio: "1.618:1",
+  },
+  {
+    id: "widescreen",
+    name: "Widescreen",
+    label: "16:9",
+    width: 1920,
+    height: 1080,
+    aspectRatio: "16:9",
+  },
+  {
+    id: "classic",
+    name: "Classic",
+    label: "3:2",
+    width: 1500,
+    height: 1000,
+    aspectRatio: "3:2",
+  },
+  {
+    id: "photo",
+    name: "Photo",
+    label: "5:4",
+    width: 1250,
+    height: 1000,
+    aspectRatio: "5:4",
+  },
+  {
+    id: "twitter-wide",
+    name: "X (Twitter)",
+    label: "16:9",
+    width: 1600,
+    height: 900,
+    aspectRatio: "16:9",
+  },
+  {
+    id: "twitter-header",
+    name: "X Header",
+    label: "3:1",
+    width: 1500,
+    height: 500,
+    aspectRatio: "3:1",
+  },
+];
