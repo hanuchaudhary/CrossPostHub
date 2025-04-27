@@ -197,8 +197,8 @@ export const useGithubEditStore = create<GithubEditStore>((set, get) => ({
   },
 
   background: {
-    type: "none",
-    image: "",
+    type: "image",
+    image: "/wallpaper/w2.jpg",
     gradient: "",
     solid: "",
     blur: 0,

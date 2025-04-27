@@ -57,6 +57,7 @@ import {
 } from "../EditTools";
 import BottomToolbar from "../BottomToolbar";
 import UpperToolbar from "../UpperToolbar";
+import { DragUpload } from "../DragUpload";
 
 const ThemePreview = React.memo(
   ({ theme, onClick }: { theme: any; onClick: () => void }) => (
@@ -646,9 +647,7 @@ const CodeEditor: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <div className="border-dashed border-2 p-4 rounded-lg text-center cursor-pointer">
-                    <p>Drag & drop an image or click to upload</p>
-                  </div>
+                  <DragUpload store={store} />
                 </div>
               )}
             </div>

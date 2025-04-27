@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HexColorPicker, RgbaColorPicker } from "react-colorful";
 import { LOCAL_IMAGES, PREDEFINED_GRADIENTS } from "@/lib/constants";
-import { useCodeEditorStore } from "@/store/MainStore/useCodeEditStore";
 import { Label } from "../../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { Switch } from "../../ui/switch";
@@ -13,12 +12,7 @@ import { Separator } from "../../ui/separator";
 import { Collapsible } from "../../ui/custom-collapsible";
 import { ScrollArea } from "../../ui/scroll-area";
 import { Slider } from "../../ui/slider";
-import {
-  IconFileDownloadFilled,
-  IconLockFilled,
-  IconRotate,
-  IconSend,
-} from "@tabler/icons-react";
+import { IconRotate } from "@tabler/icons-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -44,6 +38,7 @@ import UpperToolbar from "../UpperToolbar";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { DragUpload } from "../DragUpload";
 
 export function GithubEditor() {
   const store = useGithubEditStore();
@@ -89,7 +84,7 @@ export function GithubEditor() {
   // FETCH GITHUB USER DATA
   React.useEffect(() => {
     store.fetchGithubUser();
-  }, [store]);
+  }, []);
 
   React.useEffect(() => {
     if (store.windowFrame.type != "none") {
@@ -501,9 +496,7 @@ export function GithubEditor() {
                       />
                     ))}
                   </div>
-                  <div className="border-dashed border-2 p-4 rounded-lg text-center cursor-pointer">
-                    <p>Drag & drop an image or click to upload</p>
-                  </div>
+                  <DragUpload store={store} />
                 </div>
               )}
             </div>

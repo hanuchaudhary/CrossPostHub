@@ -40,6 +40,7 @@ import {
 } from "../EditTools";
 import UpperToolbar from "../UpperToolbar";
 import BottomToolbar from "../BottomToolbar";
+import { DragUpload } from "../DragUpload";
 
 export const SSEditor: React.FC = () => {
   const { data } = useSession();
@@ -480,9 +481,7 @@ export const SSEditor: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <div className="border-dashed border-2 p-4 rounded-lg text-center cursor-pointer">
-                    <p>Drag & drop an image or click to upload</p>
-                  </div>
+                  <DragUpload store={store} />
                 </div>
               )}
             </div>
