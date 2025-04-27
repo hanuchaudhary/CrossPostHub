@@ -11,7 +11,27 @@ export default function GithubProfileCard() {
   const user = store.githubUser;
   const loading = store.isLoading;
   const [noData, setNoData] = React.useState(false);
-
+  
+  const handleTransformData = React.useCallback(
+    (data: any[]) => {
+      if (!data || data.length === 0) {
+        if (!noData) {
+          setNoData(true);
+          customToast({
+            title: "No Data Found",
+            description: `No contribution data found for year: ${store.graphTweeks.year}`,
+            badgeVariant: "destructive",
+          });
+        }
+        return [];
+      } else {
+        if (noData) setNoData(false);
+        return data;
+      }
+    },
+    [store.graphTweeks.year, noData]
+  );
+  
   if (loading) {
     return (
       <div
@@ -41,25 +61,6 @@ export default function GithubProfileCard() {
     );
   }
 
-  const handleTransformData = React.useCallback(
-    (data: any[]) => {
-      if (!data || data.length === 0) {
-        if (!noData) {
-          setNoData(true);
-          customToast({
-            title: "No Data Found",
-            description: `No contribution data found for year: ${store.graphTweeks.year}`,
-            badgeVariant: "destructive",
-          });
-        }
-        return [];
-      } else {
-        if (noData) setNoData(false);
-        return data;
-      }
-    },
-    [store.graphTweeks.year, noData]
-  );
 
   return (
     <div
