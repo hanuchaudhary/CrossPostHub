@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
       bufferutil: "commonjs bufferutil",
       canvas: "commonjs canvas",
     });
-    // config.infrastructureLogging = { debug: /PackFileCache/ };
     return config;
   },
 };

@@ -187,26 +187,31 @@ export async function POST(request: NextRequest) {
   try {
     const { githubUsername } = await request.json();
 
+    const cacheDashboardDataKey = `${githubUsername}-githubProfile`;
+    const cacheDashboardData = await redisClient.get(cacheDashboardDataKey);
+    if (cacheDashboardData) {
+      console.log("Cache hit", typeof cacheDashboardData);
+      return NextResponse.json(cacheDashboardData, { status: 200 });
+    }
+
     // Fetch basic GitHub user profile
-    const userResult = await fetch(`https://api.github.com/users/${githubUsername}`);
+    const userResult = await fetch(
+      `https://api.github.com/users/${githubUsername}`
+    );
     const userData = await userResult.json();
 
-    // Fetch contribution graph data
-    const contributionsResult = await fetch(`https://github-contributions-api.jogruber.de/v4/${githubUsername}`);
-    const contributionsData = await contributionsResult.json();
-
-    if (!userData || !contributionsData) {
+    if (!userData) {
       return NextResponse.json(
         { error: "Failed to fetch GitHub data" },
         { status: 500 }
       );
     }
-    
-    return NextResponse.json({
-      user: userData,
-      contributions: contributionsData,
+
+    redisClient.set(cacheDashboardDataKey, JSON.stringify(userData), {
+      ex: 3 * 60 * 60, // 3 hour
     });
 
+    return NextResponse.json(userData, { status: 200 });
   } catch (error) {
     console.error("Error in POST /api/user:", error);
     return NextResponse.json(
@@ -215,4 +220,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

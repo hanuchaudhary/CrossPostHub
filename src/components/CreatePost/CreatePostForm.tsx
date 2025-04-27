@@ -129,8 +129,8 @@ export function CreatePostForm() {
   const from = params.get("from");
 
   useEffect(() => {
-    if (from === "code-editor") {
-      const storedImage = sessionStorage.getItem("codeEditorImage");
+    if (from === "editor") {
+      const storedImage = sessionStorage.getItem("editorImage");
       if (storedImage) {
         try {
           // Decode base64 string to binary data
@@ -144,7 +144,7 @@ export function CreatePostForm() {
           const imageBlob = new Blob([bytes], { type: "image/png" });
 
           // Create a File object
-          const file = new File([imageBlob], "code-editor-image.png", {
+          const file = new File([imageBlob], "editor-image.png", {
             type: "image/png",
           });
 

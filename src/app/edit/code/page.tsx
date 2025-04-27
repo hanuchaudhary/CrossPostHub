@@ -1,4 +1,4 @@
-import CodeEditor from '@/components/EditComponents/CodeEditor'
+import CodeEditor from '@/components/EditComponents/CodeEdit/CodeEditor'
 import { useCodeEditorStore } from '@/store/MainStore/useCodeEditStore'
 import React from 'react'
 

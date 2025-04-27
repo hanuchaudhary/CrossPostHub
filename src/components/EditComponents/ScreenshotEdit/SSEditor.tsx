@@ -1,30 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { HexColorPicker, RgbaColorPicker } from "react-colorful";
 import { WindowFrame } from "@/components/EditComponents/WindowFrame";
-import {
-  CODE_THEMES,
-  LOCAL_IMAGES,
-  PREDEFINED_GRADIENTS,
-  SUPPORTED_LANGUAGES,
-} from "@/lib/constants";
-import { useCodeEditorStore } from "@/store/MainStore/useCodeEditStore";
-import { Textarea } from "../../ui/textarea";
+import { LOCAL_IMAGES, PREDEFINED_GRADIENTS } from "@/lib/constants";
 import { Label } from "../../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { CodeBlock } from "../CodeBlock";
 import { Switch } from "../../ui/switch";
 import { Separator } from "../../ui/separator";
 import { Collapsible } from "../../ui/custom-collapsible";
@@ -35,11 +20,8 @@ import { Slider } from "../../ui/slider";
 import { useSession } from "next-auth/react";
 import {
   IconCircleArrowDownFilled,
-  IconFileDownloadFilled,
   IconLoader,
-  IconLockFilled,
   IconReload,
-  IconSend,
 } from "@tabler/icons-react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -51,113 +33,33 @@ import { parseRgba } from "@/lib/parseRGBA";
 import { ImageUpload } from "./ImageUpload";
 import { ScreeshotPreview } from "./ScreeshotPreview";
 import { useScreenshotEditStore } from "@/store/MainStore/useSSEditStore";
-import { motion } from "motion/react";
+import {
+  GetBackgroundStyle,
+  useCaptureImage,
+  useCollapsibleManager,
+} from "../EditTools";
+import UpperToolbar from "../UpperToolbar";
+import BottomToolbar from "../BottomToolbar";
 
 export const SSEditor: React.FC = () => {
   const { data } = useSession();
   const store = useScreenshotEditStore();
-
+  const { handleCollapsibleToggle, openCollapsibles } = useCollapsibleManager();
   const exportRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState<boolean>(false);
   const router = useRouter();
-  const [openCollapsibles, setOpenCollapsibles] = useState<string[]>([
-    "Select Frame",
-    "Background ",
-  ]);
+  const { captureImage, downloading } = useCaptureImage(exportRef);
 
-  // Handler to manage Collapsible open/close
-  const handleCollapsibleToggle = (trigger: string, isOpen: boolean) => {
-    setOpenCollapsibles((prev) => {
-      if (isOpen) {
-        // Opening a Collapsible
-        const newOpen = [...prev, trigger];
-        // If more than 2 are open, close the oldest (first in array)
-        if (newOpen.length >= 2) {
-          return newOpen.slice(1); // Keep the last two
-        }
-        return newOpen;
-      } else {
-        // Closing a Collapsible
-        return prev.filter((item) => item !== trigger);
-      }
-    });
-  };
-
-  // Compute background style for the outer frame
-  const getBackgroundStyle = useMemo(() => {
-    switch (store.background.type) {
-      case "solid":
-        return {
-          backgroundColor: store.background.solid,
-          borderRadius: "16px",
-          padding: "24px",
-        };
-      case "gradient":
-        return {
-          backgroundImage: store.background.gradient,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          borderRadius: "16px",
-          padding: "24px",
-        };
-      case "image":
-        return {
-          backgroundImage: `url(${store.background.image})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          borderRadius: "16px",
-          padding: "24px",
-        };
-      default:
-        return {
-          backgroundColor: "transparent",
-          borderRadius: "16px",
-          padding: "24px",
-        };
-    }
-  }, [store.background]);
-
-  // Function to capture the image of the code block
-  const captureImage = useCallback(async (): Promise<string | null> => {
-    if (!exportRef.current) return null;
-    // setOpenCollapsibles([]); // Close all collapsibles before capturing
-    setDownloading(true);
-    try {
-      const canvas = await html2canvas(exportRef.current, {
-        scale: 3,
-        backgroundColor: null,
-        useCORS: true,
-        logging: false,
-        width: exportRef.current.offsetWidth + 20,
-        height: exportRef.current.offsetHeight + 20,
-      });
-      return canvas.toDataURL("image/png");
-    } catch (error) {
-      console.error("Image capture failed:", error);
-      customToast({
-        title: "Capture Failed",
-        description: "An error occurred while capturing the image.",
-      });
-      return null;
-    } finally {
-      setDownloading(false);
-    }
-  }, []);
-
-  // Function to handle export button click
-  const handleExport = useCallback(async () => {
+  const handleExport = React.useCallback(async () => {
     const imageData = await captureImage();
     if (imageData) {
       const link = document.createElement("a");
       link.href = imageData;
-      link.download = `${"crossposthub"}.png`;
+      link.download = `crossposthub-ss.png`;
       link.click();
     }
   }, [captureImage]);
 
-  // Function to handle share with CrosspostHub button click
-  const handleShareWithCrosspostHub = useCallback(async () => {
-    // Check if the user is logged in
+  const handleShareWithCrosspostHub = React.useCallback(async () => {
     if (!data?.user) {
       toast({
         title: "Please login to continue",
@@ -175,10 +77,8 @@ export const SSEditor: React.FC = () => {
 
     const imageData = await captureImage();
     if (imageData) {
-      // Store the image in sessionStorage
-      sessionStorage.setItem("codeEditorImage", imageData);
-      // Redirect to /create route with query parameter from=code-editor
-      router.push("/create?from=code-editor");
+      sessionStorage.setItem("editorImage", imageData);
+      router.push("/create?from=editor");
     }
   }, [captureImage]);
 
@@ -192,6 +92,40 @@ export const SSEditor: React.FC = () => {
       });
     }
   }, [store.windowFrame]);
+
+  const handleQuickEdit = React.useCallback(() => {
+    store.setBackground({
+      type: "image",
+      image: "/wallpaper/w2.jpg",
+    });
+
+    store.setBorder({
+      color: "rgba(255, 255, 255, 0.2)",
+      width: 8,
+      radius: 30,
+    });
+  }, []);
+
+  const handleReset = React.useCallback(() => {
+    store.setBackground({
+      type: "none",
+      image: "",
+      gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
+      solid: "#ffffff",
+      blur: 0,
+    });
+    store.setBorder({
+      type: "solid",
+      color: "#333333",
+      width: 1,
+      radius: 15,
+    });
+    store.setWindowFrame({
+      type: "none",
+      transparent: false,
+      colorized: false,
+    });
+  }, []);
 
   return (
     <div className="flex md:flex-row flex-col gap-2 h-[calc(100vh-70px)] w-full">
@@ -210,7 +144,7 @@ export const SSEditor: React.FC = () => {
         <div
           ref={exportRef}
           style={{
-            ...getBackgroundStyle,
+            ...GetBackgroundStyle(store),
             backdropFilter: `blur(${store.background.blur}px)`, // Fixed blur application
             WebkitBackdropFilter: `blur(${store.background.blur}px)`,
           }}
@@ -651,125 +585,18 @@ export const SSEditor: React.FC = () => {
           </Collapsible>
         </div>
 
-        <div className="border rounded-2xl p-2 space-y-2 bg-secondary/50">
-          <div className="flex items-center gap-1.5">
-            <Button
-              className="flex items-center justify-center gap-2 px-3"
-              size={"icon"}
-              onClick={() => {
-                store.setBackground({
-                  type: "none",
-                  image: "",
-                  gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
-                  solid: "#ffffff",
-                  blur: 0,
-                });
-                store.setBorder({
-                  type: "solid",
-                  color: "#333333",
-                  width: 1,
-                  radius: 15,
-                });
-                store.setWindowFrame({
-                  type: "none",
-                  transparent: false,
-                  colorized: false,
-                });
-              }}
-            >
-              <IconReload />
-            </Button>
-            <Button
-              className="flex w-full items-center justify-center gap-2"
-              onClick={() => {
-                store.setBackground({
-                  type: "image",
-                  image: "/wallpaper/w2.jpg",
-                });
-
-                store.setBorder({
-                  color: "rgba(255, 255, 255, 0.2)",
-                  width: 8,
-                  radius: 30,
-                });
-                // store.setWindowFrame({
-                //   type: "arc",
-                //   colorized: true,
-                //   frameBorder: {
-                //     type: "solid",
-                //     color: "#333333",
-                //     radius: 20,
-                //     width: 2,
-                //   },
-                // });
-              }}
-            >
-              Quick Edit
-            </Button>
-          </div>
-          <Button
-            className="w-full"
-            onClick={handleExport}
-            disabled={downloading}
-          >
-            {!downloading ? (
-              <div className="flex items-center justify-center gap-1">
-                <IconCircleArrowDownFilled className="h-5 w-5" />
-                Download
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-1">
-                <IconLoader className="h-5 w-5 animate-spin" />
-                Downloading
-              </div>
-            )}
-          </Button>
-        </div>
+        <BottomToolbar
+          downloading={downloading}
+          handleExport={handleExport}
+          handleQuickEdit={handleQuickEdit}
+          handleReset={handleReset}
+          store={store}
+        />
       </div>
-      <div className="md:flex hidden fixed top-2 right-3 border rounded-2xl p-1 gap-2 bg-secondary/50">
-        <Button
-          size={"sm"}
-          className="w-full flex items-center justify-center gap-1"
-          onClick={() => {
-            useCodeEditorStore.getState().saveDraft();
-            toast({
-              title: "Draft Saved",
-            });
-          }}
-        >
-          <IconFileDownloadFilled /> Save as Draft
-        </Button>
-
-        <Button
-          size={"sm"}
-          variant={"secondary"}
-          className="w-full flex items-center justify-center gap-2"
-          onClick={() => {
-            useCodeEditorStore.getState().loadDraft();
-            toast({
-              title: "Your saved draft has been loaded.",
-            });
-          }}
-        >
-          Load Draft
-        </Button>
-
-        <Button
-          size={"sm"}
-          className="w-full"
-          onClick={handleShareWithCrosspostHub}
-        >
-          {!data?.user.name ? (
-            <span className=" flex items-center justify-center gap-1">
-              Share <IconLockFilled />
-            </span>
-          ) : (
-            <span className=" flex items-center justify-center gap-1">
-              Share <IconSend />
-            </span>
-          )}
-        </Button>
-      </div>
+      <UpperToolbar
+        handleShareWithCrosspostHub={handleShareWithCrosspostHub}
+        store={store}
+      />
     </div>
   );
 };

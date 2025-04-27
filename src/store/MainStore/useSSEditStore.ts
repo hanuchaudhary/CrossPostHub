@@ -81,6 +81,9 @@ interface ScreenshotEditStore {
     width: number;
     radius: number;
   }) => void;
+
+  saveDraft: () => void;
+  loadDraft: () => void;
 }
 
 export const useScreenshotEditStore = create<ScreenshotEditStore>(
@@ -169,5 +172,21 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
       set(() => ({
         border: { type, color, width, radius },
       })),
+
+    saveDraft: () => {
+      const state = get();
+      const { saveDraft, loadDraft, ...stateToSave } = state;
+      localStorage.setItem(
+        "ScreenshotEditorDraft",
+        JSON.stringify(stateToSave)
+      );
+    },
+    loadDraft: () => {
+      const draft = localStorage.getItem("ScreenshotEditorDraft");
+      if (draft) {
+        const parsedDraft = JSON.parse(draft);
+        set(parsedDraft);
+      }
+    },
   })
 );
