@@ -12,7 +12,7 @@ import { Separator } from "../../ui/separator";
 import { Collapsible } from "../../ui/custom-collapsible";
 import { ScrollArea } from "../../ui/scroll-area";
 import { Slider } from "../../ui/slider";
-import { IconRotate } from "@tabler/icons-react";
+import { IconRefresh } from "@tabler/icons-react";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -82,45 +82,8 @@ export function GithubEditor() {
     }
   }, [captureImage]);
 
-  // --- New: Robust fetch handler for GitHub user ---
-  const handleFetchGithubUser = React.useCallback(async () => {
-    if (!store.username || !store.username.trim()) {
-      customToast({
-        title: "Username Required",
-        description: "Please enter a GitHub username to fetch data.",
-        badgeVariant: "destructive",
-      });
-      return;
-    }
-    try {
-      await store.fetchGithubUser();
-      // Check if the user data is valid (e.g., has a login or avatar_url)
-      if (!store.githubUser || !store.githubUser.login || !store.githubUser.avatar_url) {
-        customToast({
-          title: "User Not Found",
-          description: `No GitHub user found for username: ${store.username}`,
-          badgeVariant: "destructive",
-        });
-        return;
-      }
-      customToast({
-        title: "User Fetched Successfully",
-        description: `GitHub user \"${store.githubUser.login}\" loaded!`,
-        badgeVariant: "success",
-      });
-    } catch (error) {
-      customToast({
-        title: "Failed to Fetch User",
-        description: `Could not fetch data for \"${store.username}\". Please try again later.`,
-        badgeVariant: "destructive",
-      });
-    }
-  }, [store, store.username, store.githubUser]);
-
-  // --- Replace all fetchGithubUser calls with the new handler ---
   React.useEffect(() => {
-    handleFetchGithubUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    store.fetchGithubUser();
   }, []);
 
   React.useEffect(() => {
@@ -165,10 +128,15 @@ export function GithubEditor() {
       image: "/wallpaper/w2.jpg",
     });
 
+    store.setCardBlur({
+      blur: 18,
+      brightness: 0.5,
+    });
+
     store.setBorder({
-      type: "solid",
+      type: "double",
       color: "rgba(255, 255, 255, 0.23)",
-      width: 8,
+      width: 4,
       radius: 30,
     });
   }, [store]);
@@ -206,14 +174,16 @@ export function GithubEditor() {
             <button
               onClick={async (e) => {
                 e.preventDefault();
-                await handleFetchGithubUser();
+                await store.fetchGithubUser();
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-emerald-500"
             >
-              <IconRotate
+              <IconRefresh
                 height={35}
                 width={35}
-                className={store.isLoading ? "animate-spin text-emerald-500" : ""}
+                className={
+                  store.isLoading ? "animate-spin text-emerald-500" : ""
+                }
               />
             </button>
           </form>
@@ -472,15 +442,28 @@ export function GithubEditor() {
                 store.background.type !== "solid" && (
                   <div className="space-y-2">
                     <Slider
-                      label="Blur"
-                      min={2}
+                      label={`Card Blur (${store.cardBlur.blur}px)`}
+                      min={0}
                       max={20}
-                      step={1}
-                      value={[store.background.blur]}
+                      step={0.5}
+                      value={[store.cardBlur.blur]}
                       onValueChange={([value]) =>
-                        store.setBackground({
-                          ...store.background,
+                        store.setCardBlur({
+                          ...store.cardBlur,
                           blur: value,
+                        })
+                      }
+                    />
+                    <Slider
+                      label={`Card Brightness (${store.cardBlur.brightness * 100}%)`}
+                      min={0}
+                      max={1.5}
+                      step={0.05}
+                      value={[store.cardBlur.brightness]}
+                      onValueChange={([value]) =>
+                        store.setCardBlur({
+                          ...store.cardBlur,
+                          brightness: value,
                         })
                       }
                     />
@@ -743,15 +726,14 @@ export function GithubEditor() {
               </div>
             </div>
           </Collapsible>
-
-          <BottomToolbar
-            downloading={downloading}
-            handleExport={handleExport}
-            handleQuickEdit={handleQuickEdit}
-            handleReset={handleReset}
-            store={store}
-          />
         </div>
+        <BottomToolbar
+          downloading={downloading}
+          handleExport={handleExport}
+          handleQuickEdit={handleQuickEdit}
+          handleReset={handleReset}
+          store={store}
+        />
 
         <UpperToolbar
           handleShareWithCrosspostHub={handleShareWithCrosspostHub}

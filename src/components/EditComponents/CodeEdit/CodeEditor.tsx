@@ -138,6 +138,8 @@ const CodeEditor: React.FC = () => {
     store.setBackground({
       type: "image",
       image: "/wallpaper/w2.jpg",
+      blur: 18,
+      brightness: 0.5,
     });
 
     store.setWindowFrame({
@@ -598,6 +600,19 @@ const CodeEditor: React.FC = () => {
                         store.setBackground({
                           ...store.background,
                           blur: value,
+                        })
+                      }
+                    />
+                    <Slider
+                      label="Brightness"
+                      min={0}
+                      max={1.5}
+                      step={0.05}
+                      value={[store.background.brightness]}
+                      onValueChange={([value]) =>
+                        store.setBackground({
+                          ...store.background,
+                          brightness: value,
                         })
                       }
                     />

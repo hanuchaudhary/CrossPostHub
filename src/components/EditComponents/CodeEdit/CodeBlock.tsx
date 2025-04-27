@@ -1,5 +1,6 @@
 "use client";
 
+import { useCodeEditorStore } from "@/store/MainStore/useCodeEditStore";
 import { BorderStyle } from "@/Types/Types";
 import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -12,7 +13,7 @@ type CodeBlockProps = {
   backgroundColor?: string;
   code: string;
   border?: {
-    type?: BorderStyle
+    type?: BorderStyle;
     color: string;
     width: number;
     radius: number;
@@ -36,17 +37,40 @@ export const CodeBlock = React.memo(
   }: CodeBlockProps) => {
     const fontSize = code.length > 1000 ? "0.6rem" : "0.875rem";
 
+    const store = useCodeEditorStore()
+
     return (
       <div
-        className="relative max-w-7xl lg:w-[780px] rounded-lg bg-slate-900 backdrop-blur-xl p-2 font-mono text-sm"
+        className="relative max-w-7xl lg:w-[780px] rounded-lg overflow-hidden bg-slate-900 backdrop-blur-xl p-2 font-mono text-sm"
         style={{
           backgroundColor,
           borderRadius: border.radius,
           borderWidth: border.width,
           borderStyle: border.type,
           borderColor: border.color,
+          position: "relative",
         }}
       >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${store.background.image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: `blur(${store.background.blur}px) brightness(${store.background.brightness})`,
+            zIndex: -1,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.7)",
+            zIndex: -1,
+          }}
+        />
+
         <SyntaxHighlighter
           language={language}
           style={theme ? (theme as any) : atomDark}
@@ -76,4 +100,3 @@ export const CodeBlock = React.memo(
   }
 );
 CodeBlock.displayName = "CodeBlock";
-

@@ -1,6 +1,6 @@
-import html2canvas from "html2canvas";
-import React, { useCallback } from "react";
+import React from "react";
 import { customToast } from "../CreatePost/customToast";
+import domtoimage from "dom-to-image";
 
 export const GetBackgroundStyle = (store: any) => {
   return React.useMemo(() => {
@@ -67,19 +67,24 @@ export const useCaptureImage = (
   exportRef: React.RefObject<HTMLDivElement | null>
 ) => {
   const [downloading, setDownloading] = React.useState(false);
+
   const captureImage = React.useCallback(async (): Promise<string | null> => {
-    if (!exportRef.current) return null;
+    if (!exportRef.current) {
+      customToast({
+        title: "Capture Failed",
+        description: "No content to capture.",
+      });
+      return null;
+    }
+
     setDownloading(true);
     try {
-      const canvas = await html2canvas(exportRef.current, {
-        scale: 3,
-        backgroundColor: null,
-        useCORS: true,
-        logging: false,
-        width: exportRef.current.offsetWidth,
-        height: exportRef.current.offsetHeight,
+      const dataUrl = await domtoimage.toPng(exportRef.current, {
+        bgcolor: "transparent",
+        quality: 3,
+        filter: (node) => true
       });
-      return canvas.toDataURL("image/png");
+      return dataUrl;
     } catch (error) {
       console.error("Image capture failed:", error);
       customToast({
@@ -90,10 +95,21 @@ export const useCaptureImage = (
     } finally {
       setDownloading(false);
     }
-  }, []);
+  }, [exportRef]);
 
-  return {
-    downloading,
-    captureImage,
-  };
+  return { captureImage, downloading };
 };
+
+export async function getImageFromUrl(url: string) {
+  try {
+    const img = new Image();
+    img.src = url;
+    await new Promise((resolve) => (img.onload = resolve));
+    console.log("Image loaded successfully:", url);
+    
+    return url;
+  } catch (error) {
+    console.error("Error loading image:", error);
+    return null;
+  }
+}

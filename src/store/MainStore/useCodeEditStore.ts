@@ -27,6 +27,7 @@ export interface CodeEditorStore {
     gradient: string;
     solid: string;
     blur: number;
+    brightness: number;
   };
   setBackground: ({
     type,
@@ -34,12 +35,14 @@ export interface CodeEditorStore {
     gradient,
     solid,
     blur,
+    brightness,
   }: {
     type: "none" | "image" | "gradient" | "solid";
     image?: string;
     gradient?: string;
     solid?: string;
     blur?: number;
+    brightness?: number;
   }) => void;
 
   windowFrame: {
@@ -52,14 +55,14 @@ export interface CodeEditorStore {
       width: number;
       radius: number;
     };
-    shadow?: string
+    shadow?: string;
   };
   setWindowFrame: ({
     type,
     transparent,
     colorized,
     frameBorder,
-    shadow
+    shadow,
   }: {
     type?: "none" | "macos" | "browser" | "window" | "arc";
     transparent?: boolean | undefined;
@@ -70,7 +73,7 @@ export interface CodeEditorStore {
       width: number;
       radius: number;
     };
-    shadow?: string
+    shadow?: string;
   }) => void;
 
   border: {
@@ -129,7 +132,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
     },
     shadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px",
   },
-  setWindowFrame: ({ type, transparent, colorized, frameBorder,shadow }) =>
+  setWindowFrame: ({ type, transparent, colorized, frameBorder, shadow }) =>
     set((state) => ({
       windowFrame: {
         ...state.windowFrame,
@@ -152,9 +155,10 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
     image: "/wallpaper/w1.jpg",
     gradient: "linear-gradient(0deg, #1a1a3d, #4a4a8d)",
     solid: "#ffffff",
-    blur: 2,
+    blur: 0,
+    brightness: 0,
   },
-  setBackground: ({ type, image, gradient, solid, blur }) =>
+  setBackground: ({ type, image, gradient, solid, blur, brightness }) =>
     set((state) => ({
       background: {
         ...state.background,
@@ -163,6 +167,7 @@ export const useCodeEditorStore = create<CodeEditorStore>((set, get) => ({
         gradient: gradient ?? state.background.gradient,
         solid: solid ?? state.background.solid,
         blur: blur ?? state.background.blur,
+        brightness: brightness ?? state.background.brightness,
       },
     })),
 

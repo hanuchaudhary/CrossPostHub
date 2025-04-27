@@ -156,6 +156,18 @@ interface GithubEditStore {
   theme: string[];
   setTheme: (theme: string[]) => void;
 
+  cardBlur: {
+    blur: number; // New: Blur intensity for the card
+    brightness: number; // New: Brightness adjustment for the blurred card background
+  };
+  setCardBlur: ({
+    blur,
+    brightness,
+  }: {
+    blur: number; // New: Blur intensity for the card
+    brightness: number; // New: Brightness adjustment for the blurred card background
+  }) => void;
+
   saveDraft: () => void;
   loadDraft: () => void;
 }
@@ -195,6 +207,25 @@ export const useGithubEditStore = create<GithubEditStore>((set, get) => ({
       set({ isLoading: false });
     }
   },
+
+  cardBlur: {
+    blur: 0,
+    brightness: 1,
+  },
+  setCardBlur: ({
+    blur,
+    brightness,
+  }: {
+    blur: number;
+    brightness: number; 
+  }) =>
+    set((state) => ({
+      cardBlur: {
+        ...state.cardBlur,
+        blur,
+        brightness,
+      },
+    })),
 
   background: {
     type: "image",
