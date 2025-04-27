@@ -39,6 +39,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DragUpload } from "../DragUpload";
+import { customToast } from "@/components/CreatePost/customToast";
 
 export function GithubEditor() {
   const store = useGithubEditStore();
@@ -81,9 +82,45 @@ export function GithubEditor() {
     }
   }, [captureImage]);
 
-  // FETCH GITHUB USER DATA
+  // --- New: Robust fetch handler for GitHub user ---
+  const handleFetchGithubUser = React.useCallback(async () => {
+    if (!store.username || !store.username.trim()) {
+      customToast({
+        title: "Username Required",
+        description: "Please enter a GitHub username to fetch data.",
+        badgeVariant: "destructive",
+      });
+      return;
+    }
+    try {
+      await store.fetchGithubUser();
+      // Check if the user data is valid (e.g., has a login or avatar_url)
+      if (!store.githubUser || !store.githubUser.login || !store.githubUser.avatar_url) {
+        customToast({
+          title: "User Not Found",
+          description: `No GitHub user found for username: ${store.username}`,
+          badgeVariant: "destructive",
+        });
+        return;
+      }
+      customToast({
+        title: "User Fetched Successfully",
+        description: `GitHub user \"${store.githubUser.login}\" loaded!`,
+        badgeVariant: "success",
+      });
+    } catch (error) {
+      customToast({
+        title: "Failed to Fetch User",
+        description: `Could not fetch data for \"${store.username}\". Please try again later.`,
+        badgeVariant: "destructive",
+      });
+    }
+  }, [store, store.username, store.githubUser]);
+
+  // --- Replace all fetchGithubUser calls with the new handler ---
   React.useEffect(() => {
-    store.fetchGithubUser();
+    handleFetchGithubUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -167,19 +204,16 @@ export function GithubEditor() {
               className="rounded-full border-neutral-700 bg-neutral-800 px-4 py-6 text-white placeholder:text-neutral-400"
             />
             <button
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault();
-                if (!store.username) return;
-                store.fetchGithubUser();
+                await handleFetchGithubUser();
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-emerald-500"
             >
               <IconRotate
                 height={35}
                 width={35}
-                className={
-                  store.isLoading ? "animate-spin text-emerald-500" : ""
-                }
+                className={store.isLoading ? "animate-spin text-emerald-500" : ""}
               />
             </button>
           </form>
@@ -625,6 +659,7 @@ export function GithubEditor() {
             </div>
           </Collapsible>
 
+          {/* Tweek Graph */}
           <Collapsible
             trigger="Tweek Graph"
             open={openCollapsibles.includes("Tweek")}
