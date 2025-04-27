@@ -3,11 +3,14 @@
 import Image from "next/image";
 import GitHubCalendar from "react-github-calendar";
 import { useGithubEditStore } from "@/store/MainStore/useGithubEditStore";
+import { customToast } from "@/components/CreatePost/customToast";
+import React from "react";
 
 export default function GithubProfileCard() {
   const store = useGithubEditStore();
   const user = store.githubUser;
   const loading = store.isLoading;
+  const [noData, setNoData] = React.useState(false);
 
   if (loading) {
     return (
@@ -37,6 +40,26 @@ export default function GithubProfileCard() {
       </div>
     );
   }
+
+  const handleTransformData = React.useCallback(
+    (data: any[]) => {
+      if (!data || data.length === 0) {
+        if (!noData) {
+          setNoData(true);
+          customToast({
+            title: "No Data Found",
+            description: `No contribution data found for year: ${store.graphTweeks.year}`,
+            badgeVariant: "destructive",
+          });
+        }
+        return [];
+      } else {
+        if (noData) setNoData(false);
+        return data;
+      }
+    },
+    [store.graphTweeks.year, noData]
+  );
 
   return (
     <div
@@ -85,25 +108,33 @@ export default function GithubProfileCard() {
       </div>
 
       <div className="flex flex-wrap gap-1 mt-6">
-        <GitHubCalendar
-          year={store.graphTweeks.year || "last"}
-          blockMargin={store.graphTweeks.blockMargin}
-          blockSize={store.graphTweeks.blockSize}
-          blockRadius={store.graphTweeks.blockRadius}
-          theme={{
-            dark: store.theme,
-          }}
-          username={store.githubUser.login}
-          fontSize={12}
-          errorMessage="Error loading calendar"
-          style={{
-            width: "100%",
-            height: "auto",
-          }}
-          labels={{
-            totalCount: "{{count}} contributions in the last year",
-          }}
-        />
+        {noData ? (
+          <div className="w-full text-center text-neutral-400 py-8">
+            No contribution data found for{" "}
+            {store.graphTweeks.year === "last" ? "last year" : store.graphTweeks.year}.
+          </div>
+        ) : (
+          <GitHubCalendar
+            year={store.graphTweeks.year || "last"}
+            blockMargin={store.graphTweeks.blockMargin}
+            blockSize={store.graphTweeks.blockSize}
+            blockRadius={store.graphTweeks.blockRadius}
+            theme={{
+              dark: store.theme,
+            }}
+            username={store.githubUser.login}
+            fontSize={12}
+            errorMessage="Error loading calendar"
+            style={{
+              width: "100%",
+              height: "auto",
+            }}
+            labels={{
+              totalCount: "{{count}} contributions in the last year",
+            }}
+            transformData={handleTransformData}
+          />
+        )}
       </div>
     </div>
   );
