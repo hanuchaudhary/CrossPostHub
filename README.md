@@ -1,135 +1,162 @@
-# CrossPostHub 🚀
+<p align="center">
+  <img src="public/landing.png" alt="CrossPostHub Workflow" width="100%"/>
+</p>
 
-CrossPostHub is a powerful unified social media management platform that enables users to post and schedule content across multiple social media platforms from a single hub. Built with Next.js, it offers a seamless experience for developers, content creators, and regular users alike.
+---
 
-![CrossPostHub Dashboard](https://res.cloudinary.com/da7huzv0t/image/upload/v1739040707/cross/dsnfleybbx9i6scuqyhi.png)
+## ✨ Introduction
 
-## 🌟 Features
+**CrossPostHub** is your all-in-one, open-source social media management platform. Effortlessly post, schedule, and analyze content across LinkedIn, Twitter, Instagram, and more — all from a single, beautiful dashboard. Built for developers, creators, and teams who want to maximize their reach and productivity.
 
-- **Multi-Platform Support**: Seamlessly post to LinkedIn, Twitter, Instagram, and more
+---
+
+## 🏆 Key Features
+
+- **Multi-Platform Posting**: Publish to LinkedIn, Twitter, Instagram, and more in one go
 - **Smart Scheduling**: Schedule posts for optimal engagement times
-- **User-Friendly Interface**: Intuitive design requiring no technical expertise
-- **Analytics Dashboard**: Track post performance with detailed metrics (Premium)
-- **Secure Authentication**: Robust security for account integrations
-- **Real-time Preview**: See how your posts will look before publishing
+- **Analytics Dashboard**: Track post performance with rich metrics
+- **Secure Authentication**: Robust OAuth integrations for peace of mind
+- **Real-time Preview**: See exactly how your posts will look before publishing
+- **Modern UI/UX**: Intuitive, responsive design for all users
+- **Open Source**: Fork, extend, and contribute freely
 
-## 🎯 Who Is It For?
+---
 
-- **Developers** - Automate your learn-in-public journey across platforms
-- **Content Creators** - Manage multiple social media accounts efficiently
-- **Regular Users** - Share updates with friends and family seamlessly
+## 🖥️ Tech Stack & Integrations
+
+<p align="center">
+    <img src="https://skillicons.dev/icons?i=git,bun,nextjs,react,typescript,tailwind,nodejs,bash,postgres,docker,vercel,github,prisma,aws,vercel,gcp,mongodb,twitter,linkedin,instagram,&perline=10" alt="Tech Stack" />
+</p>
+
+- **Frontend:** Next.js, TypeScript, Tailwind CSS
+- **Backend:** Node.js, Prisma ORM
+- **Database:** PostgreSQL, MongoDB
+- **Containerization:** Docker, Docker Compose
+- **Deployment:** Vercel
+- **Design:** Framer-Motion
+- **CI/CD:** Github Actions
+
+---
+
+## 📸 Workflow Overview
+
+<p align="center">
+  <img src="public/main-workflow.jpeg" alt="CrossPostHub Workflow" width="80%"/>
+</p>
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - Node.js 18.x or higher
-- npm or yarn package manager
-- Docker (optional)
+- npm or bun
+- Docker & Docker Compose (for containerized setup)
 
-### Local Development
+### 1. Local Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/hanuchaudhary/CrossPostHub.
+git clone https://github.com/hanuchaudhary/CrossPostHub.git
+cd CrossPostHub
 
 # Install dependencies
 npm install
 # or
-yarn install
+bun install
 
 # Start the development server
 npm run dev
 # or
-yarn dev
+bun dev
 ```
+Visit [http://localhost:3000](http://localhost:3000) to view the app.
 
-Visit [http://localhost:3000](http://localhost:3000) to see the application.
-
-### 🐳 Docker Setup
-
-Run CrossPostHub using Docker:
+### 2. Docker Compose (Recommended)
 
 ```bash
-# Build the Docker image
-docker build -t crossposthub .
+# Start all services (app, Postgres, Redis)
+docker-compose up --build
 
-# Run the container
-docker run -p 3000:3000 crossposthub
-```
-
-Using Docker Compose:
-
-```bash
-# Start the application
-docker-compose up
-
-# Stop the application
+# Stop services
 docker-compose down
 ```
 
-## 💻 Usage Guide
+- The app will be available at [http://localhost:3000](http://localhost:3000)
+- Database (Postgres) runs on port 5432, Redis on 6379
 
-1. **Create Account**: Sign up for a free account
-2. **Connect Platforms**: Link your social media accounts
-3. **Create Content**: Use the intuitive post creator
-4. **Schedule or Post**: Choose between immediate or scheduled posting
-5. **Track Performance**: Monitor engagement through analytics
-
-## 💰 Pricing Plans
-
-### Free Tier
-- Basic platform integrations
-- Limited monthly posts
-- Standard features
-
-### Pro Plan
-- More platform connections
-- Advanced scheduling
-- Basic analytics
-
-### Premium Plan
-- Unlimited integrations
-- Advanced analytics
-- Team collaboration
-- Priority support
-
-## 🛠 Tech Stack
-
-- **Frontend**: Next.js, TypeScript, Tailwind CSS
-- **Backend**: Node.js
-- **Database**: [Your Database Choice]
-- **Authentication**: [Auth Provider]
-- **Deployment**: Vercel
-- **Containerization**: Docker
-
-## 📝 Environment Variables
+### 3. Environment Variables
 
 Create a `.env` file in the root directory:
-
 ```env
-NEXT_PUBLIC_API_URL=your_api_url
-DATABASE_URL=your_database_url
+NEXT_PUBLIC_API_URL=http://localhost:3000
+DATABASE_URL=postgresql://postgres:mysecretpassword@localhost:5432/postgres
 AUTH_SECRET=your_auth_secret
-# Add other necessary environment variables. See .env.example
+# Add other necessary environment variables
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE)
-
-## 👨‍💻 Author
-
-**Kush Chaudhary**
-
-## 📞 Support
-
-For support, email [kushchaudharyog@gmail.com] or join our [Discord community](https://discord.gg/qK7vgWCJ59).
 
 ---
 
-Built with ❤️ using [Next.js](https://nextjs.org/)
+## 💻 Usage Guide
+
+1. **Sign Up:** Create your free account
+2. **Connect Platforms:** Link your social media accounts securely
+3. **Create Content:** Use the post editor with real-time preview
+4. **Schedule or Post:** Instantly publish or schedule for later
+5. **Analyze:** Track engagement and performance (Premium)
+6. **Upgrade:** Unlock advanced analytics and team features
+
+---
+
+## 💰 Pricing Plans
+
+| Plan     | Integrations | Scheduling | Analytics | Team | Support |
+|----------|--------------|------------|-----------|------|---------|
+| Free     | Basic        | Limited    | -         | -    | Standard|
+| Pro      | More         | Advanced   | Basic     | -    | Fast    |
+| Premium  | Unlimited    | Advanced   | Advanced  | Yes  | Priority|
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) and open issues or pull requests to help improve CrossPostHub.
+
+---
+
+## 👨‍💻 Author
+
+
+<a href="https://github.com/hanuchaudhary">
+    <table>
+        <tbody>
+            <tr>
+                <td align="left" valign="top" width="14.28%">
+                    <img src="https://github.com/hanuchaudhary.png?s=60" width="130px;"/>
+                    <br/>
+                    <h4 align="center">
+                        <b>Kush Chaudhary</b>
+                    </h4>
+                    <div align="center">
+                        <p>(Author)</p>
+                    </div>
+                </td>
+                <td align="left" valign="top" width="85%">
+                    <p>
+                        👋 Hi there! I'm <u><em><strong>Kush Chaudhary</strong></em></u>, a self-taught Software Developer.
+                    </p>
+                    <ul>
+                     <li>
+                        Debugging React & Typescript ❤️ Building in Public
+                    </li>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</a>
+
+---
+
+## 📞 Support & Community
+
+- Email: [hanuchaudharyog@gmail.com](mailto:hanuchaudharyog@gmail.com)
