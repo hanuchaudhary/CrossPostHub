@@ -3,10 +3,10 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
-import { getTwitterUserDetails } from "@/utils/TwitterUtils/TwitterUtils";
 import { redisClient } from "@/config/redisConfig";
 import { decryptToken } from "@/lib/Crypto";
 import { TwitterUser } from "@/Types/Types";
+import { TwitterUtilsV2 } from "@/utils/TwitterUtils/TwitterUtillsV2";
 // import { getLinkedInProfile } from "@/utils/LinkedInUtils/LinkedinUtils";
 
 export async function GET(request: NextRequest) {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         posts: {
           where: {
             createdAt: { gte: oneYearAgo },
-            status: "SUCCESS", // Only count successful posts
+            status: "SUCCESS", 
           },
           select: {
             createdAt: true,
@@ -66,11 +66,11 @@ export async function GET(request: NextRequest) {
         twitterAccount.access_token_secret!
       );
 
-      twitterUserDetails = await getTwitterUserDetails({
-        oauth_token: twitterAccessToken,
-        oauth_token_secret: twitterAccessTokenSecret,
-      });
-
+      const twitter = new TwitterUtilsV2(
+        twitterAccessToken,
+        twitterAccessTokenSecret
+      );
+      twitterUserDetails = await twitter.getTwitterUserDetails();
       if (!twitterUserDetails) {
         return NextResponse.json(
           { error: "Failed to fetch Twitter user details" },
@@ -128,6 +128,9 @@ export async function GET(request: NextRequest) {
         instagram: number;
       };
     } = {};
+
+    console.log("User posts:", user.posts);
+    
 
     // Iterate through the posts and aggregate the data
     user.posts.forEach((post) => {

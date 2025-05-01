@@ -16,15 +16,10 @@ import { MoreVertical } from "lucide-react";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import TwitterConnectBTN from "../TwitterConnectButton";
 import { IconLoader, IconLockFilled } from "@tabler/icons-react";
 import { Disconnect } from "./Disconnect";
+import { motion, AnimatePresence } from "motion/react";
 
 export interface SocialApp {
   name: string;
@@ -41,6 +36,7 @@ const socialApps: SocialApp[] = [
 
 export function ConnectAccounts() {
   const [loading, setLoading] = useState<string | null>(null);
+  const [hoveredApp, setHoveredApp] = useState<string | null>(null); // Track hovered app
   const { connectedApps, fetchConnectedApps, isFetchingApps } =
     useDashboardStore();
 
@@ -96,6 +92,8 @@ export function ConnectAccounts() {
                 <div
                   key={app.provider}
                   className="flex relative items-center overflow-hidden justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
+                  onMouseEnter={() => setHoveredApp(app.provider)} // Track hover start
+                  onMouseLeave={() => setHoveredApp(null)} // Track hover end
                 >
                   {(app.provider === "instagram" ||
                     app.provider === "threads") && (
@@ -122,8 +120,31 @@ export function ConnectAccounts() {
                   </div>
                   {connectedApps.some((ca) => ca.provider === app.provider) ? (
                     <div className="flex items-center justify-center space-x-2">
-                      <Badge variant="success">Connected</Badge>
-                      <Disconnect app={app} />
+                      <AnimatePresence mode="wait">
+                        {hoveredApp !== app.provider ? (
+                          <motion.div
+                            className="cursor-pointer"
+                            key="badge"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Badge variant="success">Connected</Badge>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="disconnect"
+                            className="cursor-pointer"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Disconnect app={app} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ) : app.provider === "twitter" ? (
                     <TwitterConnectBTN />

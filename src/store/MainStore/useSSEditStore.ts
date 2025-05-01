@@ -9,6 +9,9 @@ interface ScreenshotEditStore {
     height: number;
   };
 
+  imageScale: number;
+  setImageScale: (imageScale: number) => void;
+
   resolution: {
     height: number;
     width: number;
@@ -109,6 +112,13 @@ export const useScreenshotEditStore = create<ScreenshotEditStore>(
         };
         reader.readAsDataURL(screenshot);
       }
+    },
+
+    imageScale: 1,
+    setImageScale: (imageScale) => {
+      set(() => ({
+        imageScale,
+      }));
     },
 
     resolution: {

@@ -351,6 +351,42 @@ export class TwitterUtilsV2 {
       );
     }
   }
+
+  async getTwitterUserDetails() {
+    const requestData = {
+      url: "https://api.twitter.com/1.1/account/verify_credentials.json",
+      method: "GET",
+    };
+
+    const headers = this.oauth.toHeader(
+      this.oauth.authorize(
+        {
+          url: requestData.url,
+          method: requestData.method,
+        },
+        {
+          key: this.oauthToken,
+          secret: this.oauthTokenSecret,
+        }
+      )
+    );
+
+    try {
+      console.log("Getting Twitter user details...");
+      const response = await axios.get(requestData.url, {
+        headers: {
+          Authorization: headers.Authorization,
+        },
+      });
+      console.log("Twitter user details fetched successfully");
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Failed to get Twitter user details:",
+        error.response?.data || error.message
+      );
+    }
+  }
 }
 
 export const twitterPostPublish = async (

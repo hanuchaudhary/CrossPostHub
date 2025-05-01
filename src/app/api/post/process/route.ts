@@ -126,17 +126,10 @@ async function handler(request: NextRequest) {
     // Update post status to SUCCESS
     await prisma.post.update({
       where: { id: postId },
-      data: { status: "SUCCESS" },
+      data: { status: "SUCCESS", provider: provider },
     });
 
-    // Parallelize post saving and notifications
     await Promise.all([
-      // postSaveToDB({
-      //   postText,
-      //   userId,
-      //   provider,
-      //   status: "SUCCESS",
-      // }),
       createNotification({
         userId,
         type: "POST_STATUS_SUCCESS",
@@ -186,6 +179,7 @@ async function handler(request: NextRequest) {
       data: {
         status: "FAILED",
         text: error.message,
+        provider: provider,
       },
     });
 

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
 const groq = new Groq({
@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     const {
       content,
-      tone = "exciting", // Default tone is "exciting"
-      platform = "twitter", // Default platform is "twitter"
+      tone = "engaging",
+      platform = "twitter",
     } = await request.json();
 
     if (!content) {
@@ -21,22 +21,24 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = `Generate only the caption for: "${content}". 
-      Imagine a developer sharing their project with passion. The caption must:
-      - Be for ${platform} (e.g., hashtags/emojis for Twitter, polished for LinkedIn).
-      - Be exciting, simple, professional, with a human touch (like a dev hyped about their work).
-      - Stay under 280 characters, including spaces, hashtags, and mentions.
-      - Capture the joy of building something new.
-      Twitter example: "Revamping my app’s core! 🚀 Join the beta! #DevLife #Coding @user"
-      LinkedIn example: "Proud to launch my app’s new feature! Months of work. 💻 #Tech #Development @user"`;
+      The caption must:
+      - Be optimized for ${platform} (appropriate length, format, and style)
+      - Have a ${tone} tone
+      - Be concise and engaging
+      - Include relevant hashtags if appropriate for the platform
+      - Stay under 280 characters for Twitter, or appropriate length for other platforms
+      
+      DO NOT include any prefixes like "Here's your caption:" or "Refined caption:". 
+      Return ONLY the caption text itself.`;
 
     const caption = await groq.chat.completions
       .create({
-        model: "llama3-8b-8192", // You can also use "llama3-70b-8192" for better results
+        model: "llama3-8b-8192",
         messages: [
           {
             role: "system",
             content:
-              "You are a passionate developer who writes exciting, simple, professional social media captions with a human touch.",
+              "You are a social media caption expert who creates engaging, platform-appropriate captions. Return only the caption text without any prefixes or explanations.",
           },
           {
             role: "user",
@@ -49,7 +51,16 @@ export async function POST(request: NextRequest) {
         throw new Error("Failed to generate response from AI");
       });
 
-    return NextResponse.json({ caption: caption.choices[0].message.content });
+    let cleanedCaption = caption.choices[0].message.content?.trim();
+    if (!caption.choices || caption.choices.length === 0) {
+      cleanedCaption = cleanedCaption?.replace(
+        /^(here'?s?( your| the)?|refined|enhanced) caption:?\s*/i,
+        ""
+      );
+      cleanedCaption = cleanedCaption?.replace(/^caption:?\s*/i, "");
+    }
+
+    return NextResponse.json({ caption: cleanedCaption });
   } catch (error: any) {
     console.error("Error in caption generation:", error);
 
@@ -67,8 +78,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const content = request.nextUrl.searchParams.get("content");
-    const tone = request.nextUrl.searchParams.get("tone") || "exciting"; // Default tone is "exciting"
-    const platform = request.nextUrl.searchParams.get("platform") || "twitter"; // Default platform is "twitter"
+    const tone = request.nextUrl.searchParams.get("tone") || "engaging";
+    const platform = request.nextUrl.searchParams.get("platform") || "twitter";
 
     if (!content) {
       return NextResponse.json(
@@ -77,23 +88,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const prompt = `Refine and output only the caption for: "${content}". 
-      Picture a developer perfecting their post about their work. The caption must:
-      - Be for ${platform} (e.g., hashtags/emojis for Twitter, professional for LinkedIn).
-      - Be exciting, simple, professional, with a human touch (like a dev stoked about their project).
-      - Stay under 280 characters, including spaces, hashtags, and mentions.
-      - Highlight the thrill of creating something awesome.
-      Twitter example: "New tool alert! 🔥 Built for devs, by devs. #DevTools #Programming @user"
-      LinkedIn example: "Excited to share my new dev tool! Built with passion. 💻 #Tech #Development @user"`;
+    const prompt = `Enhance and refine this caption: "${content}"
+      
+      Create an improved version that:
+      - Is optimized for ${platform}
+      - Has a ${tone} tone
+      - Is concise and compelling
+      - Includes appropriate hashtags if relevant to the platform
+      - Follows platform best practices (character limits, formatting)
+      
+      DO NOT include any prefixes like "Here's your enhanced caption:" or "Refined caption:".
+      Return ONLY the enhanced caption text itself.`;
 
     const caption = await groq.chat.completions
       .create({
-        model: "llama3-8b-8192", // You can also use "llama3-70b-8192" for better results
+        model: "llama3-8b-8192",
         messages: [
           {
             role: "system",
             content:
-              "You are a passionate developer who refines social media captions to be exciting, simple, and professional with a human touch.",
+              "You are a social media expert who enhances captions to be engaging and platform-appropriate. Return only the enhanced caption without any prefixes or explanations.",
           },
           {
             role: "user",
@@ -105,7 +119,16 @@ export async function GET(request: NextRequest) {
         console.error("Groq API Error:", error);
         throw new Error("Failed to generate response from AI");
       });
-    return NextResponse.json({ caption: caption.choices[0].message.content });
+
+    let cleanedCaption = caption.choices[0].message.content?.trim();
+    if (!caption.choices || caption.choices.length === 0) {
+      cleanedCaption = cleanedCaption?.replace(
+        /^(here'?s?( your| the)?|refined|enhanced) caption:?\s*/i,
+        ""
+      );
+      cleanedCaption = cleanedCaption?.replace(/^caption:?\s*/i, "");
+    }
+    return NextResponse.json({ caption: cleanedCaption });
   } catch (error: any) {
     console.error("Error in caption generation:", error);
 

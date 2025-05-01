@@ -3,14 +3,13 @@ import { create } from "zustand";
 import axios from "axios";
 import { customToast } from "@/components/CreatePost/customToast";
 import { getVideoDuration } from "@/utils/getVideoDuration";
-import { deleteFromS3Bucket } from "@/config/s3Config";
 
 type Platform = "instagram" | "twitter" | "linkedin";
 
 interface UploadProgress {
   fileName: string;
-  progress: number; // Percentage (0-100)
-  abortController?: AbortController; // Store the AbortController for cancellation
+  progress: number;
+  abortController?: AbortController;
 }
 
 interface MediaState {
@@ -19,7 +18,7 @@ interface MediaState {
     mediaKeys: string[] | null;
   };
   isUploadingMedia: boolean;
-  uploadProgress: UploadProgress[]; // Track progress for each file
+  uploadProgress: UploadProgress[];
   setMedias: (medias: {
     files: File[] | null;
     mediaKeys: string[] | null;
@@ -39,7 +38,7 @@ export const useMediaStore = create<MediaState>((set, get) => ({
     mediaKeys: null,
   },
   isUploadingMedia: false,
-  uploadProgress: [], // Initialize as empty array
+  uploadProgress: [],
 
   setMedias: (medias) => set({ medias }),
 
@@ -230,7 +229,6 @@ export const useMediaStore = create<MediaState>((set, get) => ({
 
     // Step 3: If valid, upload files to S3 using presigned URLs
     if (isValid && validFiles.length > 0) {
-      // Initialize upload progress with AbortController for each file
       const uploadProgress = validFiles.map((file) => ({
         fileName: file.name,
         progress: 0,
@@ -283,7 +281,6 @@ export const useMediaStore = create<MediaState>((set, get) => ({
           uploadedFiles.push(file);
         }
 
-        // Step 4: Update state with files and mediaKeys
         set({
           medias: {
             files: uploadedFiles,
@@ -294,7 +291,6 @@ export const useMediaStore = create<MediaState>((set, get) => ({
         });
       } catch (error: any) {
         if (error.name === "AbortError") {
-          // If aborted, the state will be updated by cancelUpload
           return;
         }
         set({
@@ -315,7 +311,6 @@ export const useMediaStore = create<MediaState>((set, get) => ({
   cancelUpload: async (fileName: string) => {
     const { uploadProgress, medias } = get();
 
-    // Find the AbortController for the file
     const progressItem = uploadProgress.find(
       (item) => item.fileName === fileName
     );
@@ -324,24 +319,13 @@ export const useMediaStore = create<MediaState>((set, get) => ({
       progressItem.abortController.abort(
         `Upload of ${fileName} canceled by user.`
       );
-
-      // const mediaKey = medias.mediaKeys?.find(
-      //   (_, index) => medias.files?.[index]?.name === fileName
-      // );
-      // if (mediaKey) {
-      //   await deleteFromS3Bucket(mediaKey); // Delete the file from S3 if it was uploaded
-      // }
     }
 
-    // Remove the canceled file from uploadProgress
     const updatedProgress = uploadProgress.filter(
       (item) => item.fileName !== fileName
     );
-
-    // If no uploads remain, reset isUploadingMedia
     const isUploadingMedia = updatedProgress.length > 0;
 
-    // Remove the canceled file from medias.files if it was already uploaded
     const updatedFiles = (medias.files || []).filter(
       (file) => file.name !== fileName
     );

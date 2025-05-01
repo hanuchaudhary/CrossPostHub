@@ -488,11 +488,19 @@ export const SSEditor: React.FC = () => {
           </Collapsible>
 
           <Collapsible
-            trigger="Border"
-            open={openCollapsibles.includes("Border")}
-            onOpenChange={(isOpen) => handleCollapsibleToggle("Border", isOpen)}
+            trigger="Tweek"
+            open={openCollapsibles.includes("Tweek")}
+            onOpenChange={(isOpen) => handleCollapsibleToggle("Tweek", isOpen)}
           >
             <div className="space-y-3">
+              <Slider
+                label={`Image Scale (${store.imageScale}px)`}
+                min={0}
+                max={5}
+                step={0.05}
+                value={[store.imageScale]}
+                onValueChange={([value]) => store.setImageScale(value)}
+              />
               <div className="space-y-2">
                 <Label>Border Style</Label>
                 <div className="flex flex-wrap items-center gap-2 justify-center">

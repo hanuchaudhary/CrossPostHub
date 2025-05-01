@@ -34,13 +34,14 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  posts         Post[]
-  planId        String?
-  transactions  Transaction[]
-  notifications Notification[]
-  subscriptions Subscription[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  posts          Post[]
+  planId         String?
+  transactions   Transaction[]
+  notifications  Notification[]
+  subscriptions  Subscription[]
+  generatedImages GeneratedImage[]
 }
 
 model Account {
@@ -63,21 +64,37 @@ model Account {
   updatedAt              DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@id([provider, providerAccountId])
 }
 
+enum POST_STATUS {
+  PENDING
+  FAILED
+  SUCCESS
+}
+
 model Post {
-  id           String    @unique @default(cuid())
+  id           String      @unique @default(cuid())
   text         String?
   provider     String?
   userId       String
   mediaKeys    String[]
   scheduledFor DateTime?
-  status       STATUS    @default(PENDING)
-  user         User      @relation(fields: [userId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  isScheduled  Boolean     @default(false)
+  status       POST_STATUS @default(PENDING)
+  user         User        @relation(fields: [userId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model GeneratedImage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt   String?
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Plan {

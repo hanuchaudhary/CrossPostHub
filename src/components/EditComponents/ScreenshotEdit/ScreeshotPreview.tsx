@@ -11,6 +11,7 @@ export function ScreeshotPreview() {
         <div className="relative h-full">
           <img
             style={{
+              transform: `scale(${ssStore.imageScale})`,
               borderRadius: ssStore.border.radius,
               borderStyle: ssStore.border.type,
               borderWidth: ssStore.border.width,

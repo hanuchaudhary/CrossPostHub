@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { ArrowLeft, Menu } from "lucide-react";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,7 +15,6 @@ import { Profile } from "./Profile";
 import { MobileMenu } from "./MobileMenu";
 export default function DashboardNavbar() {
   const pathname = usePathname();
-  const { data } = useSession();
   const { fetchUser } = useAuthStore();
 
   useEffect(() => {
@@ -40,7 +38,7 @@ export default function DashboardNavbar() {
         {[
           { href: "/dashboard", label: "Dashboard" },
           { href: "/create", label: "Create" },
-          { href: "/edit", label: "Edit Image" },
+          { href: "/edit", label: "Editor" },
           { href: "/payment/transactions", label: "Transactions" },
         ].map(({ href, label }) => (
           <div className="relative" key={href}>

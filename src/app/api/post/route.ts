@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
 import { Providers } from "@/Types/Types";
-import { CheckCreatedPostMiddleware } from "@/utils/CheckCreatedPostMiddleware";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { Client } from "@upstash/qstash";
+import SubscriptionMiddleware from "@/utils/SubscriptionMiddleware";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,8 +25,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check post creation limit
-    const result = await CheckCreatedPostMiddleware(loggedUser.id);
-    if (!result) {
+    const middleware = new SubscriptionMiddleware(loggedUser.id);
+    const postLimit = middleware.canCreatePost();
+    const scheduledPostLimit = middleware.canSchedulePost();
+    if (!postLimit || !scheduledPostLimit) {
       return NextResponse.json(
         {
           error: `Post limit reached for the month. Please upgrade your plan to create more posts.`,
@@ -58,21 +60,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const post = await prisma.post.create({
-      data: {
-        userId: loggedUser.id,
-        text: postText,
-        status: "PENDING",
-        mediaKeys, // Store S3 media keys directly
-        scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
-      },
-    });
-
     // Initialize QStash client
     const qstashClient = new Client({
       token: process.env.QSTASH_TOKEN!,
     });
-    
+
     // Use ngrok URL for local development
     const URL = process.env.NEXTAUTH_URL;
     if (!URL) {
@@ -82,6 +74,17 @@ export async function POST(request: NextRequest) {
     // Add jobs to QStash for each provider
     const results = await Promise.allSettled(
       providers.map(async (provider) => {
+        const post = await prisma.post.create({
+          data: {
+            userId: loggedUser.id,
+            text: postText,
+            status: "PENDING",
+            mediaKeys, // Store S3 media keys directly
+            scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
+            isScheduled: !!scheduleAt,
+          },
+        });
+
         try {
           const jobData = {
             provider,
@@ -144,3 +147,83 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// interface PostsResponse {
+//   ScheduledPosts: Post[];
+//   PendingPosts: Post[];
+//   FailedPosts: Post[];
+//   SuccessPosts: Post[];
+// }
+
+// export async function GET(request: NextRequest) {
+//   try {
+//     // Authenticate user
+//     const session = await getServerSession(authOptions);
+//     if (!session || !session.user) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+
+//     // Parse query parameters
+//     const url = new URL(request.url);
+//     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+//     const offset = parseInt(url.searchParams.get("offset") || "0", 10);
+//     const status = url.searchParams.get("status") as POST_STATUS | null;
+//     const validStatuses = Object.values(POST_STATUS);
+//     const where = status && validStatuses.includes(status) ? { status } : {};
+
+//     // Fetch posts
+//     const loggedUser = await prisma.user.findUnique({
+//       where: { id: session.user.id },
+//       select: {
+//         posts: {
+//           where,
+//           select: {
+//             id: true,
+//             text: true,
+//             status: true,
+//             isScheduled: true,
+//             createdAt: true,
+//             mediaKeys: true,
+//           },
+//           orderBy: { createdAt: "desc" },
+//           take: limit,
+//           skip: offset,
+//         },
+//       },
+//     });
+
+//     if (!loggedUser) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+
+//     // Categorize posts efficiently
+//     const finalPosts: PostsResponse = loggedUser.posts.reduce(
+//       (acc, post) => {
+//         if (post.isScheduled) acc.ScheduledPosts.push(post);
+//         if (post.status === POST_STATUS.PENDING) acc.PendingPosts.push(post);
+//         if (post.status === POST_STATUS.FAILED) acc.FailedPosts.push(post);
+//         if (post.status === POST_STATUS.SUCCESS) acc.SuccessPosts.push(post);
+//         return acc;
+//       },
+//       {
+//         ScheduledPosts: [],
+//         PendingPosts: [],
+//         FailedPosts: [],
+//         SuccessPosts: [],
+//       } as PostsResponse
+//     );
+
+//     return NextResponse.json(finalPosts, {
+//       status: 200,
+//       headers: {
+//         "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+//       },
+//     });
+//   } catch (error: any) {
+//     console.error("GetPosts Error:", error);
+//     return NextResponse.json(
+//       { error: "An unexpected error occurred" },
+//       { status: 500 }
+//     );
+//   }
+// }

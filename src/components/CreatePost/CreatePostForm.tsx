@@ -20,11 +20,11 @@ import { AnimatePresence } from "framer-motion";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 import { customToast } from "./customToast";
-import EnhanceCaption from "./EnhanceCaption";
 import { useMediaStore } from "@/store/MainStore/usePostStore";
 import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams } from "next/navigation";
 import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
+import { EnhanceAndImageGen } from "./Enhance&Image";
 
 export type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -39,8 +39,6 @@ export function CreatePostForm() {
   const { connectedApps } = useDashboardStore();
   const { fetchNotifications, notifications } = useNotificationStore();
   const [isPollingNotifications, setIsPollingNotifications] = useState(false);
-
-  // Zustand store for media
   const { medias, isUploadingMedia, resetMedias, handleFileUpload } =
     useMediaStore();
 
@@ -60,8 +58,8 @@ export function CreatePostForm() {
     );
   };
 
-  const POLLING_INTERVAL = 2000; // 2 seconds
-  const POLLING_DURATION = 20000; // 20 seconds
+  const POLLING_INTERVAL = 2000;
+  const POLLING_DURATION = 20000;
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
@@ -86,7 +84,7 @@ export function CreatePostForm() {
             if (recentPublishedNotification.type === "POST_STATUS_SUCCESS") {
               customToast({
                 title: "Post Published",
-                description: "Your post has been published successfully!"
+                description: "Your post has been published successfully!",
               });
             } else {
               customToast({
@@ -122,7 +120,7 @@ export function CreatePostForm() {
       if (interval) clearInterval(interval);
       if (timeout) clearTimeout(timeout);
     };
-  }, [isPollingNotifications, notifications]); // Add notifications as a dependency
+  }, [isPollingNotifications, notifications]);
 
   // TODO: Uncomment this when the Image Upload funtionality Modified ✅
   const params = useSearchParams();
@@ -229,7 +227,7 @@ export function CreatePostForm() {
         medias.mediaKeys ? JSON.stringify(medias.mediaKeys) : "[]"
       );
 
-      const response = await axios.post("/api/post", formData, {
+      await axios.post("/api/post", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -243,14 +241,14 @@ export function CreatePostForm() {
           "Your post is being processed. You will be notified once it is published.",
       });
 
-      setContent("");
-      setSelectedPlatforms([]);
-      resetMedias(); // Reset media state
-      setIsScheduled(false);
-      setScheduleDate(null);
-      setScheduleTime("");
-      useMediaStore.getState().resetMedias(); // Reset media state in Zustand store
-
+      if (selectedPlatforms.length != 1) {
+        setContent("");
+        setSelectedPlatforms([]);
+        resetMedias();
+        setIsScheduled(false);
+        setScheduleDate(null);
+        setScheduleTime("");
+      }
       // Start polling for notifications
       setIsPollingNotifications(true);
     } catch (error: any) {
@@ -265,6 +263,8 @@ export function CreatePostForm() {
       setIsLoading(false);
     }
   };
+
+  const onImageAccept = async () => {};
 
   return (
     <section className="md:flex relative block gap-4 w-full">
@@ -310,9 +310,9 @@ export function CreatePostForm() {
                         rows={6}
                       />
                       <div className="flex justify-end gap-2 items-center p-2 rounded-2xl">
-                        <EnhanceCaption
-                          content={content}
+                        <EnhanceAndImageGen
                           setContent={setContent}
+                          caption={content}
                         />
                         <AIAssist onGenerate={handleAIAssist} />
                       </div>

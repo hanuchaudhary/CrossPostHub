@@ -57,15 +57,29 @@ export interface SubscriptionType {
   transactions: TransactionType[];
 }
 
-enum STATUS {
+export enum STATUS {
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
 }
 
+export interface IGeneratedImage {
+  id: string
+  caption: string | null
+  url: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface Post {
   id: string;
-  content: string;
+  text: string;
+  userId: string;
+  mediaKeys: string[];
+  scheduledFor?: Date;
+  isScheduled?: boolean;
+  status: STATUS;
+  provider: string;
   createdAt: Date;
   updatedAt: Date;
 }

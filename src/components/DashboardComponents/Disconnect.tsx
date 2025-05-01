@@ -14,6 +14,7 @@ import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 import { IconSquareRoundedMinusFilled } from "@tabler/icons-react";
+import { Badge } from "../ui/badge";
 
 export function Disconnect({ app }: { app: SocialApp }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -43,9 +44,9 @@ export function Disconnect({ app }: { app: SocialApp }) {
   return (
     <div>
       <div ref={ref} className="relative">
-        <button onClick={handleOpenOverlay} aria-label="Delete">
-          <IconSquareRoundedMinusFilled height={20} width={20} className="mt-1.5 text-neutral-400" />
-        </button>
+        <Badge variant="destructive" onClick={handleOpenOverlay}>
+          Disconnect
+        </Badge>
       </div>
 
       <AnimatePresence>

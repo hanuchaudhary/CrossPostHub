@@ -11,10 +11,11 @@ const pricingPlans = [
       "Get started for free – ideal for individuals dipping their toes into social media management with essential tools, no payment setup required.",
     features: [
       "Connect only 2 platforms",
-      "10 posts/month",
+      "25 posts/month",
       "Basic analytics",
       "Community support",
       "Single media support",
+      "1 Image generation",
     ],
     cta: "Get Started",
     razorpayPlanId: "", // Free plan doesn’t need a Razorpay plan
@@ -27,11 +28,12 @@ const pricingPlans = [
       "Step up to Pro – perfect for creators and pros who need advanced scheduling and analytics, seamlessly powered by Razorpay billing.",
     features: [
       "Connect up to 2 platforms",
-      "50 posts/month",
+      "60 posts/month",
       "Post scheduling",
       "Multiple media support",
       "Advanced analytics",
       "Priority support",
+      "30 Image generations",
     ],
     cta: "Upgrade to Pro",
     razorpayPlanId: process.env.RAZORPAY_PRO_PLAN_ID, // Replace with your Razorpay Pro plan ID
@@ -45,6 +47,8 @@ const pricingPlans = [
     features: [
       "Connect unlimited platforms",
       "Unlimited posts and scheduling",
+      "Unlimited media support",
+      "Unlimeted Image generations",
       "Team collaboration",
       "Premium support",
       "Other",
