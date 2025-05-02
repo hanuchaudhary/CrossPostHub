@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { IconMoonFilled, IconSunFilled } from "@tabler/icons-react";
 

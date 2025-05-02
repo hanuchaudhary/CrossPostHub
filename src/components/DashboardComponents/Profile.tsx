@@ -7,9 +7,6 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
@@ -22,6 +19,7 @@ import { useRouter } from "next/navigation";
 import TwitterUserDetails from "./TwitterUserDetails";
 import LogoutButton from "../Buttons/LogoutButton";
 import LinkedinUserDetails from "./LinkedinUserDetails";
+import DashboardPosts from "./DashboardPosts";
 
 export function Profile() {
   const { fetchDashboardData, dashboardData } = useDashboardStore();
@@ -72,20 +70,14 @@ export function Profile() {
           </p>
         </div>
         <ScrollArea className="p-4">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-              {dashboardData?.twitterUserDetails && (
-                <TwitterUserDetails dashboardData={dashboardData} />
-              )}
+          <div className="space-y-4 my-8">
+            <DashboardPosts />
+            <div className="border-none shadow-none bg-transparent">
+              <h2 className="font-ClashDisplayMedium py-4">
+                Posts Across Platforms
+              </h2>
 
-              <LinkedinUserDetails />
-            </div>
-
-            <Card className="border-none shadow-none bg-transparent">
-              <CardHeader>
-                <CardTitle>Posts Across Platforms</CardTitle>
-              </CardHeader>
-              <CardContent>
+              <div>
                 {dashboardData?.monthlyData ? (
                   <ChartContainer
                     config={{
@@ -120,8 +112,20 @@ export function Profile() {
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            <div className="">
+              <p className="font-ClashDisplayMedium py-4">
+                Connected Accounts
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {dashboardData?.twitterUserDetails && (
+                  <TwitterUserDetails dashboardData={dashboardData} />
+                )}
+                <LinkedinUserDetails />
+              </div>
+            </div>
           </div>
         </ScrollArea>
 

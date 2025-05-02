@@ -64,24 +64,24 @@ export enum STATUS {
 }
 
 export interface IGeneratedImage {
-  id: string
-  caption: string | null
-  url: string
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  caption: string | null;
+  url: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Post {
-  id: string;
-  text: string;
-  userId: string;
-  mediaKeys: string[];
+  id?: string;
+  text?: string;
+  userId?: string;
+  mediaKeys?: string[];
   scheduledFor?: Date;
   isScheduled?: boolean;
-  status: STATUS;
-  provider: string;
-  createdAt: Date;
-  updatedAt: Date;
+  status?: STATUS;
+  provider?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ConnectedApp {
@@ -153,4 +153,3 @@ export interface TwitterUser {
 
 export type Providers = "twitter" | "linkedin" | "instagram" | "threads";
 export type BorderStyle = "solid" | "double" | "dashed" | "dotted" | "none";
-

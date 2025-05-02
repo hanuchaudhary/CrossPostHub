@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Guide from "../Guide";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Aurora from "./AuororaBg";
 import { useTheme } from "next-themes";
 import LiquidChrome from "./LiquidChrome";

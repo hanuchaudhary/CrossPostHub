@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { IconAi, IconBellRinging2, IconClockHour10, IconCode, IconCoinRupeeFilled, IconLayoutDashboardFilled, IconPassword, IconPhotoEdit } from "@tabler/icons-react";

@@ -1,3 +1,4 @@
+import { PostsResponse } from "@/app/api/post/route";
 import { ConnectedApp, TwitterUser } from "@/Types/Types";
 import axios from "axios";
 import { create } from "zustand";
@@ -22,6 +23,14 @@ interface DashboardStoreProps {
   dashboardData: DashboardDataType | null;
   fetchDashboardData: VoidFunction;
   isFetchingDashboardData: boolean;
+
+  userPosts: PostsResponse;
+  fetchPosts: ({ limit, offset}: FetchPostsParams) => Promise<void>;
+}
+
+interface FetchPostsParams {
+  limit?: number;
+  offset?: number;
 }
 
 export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
@@ -53,4 +62,26 @@ export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
     }
   },
 
+  userPosts: {
+    ScheduledPosts: [],
+    PendingPosts: [],
+    FailedPosts: [],
+    SuccessPosts: [],
+  },
+  fetchPosts: async ({
+    limit = 10,
+    offset = 0,
+  }: FetchPostsParams) => {
+    try {
+      const query = new URLSearchParams({
+        limit: limit.toString(),
+        offset: offset.toString(),
+      }).toString();
+      const response = await fetch(`/api/post?${query}`);
+      const data = await response.json();
+      set({ userPosts: data });
+    } catch (error) {
+      console.error("Fetch posts failed:", error);
+    }
+  },
 }));

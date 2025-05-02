@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import Image from "next/image";
 import BuySubscriptionButton from "../Buttons/BuySubscriptionButton";

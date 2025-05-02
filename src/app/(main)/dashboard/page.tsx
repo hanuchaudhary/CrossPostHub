@@ -9,11 +9,8 @@ export const metadata: Metadata = {
 
 export default function Dashboard() {
   return (
-    <div className="relative grid grid-cols-2 h-full max-w-7xl overflow-x-hidden mx-auto sm:px-6 lg:px-8 pb-6">
+    <div className="relative">
       <ConnectAccounts />
-      <div className="border-l">
-
-      </div>
     </div>
   );
 }

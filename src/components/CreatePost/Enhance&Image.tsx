@@ -82,12 +82,21 @@ export const EnhanceAndImageGen = ({
           description: "Your image has been successfully generated.",
         });
       }
+      if (data.error) {
+        customToast({
+          title: "Image Generation Failed",
+          description: data.error,
+        });
+      }
     } catch (error) {
-      console.error("Image generation failed:", error);
-      customToast({
-        title: "Generation Failed",
-        description: "Unable to generate image at this time.",
-      });
+      console.log("Error generating image:", error);
+      if (error instanceof Error) {
+        console.log("Error message:", error.message);
+        customToast({
+          title: "Image Generation Failed",
+          description: error.message,
+        });
+      }
     } finally {
       setIsGenerating(false);
     }

@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import axios from "axios";
 import BottomLoader from "../Loaders/BottomLoader";
 import { SimplePostPreview } from "@/components/Previews/SimplePostPreview";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import NoAppButton from "../Buttons/NoAppButton";
 import { customToast } from "./customToast";

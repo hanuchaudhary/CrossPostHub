@@ -2,7 +2,7 @@
 import { Camera, Code2, Twitter, Monitor, icons, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Image from "next/image";
 import { AnimatePresence } from "motion/react";
 import { Button } from "../ui/button";

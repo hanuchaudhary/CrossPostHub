@@ -2,10 +2,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import prisma from "@/config/prismaConfig";
-import { Providers } from "@/Types/Types";
+import { Post, Providers } from "@/Types/Types";
 import { createNotification } from "@/utils/Controllers/NotificationController";
 import { Client } from "@upstash/qstash";
 import SubscriptionMiddleware from "@/utils/SubscriptionMiddleware";
+import { POST_STATUS } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -148,82 +149,97 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// interface PostsResponse {
-//   ScheduledPosts: Post[];
-//   PendingPosts: Post[];
-//   FailedPosts: Post[];
-//   SuccessPosts: Post[];
-// }
+export interface PostsResponse {
+  ScheduledPosts: Post[];
+  PendingPosts: Post[];
+  FailedPosts: Post[];
+  SuccessPosts: Post[];
+}
 
-// export async function GET(request: NextRequest) {
-//   try {
-//     // Authenticate user
-//     const session = await getServerSession(authOptions);
-//     if (!session || !session.user) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
+export async function GET(request: NextRequest) {
+  try {
+    // Authenticate user
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-//     // Parse query parameters
-//     const url = new URL(request.url);
-//     const limit = parseInt(url.searchParams.get("limit") || "10", 10);
-//     const offset = parseInt(url.searchParams.get("offset") || "0", 10);
-//     const status = url.searchParams.get("status") as POST_STATUS | null;
-//     const validStatuses = Object.values(POST_STATUS);
-//     const where = status && validStatuses.includes(status) ? { status } : {};
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const status = searchParams.get("status") as POST_STATUS | null;
+    const validStatuses = Object.values(POST_STATUS);
+    const where = status && validStatuses.includes(status) ? { status } : {};
 
-//     // Fetch posts
-//     const loggedUser = await prisma.user.findUnique({
-//       where: { id: session.user.id },
-//       select: {
-//         posts: {
-//           where,
-//           select: {
-//             id: true,
-//             text: true,
-//             status: true,
-//             isScheduled: true,
-//             createdAt: true,
-//             mediaKeys: true,
-//           },
-//           orderBy: { createdAt: "desc" },
-//           take: limit,
-//           skip: offset,
-//         },
-//       },
-//     });
+    // Fetch posts
+    const loggedUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        posts: {
+          where,
+          select: {
+            id: true,
+            text: true,
+            status: true,
+            isScheduled: true,
+            createdAt: true,
+            mediaKeys: true,
+            provider: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: limit,
+          skip: offset,
+        },
+      },
+    });
 
-//     if (!loggedUser) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
+    if (!loggedUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-//     // Categorize posts efficiently
-//     const finalPosts: PostsResponse = loggedUser.posts.reduce(
-//       (acc, post) => {
-//         if (post.isScheduled) acc.ScheduledPosts.push(post);
-//         if (post.status === POST_STATUS.PENDING) acc.PendingPosts.push(post);
-//         if (post.status === POST_STATUS.FAILED) acc.FailedPosts.push(post);
-//         if (post.status === POST_STATUS.SUCCESS) acc.SuccessPosts.push(post);
-//         return acc;
-//       },
-//       {
-//         ScheduledPosts: [],
-//         PendingPosts: [],
-//         FailedPosts: [],
-//         SuccessPosts: [],
-//       } as PostsResponse
-//     );
-
-//     return NextResponse.json(finalPosts, {
-//       status: 200,
-//       headers: {
-//         "Cache-Control": "s-maxage=3600, stale-while-revalidate",
-//       },
-//     });
-//   } catch (error: any) {
-//     console.error("GetPosts Error:", error);
-//     return NextResponse.json(
-//       { error: "An unexpected error occurred" },
-//       { status: 500 }
-//     );
-//   }
-// }
+    // Categorize posts efficiently
+    const finalPosts: PostsResponse = loggedUser.posts.reduce(
+      (acc, post) => {
+        if (post.isScheduled)
+          acc.ScheduledPosts.push({
+            ...post,
+            text: post.text ?? undefined,
+          } as Post);
+        if (post.status === POST_STATUS.PENDING)
+          acc.PendingPosts.push({
+            ...post,
+            text: post.text ?? undefined,
+          } as Post);
+        if (post.status === POST_STATUS.FAILED)
+          acc.FailedPosts.push({
+            ...post,
+            text: post.text ?? undefined,
+          } as Post);
+        if (post.status === POST_STATUS.SUCCESS)
+          acc.SuccessPosts.push({
+            ...post,
+            text: post.text ?? undefined,
+          } as Post);
+        return acc;
+      },
+      {
+        ScheduledPosts: [],
+        PendingPosts: [],
+        FailedPosts: [],
+        SuccessPosts: [],
+      } as PostsResponse
+    );
+    return NextResponse.json(finalPosts, {
+      status: 200,
+      headers: {
+        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+      },
+    });
+  } catch (error: any) {
+    console.error("GetPosts Error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}

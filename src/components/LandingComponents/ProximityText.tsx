@@ -6,7 +6,7 @@ import {
   MutableRefObject,
   CSSProperties,
 } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 function useAnimationFrame(callback: () => void) {
   useEffect(() => {
