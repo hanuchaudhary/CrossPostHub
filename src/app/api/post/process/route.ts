@@ -10,6 +10,7 @@ import { decryptToken } from "@/lib/Crypto";
 import { getFromS3Bucket } from "@/config/s3Config";
 import { Client } from "@upstash/qstash";
 
+// TODO: send single email to user with all the errors instead of sending multiple emails
 const qstashClient = new Client({
   token: process.env.QSTASH_TOKEN!,
 });

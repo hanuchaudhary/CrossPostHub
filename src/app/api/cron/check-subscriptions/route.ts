@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/config/prismaConfig";
 import cron from "node-cron";
 
-// Schedule the cron job to run every day at midnight
+// TODO: Add vercel cron job to run this every day at midnight
 cron.schedule("0 0 * * *", async () => {
   console.log("Running subscription expiration check...");
 
