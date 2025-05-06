@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Convert the map to an array of objects
-    const result = Object.values(monthlyData);
+    const result = Object.values(monthlyData).reverse();
 
     // Prepare the dashboard data
     const dashboardData = {

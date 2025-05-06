@@ -258,7 +258,7 @@ export const EnhanceAndImageGen = ({
                   <p className="text-muted-foreground text-sm">
                     {isEnhancing
                       ? "Enhancing your caption"
-                      : "Creating your masterpiece"}
+                      : "Generating your image"}
                   </p>
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>

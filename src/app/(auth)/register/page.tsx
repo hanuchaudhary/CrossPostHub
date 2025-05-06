@@ -3,8 +3,8 @@ import React from "react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Register Account | CrossPost Hub",
-  description: "CrossPost Hub's Signup.",
+  title: "Register Account | CrosspostHub",
+  description: "Create an account to start using CrosspostHub. Join our community and enjoy seamless crossposting across multiple platforms.",
 };
 
 

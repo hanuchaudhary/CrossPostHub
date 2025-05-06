@@ -34,7 +34,7 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
         <SheetHeader>
           <SheetTitle>
             <h1 className="font-ClashDisplayMedium text-xl text-emerald-500 leading-none">
-              CrossPost Hub
+              CrosspostHub
             </h1>
             <SheetDescription className="text-neutral-500 font-medium text-sm leading-none dark:text-neutral-400 md:text-base">
               All your social media in one place.

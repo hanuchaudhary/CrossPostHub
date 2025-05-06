@@ -48,6 +48,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/oauth": "^0.9.6",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/uuid": "^10.0.0",
     "@upstash/qstash": "^2.7.23",
     "@upstash/redis": "^1.34.6",
     "assert": "^2.1.0",

@@ -83,7 +83,6 @@ export const authOptions: NextAuthOptions = {
           redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
         },
       },
-      scope: "user_profile",
     }),
     LinkedinProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID!,

@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(finalPosts, {
       status: 200,
       headers: {
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+        "Cache-Control": "s-maxage=3600, stale-while-revalidate", 
       },
     });
   } catch (error: any) {

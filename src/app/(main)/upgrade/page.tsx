@@ -4,7 +4,7 @@ import React from "react";
 
 export const metadata: Metadata = {
   title: "Upgrade | CrossPostHub",
-  description: "Upgrade your account on CrossPostHub.",
+  description: "Upgrade your account to unlock premium features and benefits.",
 };
 
 export default function Page() {

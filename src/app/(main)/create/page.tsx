@@ -6,7 +6,15 @@ import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create Post | CrossPostHub",
-  description: "Create a new post on CrossPostHub.",
+  description: "Create a new post on CrossPostHub and share it with the world.",
+  openGraph: {
+    title: "Create Post | CrossPostHub",
+    description: "Create a new post on CrossPostHub and share it with the world.",
+    url: "https://crossposthub.com/create",
+    siteName: "CrossPostHub",
+    locale: "en-US",
+    type: "website",
+  },
 };
 
 export default function CreatePostPage() {

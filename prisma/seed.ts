@@ -48,7 +48,7 @@ const pricingPlans = [
       "Connect unlimited platforms",
       "Unlimited posts and scheduling",
       "Unlimited media support",
-      "Unlimeted Image generations",
+      "Unlimited Image generations",
       "Team collaboration",
       "Premium support",
       "Other",
@@ -62,7 +62,14 @@ async function main() {
   for (const plan of pricingPlans) {
     await prisma.plan.upsert({
       where: { id: plan.id },
-      update: {},
+      update: {
+        title: plan.title,
+        price: plan.price,
+        description: plan.description,
+        features: plan.features,
+        cta: plan.cta,
+        razorpayPlanId: plan.razorpayPlanId,
+      },
       create: {
         id: plan.id,
         title: plan.title,
@@ -74,6 +81,7 @@ async function main() {
       },
     });
   }
+  console.log("Pricing plans seeded successfully.");
 }
 
 main()

@@ -17,12 +17,10 @@ export async function POST(request: Request) {
 
   try {
     const { caption } = await request.json();
-
     if (!caption) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
     }
 
-    // Check if the user is subscribed
     const middleware = new SubscriptionMiddleware(session.user.id!);
     const imageLimit = await middleware.canGenerateImage();
 

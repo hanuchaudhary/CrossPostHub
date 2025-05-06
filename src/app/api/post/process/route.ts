@@ -9,6 +9,11 @@ import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { decryptToken } from "@/lib/Crypto";
 import { getFromS3Bucket } from "@/config/s3Config";
 import { Client } from "@upstash/qstash";
+import { User } from "@/Types/Types";
+import {
+  instagramPostPublish,
+  InstagramUtils,
+} from "@/utils/InstagramUtils/Instagram";
 
 // TODO: send single email to user with all the errors instead of sending multiple emails
 const qstashClient = new Client({
@@ -28,6 +33,7 @@ async function handler(request: NextRequest) {
   const { provider, postText, mediaKeys, userId, postId } = jobData;
 
   let loggedUser: any;
+
   try {
     console.log("Processing Job for provider:", provider, "postId:", postId);
 
@@ -118,6 +124,35 @@ async function handler(request: NextRequest) {
       if (postResponse.error) {
         throw new Error(postResponse.error);
       }
+    } else if (provider === "instagram") {
+      const instagramAccount = loggedUser.accounts.find(
+        (acc: any) => acc.provider === "instagram"
+      );
+
+      if (!instagramAccount) {
+        throw new Error("Instagram account not found.");
+      }
+
+      try {
+
+        let mediaUrls: any = [];
+
+        mediaUrls = await Promise.all(
+          mediaKeys.map(async (key: string) => {
+            // Get the url from S3 bucket
+          }
+        ))
+
+
+        const response = await instagramPostPublish(
+          mediaUrls,
+          "caption",
+          "access_token",
+          "ig_user_id",
+          "IMAGE"
+        );
+        console.log("Instagram post response:", response);
+      } catch (error) {}
     } else {
       throw new Error(
         `Unsupported provider: ${provider}. Supported providers are 'linkedin' and 'twitter'.`
@@ -147,14 +182,14 @@ async function handler(request: NextRequest) {
       }),
     ]);
 
-    // Schedule a separate QStash job to delete media from S3
-    await qstashClient.publishJSON({
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/post/delete`,
-      body: {
-        mediaKeys,
-      },
-      delay: 60, // Delay deletion by 60 seconds to ensure all operations are complete
-    });
+    // FIXED: DELETED MEDIA FROM S3 AFTER CERTAIN DAYS IN S3 ITSELF ✅
+    // await qstashClient.publishJSON({
+    //   url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/post/delete`,
+    //   body: {
+    //     mediaKeys,
+    //   },
+    //   delay: 60, // Delay deletion by 60 seconds to ensure all operations are complete
+    // });
 
     return NextResponse.json({
       provider,
@@ -209,20 +244,6 @@ async function handler(request: NextRequest) {
           ]);
         }),
       ]);
-    }
-
-    // If this is the last retry, schedule media deletion
-    const retryCount = request.headers.get("x-qstash-retry-count") || "0";
-    const maxRetries = process.env.QSTASH_MAX_RETRIES || "3"; // Set max retries in your env
-    if (parseInt(retryCount) >= parseInt(maxRetries)) {
-      console.log("Max retries reached, scheduling media deletion...");
-      await qstashClient.publishJSON({
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/post/delete`,
-        body: {
-          mediaKeys,
-        },
-        delay: 60,
-      });
     }
 
     return NextResponse.json({ error: error.message }, { status: 500 });
