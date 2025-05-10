@@ -32,7 +32,7 @@ const socialApps: SocialApp[] = [
   { name: "X", icon: "/twitter.svg", provider: "twitter" },
   { name: "Linkedin", icon: "/linkedin.svg", provider: "linkedin" },
   { name: "Threads", icon: "/threads.svg", provider: "threads" },
-  { name: "Instagram", icon: "/instagram.svg", provider: "instagram" },
+  { name: "Instagram", icon: "/instagram2.svg", provider: "instagram" },
 ];
 
 export function ConnectAccounts() {

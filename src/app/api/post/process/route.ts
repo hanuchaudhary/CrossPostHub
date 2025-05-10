@@ -133,7 +133,7 @@ async function handler(request: NextRequest) {
         let mediaUrls: any = [];
         mediaUrls = await Promise.all(
           mediaKeys.map(async (key: string) => {
-            return `https://crossposthub.s3.ap-south-1.amazonaws.com/media/${key}`;
+            return `https://crossposthub.s3.ap-south-1.amazonaws.com/${key}`;
           })
         );
 
