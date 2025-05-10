@@ -33,6 +33,10 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!caption) {
+      return NextResponse.json({ error: "Text is required" }, { status: 400 });
+    }
+
     const result = await fal.subscribe("fal-ai/flux/dev", {
       input: {
         prompt: `Generate an image based on the following description:  + "${caption}"`,
@@ -44,10 +48,6 @@ export async function POST(request: Request) {
         }
       },
     });
-
-    if (!caption) {
-      return NextResponse.json({ error: "Text is required" }, { status: 400 });
-    }
 
     if (result.data.images.length === 0) {
       return NextResponse.json(

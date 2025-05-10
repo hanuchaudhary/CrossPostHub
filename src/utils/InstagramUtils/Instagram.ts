@@ -4,7 +4,7 @@ import FormData from "form-data";
 export class InstagramUtils {
   private accessToken: string;
   private igUserId: string;
-  private baseUrl: string = "https://graph.facebook.com/v20.0"; // Use the latest API version
+  private baseUrl: string = "https://graph.instagram.com/v22.0";
 
   constructor(accessToken: string, igUserId: string) {
     this.accessToken = accessToken;
@@ -20,8 +20,9 @@ export class InstagramUtils {
   }: {
     mediaUrl: string;
     caption?: string;
-    mediaType: "IMAGE" | "VIDEO" | "REELS";
+    mediaType: "IMAGE" | "VIDEO" | "REELS" | "CAROUSEL";
     isReel?: boolean;
+    children?: string[]; // Add children for CAROUSEL media type
   }) {
     const requestData = {
       url: `${this.baseUrl}/${this.igUserId}/media`,

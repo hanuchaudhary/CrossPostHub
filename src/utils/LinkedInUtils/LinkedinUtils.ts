@@ -177,17 +177,19 @@ export async function CreateTextPost({
 
 export const getLinkedInProfile = async (
   accessToken: string,
-  personID: string
 ) => {
   try {
     const response = await axios.get(
-      `https://api.linkedin.com/v2/people/${personID}`,
+      `https://api.linkedin.com/v2/me`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }
     );
+
+    console.log("LinkedIn Profile Data:", response.data);
+    
     return response.data;
   } catch (error) {
     console.error("Get LinkedIn Profile Error:", error);

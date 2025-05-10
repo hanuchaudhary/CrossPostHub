@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-export default function TwitterConnectButton() {
+export default function TwitterConnectButton({
+  disabled,
+}: {
+  disabled?: boolean;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const handleLogin = async () => {
     setIsLoading(true);
@@ -31,10 +35,10 @@ export default function TwitterConnectButton() {
   return (
     <div>
       <Button
+        disabled={disabled || isLoading}
         className="rounded-full"
         size={"sm"}
         onClick={handleLogin}
-        disabled={isLoading}
       >
         {isLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

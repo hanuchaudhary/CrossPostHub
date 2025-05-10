@@ -49,7 +49,7 @@ export default function Home() {
       </div>
       {theme === "dark" ? (
         <div className="absolute top-0 left-0 w-full h-full">
-          <Aurora colorStops={["#00D8FF", "#7BFF67", "#00D8FF"]} speed={0.5} />
+          <Aurora colorStops={["#00D8FF", "#7BFF67", "#00D8FF"]}  />
         </div>
       ) : (
         <div className="absolute rounded-[30px] border-secondary/80 overflow-hidden opacity-50 border-t-[7px] border-x-[7px] top-0 left-0 w-full h-full">

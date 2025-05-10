@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  const VERIFY_TOKEN = 'CROSSPOSTHUB_INSTAGRAM';
+  const VERIFY_TOKEN = 'INSTAGRAM_CROSSPOSTHUB';
 
   if (mode === 'subscribe' && token === VERIFY_TOKEN) {
     console.log('🔔 Webhook verified:', { mode, token, challenge });

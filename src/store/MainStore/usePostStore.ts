@@ -142,7 +142,7 @@ export const useMediaStore = create<MediaState>((set, get) => ({
             if (file.size > 5 * 1024 * 1024) {
               // 5 MB limit for images
               customToast({
-                title: `Image file "${file.name}" exceeds the maximum size of 200 MB.`,
+                title: `Image file "${file.name}" exceeds the maximum size of 5 MB.`,
                 description: "Please upload a smaller image.",
                 badgeVariant: "destructive",
               });

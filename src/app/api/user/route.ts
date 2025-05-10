@@ -107,7 +107,8 @@ export async function GET(request: NextRequest) {
     //     linkedinAccount.access_token_iv!,
     //     linkedinAccount.access_token!
     //   );
-    //   linkedinUserDetails = await getLinkedInProfile(linkedinAccessToken);
+    //   linkedinUserDetails = await getLinkedInProfile(
+    //     linkedinAccessToken)
     //   if (!linkedinUserDetails) {
     //     return NextResponse.json(
     //       { error: "Failed to fetch LinkedIn user details" },

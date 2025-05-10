@@ -9,11 +9,7 @@ import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { decryptToken } from "@/lib/Crypto";
 import { getFromS3Bucket } from "@/config/s3Config";
 import { Client } from "@upstash/qstash";
-import { User } from "@/Types/Types";
-import {
-  instagramPostPublish,
-  InstagramUtils,
-} from "@/utils/InstagramUtils/Instagram";
+import { instagramPostPublish } from "@/utils/InstagramUtils/Instagram";
 
 // TODO: send single email to user with all the errors instead of sending multiple emails
 const qstashClient = new Client({
@@ -134,22 +130,21 @@ async function handler(request: NextRequest) {
       }
 
       try {
-
         let mediaUrls: any = [];
-
         mediaUrls = await Promise.all(
           mediaKeys.map(async (key: string) => {
-            // Get the url from S3 bucket
-          }
-        ))
+            return `https://crossposthub.s3.ap-south-1.amazonaws.com/media/${loggedUser.id}/${key}`;
+          })
+        );
 
+        console.log("Media URLs:", mediaUrls);
 
         const response = await instagramPostPublish(
           mediaUrls,
-          "caption",
-          "access_token",
-          "ig_user_id",
-          "IMAGE"
+          postText,
+          instagramAccount.access_token,
+          instagramAccount.providerAccountId!,
+          mediaUrls.length > 1 ? "CAROUSEL" : "IMAGE"
         );
         console.log("Instagram post response:", response);
       } catch (error) {}

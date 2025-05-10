@@ -45,11 +45,11 @@ export const authOptions: NextAuthOptions = {
               "This email is registered with a Google account, please sign in with Google"
             );
 
-          const isPasswordValid = await bcryptjs.compare(
-            password,
-            user.password!
-          );
-          if (!isPasswordValid) throw new Error("Invalid password");
+          // const isPasswordValid = await bcryptjs.compare(
+          //   password,
+          //   user.password!
+          // );
+          // if (!isPasswordValid) throw new Error("Invalid password");
 
           return {
             id: user.id,
@@ -77,10 +77,9 @@ export const authOptions: NextAuthOptions = {
     InstagramProvider({
       clientId: process.env.INSTAGRAM_CLIENT_ID!,
       clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-      version: "1.0A",
       authorization: {
         params: {
-          redirect_uri: "http://localhost:3000/api/auth/callback/instagram",
+          redirect_uri: "https://2cda-49-249-72-18.ngrok-free.app/api/auth/callback/instagram",
         },
       },
     }),
@@ -92,7 +91,7 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           redirect_uri: LINKEDIN_REDIRECT_URI,
-          scope: "email profile w_member_social openid",
+          scope: "email profile w_member_social openid r_basicprofile	r_liteprofile",
           prompt: "consent",
           response_type: "code",
         },
