@@ -19,7 +19,7 @@ export default function ThreadsConnectButton() {
     const authUrl =
       "https://threads.net/oauth/authorize" +
       `?client_id=${process.env.NEXT_PUBLIC_THREADS_APP_ID}` +
-      `&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/threads/callback`)}` + // Updated redirect URI
+      `&redirect_uri=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/threads/callback`)}` +
       `&state=${state}` +
       `&scope=${encodeURIComponent(scopes)}`;
 
