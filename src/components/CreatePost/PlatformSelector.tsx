@@ -56,7 +56,7 @@ export function PlatformSelector({
                 whileTap={{ scale: 0.95 }}
               >
                 <Image
-                  src={`/${app.provider}.svg` || "/placeholder.svg"}
+                  src={`/${app.provider}.svg` || "/instagram2.svg"}
                   alt={app.provider!}
                   width={40}
                   height={40}
