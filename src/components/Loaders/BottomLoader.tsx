@@ -65,7 +65,7 @@ export default function BottomLoader({
           }}
         >
           <motion.div
-            className="w-full max-w-md bg-background/80 border border-border rounded-2xl shadow-lg overflow-hidden"
+            className="w-full max-w-md bg-background/80 font-ClashDisplayMedium border border-border rounded-2xl shadow-lg overflow-hidden"
             variants={containerVariants}
             initial="hidden"
             animate="visible"

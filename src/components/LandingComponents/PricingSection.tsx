@@ -64,7 +64,7 @@ export default function PricingSection() {
   }, [fetchPlans]);
 
   return (
-    <div className="max-w-[65rem] relative mx-auto lg:px-0 px-3 pb-5">
+    <div className="max-w-[75rem] relative mx-auto lg:px-0 px-3 pb-5">
       <div className="relative z-10">
         <div className="text-center py-16">
           <h1 className="font-ClashDisplaySemibold text-lg md:text-4xl">

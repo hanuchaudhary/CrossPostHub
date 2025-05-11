@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           redirect_uri: LINKEDIN_REDIRECT_URI,
-          scope: "email profile w_member_social openid r_basicprofile	r_liteprofile",
+          scope: "email profile w_member_social openid ",
           prompt: "consent",
           response_type: "code",
         },

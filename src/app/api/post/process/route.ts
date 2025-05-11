@@ -130,21 +130,23 @@ async function handler(request: NextRequest) {
       }
 
       try {
-        let mediaUrls: any = [];
+        let mediaUrls: string[] = [];
         mediaUrls = await Promise.all(
           mediaKeys.map(async (key: string) => {
             return `https://crossposthub.s3.ap-south-1.amazonaws.com/${key}`;
           })
         );
 
-        console.log("Media URLs:", mediaUrls);
-
         const response = await instagramPostPublish(
           mediaUrls,
           postText,
           instagramAccount.access_token,
           instagramAccount.providerAccountId!,
-          mediaUrls.length > 1 ? "CAROUSEL" : "IMAGE"
+          mediaUrls.length > 1
+            ? "CAROUSEL"
+            : mediaUrls[0].endsWith(".mp4")
+              ? "VIDEO"
+              : "IMAGE"
         );
         console.log("Instagram post response:", response);
       } catch (error) {}
@@ -192,54 +194,31 @@ async function handler(request: NextRequest) {
     });
   } catch (error: any) {
     console.error(`Job failed for provider: ${provider}`, error);
-
-    // Check if a failure notification already exists for this post and provider
-    const existingNotification = await prisma.notification.findFirst({
-      where: {
-        userId,
-        type: "POST_STATUS_FAILED",
-        message: {
-          contains: `Failed to publish post on ${provider}`,
-        },
-      },
-    });
-
-    // Update post status to FAILED with the error message
-    await prisma.post.update({
-      where: { id: postId },
-      data: {
-        status: "FAILED",
-        text: error.message,
-        provider: provider,
-      },
-    });
-
-    // Only send notifications if this is the first failure
-    if (!existingNotification) {
-      await Promise.all([
-        postSaveToDB({
-          postText,
-          userId,
-          provider,
-          status: "FAILED",
-        }),
-        createNotification({
-          userId,
-          type: "POST_STATUS_FAILED",
-          message: `Failed to publish post on ${provider}: ${error.message}`,
-        }).then(async (notification) => {
-          await Promise.all([
-            sendEmailNotification(loggedUser?.email || "", {
-              username: loggedUser?.name || "User",
+    await Promise.all([
+      await prisma.post
+        .update({
+          where: { id: postId },
+          data: {
+            status: "FAILED",
+            text: error.message,
+            provider: provider,
+          },
+        })
+        .then(async () => {
+          await createNotification({
+            userId,
+            type: "POST_STATUS_FAILED",
+            message: `Your post failed to publish on ${provider}.`,
+          }).then(async (notification) => {
+            await sendEmailNotification(loggedUser.email, {
+              username: loggedUser.name!,
               type: "FAILED",
               platform: provider,
               postTitle: postText,
-              error: error.message,
-            }),
-          ]);
+            }).then((res) => console.log("Email Sent", res?.data));
+          });
         }),
-      ]);
-    }
+    ]);
 
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

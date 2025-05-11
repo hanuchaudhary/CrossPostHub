@@ -25,6 +25,7 @@ import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams } from "next/navigation";
 import { useNotificationStore } from "@/store/NotificationStore/useNotificationStore";
 import { EnhanceAndImageGen } from "./Enhance&Image";
+import { useSubscriptionStore } from "@/store/PricingStore/useSubscriptionStore";
 
 export type Platform = "instagram" | "twitter" | "linkedin";
 
@@ -41,6 +42,7 @@ export function CreatePostForm() {
   const [isPollingNotifications, setIsPollingNotifications] = useState(false);
   const { medias, isUploadingMedia, resetMedias, handleFileUpload } =
     useMediaStore();
+  const { setCreditCount } = useSubscriptionStore();
 
   const memoizedMedias = React.useMemo(
     () => medias.files || [],
@@ -249,6 +251,8 @@ export function CreatePostForm() {
         setScheduleDate(null);
         setScheduleTime("");
       }
+
+      setCreditCount(Number(useSubscriptionStore.getState().creditCount) - 1);
       // Start polling for notifications
       setIsPollingNotifications(true);
     } catch (error: any) {
@@ -263,8 +267,6 @@ export function CreatePostForm() {
       setIsLoading(false);
     }
   };
-
-  const onImageAccept = async () => {};
 
   return (
     <section className="md:flex relative block gap-4 w-full">

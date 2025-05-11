@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     const result = await fal.subscribe("fal-ai/flux/dev", {
       input: {
-        prompt: `Generate an image based on the following description:  + "${caption}"`,
+        prompt: `Generate an image based on the following caption:  + "${caption}"`,
       },
       logs: true,
       onQueueUpdate: (update) => {

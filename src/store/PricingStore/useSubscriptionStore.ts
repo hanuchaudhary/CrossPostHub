@@ -15,9 +15,16 @@ interface SubscriptionStore {
   fetchSingleTransaction: (order_id: string) => Promise<void>;
   isFetchingSingleTransaction: boolean;
   singleTransaction: TransactionType | null;
+
+  creditCount: number;
+  setCreditCount: (count: number) => void;
 }
 
 export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
+
+  creditCount: 68,
+  setCreditCount: (count: number) => set({ creditCount: count }),
+
   isFetchingPlans: true,
   pricingPlans: null,
   fetchPricingPlans: async () => {
