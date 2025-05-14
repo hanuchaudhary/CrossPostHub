@@ -488,9 +488,9 @@ export const SSEditor: React.FC = () => {
           </Collapsible>
 
           <Collapsible
-            trigger="Tweek"
-            open={openCollapsibles.includes("Tweek")}
-            onOpenChange={(isOpen) => handleCollapsibleToggle("Tweek", isOpen)}
+            trigger="Tweak"
+            open={openCollapsibles.includes("Tweak")}
+            onOpenChange={(isOpen) => handleCollapsibleToggle("Tweak", isOpen)}
           >
             <div className="space-y-3">
               <Slider

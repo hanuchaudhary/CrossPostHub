@@ -98,7 +98,7 @@ export function GithubEditor() {
   }, [store.windowFrame]);
 
   const handleReset = React.useCallback(() => {
-    store.setGraphTweeks({
+    store.setGraphTweaks({
       year: "last",
       blockMargin: 2,
       blockSize: 12,
@@ -642,33 +642,33 @@ export function GithubEditor() {
             </div>
           </Collapsible>
 
-          {/* Tweek Graph */}
+          {/* Tweak Graph */}
           <Collapsible
-            trigger="Tweek Graph"
-            open={openCollapsibles.includes("Tweek")}
-            onOpenChange={(isOpen) => handleCollapsibleToggle("Tweek", isOpen)}
+            trigger="Tweak Graph"
+            open={openCollapsibles.includes("Tweak")}
+            onOpenChange={(isOpen) => handleCollapsibleToggle("Tweak", isOpen)}
           >
             <div className="space-y-3">
               <div className="space-y-2">
                 <div className="relative mt-1">
                   <Select
                     value={
-                      store.graphTweeks.year === "last"
+                      store.graphTweaks.year === "last"
                         ? "last"
-                        : String(store.graphTweeks.year)
+                        : String(store.graphTweaks.year)
                     }
                     onValueChange={(value) =>
-                      store.setGraphTweeks({
-                        ...store.graphTweeks,
+                      store.setGraphTweaks({
+                        ...store.graphTweaks,
                         year: value === "last" ? "last" : parseInt(value),
                       })
                     }
                   >
                     <SelectTrigger className="rounded-full border-neutral-700 bg-neutral-800 px-4 py-2 text-white">
                       <SelectValue placeholder="Contribution Year">
-                        {store.graphTweeks.year === "last"
+                        {store.graphTweaks.year === "last"
                           ? "Last Year"
-                          : store.graphTweeks.year}
+                          : store.graphTweaks.year}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -685,40 +685,40 @@ export function GithubEditor() {
                   </Select>
                 </div>
                 <Slider
-                  label={`Block radius (${store.graphTweeks.blockRadius}px)`}
+                  label={`Block radius (${store.graphTweaks.blockRadius}px)`}
                   min={0}
                   max={10}
                   step={0.1}
-                  value={[store.graphTweeks.blockRadius]}
+                  value={[store.graphTweaks.blockRadius]}
                   onValueChange={([value]) =>
-                    store.setGraphTweeks({
-                      ...store.graphTweeks,
+                    store.setGraphTweaks({
+                      ...store.graphTweaks,
                       blockRadius: value,
                     })
                   }
                 />
                 <Slider
-                  label={`Block margin (${store.graphTweeks.blockMargin}px)`}
+                  label={`Block margin (${store.graphTweaks.blockMargin}px)`}
                   min={0}
                   max={7}
                   step={0.5}
-                  value={[store.graphTweeks.blockMargin]}
+                  value={[store.graphTweaks.blockMargin]}
                   onValueChange={([value]) =>
-                    store.setGraphTweeks({
-                      ...store.graphTweeks,
+                    store.setGraphTweaks({
+                      ...store.graphTweaks,
                       blockMargin: value,
                     })
                   }
                 />
                 <Slider
-                  label={`Block Size  (${store.graphTweeks.blockSize}px)`}
+                  label={`Block Size  (${store.graphTweaks.blockSize}px)`}
                   min={10}
                   max={20}
                   step={0.1}
-                  value={[store.graphTweeks.blockSize]}
+                  value={[store.graphTweaks.blockSize]}
                   onValueChange={([value]) =>
-                    store.setGraphTweeks({
-                      ...store.graphTweeks,
+                    store.setGraphTweaks({
+                      ...store.graphTweaks,
                       blockSize: value,
                     })
                   }

@@ -65,13 +65,13 @@ interface GithubEditStore {
   fetchGithubUser: () => Promise<void>;
   isLoading: boolean;
 
-  graphTweeks: {
+  graphTweaks: {
     year: number | "last";
     blockMargin: number;
     blockSize: number;
     blockRadius: number;
   };
-  setGraphTweeks: ({
+  setGraphTweaks: ({
     year,
     blockMargin,
     blockSize,
@@ -335,13 +335,13 @@ export const useGithubEditStore = create<GithubEditStore>((set, get) => ({
   theme: PREDEFINED_THEMES[3].values,
   setTheme: (theme: any) => set({ theme }),
 
-  graphTweeks: {
+  graphTweaks: {
     year: "last",
     blockMargin: 2,
     blockSize: 12,
     blockRadius: 3,
   },
-  setGraphTweeks: ({
+  setGraphTweaks: ({
     year,
     blockMargin,
     blockSize,
@@ -353,8 +353,8 @@ export const useGithubEditStore = create<GithubEditStore>((set, get) => ({
     blockRadius: number;
   }) =>
     set((state) => ({
-      graphTweeks: {
-        ...state.graphTweeks,
+      graphTweaks: {
+        ...state.graphTweaks,
         year,
         blockMargin,
         blockSize,

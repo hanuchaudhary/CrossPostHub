@@ -77,7 +77,7 @@ export default function BottomLoader({
                   <Image
                     key={platform}
                     className={` ${platform === "twitter" && "dark:invert"}`}
-                    src={platform === "instagram" ? "/instagram2.svg" : `/${platform}.svg`}
+                    src={`/${platform}.svg`}
                     alt={`${platform} Logo`}
                     width={40}
                     height={40}

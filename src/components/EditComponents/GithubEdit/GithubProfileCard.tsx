@@ -15,14 +15,14 @@ export default function GithubProfileCard() {
 
   useEffect(() => {
     setNoData(false);
-  }, [store.graphTweeks.year]);
+  }, [store.graphTweaks.year]);
 
   const handleTransformData = (data: any[]) => {
     if (!data || data.length === 0) {
       setNoData(true);
       customToast({
         title: "No Data Found",
-        description: `No contribution data found for year: ${store.graphTweeks.year || "selected year"}`,
+        description: `No contribution data found for year: ${store.graphTweaks.year || "selected year"}`,
         badgeVariant: "destructive",
       });
       return [];
@@ -147,14 +147,14 @@ export default function GithubProfileCard() {
           {noData ? (
             <div className="text-neutral-400 text-center w-full">
               No contributions found for{" "}
-              {store.graphTweeks.year || "the selected year"}.
+              {store.graphTweaks.year || "the selected year"}.
             </div>
           ) : (
             <GitHubCalendar
-              year={store.graphTweeks.year || "last"}
-              blockMargin={store.graphTweeks.blockMargin}
-              blockSize={store.graphTweeks.blockSize}
-              blockRadius={store.graphTweeks.blockRadius}
+              year={store.graphTweaks.year || "last"}
+              blockMargin={store.graphTweaks.blockMargin}
+              blockSize={store.graphTweaks.blockSize}
+              blockRadius={store.graphTweaks.blockRadius}
               theme={{
                 dark: store.theme,
               }}
