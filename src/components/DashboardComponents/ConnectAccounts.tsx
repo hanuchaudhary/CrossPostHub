@@ -29,13 +29,13 @@ export interface SocialApp {
 const socialApps: SocialApp[] = [
   { name: "X", icon: "/twitter.svg", provider: "twitter" },
   { name: "Linkedin", icon: "/linkedin.svg", provider: "linkedin" },
-  { name: "Instagram", icon: "/instagram.svg", provider: "instagram" },
+  { name: "Instagram", icon: "/instagramIcon.svg", provider: "instagram" },
   { name: "Threads", icon: "/threads.svg", provider: "threads" },
 ];
 
 export function ConnectAccounts() {
   const [loading, setLoading] = useState<string | null>(null);
-  const [hoveredApp, setHoveredApp] = useState<string | null>(null); // Track hovered app
+  const [hoveredApp, setHoveredApp] = useState<string | null>(null);
   const { connectedApps, fetchConnectedApps, isFetchingApps } =
     useDashboardStore();
 

@@ -95,7 +95,7 @@ export default function NotificationDropdown({
                                     : theme === "dark"
                                       ? "/twitter.svg"
                                       : "/twitter-light.svg"
-                                  : "/instagram.svg"
+                                  : "/instagramIcon.svg"
                             }
                             height={40}
                             width={40}

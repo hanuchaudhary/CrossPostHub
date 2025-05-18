@@ -247,7 +247,11 @@ const PostCard = ({ post }: { post: Post }) => {
         <div>
           {provider && (
             <Image
-              src={`/${provider}.svg`}
+              src={
+                provider === "instagram"
+                  ? "/instagramIcon.svg"
+                  : `/${provider}.svg`
+              }
               alt={provider}
               width={60}
               height={60}

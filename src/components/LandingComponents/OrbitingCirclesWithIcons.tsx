@@ -7,7 +7,7 @@ export function OrbitingCirclesWithIcon() {
     <div className="relative flex h-[400px] w-full flex-col items-center justify-center overflow-hidden">
       <OrbitingCircles iconSize={40} speed={1}>
         {[
-          "Instagram",
+          "instagramIcon",
           "linkedin",
           "github",
           "threads",
@@ -37,7 +37,7 @@ export function OrbitingCirclesWithIcon() {
       </OrbitingCircles>
 
       <OrbitingCircles iconSize={30} radius={100} reverse speed={1}>
-        {["github", "threads", "Instagram", "linkedin", "twitter"].map(
+        {["github", "threads", "instagramIcon", "linkedin", "twitter"].map(
           (icon) => (
             <div
               key={icon}

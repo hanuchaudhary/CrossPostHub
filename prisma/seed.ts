@@ -62,7 +62,15 @@ async function main() {
   for (const plan of pricingPlans) {
     await prisma.plan.upsert({
       where: { id: plan.id },
-      update: {},
+      update: {
+ id: plan.id,
+        title: plan.title,
+        price: plan.price,
+        description: plan.description,
+        features: plan.features,
+        cta: plan.cta,
+        razorpayPlanId: plan.razorpayPlanId,
+      },
       create: {
         id: plan.id,
         title: plan.title,
@@ -75,6 +83,8 @@ async function main() {
     });
   }
 }
+
+console.log("Seed ✅");
 
 main()
   .catch((e) => {
