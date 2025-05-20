@@ -54,14 +54,14 @@ export default function LandingFooter() {
         <div className="md:mt-8 mt-4 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex md:flex-row flex-col md:gap-0 gap-2 items-center justify-between">
           <div className="space-y-2">
             <p>
-              Build in public by{" "}
+              Co-Powered By{" "}
               <a
-                href="https://x.com/KushChaudharyOg"
+                href="https://www.instagram.com/bali_9368/"
                 className="text-blue-400 font-ClashDisplayMedium underline"
                 target="_blank"
                 rel="noreferrer"
               >
-                @KushChaudharyOg
+                @Lalit_Pal_Sahab
               </a>
             </p>
             <div className="flex items-center gap-2">
