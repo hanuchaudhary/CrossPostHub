@@ -1,6 +1,19 @@
-version: "3.9"
+version: "3.8"
 
 services:
+  db:
+    image: postgres:latest
+    container_name: crossposthub_db
+    ports:  
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: crossposthub  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   app:
     build:
       context: .
@@ -10,23 +23,8 @@ services:
     env_file:
       - .env
     volumes:
-      - app_data:/app
-    command: >
-      sh -c "bunx prisma migrate dev && bun dev"
-
-  db:
-    image: postgres:latest
-    ports:  
-      - "5432:5432"
-    container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: always
-
-volumes:
-  postgres_data:
-  app_data:
+      - .:/usr/src/app  # useful in dev mode
+    restart: unless-stopped
+    
+    depends_on:
+      - db

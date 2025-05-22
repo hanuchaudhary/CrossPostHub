@@ -1,20 +1,17 @@
-FROM node:18-alpine
+FROM oven/bun:alpine
 
-# Install Bun
-RUN apk add --no-cache curl && \
-    curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin/bun
+WORKDIR /usr/src/app
 
-WORKDIR /app
-
-COPY package.json ./
-COPY package-lock.json ./ 
-
-RUN bun install
-
+# Copy entire codebase (including schema.prisma) first
 COPY . .
 
-RUN npx prisma generate
+# Install dependencies (now with prisma/schema.prisma available)
+RUN bun install
+
+# (Optional) Prisma steps
+RUN bunx prisma migrate dev
+RUN bunx prisma generate
+RUN bun run prisma/seed.ts
 
 EXPOSE 3000
 

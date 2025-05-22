@@ -54,14 +54,14 @@ export default function LandingFooter() {
         <div className="md:mt-8 mt-4 text-xs md:text-sm text-muted-foreground dark:text-neutral-500 flex md:flex-row flex-col md:gap-0 gap-2 items-center justify-between">
           <div className="space-y-2">
             <p>
-              Co-Powered By{" "}
+              Build in public by{" "}
               <a
-                href="https://www.instagram.com/bali_9368/"
+                href="https://x.com/KushChaudharyOg"
                 className="text-blue-400 font-ClashDisplayMedium underline"
                 target="_blank"
                 rel="noreferrer"
               >
-                @Lalit_Pal_Sahab
+                @KushChaudharyOg
               </a>
             </p>
             <div className="flex items-center gap-2">
@@ -99,8 +99,8 @@ export default function LandingFooter() {
             {[
               { href: "https://github.com/hanuchaudhary", name: "GitHub" },
               { href: "https://x.com/KushChaudharyOg", name: "Twitter" },
-              { href: "https://www.linkedin.com/in/kush-chaudhary-54448628a", name: "LinkedIn" },
-              { href: "https://www.instagram.com/kush.chaudhary.1", name: "Instagram" },
+              { href: "#", name: "LinkedIn" },
+              { href: "#", name: "Instagram" },
             ].map((social) => (
               <Link
                 key={social.name}

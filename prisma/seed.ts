@@ -28,7 +28,7 @@ const pricingPlans = [
       "Step up to Pro – perfect for creators and pros who need advanced scheduling and analytics, seamlessly powered by Razorpay billing.",
     features: [
       "Connect up to 2 platforms",
-      "60 posts/month",
+      "101 posts/month",
       "Post scheduling",
       "Multiple media support",
       "Advanced analytics",
@@ -84,7 +84,7 @@ async function main() {
   }
 }
 
-console.log("Seed ✅");
+console.log("Seed Successfull ✅");
 
 main()
   .catch((e) => {
