@@ -1,9 +1,66 @@
 import { type NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
+import { GoogleGenAI } from "@google/genai";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY || "",
 });
+
+function generatePrompt(content: string, tone: string, platform: string) {
+  return `You are an expert tweet refinement engine. Strictly follow these rules:
+        [CRITICAL RULES]
+        1. NEVER use emojis, hashtags, or markdown - strictly prohibited
+        2. NO NEW CONTENT: Never add motivational phrases, opinions, advise or commentary. It's strict rule
+        3. NEVER add new content - only refine what's provided
+        4. ALWAYS maintain original intent while enhancing clarity
+        5. STRICT length limit: Max 280 characters (hard stop)
+        6. NEVER mention your actions or process - output only the refined tweet no other bullshit
+        7. If the user provides you with a tweet, your task is to refine it, not comment on it or make it longer than the original tweet.
+
+        [PROCESS]
+        1. PRIMARY FOCUS: Content refinement - make this drive all changes
+        2. TONE: Convert to ${tone} tone while preserving message
+        3. ACTION: Execute ${platform} action to optimize for ${platform}
+        - Formatting: Logical line breaks, remove fluff
+        - Improving: Boost impact using mindset, tighten phrasing no commentary and opinions
+        - Correcting: Fix errors, improve readability
+
+        [OUTPUT REQUIREMENTS]
+        - Multi-line format unless user specifies single-line
+        - Preserve original formatting style when possible
+        - Remove redundant phrases while keeping core message
+        - Use active voice and concise language
+
+        [BAD EXAMPLE TO AVOID]
+        Input: "I'm a software engineer looking for job"
+        BAD Output: "You are software engineer seeking job"
+        GOOD Output: "Experienced SWE passionate about [specific tech] seeking roles in [domain]"
+
+        [INPUT TO REFINE]
+        "${content}"
+
+        [FINAL INSTRUCTIONS]
+        1. Analyze input against core prompt (${content})
+        2. Apply ${tone} tone and ${platform} action
+        3. Generate ONLY the refined tweet meeting all rules
+        4. Validate against all constraints before outputting`;
+}
+
+async function generateCaption(content: string, tone: string, platform: string) {
+  const prompt = generatePrompt(content, tone, platform);
+
+  const result = await ai.models.generateContent({
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }],
+      }
+    ],
+    model: "gemini-2.5-flash",
+  });
+
+  const response = result.text;
+  return response?.trim() || "";
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,54 +77,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const prompt = `Generate only the caption for: "${content}". 
-      The caption must:
-      - Be optimized for ${platform} (appropriate length, format, and style)
-      - Have a ${tone} tone
-      - Be concise and engaging
-      - Include relevant hashtags if appropriate for the platform
-      - Stay under 280 characters for Twitter, or appropriate length for other platforms
-      
-      DO NOT include any prefixes like "Here's your caption:" or "Refined caption:". 
-      Return ONLY the caption text itself.`;
+    const caption = await generateCaption(content, tone, platform);
 
-    const caption = await groq.chat.completions
-      .create({
-        model: "llama3-8b-8192",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a social media caption expert who creates engaging, platform-appropriate captions. Return only the caption text without any prefixes or explanations.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      })
-      .catch((error) => {
-        console.error("Groq API Error:", error);
-        throw new Error("Failed to generate response from AI");
-      });
-
-    let cleanedCaption = caption.choices[0].message.content?.trim();
-    if (!caption.choices || caption.choices.length === 0) {
-      cleanedCaption = cleanedCaption?.replace(
-        /^(here'?s?( your| the)?|refined|enhanced) caption:?\s*/i,
-        ""
-      );
-      cleanedCaption = cleanedCaption?.replace(/^caption:?\s*/i, "");
-    }
-
-    return NextResponse.json({ caption: cleanedCaption });
+    return NextResponse.json({ caption });
   } catch (error: any) {
     console.error("Error in caption generation:", error);
 
-    const errorResponse = error.message.includes("API key is missing")
+    const errorResponse = error.message?.includes("API key")
       ? {
           error:
-            "Groq API key is missing or invalid. Please configure it properly.",
+            "Gemini API key is missing or invalid. Please configure it properly.",
         }
       : { error: error.message || "An unexpected error occurred." };
 
@@ -88,54 +107,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const prompt = `Enhance and refine this caption: "${content}"
-      
-      Create an improved version that:
-      - Is optimized for ${platform}
-      - Has a ${tone} tone
-      - Is concise and compelling
-      - Includes appropriate hashtags if relevant to the platform
-      - Follows platform best practices (character limits, formatting)
-      
-      DO NOT include any prefixes like "Here's your enhanced caption:" or "Refined caption:".
-      Return ONLY the enhanced caption text itself.`;
+    const caption = await generateCaption(content, tone, platform);
 
-    const caption = await groq.chat.completions
-      .create({
-        model: "llama3-8b-8192",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a social media expert who enhances captions to be engaging and platform-appropriate. Return only the enhanced caption without any prefixes or explanations.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      })
-      .catch((error) => {
-        console.error("Groq API Error:", error);
-        throw new Error("Failed to generate response from AI");
-      });
-
-    let cleanedCaption = caption.choices[0].message.content?.trim();
-    if (!caption.choices || caption.choices.length === 0) {
-      cleanedCaption = cleanedCaption?.replace(
-        /^(here'?s?( your| the)?|refined|enhanced) caption:?\s*/i,
-        ""
-      );
-      cleanedCaption = cleanedCaption?.replace(/^caption:?\s*/i, "");
-    }
-    return NextResponse.json({ caption: cleanedCaption });
+    return NextResponse.json({ caption });
   } catch (error: any) {
     console.error("Error in caption generation:", error);
 
-    const errorResponse = error.message.includes("API key is missing")
+    const errorResponse = error.message?.includes("API key")
       ? {
           error:
-            "Groq API key is missing or invalid. Please configure it properly.",
+            "Gemini API key is missing or invalid. Please configure it properly.",
         }
       : { error: error.message || "An unexpected error occurred." };
 
