@@ -52,12 +52,20 @@ export default function TransactionsPage() {
     fetchTransactions();
   }, [fetchTransactions]);
 
-  const filteredTransactions = transactions?.filter((transaction) => {
-    if (statusFilter === "ALL") {
-      return transaction;
-    }
-    return transaction.status === statusFilter;
-  });
+  const filteredTransactions = transactions
+    ?.filter((transaction) => {
+      if (statusFilter === "ALL") {
+        return transaction;
+      }
+      return transaction.status === statusFilter;
+    })
+    ?.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return sortOrder === "desc" 
+        ? dateB.getTime() - dateA.getTime()
+        : dateA.getTime() - dateB.getTime();
+    });
 
   if (isFetchingTransactions || !transactions) {
     return <PageLoader loading={isFetchingTransactions} />;
@@ -82,16 +90,36 @@ export default function TransactionsPage() {
         <SubscriptionCard subscription={subscription} />
 
         {transactions?.length === 0 ? (
-          <div className="h-96 flex items-center justify-center">
-            <div className="select-none text-muted-foreground h-24 flex flex-col items-center justify-center font-ClashDisplayMedium group">
-              <p className="mb-2 text-lg group-hover:text-emerald-100/70 transition-colors duration-300">
-                No transactions found.
-              </p>
-              <p className="text-lg border-2 border-secondary/50 rounded-3xl p-4 space-x-4 group-hover:text-emerald-100/50 group-hover:border-emerald-100/50 transition-colors duration-300">
-                <UpgradeButton /> <span>to view transactions.</span>
-              </p>
-            </div>
-          </div>
+          <Card className="border-dashed border-2">
+            <CardContent className="h-96 flex items-center justify-center p-8">
+              <div className="text-center space-y-4 max-w-md">
+                <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-muted-foreground"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">No transactions yet</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your payment history will appear here once you make your first purchase.
+                  </p>
+                </div>
+                <div className="pt-4">
+                  <UpgradeButton />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           /* Transactions Table */
           <Card className="shadow-none border-none">
@@ -104,7 +132,7 @@ export default function TransactionsPage() {
                       onValueChange={setStatusFilter}
                     >
                       <SelectTrigger className="w-[180px]">
-                        <div className="flex items-left gap-2">
+                        <div className="flex items-center gap-2">
                           <Filter className="h-4 w-4" />
                           <SelectValue placeholder="Filter by status" />
                         </div>
@@ -131,16 +159,17 @@ export default function TransactionsPage() {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-md border">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto rounded-md border bg-background">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-neutral-100 dark:bg-neutral-800">
-                        <TableHead className="text-left">Date</TableHead>
-                        <TableHead className="text-left">Order ID</TableHead>
-                        <TableHead className="text-left">Plan</TableHead>
-                        <TableHead className="text-left">Amount</TableHead>
-                        <TableHead className="text-left">Status</TableHead>
-                        <TableHead className="text-left">Actions</TableHead>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="text-left min-w-[120px]">Date</TableHead>
+                        <TableHead className="text-left min-w-[140px]">Order ID</TableHead>
+                        <TableHead className="text-left min-w-[100px]">Plan</TableHead>
+                        <TableHead className="text-right min-w-[100px]">Amount</TableHead>
+                        <TableHead className="text-center min-w-[120px]">Status</TableHead>
+                        <TableHead className="text-center min-w-[120px]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -150,28 +179,29 @@ export default function TransactionsPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className={`border-b transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-700 ${
+                          className={`border-b transition-colors hover:bg-muted/50 ${
                             index % 2 === 0
-                              ? "bg-neutral-50 dark:bg-neutral-900"
-                              : ""
+                              ? "bg-muted/20"
+                              : "bg-background"
                           }`}
                         >
-                          <TableCell className="text-left">
+                          <TableCell className="text-left font-mono text-sm">
                             {format(transaction.createdAt, "MMM dd, yyyy")}
                           </TableCell>
-                          <TableCell className="text-left">
-                            {transaction.order_id}
+                          <TableCell className="text-left font-mono text-sm">
+                            <span className="truncate max-w-[120px] inline-block">
+                              {transaction.order_id}
+                            </span>
                           </TableCell>
                           <TableCell className="text-left">
-                            {transaction.subscription?.plan?.title}
+                            <span className="font-medium">
+                              {transaction.subscription?.plan?.title || "N/A"}
+                            </span>
                           </TableCell>
-                          <TableCell className="text-left font-medium">
-                            $
-                            {Number(Number(transaction.amount) / 100).toFixed(
-                              2
-                            )}
+                          <TableCell className="text-right font-medium">
+                            ${Number(Number(transaction.amount) / 100).toFixed(2)}
                           </TableCell>
-                          <TableCell className="text-left">
+                          <TableCell className="text-center">
                             <Badge
                               variant={
                                 transaction.status === "SUCCESS"
@@ -180,7 +210,7 @@ export default function TransactionsPage() {
                                     ? "pending"
                                     : "destructive"
                               }
-                              className="flex w-fit items-left gap-1"
+                              className="flex w-fit items-center gap-1 mx-auto"
                             >
                               {transaction.status === "SUCCESS" && (
                                 <CheckCircle2 className="h-3 w-3" />
@@ -191,12 +221,14 @@ export default function TransactionsPage() {
                               {transaction.status === "FAILED" && (
                                 <XCircle className="h-3 w-3" />
                               )}
-                              {transaction.status}
+                              <span className="capitalize text-xs">
+                                {transaction.status.toLowerCase()}
+                              </span>
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-left">
+                          <TableCell className="text-center">
                             <TransactionDetailsModal transaction={transaction}>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" className="text-xs">
                                 View Details
                               </Button>
                             </TransactionDetailsModal>
@@ -205,6 +237,71 @@ export default function TransactionsPage() {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {filteredTransactions?.map((transaction, index) => (
+                    <motion.div
+                      key={transaction.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <Card className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-sm font-medium">
+                                {transaction.subscription?.plan?.title || "N/A"}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-mono">
+                                {transaction.order_id}
+                              </p>
+                            </div>
+                            <Badge
+                              variant={
+                                transaction.status === "SUCCESS"
+                                  ? "success"
+                                  : transaction.status === "PENDING"
+                                    ? "pending"
+                                    : "destructive"
+                              }
+                              className="flex items-center gap-1"
+                            >
+                              {transaction.status === "SUCCESS" && (
+                                <CheckCircle2 className="h-3 w-3" />
+                              )}
+                              {transaction.status === "PENDING" && (
+                                <Clock className="h-3 w-3" />
+                              )}
+                              {transaction.status === "FAILED" && (
+                                <XCircle className="h-3 w-3" />
+                              )}
+                              <span className="capitalize text-xs">
+                                {transaction.status.toLowerCase()}
+                              </span>
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-lg font-semibold">
+                                ${Number(Number(transaction.amount) / 100).toFixed(2)}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {format(transaction.createdAt, "MMM dd, yyyy")}
+                              </p>
+                            </div>
+                            <TransactionDetailsModal transaction={transaction}>
+                              <Button variant="outline" size="sm">
+                                Details
+                              </Button>
+                            </TransactionDetailsModal>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </CardContent>

@@ -38,7 +38,9 @@ export const TransactionDetailsModal = ({
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Plan:</span>
-            <span className="font-medium">{transaction.subscription.plan.title}</span>
+            <span className="font-medium">
+              {transaction.subscription?.plan?.title || "N/A"}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Amount:</span>
@@ -56,7 +58,7 @@ export const TransactionDetailsModal = ({
                   ? "pending"
                   : "destructive"
               }
-              className="flex w-fit items-left gap-1"
+              className="flex w-fit items-center gap-1"
             >
               {transaction.status === "SUCCESS" && (
                 <CheckCircle2 className="h-3 w-3" />
@@ -67,19 +69,27 @@ export const TransactionDetailsModal = ({
               {transaction.status === "FAILED" && (
                 <XCircle className="h-3 w-3" />
               )}
-              {transaction.status}
+              <span className="capitalize">
+                {transaction.status.toLowerCase()}
+              </span>
             </Badge>
           </div>
           <div className="mt-4">
             <h3 className="font-medium mb-2">Plan Features:</h3>
-            <ul className="space-y-1">
-              {transaction.subscription.plan.features.map((feature, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            {transaction.subscription?.plan?.features?.length ? (
+              <ul className="space-y-1">
+                {transaction.subscription.plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No features available for this plan.
+              </p>
+            )}
           </div>
         </div>
       </DialogContent>

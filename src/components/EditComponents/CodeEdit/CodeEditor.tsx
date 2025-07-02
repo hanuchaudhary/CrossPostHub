@@ -32,17 +32,10 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible } from "@/components/ui/custom-collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import html2canvas from "html2canvas";
-import { customToast } from "../../CreatePost/customToast";
 import { Slider } from "@/components/ui/slider";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useSession } from "next-auth/react";
-import {
-  IconFileDownloadFilled,
-  IconLockFilled,
-  IconSend,
-} from "@tabler/icons-react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";

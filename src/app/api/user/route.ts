@@ -1,4 +1,3 @@
-// pages/api/user.ts
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
@@ -19,13 +18,15 @@ export async function GET(request: NextRequest) {
     const cacheDashboardDataKey = `dashboardData-${session.user.id}`;
     const cacheDashboardData = await redisClient.get(cacheDashboardDataKey);
     if (cacheDashboardData) {
-      console.log("Cache hit", typeof cacheDashboardData);
-      return NextResponse.json(cacheDashboardData, { status: 200 });
+      const parsedData =
+        typeof cacheDashboardData === "string"
+          ? JSON.parse(cacheDashboardData)
+          : cacheDashboardData;
+      return NextResponse.json(parsedData, { status: 200 });
     }
 
-    // Fetch user data with posts from the last 12 months
     const oneYearAgo = new Date();
-    oneYearAgo.setMonth(oneYearAgo.getMonth() - 12);
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
         posts: {
           where: {
             createdAt: { gte: oneYearAgo },
-            status: "SUCCESS", 
+            status: "SUCCESS",
           },
           select: {
             createdAt: true,
@@ -48,8 +49,6 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
-    // Fetch Twitter user details
     const twitterAccount = user.accounts.find(
       (account) => account.provider === "twitter"
     );
@@ -57,43 +56,57 @@ export async function GET(request: NextRequest) {
     let twitterUserDetails = null;
     let selectedTwitterUserDetails: TwitterUser | null = null;
     if (twitterAccount) {
-      const twitterAccessToken = decryptToken(
-        twitterAccount.access_token_iv!,
-        twitterAccount.access_token!
-      );
-      const twitterAccessTokenSecret = decryptToken(
-        twitterAccount.access_token_secret_iv!,
-        twitterAccount.access_token_secret!
-      );
+      try {
+        if (
+          !twitterAccount.access_token_iv ||
+          !twitterAccount.access_token ||
+          !twitterAccount.access_token_secret_iv ||
+          !twitterAccount.access_token_secret
+        ) {
+          console.warn(
+            "Missing Twitter token fields for user:",
+            session.user.id
+          );
+        } else {
+          const twitterAccessToken = decryptToken(
+            twitterAccount.access_token_iv,
+            twitterAccount.access_token
+          );
+          const twitterAccessTokenSecret = decryptToken(
+            twitterAccount.access_token_secret_iv,
+            twitterAccount.access_token_secret
+          );
 
-      const twitter = new TwitterUtilsV2(
-        twitterAccessToken,
-        twitterAccessTokenSecret
-      );
-      twitterUserDetails = await twitter.getTwitterUserDetails();
-      if (!twitterUserDetails) {
-        return NextResponse.json(
-          { error: "Failed to fetch Twitter user details" },
-          { status: 500 }
-        );
-      }
+          const twitter = new TwitterUtilsV2(
+            twitterAccessToken,
+            twitterAccessTokenSecret
+          );
+          twitterUserDetails = await twitter.getTwitterUserDetails();
 
-      selectedTwitterUserDetails = {
-        id: twitterUserDetails.id,
-        name: twitterUserDetails.name,
-        screen_name: twitterUserDetails.screen_name,
-        location: twitterUserDetails.location,
-        description: twitterUserDetails.description,
-        url: twitterUserDetails.url,
-        profile_image_url: twitterUserDetails.profile_image_url,
-        followers_count: twitterUserDetails.followers_count,
-        friends_count: twitterUserDetails.friends_count,
-        createdAt: twitterUserDetails.created_at,
-        verified: twitterUserDetails.verified,
-        profile_image_url_https: twitterUserDetails.profile_image_url_https,
-        profile_banner_url: twitterUserDetails.profile_banner_url,
-        profile_background_color: twitterUserDetails.profile_background_color,
-      };
+          if (twitterUserDetails) {
+            selectedTwitterUserDetails = {
+              id: twitterUserDetails.id,
+              name: twitterUserDetails.name,
+              screen_name: twitterUserDetails.screen_name,
+              location: twitterUserDetails.location,
+              description: twitterUserDetails.description,
+              url: twitterUserDetails.url,
+              profile_image_url: twitterUserDetails.profile_image_url,
+              followers_count: twitterUserDetails.followers_count,
+              friends_count: twitterUserDetails.friends_count,
+              createdAt: twitterUserDetails.created_at,
+              verified: twitterUserDetails.verified,
+              profile_image_url_https:
+                twitterUserDetails.profile_image_url_https,
+              profile_banner_url: twitterUserDetails.profile_banner_url,
+              profile_background_color:
+                twitterUserDetails.profile_background_color,
+            };
+          }
+        }
+      } catch (twitterError) {
+        console.error("Error fetching Twitter user details:", twitterError);
+        }
     }
 
     // TODO: FETCH LINKEDIN USER DETAILS
@@ -117,44 +130,47 @@ export async function GET(request: NextRequest) {
     //   }
     // }
 
-    // Define the Provider type to match the schema
     type Provider = "twitter" | "linkedin" | "instagram";
 
-    // Initialize a map to store the aggregated data
     const monthlyData: {
       [key: string]: {
         month: string;
+        monthIndex: number;
         twitter: number;
         linkedin: number;
         instagram: number;
       };
     } = {};
 
-    console.log("User posts:", user.posts);
-    
-
-    // Iterate through the posts and aggregate the data
     user.posts.forEach((post) => {
-      const month = post.createdAt.toLocaleString("default", {
+      const date = new Date(post.createdAt);
+      const month = date.toLocaleString("default", {
         month: "short",
       });
-
+      const monthIndex = date.getMonth(); // For proper sorting
       const provider = post.provider as Provider;
 
-      if (!monthlyData[month]) {
-        monthlyData[month] = { month, twitter: 0, linkedin: 0, instagram: 0 };
+      const key = `${date.getFullYear()}-${monthIndex}-${month}`;
+
+      if (!monthlyData[key]) {
+        monthlyData[key] = {
+          month,
+          monthIndex,
+          twitter: 0,
+          linkedin: 0,
+          instagram: 0,
+        };
       }
 
-      // Type-safe property access
-      if (provider in monthlyData[month]) {
-        monthlyData[month][provider] += 1;
+      if (provider in monthlyData[key]) {
+        monthlyData[key][provider] += 1;
       }
     });
 
-    // Convert the map to an array of objects
-    const result = Object.values(monthlyData).reverse();
+    const result = Object.values(monthlyData)
+      .sort((a, b) => b.monthIndex - a.monthIndex) // Sort by month index descending
+      .map(({ monthIndex, ...rest }) => rest); // Remove monthIndex from final result
 
-    // Prepare the dashboard data
     const dashboardData = {
       twitterUserDetails: selectedTwitterUserDetails || null,
       // linkedinUserDetails: linkedinUserDetails || null,
@@ -189,19 +205,62 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { githubUsername } = await request.json();
+    const body = await request.json();
+    const { githubUsername } = body;
 
-    const cacheDashboardDataKey = `${githubUsername}-githubProfile`;
-    const cacheDashboardData = await redisClient.get(cacheDashboardDataKey);
-    if (cacheDashboardData) {
-      console.log("Cache hit", typeof cacheDashboardData);
-      return NextResponse.json(cacheDashboardData, { status: 200 });
+    // Input validation
+    if (!githubUsername || typeof githubUsername !== "string") {
+      return NextResponse.json(
+        { error: "GitHub username is required and must be a string" },
+        { status: 400 }
+      );
     }
 
-    // Fetch basic GitHub user profile
+    // Sanitize username (basic validation)
+    const sanitizedUsername = githubUsername.trim();
+    if (!/^[a-zA-Z0-9-]+$/.test(sanitizedUsername)) {
+      return NextResponse.json(
+        { error: "Invalid GitHub username format" },
+        { status: 400 }
+      );
+    }
+
+    const cacheDashboardDataKey = `${sanitizedUsername}-githubProfile`;
+    const cacheDashboardData = await redisClient.get(cacheDashboardDataKey);
+    if (cacheDashboardData) {
+      const parsedData =
+        typeof cacheDashboardData === "string"
+          ? JSON.parse(cacheDashboardData)
+          : cacheDashboardData;
+      return NextResponse.json(parsedData, { status: 200 });
+    }
+
+    // Fetch basic GitHub user profile with proper error handling
     const userResult = await fetch(
-      `https://api.github.com/users/${githubUsername}`
+      `https://api.github.com/users/${sanitizedUsername}`,
+      {
+        headers: {
+          "User-Agent": "CrossPostHub",
+        },
+      }
     );
+
+    if (!userResult.ok) {
+      if (userResult.status === 404) {
+        return NextResponse.json(
+          { error: "GitHub user not found" },
+          { status: 404 }
+        );
+      }
+      if (userResult.status === 403) {
+        return NextResponse.json(
+          { error: "GitHub API rate limit exceeded" },
+          { status: 429 }
+        );
+      }
+      throw new Error(`GitHub API responded with status: ${userResult.status}`);
+    }
+
     const userData = await userResult.json();
 
     if (!userData) {
@@ -211,15 +270,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    redisClient.set(cacheDashboardDataKey, JSON.stringify(userData), {
-      ex: 3 * 60 * 60, // 3 hour
+    // Cache the data with proper await
+    await redisClient.set(cacheDashboardDataKey, JSON.stringify(userData), {
+      ex: 3 * 60 * 60, // 3 hours
     });
 
     return NextResponse.json(userData, { status: 200 });
   } catch (error) {
     console.error("Error in POST /api/user:", error);
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Failed to fetch GitHub data: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      { error: "An unexpected error occurred while fetching GitHub data" },
       { status: 500 }
     );
   }

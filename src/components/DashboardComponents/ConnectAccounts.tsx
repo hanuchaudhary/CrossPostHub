@@ -124,21 +124,39 @@ export function ConnectAccounts() {
                           <motion.div
                             className="cursor-pointer"
                             key="badge"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
+                            initial={{ 
+                              opacity: 0, 
+                              y: 10,
+                            }}
+                            animate={{ 
+                              opacity: 1, 
+                              y: 0,
+                            }}
+                            exit={{ 
+                              opacity: 0, 
+                              y: -10,
+                            }}
                           >
-                            <Badge variant="success">Connected</Badge>
+                            <Badge variant="success" className="shadow-sm">
+                              Connected
+                            </Badge>
                           </motion.div>
                         ) : (
                           <motion.div
                             key="disconnect"
                             className="cursor-pointer"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
+                            initial={{ 
+                              opacity: 0, 
+                              y: 10,
+                            }}
+                            animate={{ 
+                              opacity: 1, 
+                              y: 0,
+                            }}
+                            exit={{ 
+                              opacity: 0, 
+                              y: -10
+                            }}
                           >
                             <Disconnect app={app} />
                           </motion.div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +13,7 @@ import {
 import { guideContent } from "@/data/GuideData";
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface GuideProps {
   title?: string;
@@ -42,125 +43,85 @@ export default function Guide({ title = "Guide", size }: GuideProps) {
           </SheetTitle>
         </SheetHeader>
         <div className="mt-6 space-y-6">
-          <p className="dark:text-neutral-400 text-neutral-500 md:text-base text-sm">
-            {guideData.intro.content
-              .split("Kush Chaudhary")
-              .map((part, index, array) => (
-                <React.Fragment key={index}>
-                  {part}
-                  {index < array.length - 1 && (
-                    <a className="font-ClashDisplayMedium text-emerald-500 underline">
-                      Kush Chaudhary
-                    </a>
-                  )}
-                </React.Fragment>
-              ))}
-          </p>
-
-          <Section title={guideData.targetUsers.title}>
-            {guideData.targetUsers.content.map((tu) => (
-              <div key={tu.role} className="mb-2">
-                <h3 className="font-semibold">{tu.role}</h3>
-                <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
-                  {tu.description}
-                </p>
-              </div>
-            ))}
-          </Section>
-
-          <Section title={guideData.whatIsCrossPostHub.title}>
-            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
-              {guideData.whatIsCrossPostHub.content}
-            </p>
-
-            <h3 className="py-3">Dashboard:</h3>
-            <Image
-              src={
-                theme === "dark"
-                  ? guideData.whatIsCrossPostHub.dashboardImageDark
-                  : guideData.whatIsCrossPostHub.dashboardImageLight
-              }
-              alt="CrossPostHub Dashboard"
-              width={1200}
-              height={800}
-              className="rounded-2xl border-4"
-            />
-          </Section>
-
           <Section title={guideData.features.title}>
-            <ul className="list-disc pl-5">
-              {guideData.features.content.map((feature) => (
-                <li
-                  className="dark:text-neutral-400 md:text-base text-sm text-neutral-500"
-                  key={feature}
-                >
-                  {feature}
-                </li>
+            <div className="space-y-4">
+              {guideData.features.content.map((item, index) => (
+                <div key={index} className="border rounded-lg p-4 hover:bg-secondary/20 transition-colors">
+                  <h3 className="font-ClashDisplayMedium text-base mb-2 text-emerald-600 dark:text-emerald-400">
+                    {item.feature}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {item.description}
+                  </p>
+                  <div className="bg-secondary/30 rounded p-2">
+                    <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                      How to use: {item.howTo}
+                    </p>
+                  </div>
+                </div>
               ))}
-            </ul>
-
-            <h3 className="py-3">Creating and Scheduling Posts:</h3>
-            <Image
-              src={
-                theme === "dark"
-                  ? guideData.howToUse.createPostImageDark
-                  : guideData.howToUse.createPostImageLight
-              }
-              alt="Create Post"
-              width={1200}
-              height={800}
-              className="rounded-2xl border-4"
-            />
-
-            <h3 className="py-3">Preview Post:</h3>
-            <Image
-              src={
-                theme === "dark"
-                  ? guideData.howToUse.previewImageDark
-                  : guideData.howToUse.previewImageLight
-              }
-              alt="Preview Post"
-              width={1200}
-              height={800}
-              className="rounded-2xl border-4"
-            />
+            </div>
           </Section>
 
-          <Section title={guideData.howToUse.title}>
-            <ol className="list-decimal pl-5">
-              {guideData.howToUse.steps.map((step) => (
-                <li
-                  className="dark:text-neutral-400 md:text-base text-sm text-neutral-500"
-                  key={step}
-                >
-                  {step}
-                </li>
+          <Section title={guideData.stepByStepGuide.title}>
+            <div className="space-y-4">
+              {guideData.stepByStepGuide.steps.map((item, index) => (
+                <div key={index} className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                      {index + 1}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-ClashDisplayMedium text-base mb-1">
+                      {item.step}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {item.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.details}
+                    </p>
+                  </div>
+                </div>
               ))}
-            </ol>
+            </div>
+            
+            <div className="mt-6 space-y-4">
+              <h3 className="font-ClashDisplayMedium text-base">Creating Posts:</h3>
+              <Image
+                src={
+                  theme === "dark"
+                    ? guideData.stepByStepGuide.createPostImageDark
+                    : guideData.stepByStepGuide.createPostImageLight
+                }
+                alt="Create Post Interface"
+                width={1200}
+                height={800}
+                className="rounded-2xl border-4"
+              />
+              
+              <h3 className="font-ClashDisplayMedium text-base">Preview Posts:</h3>
+              <Image
+                src={
+                  theme === "dark"
+                    ? guideData.stepByStepGuide.previewImageDark
+                    : guideData.stepByStepGuide.previewImageLight
+                }
+                alt="Preview Post Interface"
+                width={1200}
+                height={800}
+                className="rounded-2xl border-4"
+              />
+            </div>
           </Section>
 
-          <Section title={guideData.pricing.title}>
-            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
-              {guideData.pricing.content}
-            </p>
-            <h3 className="py-3">Pricing Plans:</h3>
-            <Image
-              src={
-                theme === "dark"
-                  ? guideData.pricing.pricingImageDark
-                  : guideData.pricing.pricingImageLight
-              }
-              alt="Pricing Plans"
-              width={1200}
-              height={800}
-              className="rounded-2xl border-4"
-            />
-          </Section>
-
-          <Section title={guideData.conclusion.title}>
-            <p className="dark:text-neutral-400 md:text-base text-sm text-neutral-500">
-              {guideData.conclusion.content}
-            </p>
+          <Section title={guideData.securityFaq.title}>
+            <div className="space-y-2">
+              {guideData.securityFaq.faqs.map((faq, index) => (
+                <FAQItem key={index} question={faq.question} answer={faq.answer} />
+              ))}
+            </div>
           </Section>
         </div>
       </SheetContent>
@@ -179,6 +140,27 @@ function Section({
     <div>
       <h2 className="font-semibold text-xl mb-2">{title}</h2>
       {children}
+    </div>
+  );
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border border-secondary rounded-lg mb-2">
+      <button
+        className="w-full p-4 text-left flex items-center justify-between hover:bg-secondary/50 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium text-sm md:text-base">{question}</span>
+        {isOpen ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+      </button>
+      {isOpen && (
+        <div className="p-4 pt-0 text-sm md:text-base text-muted-foreground">
+          <div dangerouslySetInnerHTML={{ __html: answer }} />
+        </div>
+      )}
     </div>
   );
 }

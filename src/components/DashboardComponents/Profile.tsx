@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/drawer";
 import { useDashboardStore } from "@/store/DashboardStore/useDashboardStore";
 import { UserProfile } from "./UserProfile";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, Tooltip } from "recharts";
 import { ScrollArea } from "../ui/scroll-area";

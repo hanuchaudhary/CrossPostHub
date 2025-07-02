@@ -1,4 +1,5 @@
 import { ConnectAccounts } from "@/components/DashboardComponents/ConnectAccounts";
+import { SecurityDisclaimerDialog } from "@/components/DashboardComponents/SecurityDisclaimerDialog";
 import React from "react";
 import { Metadata } from "next";
 
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function Dashboard() {
   return (
     <div className="relative">
+      <SecurityDisclaimerDialog />
       <ConnectAccounts />
     </div>
   );
