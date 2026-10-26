@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  runtime  = "workerd"
 }
 
 datasource db {
@@ -12,21 +13,50 @@ enum Role {
   ADMIN
 }
 
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
+  REFUNDED
+  CANCELLED
+  PAUSED
+}
+
+enum NotificationType {
+  POST_STATUS_PROCESSING
+  POST_STATUS_SUCCESS
+  POST_STATUS_FAILED
+  SYSTEM_ALERT
+}
+
+enum PostStatus {
+  PENDING
+  FAILED
+  SUCCESS
+}
+
 model User {
-  id            String       @id @default(uuid())
-  name          String
-  email         String       @unique
-  emailVerified Boolean      @default(false)
-  image         String?
-  role          Role         @default(USER)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id              String           @id @default(cuid())
+  name            String
+  email           String           @unique
+  emailVerified   Boolean          @default(false)
+  image           String?
+  role            Role             @default(USER)
+  dodoCustomerId  String?          @unique
+  planId          String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  posts           Post[]
+  transactions    Transaction[]
+  notifications   Notification[]
+  subscriptions   Subscription[]
+  generatedImages GeneratedImage[]
 }
 
 model Session {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
   ipAddress String?
@@ -38,29 +68,129 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @default(uuid())
-  type                  String    @default("oauth")
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
-  accessToken           String?
-  refreshToken          String?
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
-  idToken               String?
   password              String?
-  sessionState          String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
 }
 
 model Verification {
-  id         String   @id @default(uuid())
+  id         String   @id @default(cuid())
   identifier String
-  value      String   @unique
+  value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  text         String?
+  provider     String?
+  userId       String
+  mediaKeys    String[]
+  scheduledFor DateTime?
+  isScheduled  Boolean    @default(false)
+  status       PostStatus @default(PENDING)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model GeneratedImage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    String?
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id            String         @id @default(uuid())
+  title         String
+  price         Float
+  description   String
+  features      String[]
+  cta           String
+  dodoProductId String?        @unique
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Subscription {
+  id                 String        @id @default(uuid())
+  userId             String
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId             String
+  plan               Plan          @relation(fields: [planId], references: [id])
+  dodoSubscriptionId String?       @unique
+  status             String
+  nextBillingAt      DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  transactions       Transaction[]
+
+  @@index([userId, status])
+}
+
+model Transaction {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  orderId        String?
+  paymentId      String?       @unique
+  amount         Float?
+  currency       String?
+  status         PaymentStatus
+  paymentMethod  String?
+  invoiceId      String?
+  captured       Boolean?      @default(false)
+  description    String?
+  failureReason  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([subscriptionId])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model WebhookEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
 }

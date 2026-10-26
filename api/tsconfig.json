@@ -9,10 +9,11 @@
       "ESNext"
     ],
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
     "types": [
         "./worker-configuration.d.ts",
         "node"
-    ]
+    ],
+    "noEmit": true
   },
+  "include": ["src", "worker-configuration.d.ts"]
 }

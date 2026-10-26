@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres
+    container_name: crossposthub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/data
+
+
+volumes:
+  postgres_data:
+    driver: local
