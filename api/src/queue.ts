@@ -143,7 +143,7 @@ async function processPost(db: PrismaClient, env: Bindings, job: PostJob) {
       job.mediaKeys,
     );
   else throw new Error("Instagram publishing is not enabled yet");
-  await db.$transaction([
+  await Promise.all([
     db.post.update({
       where: { id: job.postId },
       data: { status: "SUCCESS", provider: job.provider },
@@ -162,7 +162,7 @@ export async function consumePosts(
   batch: MessageBatch<PostJob>,
   env: Bindings,
 ) {
-  const db = getDb(env.DATABASE_URL);
+  const db = getDb(env.DB);
   await Promise.all(
     batch.messages.map(async (message) => {
       try {
@@ -188,7 +188,7 @@ export async function consumePosts(
           });
           return;
         }
-        await db.$transaction([
+        await Promise.all([
           db.post.update({
             where: { id: message.body.postId },
             data: { status: "FAILED" },

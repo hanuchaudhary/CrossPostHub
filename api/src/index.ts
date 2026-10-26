@@ -1,43 +1,45 @@
 import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
 import { createAuth } from "./lib/auth";
-import { getDb } from "./lib/db";
 import { consumePosts } from "./queue";
-import { routes } from "./routes";
 import type { Bindings, PostJob } from "./types";
+import { apiCors } from "./middleware/cors";
+import { handleError, handleNotFound } from "./middleware/error-handler";
+import notifications from "./routes/notifications";
+import payment from "./routes/payment";
+import posts from "./routes/posts";
+import media from "./routes/media";
+import user from "./routes/user";
+import {
+  prismaMiddleware,
+  sessionMiddleware,
+  type AppEnv,
+} from "./routes/shared";
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<AppEnv>();
 
-app.use("*", async (c, next) => {
-  const origin = c.req.header("origin");
-  if (origin === c.env.CLIENT_URL) {
-    c.header("Access-Control-Allow-Origin", origin);
-    c.header("Access-Control-Allow-Credentials", "true");
-    c.header("Vary", "Origin");
-  }
-  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  if (c.req.method === "OPTIONS") return c.body(null, 204);
-  await next();
-});
+app.use("*", logger());
+app.use("*", secureHeaders());
+app.use("/api/*", apiCors);
+
+app.onError(handleError);
+app.notFound(handleNotFound);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-app.on(["GET", "POST", "PUT", "PATCH", "DELETE"], "/api/auth/*", async (c) => {
-  const db = getDb(c.env.DATABASE_URL);
-  return createAuth(c.env, db).handler(c.req.raw);
+app.use("/api/*", prismaMiddleware);
+app.use("/api/*", sessionMiddleware);
+
+app.all("/api/auth/*", async (c) => {
+  return createAuth(c.env, c.get("prisma")).handler(c.req.raw);
 });
 
-app.get("/media/*", async (c) => {
-  const key = c.req.path.replace(/^\/media\//, "");
-  const object = await c.env.MEDIA_BUCKET.get(key);
-  if (!object) return c.json({ error: "Not found" }, 404);
-  object.writeHttpMetadata(c.res.headers);
-  c.header("etag", object.httpEtag);
-  c.header("Cache-Control", "public, max-age=31536000, immutable");
-  return c.body(object.body);
-});
-
-app.route("/api", routes);
+app.route("/api/notifications", notifications);
+app.route("/api/payment", payment);
+app.route("/api/post", posts);
+app.route("/api/media", media);
+app.route("/api", user);
 
 export default {
   fetch: app.fetch,

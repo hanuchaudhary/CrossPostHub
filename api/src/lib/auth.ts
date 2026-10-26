@@ -27,8 +27,24 @@ export function createAuth(env: Bindings, db: PrismaClient) {
     basePath: "/api/auth",
     secret: env.BETTER_AUTH_SECRET,
     trustedOrigins: [env.CLIENT_URL],
-    database: prismaAdapter(db, { provider: "postgresql" }),
+    database: prismaAdapter(db, { provider: "sqlite" }),
     emailAndPassword: { enabled: true },
+    account: {
+      accountLinking: {
+        enabled: true,
+        requireLocalEmailVerified: true,
+      },
+      encryptOAuthTokens: true,
+    },
+    rateLimit: {
+      enabled: true,
+      window: 10,
+      max: 100,
+    },
+    session: {
+      expiresIn: 60 * 60 * 24 * 7,
+      updateAge: 60 * 60 * 24,
+    },
     socialProviders: {
       ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
         ? {

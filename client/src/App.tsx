@@ -1,14 +1,15 @@
-import { Route, Routes } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
+import { Route, Routes } from "react-router";
+import { Toaster } from "sonner";
 import {
   CodeEditorPage, Contact, CreatePage, DashboardPage, EditLayout,
   GithubEditorPage, LandingPage, MainLayout, PaymentFailed, PaymentSuccess,
   Privacy, RefundCancellation, RegisterPage, ScreenshotEditor, SigninPage,
   Terms, Transactions, UpgradePage,
-} from "@/pages";
+} from "./pages";
+import { ThemeProvider } from "./components/theme_provider";
 
 export default function App() {
-  return <>
+  return <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/signin" element={<SigninPage />} />
@@ -32,6 +33,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<LandingPage />} />
     </Routes>
-    <Toaster />
-  </>;
+    <Toaster richColors position="top-right" />
+  </ThemeProvider>
 }

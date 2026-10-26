@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
-  runtime  = "workerd"
+  runtime  = "cloudflare"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 enum Role {
@@ -73,9 +73,9 @@ model Account {
   providerId            String
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?   @db.Text
-  refreshToken          String?   @db.Text
-  idToken               String?   @db.Text
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
@@ -103,7 +103,7 @@ model Post {
   text         String?
   provider     String?
   userId       String
-  mediaKeys    String[]
+  mediaKeys    Json
   scheduledFor DateTime?
   isScheduled  Boolean    @default(false)
   status       PostStatus @default(PENDING)
@@ -129,7 +129,7 @@ model Plan {
   title         String
   price         Float
   description   String
-  features      String[]
+  features      Json
   cta           String
   dodoProductId String?        @unique
   subscriptions Subscription[]

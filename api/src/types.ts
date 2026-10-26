@@ -8,7 +8,7 @@ export type PostJob = {
 };
 
 export type Bindings = {
-  DATABASE_URL: string;
+  DB: D1Database;
   BETTER_AUTH_SECRET: string;
   API_URL: string;
   CLIENT_URL: string;

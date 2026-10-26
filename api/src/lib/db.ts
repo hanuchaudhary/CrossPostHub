@@ -1,13 +1,12 @@
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaD1 } from "@prisma/adapter-d1";
 import { PrismaClient } from "../../generated/prisma/client";
 
-const clients = new Map<string, PrismaClient>();
+const clients = new WeakMap<object, PrismaClient>();
 
-export function getDb(databaseUrl: string) {
-  const existing = clients.get(databaseUrl);
+export function getDb(database: D1Database) {
+  const existing = clients.get(database);
   if (existing) return existing;
-  const adapter = new PrismaPg({ connectionString: databaseUrl });
-  const client = new PrismaClient({ adapter });
-  clients.set(databaseUrl, client);
+  const client = new PrismaClient({ adapter: new PrismaD1(database) });
+  clients.set(database, client);
   return client;
 }

@@ -1,9 +1,11 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "posthub",
+	"name": "crossposthub",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-10-19",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"observability": {
 		"enabled": true
 	},
@@ -11,14 +13,14 @@
 	"queues": {
 		"consumers": [
 			{
-				"queue": "posthub",
-				"max_batch_size": 10, 
-				"max_batch_timeout": 5 
+				"queue": "crossposthub",
+				"max_batch_size": 10,
+				"max_batch_timeout": 5
 			}
 		],
 		"producers": [
 			{
-				"queue": "posthub",
+				"queue": "crossposthub",
 				"binding": "POSTHUB_QUEUE"
 			}
 		]
@@ -28,6 +30,15 @@
 			"binding": "MEDIA_BUCKET",
 			"bucket_name": "crossposthub",
 			"preview_bucket_name": "crossposthub-media"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "crossposthub-db",
+			"database_id": "b95e814b-6a3e-4098-ba8f-6d970c4f3e61",
+			"remote": true,
+			"migrations_dir": "prisma/migrations",
 		}
 	],
 	"vars": {
