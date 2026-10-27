@@ -1,0 +1,7 @@
+{
+  "extends": "../apps/api/tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun", "node", "../apps/api/worker-configuration.d.ts"]
+  },
+  "include": ["api", "../apps/api/worker-configuration.d.ts"]
+}
