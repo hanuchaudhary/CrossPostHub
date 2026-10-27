@@ -1,162 +1,165 @@
-<p align="center">
-  <img src="public/landing.png" alt="CrossPostHub Workflow" width="100%"/>
-</p>
+## API tests
 
----
+The `@repo/tests` workspace lives in [`tests/`](tests/README.md), with backend
+coverage under `tests/api/`. Run `bun run test` from this directory for the
+Turborepo test pipeline, or `bun run test:api` for just the backend suite.
 
-## ✨ Introduction
+# Turborepo starter
 
-**CrossPostHub** is your all-in-one, open-source social media management platform. Effortlessly post, schedule, and analyze content across LinkedIn, Twitter, Instagram, and more — all from a single, beautiful dashboard. Built for developers, creators, and teams who want to maximize their reach and productivity.
+This Turborepo starter is maintained by the Turborepo core team.
 
----
+## Using this example
 
-## 🏆 Key Features
+Run the following command:
 
-- **Multi-Platform Posting**: Publish to LinkedIn, Twitter, Instagram, and more in one go
-- **Smart Scheduling**: Schedule posts for optimal engagement times
-- **Analytics Dashboard**: Track post performance with rich metrics
-- **Secure Authentication**: Robust OAuth integrations for peace of mind
-- **Real-time Preview**: See exactly how your posts will look before publishing
-- **Modern UI/UX**: Intuitive, responsive design for all users
-- **Open Source**: Fork, extend, and contribute freely
-
----
-
-## 🖥️ Tech Stack & Integrations
-
-<p align="center">
-    <img src="https://skillicons.dev/icons?i=git,bun,nextjs,react,typescript,tailwind,nodejs,bash,postgres,docker,vercel,github,prisma,aws,vercel,gcp,mongodb,twitter,linkedin,instagram,&perline=10" alt="Tech Stack" />
-</p>
-
-- **Frontend:** Next.js, TypeScript, Tailwind CSS
-- **Backend:** Node.js, Prisma ORM
-- **Database:** PostgreSQL, MongoDB
-- **Containerization:** Docker, Docker Compose
-- **Deployment:** Vercel
-- **Design:** Framer-Motion
-- **CI/CD:** Github Actions
-
----
-
-## 📸 Workflow Overview
-
-<p align="center">
-  <img src="public/main-workflow.jpeg" alt="CrossPostHub Workflow" width="80%"/>
-</p>
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18.x or higher
-- npm or bun
-- Docker & Docker Compose (for containerized setup)
-
-### 1. Local Development
-
-```bash
-# Clone the repository
-git clone https://github.com/hanuchaudhary/CrossPostHub.git
-cd CrossPostHub
-
-# Install dependencies
-npm install
-# or
-bun install
-
-# Start the development server
-npm run dev
-# or
-bun dev
-```
-Visit [http://localhost:3000](http://localhost:3000) to view the app.
-
-### 2. Docker Compose (Recommended)
-
-```bash
-# Start all services (app, Postgres, Redis)
-docker-compose up --build
-
-# Stop services
-docker-compose down
+```sh
+npx create-turbo@latest
 ```
 
-- The app will be available at [http://localhost:3000](http://localhost:3000)
-- Database (Postgres) runs on port 5432, Redis on 6379
+## What's inside?
 
-### 3. Environment Variables
+This Turborepo includes the following packages/apps:
 
-Create a `.env` file in the root directory:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-DATABASE_URL=postgresql://postgres:mysecretpassword@localhost:5432/postgres
-AUTH_SECRET=your_auth_secret
-# Add other necessary environment variables
+### Apps and Packages
+
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+
+### Utilities
+
+This Turborepo has some additional tools already setup for you:
+
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
+
+### Build
+
+To build all apps and packages, run the following command:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo build
 ```
 
----
+Without global `turbo`, use your package manager:
 
-## 💻 Usage Guide
+```sh
+cd my-turborepo
+npx turbo build
+bun exec turbo build
+bun exec turbo build
+```
 
-1. **Sign Up:** Create your free account
-2. **Connect Platforms:** Link your social media accounts securely
-3. **Create Content:** Use the post editor with real-time preview
-4. **Schedule or Post:** Instantly publish or schedule for later
-5. **Analyze:** Track engagement and performance (Premium)
-6. **Upgrade:** Unlock advanced analytics and team features
+You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
----
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
 
-## 💰 Pricing Plans
+```sh
+turbo build --filter=docs
+```
 
-| Plan     | Integrations | Scheduling | Analytics | Team | Support |
-|----------|--------------|------------|-----------|------|---------|
-| Free     | Basic        | Limited    | -         | -    | Standard|
-| Pro      | More         | Advanced   | Basic     | -    | Fast    |
-| Premium  | Unlimited    | Advanced   | Advanced  | Yes  | Priority|
+Without global `turbo`:
 
----
+```sh
+npx turbo build --filter=docs
+bun exec turbo build --filter=docs
+bun exec turbo build --filter=docs
+```
 
-## 🤝 Contributing
+### Develop
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) and open issues or pull requests to help improve CrossPostHub.
+To develop all apps and packages, run the following command:
 
----
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
 
-## 👨‍💻 Author
+```sh
+cd my-turborepo
+turbo dev
+```
 
+Without global `turbo`, use your package manager:
 
-<a href="https://github.com/hanuchaudhary">
-    <table>
-        <tbody>
-            <tr>
-                <td align="left" valign="top" width="14.28%">
-                    <img src="https://github.com/hanuchaudhary.png?s=60" width="130px;"/>
-                    <br/>
-                    <h4 align="center">
-                        <b>Kush Chaudhary</b>
-                    </h4>
-                    <div align="center">
-                        <p>(Author)</p>
-                    </div>
-                </td>
-                <td align="left" valign="top" width="85%">
-                    <p>
-                        👋 Hi there! I'm <u><em><strong>Kush Chaudhary</strong></em></u>, a self-taught Software Developer.
-                    </p>
-                    <ul>
-                     <li>
-                        Debugging React & Typescript ❤️ Building in Public
-                    </li>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</a>
+```sh
+cd my-turborepo
+npx turbo dev
+bun exec turbo dev
+bun exec turbo dev
+```
 
----
+You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
-## 📞 Support & Community
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
 
-- Email: [hanuchaudharyog@gmail.com](mailto:hanuchaudharyog@gmail.com)
+```sh
+turbo dev --filter=web
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo dev --filter=web
+bun exec turbo dev --filter=web
+bun exec turbo dev --filter=web
+```
+
+### Remote Caching
+
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+
+Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo login
+```
+
+Without global `turbo`, use your package manager:
+
+```sh
+cd my-turborepo
+npx turbo login
+bun exec turbo login
+bun exec turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo link
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo link
+bun exec turbo link
+bun exec turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
+- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)

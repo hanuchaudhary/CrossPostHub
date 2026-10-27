@@ -1,0 +1,33 @@
+{
+  "name": "@repo/api",
+  "type": "module",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "wrangler dev",
+    "build": "prisma generate && tsc --noEmit",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:generate": "prisma generate",
+    "db:migrate": "wrangler d1 migrations apply crossposthub-db",
+    "db:migrate:remote": "wrangler d1 migrations apply crossposthub-db --remote",
+    "db:seed": "wrangler d1 execute crossposthub-db --local --file=prisma/seed.sql",
+    "db:seed:remote": "wrangler d1 execute crossposthub-db --remote --file=prisma/seed.sql"
+  },
+  "dependencies": {
+    "@dodopayments/better-auth": "^1.6.6",
+    "@prisma/adapter-d1": "^7.10.1",
+    "@prisma/client": "7.10.0",
+    "better-auth": "^1.7.13",
+    "dodopayments": "^2.57.0",
+    "hono": "^4.13.14",
+    "zod": "^3.25.76",
+    "@xdevplatform/xdk": "^0.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "prisma": "^7.10.1",
+    "wrangler": "^4.153.0",
+    "dotenv": "^17.4.2",
+    "@dodopayments/core": "^0.3.16"
+  }
+}

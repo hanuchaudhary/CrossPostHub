@@ -1,0 +1,49 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "crossposthub",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-19",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"queues": {
+		"consumers": [
+			{
+				"queue": "crossposthub",
+				"max_batch_size": 10,
+				"max_batch_timeout": 5
+			}
+		],
+		"producers": [
+			{
+				"queue": "crossposthub",
+				"binding": "POSTHUB_QUEUE"
+			}
+		]
+	},
+	"r2_buckets": [
+		{
+			"binding": "MEDIA_BUCKET",
+			"bucket_name": "crossposthub",
+			"preview_bucket_name": "crossposthub-media"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "crossposthub-db",
+			"database_id": "b95e814b-6a3e-4098-ba8f-6d970c4f3e61",
+			"remote": true,
+			"migrations_dir": "prisma/migrations",
+		}
+	],
+	"vars": {
+		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
+		"CLIENT_URL": "http://localhost:5173",
+		"API_URL": "http://localhost:8787"
+	}
+}
