@@ -97,7 +97,7 @@ test("posts validates providers, content, and malformed embedded JSON before wri
     expect((await h.request("/post", form(input))).status).toBe(400);
   }
   expect(h.db.post.create).not.toHaveBeenCalled();
-  expect(h.POSTHUB_QUEUE.send).not.toHaveBeenCalled();
+  expect(h.CROSSPOSTHUB_QUEUE.send).not.toHaveBeenCalled();
 });
 
 test("posts queues each selected provider and returns its job", async () => {
@@ -124,8 +124,8 @@ test("posts queues each selected provider and returns its job", async () => {
       scheduledFor: null,
     },
   ]);
-  expect(h.POSTHUB_QUEUE.send).toHaveBeenCalledTimes(2);
-  expect(h.POSTHUB_QUEUE.send.mock.calls[0]![0]).toMatchObject({
+  expect(h.CROSSPOSTHUB_QUEUE.send).toHaveBeenCalledTimes(2);
+  expect(h.CROSSPOSTHUB_QUEUE.send.mock.calls[0]![0]).toMatchObject({
     userId: "user-1",
     provider: "twitter",
     postId: "post-twitter",
@@ -175,7 +175,7 @@ test("posts persists schedules and caps the initial queue delay", async () => {
     isScheduled: true,
     scheduledFor: new Date(scheduleAt),
   });
-  expect(h.POSTHUB_QUEUE.send.mock.calls[0]![1]).toEqual({
+  expect(h.CROSSPOSTHUB_QUEUE.send.mock.calls[0]![1]).toEqual({
     delaySeconds: 43_200,
   });
 });

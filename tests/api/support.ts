@@ -46,7 +46,7 @@ export function asPrisma(db: TestDatabase): PrismaClient {
 
 export function bindings() {
   const resources = {
-    POSTHUB_QUEUE: {
+    CROSSPOSTHUB_QUEUE: {
       send: mock(async (_body: unknown, _options?: unknown) => {}),
     },
     MEDIA_BUCKET: {

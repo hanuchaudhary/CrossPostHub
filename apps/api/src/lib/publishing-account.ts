@@ -5,7 +5,6 @@ import { PublishError } from "../core";
 import type { Bindings, PostJob } from "../types";
 import { createAuth } from "./auth";
 
-/** Resolve a server-owned account by row ID; never pass encrypted DB tokens to APIs. */
 export async function getPublishingAccount(
   db: PrismaClient,
   env: Bindings,
@@ -36,8 +35,6 @@ export async function getPublishingAccount(
     return { accountId: account.accountId, accessToken };
   }
   try {
-    // Server-only API invocation: no Request or headers, explicit user + local row ID.
-    // Better Auth decrypts, refreshes expiring tokens and persists rotated tokens.
     const token = await auth.api.getAccessToken({
       body: { userId: job.userId, accountId: account.id },
     });

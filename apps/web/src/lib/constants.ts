@@ -5,7 +5,7 @@ export const CHANNELS: readonly Channel[] = [
     id: "twitter",
     name: "X / Twitter",
     icon: "/icons/twitter-icon.svg",
-    iconClassName: "invert dark:invert-0 size-8",
+    iconClassName: "invert dark:invert-0 scale-[0.85]",
     locked: false,
   },
   {

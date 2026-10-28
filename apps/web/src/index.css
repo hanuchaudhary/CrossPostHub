@@ -21,6 +21,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-site-rail: var(--site-rail);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -81,6 +82,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --nav-hover: oklch(0.945 0 0);
+  --tabs-duration: 250ms;
+  --tabs-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ring-duration: 150ms;
+  --site-rail: oklch(0.38 0 0);
 }
 
 .dark {
@@ -115,6 +121,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --nav-hover: var(--muted);
+  --site-rail: oklch(0.22 0 0);
 }
 
 @layer base {
@@ -126,5 +134,119 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@utility site-rule {
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--site-rail) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+@utility site-rule-y {
+  width: 1px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--site-rail) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+@utility site-rail {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--site-rail) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--site-rail) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--site-rail) 0 1px,
+      transparent 1px 4px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--site-rail) 0 1px,
+      transparent 1px 4px
+    );
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+  background-position:
+    0 0,
+    100% 0,
+    0 100%,
+    0 0;
+  background-size:
+    100% 1px,
+    1px 100%,
+    100% 1px,
+    1px 100%;
+}
+
+@utility graph-frame {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--graph-frame) 0 2px,
+      transparent 2px 7px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--graph-frame) 0 2px,
+      transparent 2px 7px
+    ),
+    repeating-linear-gradient(
+      to right,
+      var(--graph-frame) 0 2px,
+      transparent 2px 7px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--graph-frame) 0 2px,
+      transparent 2px 7px
+    );
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+  background-position:
+    0 0,
+    100% 0,
+    0 100%,
+    0 0;
+  background-size:
+    100% 1px,
+    1px 100%,
+    100% 1px,
+    1px 100%;
+}
+
+@utility graph-rule {
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--graph-frame) 0 2px,
+    transparent 2px 7px
+  );
+}
+
+@utility graph-rule-y {
+  width: 1px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--graph-frame) 0 2px,
+    transparent 2px 7px
+  );
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -90,7 +90,7 @@ test("queue re-enqueues future jobs with capped delays", async () => {
     scheduledFor: new Date(Date.now() + 86_400_000).toISOString(),
   });
   await h.consume();
-  expect(h.POSTHUB_QUEUE.send).toHaveBeenCalledWith(h.message.body, {
+  expect(h.CROSSPOSTHUB_QUEUE.send).toHaveBeenCalledWith(h.message.body, {
     delaySeconds: 43_200,
   });
   expect(h.db.post.findFirst).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ test("queue publishes schedules that are already due", async () => {
   });
   await h.consume();
   expect(h.publish).toHaveBeenCalledTimes(1);
-  expect(h.POSTHUB_QUEUE.send).not.toHaveBeenCalled();
+  expect(h.CROSSPOSTHUB_QUEUE.send).not.toHaveBeenCalled();
 });
 
 for (const attempts of [1, 2]) {

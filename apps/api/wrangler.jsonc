@@ -21,7 +21,7 @@
 		"producers": [
 			{
 				"queue": "crossposthub",
-				"binding": "POSTHUB_QUEUE"
+				"binding": "CROSSPOSTHUB_QUEUE"
 			}
 		]
 	},

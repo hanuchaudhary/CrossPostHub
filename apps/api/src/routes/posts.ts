@@ -116,7 +116,7 @@ app.post("", async (c) => {
       postId: post.id,
       scheduledFor: scheduleAt || undefined,
     };
-    await c.env.POSTHUB_QUEUE.send(
+    await c.env.CROSSPOSTHUB_QUEUE.send(
       job,
       delaySeconds ? { delaySeconds } : undefined,
     );

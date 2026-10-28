@@ -1,11 +1,11 @@
+import type { PrismaClient } from "../generated/prisma/client";
 import {
   CrossPostHub,
   InstagramProvider,
   LinkedInProvider,
-  TwitterProvider,
   PublishError,
+  TwitterProvider,
 } from "./core";
-import type { PrismaClient } from "../generated/prisma/client";
 import { getDb } from "./lib/db";
 import { getPublishingAccount } from "./lib/publishing-account";
 import type { Bindings, PostJob } from "./types";
@@ -83,7 +83,7 @@ async function processPost(db: PrismaClient, env: Bindings, job: PostJob) {
 
 export async function consumePosts(
   batch: MessageBatch<PostJob>,
-  env: Bindings,
+  env: Bindings
 ) {
   const db = getDb(env.DB);
   // Bound concurrent chunk/base64 buffers within the Worker's memory budget.
@@ -94,10 +94,10 @@ export async function consumePosts(
           if (message.body.scheduledFor) {
             const remainingSeconds = Math.floor(
               (new Date(message.body.scheduledFor).getTime() - Date.now()) /
-                1000,
+                1000
             );
             if (remainingSeconds > 0) {
-              await env.POSTHUB_QUEUE.send(message.body, {
+              await env.CROSSPOSTHUB_QUEUE.send(message.body, {
                 delaySeconds: Math.min(43_200, remainingSeconds),
               });
               message.ack();
@@ -118,7 +118,7 @@ export async function consumePosts(
                 error instanceof PublishError &&
                   error.retryAfterSeconds !== undefined
                   ? Math.max(1, error.retryAfterSeconds)
-                  : Math.min(300, 10 * 2 ** message.attempts),
+                  : Math.min(300, 10 * 2 ** message.attempts)
               ),
             });
             return;
@@ -138,7 +138,7 @@ export async function consumePosts(
           ]);
           message.ack();
         }
-      }),
+      })
     );
   }
 }
