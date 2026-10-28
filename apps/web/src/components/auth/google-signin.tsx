@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { FieldSeparator } from "@/components/ui/field";
 import { signIn, errorMessage } from "@/lib/api";
 export function GoogleSignin({
@@ -33,14 +32,14 @@ export function GoogleSignin({
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full h-14"
         onClick={google}
         disabled={pending}
       >
-        <Icon name="google" />
+        <img src="/icons/google-icon.svg" className="size-5" />
         Continue with Google
       </Button>
-      <FieldSeparator>or with your email</FieldSeparator>
+      <FieldSeparator className="mb-2">or with your email</FieldSeparator>
     </>
   );
 }

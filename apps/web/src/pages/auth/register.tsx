@@ -1,15 +1,17 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { AuthLayout } from "@/components/auth/auth-layout";
+
 import { AuthFeedback } from "@/components/auth/auth-feedback";
+import { AuthLayout } from "@/components/auth/auth-layout";
 import { GoogleSignin } from "@/components/auth/google-signin";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { LabelInput } from "@/components/ui/label-input";
 import { Icon } from "@/components/ui/icon";
-import { signUp, errorMessage } from "@/lib/api";
+import { LabelInput } from "@/components/ui/label-input";
+import { errorMessage, signUp } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { queryClient } from "@/lib/query";
+
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [pending, setPending] = useState(false),
@@ -23,7 +25,7 @@ export default function RegisterPage() {
     try {
       const result = await signUp.email({
         email,
-        name: String(values.get("name")),
+        name: email.split("@")[0],
         password: String(values.get("password")),
         callbackURL: `${location.origin}/dashboard`,
       });
@@ -34,7 +36,7 @@ export default function RegisterPage() {
         session.data
           ? "/dashboard"
           : `/verify?email=${encodeURIComponent(email)}`,
-        { replace: true },
+        { replace: true }
       );
     } catch (error) {
       setError(errorMessage(error));
@@ -44,7 +46,6 @@ export default function RegisterPage() {
   }
   return (
     <AuthLayout
-      eyebrow="A LITTLE SPACE FOR BIG IDEAS."
       title="Make yourself at home."
       description="Your next chapter starts right here."
       footer={
@@ -66,16 +67,6 @@ export default function RegisterPage() {
       />
       <form onSubmit={submit}>
         <FieldGroup>
-          <Field>
-            <LabelInput
-              id="auth-name"
-              label="Full name"
-              name="name"
-              autoComplete="name"
-              maxLength={100}
-              required
-            />
-          </Field>
           <Field>
             <LabelInput
               id="auth-email"

@@ -2,6 +2,7 @@ import { Link } from "react-router";
 
 import { SiteCorners, SiteRule } from "@/components/corners";
 
+import { Button } from "../ui/button";
 import { Brand } from "../ui/brand";
 
 export function Navbar() {
@@ -25,11 +26,20 @@ export function Navbar() {
               </Link>
 
               <nav aria-label="Primary" className="max-lg:hidden">
-                <ul className="flex items-center gap-4" role="list"></ul>
+                <ul className="flex items-center gap-1" role="list">
+                  {[["Features", "#features"], ["How it works", "#how-it-works"], ["Pricing", "#pricing"]].map(([label, href]) => (
+                    <li key={href}>
+                      <Button variant="ghost" nativeButton={false} render={<a href={href} />}>{label}</Button>
+                    </li>
+                  ))}
+                </ul>
               </nav>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2"></div>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button variant="ghost" size="lg" nativeButton={false} render={<Link to="/signin" />}>Sign in</Button>
+              <Button size="lg" nativeButton={false} render={<Link to="/register" />}>Get started</Button>
+            </div>
           </div>
         </div>
       </header>

@@ -1,37 +1,35 @@
+import type { IconProps, UiIconName } from "@/lib/types";
+import { getChannel } from "@/lib/constants";
+import { ChannelIcon } from "@/components/channels/channel-icon";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Add01Icon,
-  ArrowLeft01Icon,
   ArrowRight01Icon,
+  ArrowLeft01Icon,
   ArrowUpRight01Icon,
   Calendar03Icon,
-  Cancel01Icon,
-  CheckmarkCircle02Icon,
-  Clock01Icon,
-  CodeIcon,
   DashboardSquare01Icon,
-  GoogleIcon,
-  Image01Icon,
-  Layers01Icon,
-  Link01Icon,
+  Settings01Icon,
+  UserCircleIcon,
   Logout01Icon,
-  Mail01Icon,
+  Add01Icon,
+  CheckmarkCircle02Icon,
+  Cancel01Icon,
   Menu01Icon,
-  MoreHorizontalIcon,
+  SparklesIcon,
+  GoogleIcon,
   Notification01Icon,
   Search01Icon,
+  Image01Icon,
   SentIcon,
-  Settings01Icon,
+  Link01Icon,
+  Clock01Icon,
+  Mail01Icon,
   Shield01Icon,
-  SparklesIcon,
+  MoreHorizontalIcon,
+  CodeIcon,
+  Layers01Icon,
   SquareLock02Icon,
-  UserCircleIcon,
 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-
-import { ChannelIcon } from "@/components/channels/channel-icon";
-import { getChannel } from "@/lib/constants";
-import type { IconProps, UiIconName } from "@/lib/types";
-
 const icons = {
   arrow: ArrowRight01Icon,
   back: ArrowLeft01Icon,

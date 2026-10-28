@@ -122,7 +122,7 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --nav-hover: var(--muted);
-  --site-rail: oklch(0.22 0 0);
+  --site-rail: oklch(28.502% 0.00003 271.152);
 }
 
 @layer base {

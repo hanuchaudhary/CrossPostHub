@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Iphone } from "../ui/iphone";
 import { DepthFlipHeading } from "./depth-flip-heading";
 import { MarqueeHero } from "./hero-marquee";
+import { SocialArc } from "./social-arc";
 
 export function Hero() {
   return (
@@ -51,17 +52,10 @@ export function Hero() {
         </div>
         <div className="absolute -bottom-30 right-0 z-10 w-60 opacity-30 md:right-45 md:w-90 md:opacity-100">
           <Iphone className="relative">
-            <img
-              src="/logo.svg"
-              className="absolute bottom-40 left-1/2 -translate-x-1/2 z-40 w-14 animate-caret-blink duration-400"
-            />
-            <img
-              src="/logo.svg"
-              className="absolute bottom-40 left-1/2 -translate-x-1/2 z-40 w-14 blur-lg"
-            />
-            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
-            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
-            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
+            <SocialArc />
+            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
           </Iphone>
         </div>
       </div>
