@@ -1,28 +1,21 @@
-import { SiteCorners, SiteRule } from "../corners";
-import { Badge } from "../ui/badge";
+import { LandingSection } from "./section";
+import { Reveal } from "./reveal";
 import { Icon } from "../ui/icon";
 
 export const HowItWorks = () => {
   return (
-    <section
-      id="how-it-works"
-      className="relative"
-    >
-      <SiteRule className="bottom-0" />
-      <div className="max-w-6xl mx-auto relative h-[calc(100vh-4rem)] p-10">
-        <SiteCorners />
-        <SiteRule className="left-0" orientation="y" />
-        <SiteRule className="right-0" orientation="y" />
-        <div className="mb-10 space-y-4 text-center">
-          <Badge variant="outline">FROM “WHAT IF” TO “IT’S LIVE”</Badge>
-          <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-            Good ideas travel light.
+    <LandingSection id="how-it-works">
+        <Reveal className="mb-14 space-y-7">
+          <h2 className="heading">
+            From idea to post.
+            <br />
+            <span className="text-muted-foreground">In three simple steps.</span>
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Three little steps between you and your next great post.
+          <p className="subheading max-w-md!">
+            Connect your accounts, create your post, and choose when it goes live.
           </p>
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        </Reveal>
+        <div className="grid gap-10 md:gap-8 md:grid-cols-3">
           {[
             {
               n: "01",
@@ -42,28 +35,27 @@ export const HowItWorks = () => {
               title: "Send it out. Or sleep on it.",
               text: "Publish in the moment or pick the right time. Your calendar has it covered.",
             },
-          ].map((step) => (
-            <section className="flex min-w-0 flex-col gap-4" key={step.n}>
+          ].map((step, index) => (
+            <Reveal key={step.n} delay={index * 0.12} className="flex min-w-0 flex-col gap-4 border-t pt-6 transition-colors duration-300 hover:border-foreground">
               <header className="flex flex-col gap-2">
                 <div className="mb-5 flex items-center justify-between">
-                  <div className="flex size-10 items-center justify-center rounded-lg border bg-muted">
+                  <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
                     <Icon name={step.icon} />
                   </div>
-                  <span className="text-xl font-medium tracking-tight text-muted-foreground/40">
+                  <span className="text-3xl font-light tracking-tighter text-muted-foreground/40">
                     {step.n}
                   </span>
                 </div>
-                <h2 className="text-sm font-medium">{step.title}</h2>
+                <h3 className="text-lg font-light tracking-tight">{step.title}</h3>
               </header>
               <div className="min-w-0">
-                <p className="text-xs leading-6 text-muted-foreground">
+                <p className="text-sm font-light leading-relaxed text-muted-foreground">
                   {step.text}
                 </p>
               </div>
-            </section>
+            </Reveal>
           ))}
         </div>
-      </div>
-    </section>
+    </LandingSection>
   );
 };

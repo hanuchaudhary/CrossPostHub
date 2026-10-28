@@ -2,6 +2,8 @@ import { Link } from "react-router";
 
 import { SiteCorners, SiteRule } from "@/components/corners";
 
+import { Brand } from "../ui/brand";
+
 export function Navbar() {
   return (
     <>
@@ -19,7 +21,7 @@ export function Navbar() {
                 className="flex shrink-0 items-center gap-2.5 text-foreground"
                 to="/"
               >
-                CrosspostHub
+                <Brand />
               </Link>
 
               <nav aria-label="Primary" className="max-lg:hidden">

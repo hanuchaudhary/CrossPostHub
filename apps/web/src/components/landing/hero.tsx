@@ -3,52 +3,65 @@ import { Link } from "react-router";
 import { SiteRule } from "../corners";
 import { Button } from "../ui/button";
 import { Iphone } from "../ui/iphone";
+import { DepthFlipHeading } from "./depth-flip-heading";
 import { MarqueeHero } from "./hero-marquee";
 
 export function Hero() {
   return (
     <section className="overflow-hidden relative">
       <SiteRule className="bottom-0" />
-      <div className="max-w-6xl mx-auto relative  h-[calc(100vh-4rem)] overflow-hidden p-10">
+      <div className="max-w-6xl mx-auto relative  min-h-[calc(100vh-4rem)] overflow-hidden px-6 py-16 md:h-[calc(100vh-4rem)] md:p-10">
         <SiteRule className="left-0" orientation="y" />
         <SiteRule className="right-0" orientation="y" />
-        <div className="space-y-7">
-          <h1 className="text-4xl eading-[1.06] tracking-tighter">
-            Create once.
-            <br />
-            Connect
-            <br />
-            <span className="text-muted-foreground">everywhere.</span>
-          </h1>
-          <p className="max-w-sm text-sm leading-7 text-muted-foreground">
-            Your voice, on every platform. Write, plan, and publish your social
-            posts from one happy little place.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              size="lg"
-              className="h-10 px-4"
-              nativeButton={false}
-              render={<Link to="/register" />}
-            >
-              Register
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              nativeButton={false}
-              render={<a href="#how-it-works" />}
-            >
-              How it works
-            </Button>
+        <div className="flex items-center h-full pb-22 relative z-20">
+          <div className="space-y-7">
+            <h1 className="heading">
+              Create once.
+              <span className="flex gap-2">
+                <span>Share</span>
+                <DepthFlipHeading />
+              </span>
+            </h1>
+            <p className="subheading max-w-md!">
+              Write, schedule, and publish your posts across platforms from one
+              place. Spend less time switching tabs and more time creating.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                size="lg"
+                className="h-10 px-4"
+                nativeButton={false}
+                render={<Link to="/register" />}
+              >
+                Register
+              </Button>
+              <Button
+                size="lg"
+                variant="ghost"
+                nativeButton={false}
+                render={<a href="#how-it-works" />}
+              >
+                How it works
+              </Button>
+            </div>
           </div>
         </div>
-        <div className="absolute -bottom-50">
+        <div className="absolute -bottom-50 left-25 mask-l-from-80%">
           <MarqueeHero />
         </div>
-        <div className="absolute -bottom-30 right-60 z-20 w-90">
-          <Iphone className="">
-            <div className="h-30 absolute bg-background/90 w-full bottom-35"></div>
+        <div className="absolute -bottom-30 right-0 z-10 w-60 opacity-30 md:right-45 md:w-90 md:opacity-100">
+          <Iphone className="relative">
+            <img
+              src="/logo.svg"
+              className="absolute bottom-40 left-1/2 -translate-x-1/2 z-40 w-14 animate-caret-blink duration-400"
+            />
+            <img
+              src="/logo.svg"
+              className="absolute bottom-40 left-1/2 -translate-x-1/2 z-40 w-14 blur-lg"
+            />
+            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
+            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
+            <div className="h-90 absolute bg-white rounded-full w-full bottom-0 blur-2xl"></div>
           </Iphone>
         </div>
       </div>

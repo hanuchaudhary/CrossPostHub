@@ -10,7 +10,7 @@ export const Footer = () => {
   const [year] = useState(() => new Date().getFullYear());
   return (
     <footer className="">
-      <div className="mx-auto max-w-6xl px-5 py-10 md:px-8 relative">
+      <div className="mx-auto max-w-6xl px-6 py-12 md:px-10 relative">
         <SiteRule orientation="y" className="left-0" />
         <SiteRule orientation="y" className="right-0" />
         <div className="grid grid-cols-3 gap-x-4 gap-y-10 pb-10 sm:grid-cols-[2fr_1fr_1fr_1fr]">
@@ -54,7 +54,7 @@ export const Footer = () => {
                   <li key={href}>
                     <Link
                       to={href}
-                      className="text-[11px] text-muted-foreground hover:text-foreground"
+                      className="text-[11px] text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     >
                       {label}
                     </Link>

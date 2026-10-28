@@ -137,6 +137,15 @@
   }
 }
 
+.heading{
+  @apply text-foreground font-light md:text-[2.25rem] text-[2rem] text-balance max-w-2xl leading-none tracking-tighter;
+}
+
+.subheading{
+  @apply text-neutral-400/90 font-light md:text-[1.4rem] text-[1.125rem] text-pretty max-w-2xl leading-tight tracking-tight;
+}
+
+
 @utility site-rule {
   height: 1px;
   background-image: repeating-linear-gradient(

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
 
-import { SiteCorners, SiteRule } from "../corners";
+import { Reveal } from "./reveal";
+import { LandingSection } from "./section";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
@@ -53,22 +54,15 @@ const pricingPlans = [
 export function Pricing() {
   const [billing, setBilling] = useState("monthly");
   return (
-    <section
-      id="pricing"
-      className="relative"
-    >
-      <SiteRule className="bottom-0" />
-      <div className="max-w-6xl mx-auto relative h-[calc(100vh-4rem)] p-10">
-        <SiteRule className="left-0" orientation="y" />
-        <SiteRule className="right-0" orientation="y" />
-        <SiteCorners />
-        <div className="mb-10 flex flex-col items-center gap-4 text-center">
-          <Badge variant="outline">BIG IDEAS. LITTLE PRICE TAGS.</Badge>
-          <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
-            Find your kind of flow.
+    <LandingSection id="pricing">
+        <Reveal className="mb-14 flex flex-col items-start gap-7">
+          <h2 className="heading">
+            Start with an idea.
+            <br />
+            <span className="text-muted-foreground">Grow at your own pace.</span>
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Start small. Make your mark. Grow at your own pace.
+          <p className="subheading max-w-md!">
+            Choose the publishing tools that fit your workflow.
           </p>
           <Tabs value={billing} onValueChange={setBilling}>
             <TabsList>
@@ -78,25 +72,26 @@ export function Pricing() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {pricingPlans.map((plan) => (
-            <section
+        </Reveal>
+        <div className="grid gap-10 md:gap-8 md:grid-cols-3">
+          {pricingPlans.map((plan, index) => (
+            <Reveal
               key={plan.title}
-              className="flex min-w-0 flex-col gap-4 border-t py-6"
+              delay={index * 0.12}
+              className="flex min-w-0 flex-col gap-4 border-t py-6 transition-colors duration-300 hover:border-foreground"
             >
               <header className="flex flex-col gap-2">
                 <div className="mb-2 flex h-5 items-center justify-between">
-                  <h2 className="font-medium text-lg">{plan.title}</h2>
+                  <h3 className="font-light tracking-tight text-xl">{plan.title}</h3>
                   {plan.popular && <Badge>Creator favorite</Badge>}
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground">
+                <p className="text-sm font-light leading-relaxed text-muted-foreground">
                   {plan.description}
                 </p>
               </header>
               <div className="min-w-0 space-y-5">
                 <div>
-                  <p className="text-4xl font-semibold tracking-tight">
+                  <p className="text-5xl font-light tracking-tighter">
                     ${billing === "yearly" ? plan.yearly : plan.monthly}
                     <span className="ml-2 text-xs font-normal tracking-normal text-muted-foreground">
                       / month
@@ -136,10 +131,9 @@ export function Pricing() {
                   <Icon name="arrow" />
                 </Button>
               </div>
-            </section>
+            </Reveal>
           ))}
         </div>
-      </div>
-    </section>
+    </LandingSection>
   );
 }

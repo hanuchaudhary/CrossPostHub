@@ -15,8 +15,8 @@ export default function Landing() {
         <HowItWorks />
         <Feature />
         <Pricing />
-        <Cta/>
-        <Footer/>
+        <Cta />
+        <Footer />
       </main>
     </section>
   );
