@@ -17,7 +17,7 @@ type Corner = keyof typeof cornerClass;
 const ALL_CORNERS: Corner[] = ["tl", "tr", "bl", "br"];
 
 const markClass =
-  "pointer-events-none absolute z-20 flex size-4 items-center justify-center bg-background select-none";
+  "pointer-events-none absolute z-20 flex size-4 items-center justify-center select-none";
 
 function CornerPlusMark() {
   return (

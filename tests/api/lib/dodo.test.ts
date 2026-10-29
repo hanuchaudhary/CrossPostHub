@@ -35,7 +35,7 @@ for (const [type, status] of [
         metadata: { reference_id: "reference-1" },
       },
     } as Payload;
-    await syncDodoWebhook(asPrisma(db), payload);
+    await syncDodoWebhook(asPrisma(db), payload, bindings().env);
     const input = db.transaction.upsert.mock.calls[0]![0];
     expect(input.where).toEqual({ paymentId: "payment-1" });
     expect(input.create).toMatchObject({
@@ -71,10 +71,10 @@ test("webhook sync ignores unknown customers and falls back to payment IDs", asy
   db.user.findUnique
     .mockResolvedValueOnce(null)
     .mockResolvedValueOnce({ id: "user-1" });
-  await syncDodoWebhook(asPrisma(db), payload);
+  await syncDodoWebhook(asPrisma(db), payload, bindings().env);
   expect(db.transaction.upsert).not.toHaveBeenCalled();
   db.transaction.upsert.mockResolvedValue({});
-  await syncDodoWebhook(asPrisma(db), payload);
+  await syncDodoWebhook(asPrisma(db), payload, bindings().env);
   expect(db.transaction.upsert.mock.calls[0]![0].create.orderId).toBe(
     "payment-1",
   );
@@ -85,7 +85,6 @@ for (const status of ["active", "on_hold", "cancelled"]) {
   test(`webhook sync updates ${status} subscription lifecycle`, async () => {
     const db = database();
     db.user.findUnique.mockResolvedValue({ id: "user-1" });
-    db.plan.findUnique.mockResolvedValue({ id: "pro" });
     db.subscription.upsert.mockResolvedValue({});
     const payload = {
       business_id: "business-test",
@@ -99,7 +98,7 @@ for (const status of ["active", "on_hold", "cancelled"]) {
         next_billing_date: "2026-12-01T00:00:00Z",
       },
     } as Payload;
-    await syncDodoWebhook(asPrisma(db), payload);
+    await syncDodoWebhook(asPrisma(db), payload, bindings().env);
     expect(db.subscription.upsert.mock.calls[0]![0]).toEqual({
       where: { dodoSubscriptionId: "dodo-sub" },
       create: {
@@ -132,13 +131,11 @@ test("webhook sync skips unmapped subscriptions and clears missing billing dates
     },
   } as Payload;
   db.user.findUnique.mockResolvedValue({ id: "user-1" });
-  db.plan.findUnique
-    .mockResolvedValueOnce(null)
-    .mockResolvedValueOnce({ id: "pro" });
-  await syncDodoWebhook(asPrisma(db), payload);
+  await syncDodoWebhook(asPrisma(db), payload, bindings().env);
   expect(db.subscription.upsert).not.toHaveBeenCalled();
   db.subscription.upsert.mockResolvedValue({});
-  await syncDodoWebhook(asPrisma(db), payload);
+  payload.data = { ...payload.data, product_id: "product-pro" } as typeof payload.data;
+  await syncDodoWebhook(asPrisma(db), payload, bindings().env);
   expect(
     db.subscription.upsert.mock.calls[0]![0].update.nextBillingAt,
   ).toBeNull();
@@ -149,7 +146,7 @@ test("webhook sync ignores unrelated events", async () => {
   await syncDodoWebhook(asPrisma(db), {
     type: "refund.succeeded",
     data: {},
-  } as Payload);
+  } as Payload, bindings().env);
   expect(db.user.findUnique).not.toHaveBeenCalled();
   expect(db.transaction.upsert).not.toHaveBeenCalled();
 });

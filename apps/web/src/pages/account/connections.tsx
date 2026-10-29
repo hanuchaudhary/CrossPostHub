@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PageHeading, QueryState } from "@/components/workspace/common";
+import { QueryState } from "@/components/workspace/common";
 import { connectAccount, disconnectAccount, errorMessage } from "@/lib/api";
 import { CHANNELS } from "@/lib/constants";
 import { mutationKeys, queries, queryClient, queryKeys } from "@/lib/query";

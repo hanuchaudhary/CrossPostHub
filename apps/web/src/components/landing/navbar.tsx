@@ -17,17 +17,11 @@ export function Navbar() {
           <SiteCorners />
           <div className="flex h-16 items-center justify-between gap-4">
             <div className="flex items-center gap-6">
-              <Link
-                aria-label="Homepage"
-                className="flex shrink-0 items-center gap-2.5 text-foreground"
-                to="/"
-              >
-                <Brand />
-              </Link>
+              <Brand />
 
               <nav aria-label="Primary" className="max-lg:hidden">
                 <ul className="flex items-center gap-1" role="list">
-                  {[["Features", "#features"], ["How it works", "#how-it-works"], ["Pricing", "#pricing"]].map(([label, href]) => (
+                  {[["Features", "#features"], ["Channels", "#channels"], ["Pricing", "#pricing"]].map(([label, href]) => (
                     <li key={href}>
                       <Button variant="ghost" nativeButton={false} render={<a href={href} />}>{label}</Button>
                     </li>

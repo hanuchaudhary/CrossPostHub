@@ -1,3 +1,4 @@
+import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
 import type { Platform } from "@/lib/types";
 import { CHANNELS, getChannel, isPublishingPlatform } from "@/lib/constants";
 import { ChannelIcon } from "@/components/channels/channel-icon";
@@ -23,7 +24,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createPost, uploadMedia, deleteMedia, errorMessage } from "@/lib/api";
-import { queries, refreshPosts, mutationKeys } from "@/lib/query";
+import { queries, queryClient, refreshPosts, mutationKeys } from "@/lib/query";
 import { authClient } from "@/lib/auth-client";
 import { PageHeading } from "@/components/workspace/common";
 import { Icon } from "@/components/ui/icon";
@@ -62,6 +63,22 @@ export default function CreatePage() {
         throw new Error("LinkedIn posts must be 3,000 characters or fewer.");
       if (scheduled && (!when || new Date(when).getTime() <= Date.now()))
         throw new Error("Choose a date and time in the future.");
+      // Check the shared allowance before uploading media. The API rechecks it
+      // before publishing, including posts created in another tab.
+      const [posts, subscription] = await Promise.all([
+        queryClient.fetchQuery({ ...queries.posts(), staleTime: 0 }),
+        queryClient.fetchQuery({ ...queries.subscription(), staleTime: 0 }),
+      ]);
+      const monthStart = new Date();
+      monthStart.setUTCDate(1);
+      monthStart.setUTCHours(0, 0, 0, 0);
+      const monthlyPosts = posts.filter(post => new Date(post.createdAt) >= monthStart);
+      const plan = getPlan(subscription.subscription?.planId);
+      if (exceedsPostLimits(
+        plan,
+        monthlyPosts.length + providers.length,
+        scheduled ? monthlyPosts.filter(post => post.isScheduled).length + providers.length : 0,
+      )) throw new Error("Monthly post limit reached. Compare plans in Billing to keep sharing.");
       const mediaKeys: string[] = [];
       try {
         for (const file of files) mediaKeys.push(await uploadMedia(file));

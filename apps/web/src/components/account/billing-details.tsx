@@ -1,3 +1,4 @@
+import { getPlan } from "@repo/shared/pricing";
 import { Link } from "react-router";
 
 import { useQuery } from "@tanstack/react-query";
@@ -21,7 +22,7 @@ export function BillingDetails() {
         <div className="space-y-5">
           <div className="flex items-center gap-3">
             <h3 className="text-2xl font-medium tracking-tight">
-              {subscription.data.subscription?.plan.title || "Free"}
+              {getPlan(subscription.data.subscription?.planId).title}
             </h3>
             <Badge
               variant={
@@ -42,7 +43,7 @@ export function BillingDetails() {
             <div className="bg-background p-4">
               <dt className="text-xs text-muted-foreground">Plan</dt>
               <dd className="mt-2 text-sm font-medium">
-                {subscription.data.subscription?.plan.title || "Free"}
+                {getPlan(subscription.data.subscription?.planId).title}
               </dd>
             </div>
             <div className="bg-background p-4">

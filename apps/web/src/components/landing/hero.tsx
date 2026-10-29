@@ -16,7 +16,7 @@ export function Hero() {
         <SiteRule className="right-0" orientation="y" />
         <div className="flex items-center h-full pb-22 relative z-20">
           <div className="space-y-7">
-            <h1 className="heading">
+            <h1 className="heading text-5xl!">
               Create once.
               <span className="flex gap-2">
                 <span>Share</span>
@@ -40,9 +40,9 @@ export function Hero() {
                 size="lg"
                 variant="ghost"
                 nativeButton={false}
-                render={<a href="#how-it-works" />}
+                render={<a href="#features" />}
               >
-                How it works
+                Explore features
               </Button>
             </div>
           </div>

@@ -67,7 +67,8 @@ export function SocialArc() {
           alt=""
           className={cn(
             "absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 object-contain",
-            (name == "twitter" || name == "threads") && "bg-primary p-1 rounded-xl"
+            (name == "twitter" || name == "threads") &&
+              "dark:bg-black bg-primary p-1 rounded-xl"
           )}
           initial={{ opacity: 0, scale: 0 }}
           animate={{

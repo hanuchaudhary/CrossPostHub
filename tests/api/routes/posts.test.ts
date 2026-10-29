@@ -140,7 +140,7 @@ for (const [title, limit] of [
 ] as const) {
   test(`posts enforces ${title} monthly limits before writing`, async () => {
     const h = ready();
-    h.db.subscription.findFirst.mockResolvedValue({ plan: { title } });
+    h.db.subscription.findFirst.mockResolvedValue({ planId: title.toLowerCase() });
     h.db.post.count.mockResolvedValueOnce(limit - 1).mockResolvedValueOnce(0);
     expect(
       (await h.request("/post", form({ providers: '["twitter","linkedin"]' })))
@@ -161,7 +161,7 @@ test("posts enforces scheduled limits and permits Premium usage", async () => {
       )
     ).status,
   ).toBe(403);
-  h.db.subscription.findFirst.mockResolvedValue({ plan: { title: "Premium" } });
+  h.db.subscription.findFirst.mockResolvedValue({ planId: "premium" });
   h.db.post.count.mockResolvedValue(1000);
   expect((await h.request("/post", form())).status).toBe(200);
 });

@@ -1,0 +1,9 @@
+.feature-card { transition: background-color .3s; }
+.feature-card:hover { background-color: color-mix(in oklab, var(--muted) 16%, var(--background)); }
+.feature-diagram { isolation: isolate; }
+.feature-diagram::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(var(--site-rail) .6px, transparent .6px); background-size: 16px 16px; opacity: .18; mask-image: radial-gradient(ellipse at center, black, transparent 72%); }
+.feature-flow-grid { background-image: linear-gradient(to right, var(--border) 1px, transparent 1px), linear-gradient(to bottom, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: .35; mask-image: radial-gradient(ellipse, black, transparent 70%); }
+.feature-art-mark { width: 72px; height: 72px; background: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in oklab, var(--foreground) 35%, transparent) 5px 6px), linear-gradient(135deg, #75d8fc50, #0072e520); border-radius: 50%; position: relative; }
+.feature-art-mark::after { content: ""; position: absolute; inset: 18%; border: 1px solid var(--background); border-radius: 50%; background: linear-gradient(135deg, #75d8fc, #0072e5); box-shadow: 0 0 24px #60c5f825; }
+.feature-art-landscape { background: linear-gradient(140deg, transparent 48%, #647c94 48% 65%, transparent 65%), linear-gradient(40deg, #94b0c4 0 48%, transparent 48%), linear-gradient(#dcecf6, #a5c9e2); }
+@media (prefers-reduced-motion: reduce) { .feature-card { transition: none; } }

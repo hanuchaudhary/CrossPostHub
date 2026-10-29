@@ -17,15 +17,9 @@ for (const [method, path] of [
     ).toBe(401);
   });
 }
-test("payment pricing is public and ordered by price", async () => {
+test("pricing no longer needs a database-backed endpoint", async () => {
   const h = harness(payment, "/payment", false);
-  h.db.plan.findMany.mockResolvedValue([{ id: "free", price: 0 }]);
-  expect(await (await h.request("/payment/pricing")).json()).toEqual({
-    pricingPlans: [{ id: "free", price: 0 }],
-  });
-  expect(h.db.plan.findMany).toHaveBeenCalledWith({
-    orderBy: { price: "asc" },
-  });
+  expect((await h.request("/payment/pricing")).status).toBe(404);
 });
 test("payment lists owned transactions and active subscriptions with legacy order_id", async () => {
   const h = harness(payment, "/payment");
@@ -92,20 +86,17 @@ test("payment rejects invalid and unconfigured plans", async () => {
   expect(
     (await h.request("/payment/subscribe", json({ planId: "" }))).status,
   ).toBe(400);
-  h.db.plan.findFirst
-    .mockResolvedValueOnce(null)
-    .mockResolvedValueOnce({ id: "paid", price: 10, dodoProductId: null });
+  h.env.DODO_PRODUCT_PRO = undefined;
   expect(
     (await h.request("/payment/subscribe", json({ planId: "missing" }))).status,
   ).toBe(400);
   expect(
-    (await h.request("/payment/subscribe", json({ planId: "paid" }))).status,
+    (await h.request("/payment/subscribe", json({ planId: "pro" }))).status,
   ).toBe(400);
   expect(h.db.subscription.create).not.toHaveBeenCalled();
 });
 test("payment activates the free plan locally", async () => {
   const h = harness(payment, "/payment");
-  h.db.plan.findFirst.mockResolvedValue({ id: "free", price: 0 });
   h.db.subscription.create.mockResolvedValue({ id: "sub-free" });
   expect(
     await (
@@ -123,11 +114,6 @@ test("payment activates the free plan locally", async () => {
 for (const existingCustomer of [true, false]) {
   test(`payment creates checkout for ${existingCustomer ? "existing" : "new"} customers`, async () => {
     const h = harness(payment, "/payment");
-    h.db.plan.findFirst.mockResolvedValue({
-      id: "pro",
-      price: 10,
-      dodoProductId: "product-pro",
-    });
     h.db.user.findUniqueOrThrow.mockResolvedValue({
       name: "Test",
       email: "test@example.com",

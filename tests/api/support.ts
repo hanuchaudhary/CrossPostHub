@@ -33,7 +33,6 @@ export function database() {
     post: delegate(),
     account: delegate(),
     notification: delegate(),
-    plan: delegate(),
     user: delegate(),
     transaction: delegate(),
     subscription: delegate(),
@@ -65,6 +64,8 @@ export function bindings() {
     DODO_PAYMENTS_API_KEY: "test-key",
     DODO_PAYMENTS_WEBHOOK_KEY: "test-webhook-key",
     DODO_PAYMENTS_ENVIRONMENT: "test_mode",
+    DODO_PRODUCT_PRO: "product-pro",
+    DODO_PRODUCT_PREMIUM: "product-premium",
     R2_PUBLIC_URL: "https://cdn.example.com/",
   } as unknown as Bindings;
   return { env, ...resources };

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { FieldSeparator } from "@/components/ui/field";
-import { signIn, errorMessage } from "@/lib/api";
+import { errorMessage, signIn } from "@/lib/api";
+
+import { SiteRule } from "../corners";
+
 export function GoogleSignin({
   pending,
   onPendingChange,
@@ -28,7 +30,7 @@ export function GoogleSignin({
     }
   }
   return (
-    <>
+    <div className="relative">
       <Button
         type="button"
         variant="outline"
@@ -39,7 +41,10 @@ export function GoogleSignin({
         <img src="/icons/google-icon.svg" className="size-5" />
         Continue with Google
       </Button>
-      <FieldSeparator className="mb-2">or with your email</FieldSeparator>
-    </>
+      <div>
+        <SiteRule className="-bottom-5" />
+        <span className="absolute text-muted-foreground text-sm -bottom-7 left-1/2 -translate-x-1/2">or with your email</span>
+      </div>
+    </div>
   );
 }

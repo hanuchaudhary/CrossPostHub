@@ -99,7 +99,7 @@ export type Notification = {
 export type NotificationsResponse = { notifications: Notification[] };
 export type SubscriptionResponse = {
   status: string;
-  subscription?: { nextBillingAt?: string | null; plan: { title: string } };
+  subscription?: { nextBillingAt?: string | null; planId: string };
 };
 export type Session = typeof authClient.$Infer.Session;
 export type User = Session["user"];

@@ -1,3 +1,4 @@
+import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
 import { Hono, type Context } from "hono";
 import { z } from "zod";
 import { dbFor, requireUser, type AppContext, type AppEnv } from "./shared";
@@ -57,7 +58,6 @@ app.post("", async (c) => {
   monthStart.setUTCHours(0, 0, 0, 0);
   const active = await db.subscription.findFirst({
     where: { userId: user.id, status: "active" },
-    include: { plan: true },
     orderBy: { updatedAt: "desc" },
   });
   const [postCount, scheduledCount] = await Promise.all([
@@ -72,16 +72,11 @@ app.post("", async (c) => {
       },
     }),
   ]);
-  const limits =
-    active?.plan.title === "Premium"
-      ? { posts: Infinity, scheduled: Infinity }
-      : active?.plan.title === "Pro"
-        ? { posts: 60, scheduled: 20 }
-        : { posts: 25, scheduled: 5 };
-  if (
-    postCount + providers.length > limits.posts ||
-    (scheduleAt && scheduledCount + providers.length > limits.scheduled)
-  )
+  if (exceedsPostLimits(
+    getPlan(active?.planId),
+    postCount + providers.length,
+    scheduleAt ? scheduledCount + providers.length : 0,
+  ))
     return c.json(
       { error: "Monthly post limit reached. Please upgrade your plan." },
       403,
