@@ -74,9 +74,8 @@ export function AccountSettings() {
                   key={avatar.name}
                   whileHover={reduced ? undefined : { y: -4 }}
                 >
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
                     onClick={() => setDraft({ name, image: avatar.url })}
                     aria-label={`Choose ${avatar.name} avatar`}
                     aria-pressed={image === avatar.url}
@@ -103,7 +102,7 @@ export function AccountSettings() {
                         <Icon name="check" size={13} />
                       </span>
                     )}
-                  </Button>
+                  </button>
                 </motion.div>
               ))}
             </div>
@@ -132,10 +131,7 @@ export function AccountSettings() {
               />
             </div>
             <div className="mt-7 flex justify-end">
-              <Button
-                type="submit"
-                disabled={saving || !user}
-              >
+              <Button type="submit" disabled={saving || !user}>
                 {saving ? "Saving…" : "Save changes"}
               </Button>
             </div>

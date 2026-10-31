@@ -31,17 +31,16 @@ export function SupportedApps() {
           on the way.
         </p>
       </Reveal>
-      <div className="grid grid-cols-2 md:grid-cols-4 border w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 border w-full divide-x divide-y">
         {apps.map((app, index) => (
           <FrameBox
             key={app.id}
             tone="frame"
             corners={index < 4 ? ["bl", "br"] : []}
             className={cn(
-              `group flex min-h-24 flex-col items-center justify-center gap-3 px-3 py-7 transition-colors hover:bg-muted/30 border-b border-r`,
+              `group flex min-h-24 flex-col items-center justify-center gap-3 px-3 py-7 transition-colors hover:bg-muted/30`,
               index % 2 === 0 && "bg-muted/15",
-              index > 3 && "border-b-0",
-              (index === apps.length - 1 || index === 3) && "border-r-0"
+              index > 3 && "md:border-b-0",
             )}
           >
             <div className="flex items-center gap-3">

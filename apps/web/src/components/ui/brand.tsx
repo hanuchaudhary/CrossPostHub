@@ -10,7 +10,7 @@ export function Brand() {
       className="inline-flex shrink-0 items-center gap-2.5 text-lg tracking-tight"
       aria-label="CrossPostHub home"
     >
-      <GlassIconReveal className="-m-3 size-11" />
+      <GlassIconReveal className="-m-3 size-11 md:rounded-xl" />
       <span className="ml-1">
         Crosspost
         <GradientText

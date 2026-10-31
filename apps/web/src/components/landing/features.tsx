@@ -7,9 +7,9 @@ import { LandingSection } from "./section";
 
 function Copy({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="relative z-10 space-y-3 px-6 pb-7 mt-20 md:px-8 md:pb-8">
+    <div className="relative z-10 space-y-3 px-6 pb-7 md:mt-20 md:px-8 md:pb-8">
       <h3 className="heading text-2xl!">{title}</h3>
-      <p className="subheading text-lg! w-sm text-pretty">{children}</p>
+      <p className="subheading text-lg! md:w-sm text-pretty">{children}</p>
     </div>
   );
 }

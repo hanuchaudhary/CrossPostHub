@@ -35,7 +35,7 @@ export function SocialArc() {
   return (
     <div
       key={burst.cycle}
-      className="pointer-events-none absolute bottom-40 left-1/2 z-50 h-14 w-14 -translate-x-1/2"
+      className="pointer-events-none absolute bottom-40 left-1/2 z-50 size-14 -translate-x-1/2"
       aria-hidden="true"
     >
       <img
@@ -66,7 +66,7 @@ export function SocialArc() {
           src={`/icons/${name}-icon.svg`}
           alt=""
           className={cn(
-            "absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 object-contain",
+            "absolute left-1/2 top-1/2 md:size--9 size-7 -translate-x-1/2 -translate-y-1/2 object-contain",
             (name == "twitter" || name == "threads") &&
               "dark:bg-black bg-primary p-1 rounded-xl"
           )}

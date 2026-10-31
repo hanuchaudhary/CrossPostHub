@@ -14,9 +14,9 @@ export function Hero() {
       <div className="max-w-6xl mx-auto relative  min-h-[calc(100vh-4rem)] overflow-hidden px-6 py-16 md:h-[calc(100vh-4rem)] md:p-10">
         <SiteRule className="left-0" orientation="y" />
         <SiteRule className="right-0" orientation="y" />
-        <div className="flex items-center h-full pb-22 relative z-20">
-          <div className="space-y-7">
-            <h1 className="heading text-5xl!">
+        <div className="flex items-center h-full md:pb-22 relative z-20 mt-20 md:mt-0">
+          <div className="md:space-y-7 space-y-5">
+            <h1 className="heading md:text-5xl!">
               Create once.
               <span className="flex gap-2">
                 <span>Share</span>
@@ -27,7 +27,7 @@ export function Hero() {
               Write, schedule, and publish your posts across platforms from one
               place. Spend less time switching tabs and more time creating.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 mt-10 md:mt-0">
               <Button
                 variant={"primary"}
                 nativeButton={false}
@@ -45,15 +45,15 @@ export function Hero() {
             </div>
           </div>
         </div>
-        <div className="absolute -bottom-50 left-25 mask-l-from-80%">
+        <div className="absolute md:-bottom-50 -bottom-95 md:left-25 mask-l-from-80% md:scale-100 scale-150">
           <MarqueeHero />
         </div>
-        <div className="absolute -bottom-30 right-0 z-10 w-60 opacity-30 md:right-45 md:w-90 md:opacity-100">
+        <div className="absolute -bottom-30 md:left-auto md:translate-x-0 left-1/2 -translate-x-1/2 z-10 w-60 md:right-45 md:w-90 md:opacity-100">
           <Iphone className="relative">
             <SocialArc />
-            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
-            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
-            <div className="dark:h-100 h-90 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
           </Iphone>
         </div>
       </div>

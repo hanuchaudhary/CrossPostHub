@@ -175,7 +175,6 @@ function WorkspaceLayout() {
                       {data?.user.email}
                     </span>
                   </span>
-                  <Icon name="more" className="ml-auto shrink-0" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   side="top"
