@@ -58,7 +58,7 @@ export default function ForgotPage() {
             />
           </Field>
           <AuthFeedback error={error} success={success} />
-          <Button className="w-full" disabled={pending}>
+          <Button variant={"primary"} className="w-full" disabled={pending}>
             {pending ? "One moment…" : "Send reset link"}
             <Icon name="arrow" />
           </Button>

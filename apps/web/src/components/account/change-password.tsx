@@ -1,11 +1,14 @@
-import type { PasswordChangeInput } from "@/lib/types";
-import { useRef, type FormEvent } from "react";
+import { type FormEvent, useRef } from "react";
+
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { changePassword, errorMessage } from "@/lib/api";
-import { mutationKeys } from "@/lib/query";
+
 import { Button } from "@/components/ui/button";
 import { LabelInput } from "@/components/ui/label-input";
+import { changePassword, errorMessage } from "@/lib/api";
+import { mutationKeys } from "@/lib/query";
+import type { PasswordChangeInput } from "@/lib/types";
+
 export function ChangePassword() {
   const form = useRef<HTMLFormElement>(null);
   const mutation = useMutation({
@@ -63,7 +66,6 @@ export function ChangePassword() {
             <Button
               type="submit"
               disabled={mutation.isPending}
-              className="h-auto rounded-full bg-linear-to-b from-neutral-600 to-neutral-800 px-4 py-1.75 text-sm text-white shadow-[0_2px_8px_rgba(23,23,23,0.25),inset_0_1.5px_0_rgba(255,255,255,0.25)] dark:from-white dark:to-neutral-200 dark:text-neutral-800"
             >
               {mutation.isPending ? "Updating…" : "Update password"}
             </Button>

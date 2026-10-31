@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+
 import type { authClient } from "./auth-client";
 
 export type ChannelId =
@@ -12,7 +13,7 @@ export type ChannelId =
   | "tiktok"
   | "youtube"
   | "github";
-/** Providers accepted by the existing publishing API. */
+
 export type Platform = "twitter" | "linkedin" | "instagram";
 export type Channel = {
   id: ChannelId;
@@ -81,6 +82,9 @@ export type PostInput = {
   providers: Platform[];
   scheduleAt?: string;
   mediaKeys: string[];
+  platformContent?: Partial<
+    Record<Platform, { text: string; mediaKeys: string[] }>
+  >;
 };
 export type UploadResponse = { url: string; key: string };
 export type MonthlyData = {

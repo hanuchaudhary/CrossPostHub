@@ -1,13 +1,12 @@
-import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { queries } from "@/lib/query";
-import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
+
+import { CreatePostButton } from "@/components/posts/composer";
 import {
   PageHeading,
   PostList,
   QueryState,
 } from "@/components/workspace/common";
+import { queries } from "@/lib/query";
 
 export default function PostsPage() {
   const posts = useQuery(queries.posts());
@@ -17,10 +16,7 @@ export default function PostsPage() {
         title="A little body of work."
         description="Everything you’ve published, planned, and put into motion."
       >
-        <Button nativeButton={false} render={<Link to="/create" />}>
-          <Icon name="plus" />
-          Create a post
-        </Button>
+        <CreatePostButton />
       </PageHeading>
       <QueryState
         pending={posts.isPending}

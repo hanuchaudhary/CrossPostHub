@@ -90,7 +90,7 @@ export default function RegisterPage() {
             />
           </Field>
           <AuthFeedback error={error} />
-          <Button className="w-full" disabled={pending}>
+          <Button variant={"primary"} className="w-full" disabled={pending}>
             {pending ? "One moment…" : "Create your free account"}
             <Icon name="arrow" />
           </Button>

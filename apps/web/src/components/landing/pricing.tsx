@@ -60,11 +60,11 @@ export function Pricing() {
                 />
               </div>
             )}
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="mb-2 flex items-center justify-between gap-2 relative">
               <h3 className="heading">{plan.title}</h3>
             </div>
             <p className="subheading text-xl!">{plan.description}</p>
-            <div className="my-14">
+            <div className="my-14 relative">
               <p className="text-5xl font-light tracking-tighter">
                 ${plan.price}
                 <span className="ml-2 text-[14px] font-normal tracking-normal text-muted-foreground">
@@ -77,7 +77,7 @@ export function Pricing() {
                   : "Free. For as long as you like."}
               </p>
             </div>
-            <ul className="mb-9 space-y-4">
+            <ul className="mb-9 space-y-4 relative">
               {plan.features.map((feature) => (
                 <li
                   key={feature}
@@ -92,7 +92,7 @@ export function Pricing() {
               ))}
             </ul>
             <Button
-              className="mt-auto w-full"
+              className="mt-auto w-full relative"
               variant={plan.popular ? "default" : "outline"}
               nativeButton={false}
               render={<Link to={`/register?plan=${plan.id}`} />}

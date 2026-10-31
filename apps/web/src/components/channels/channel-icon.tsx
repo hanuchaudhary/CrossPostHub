@@ -1,21 +1,24 @@
-import { HugeiconsIcon } from "@hugeicons/react";
 import { SquareLock02Icon } from "@hugeicons/core-free-icons";
-import { cn } from "@/lib/utils";
+import { HugeiconsIcon } from "@hugeicons/react";
+
 import type { ChannelIconProps } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function ChannelIcon({
   channel,
   connected = false,
   showLock = true,
+  size = 24,
   className,
 }: ChannelIconProps) {
   return (
     <span
       className={cn(
         "relative inline-flex shrink-0 items-center justify-center",
-        className,
+        className
       )}
       aria-hidden="true"
+      style={{ width: size, height: size }}
       data-channel={channel.id}
       data-status={
         channel.locked && showLock
@@ -28,10 +31,12 @@ export function ChannelIcon({
       <img
         src={channel.icon}
         alt=""
+        width={size}
+        height={size}
         className={cn(
-          "block shrink-0 object-contain",
+          "block size-full max-h-full max-w-full shrink-0 object-contain",
           channel.iconClassName,
-          !connected && "grayscale opacity-40",
+          !connected && "grayscale opacity-40"
         )}
       />
       {channel.locked && showLock && (

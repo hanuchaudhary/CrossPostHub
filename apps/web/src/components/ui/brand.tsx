@@ -11,7 +11,7 @@ export function Brand() {
       aria-label="CrossPostHub home"
     >
       <GlassIconReveal className="-m-3 size-11" />
-      <span>
+      <span className="ml-1">
         Crosspost
         <GradientText
           colors={["#60c5f8", "#77b6f3", "#007ef8"]}

@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+
 import posts from "../../../apps/api/src/routes/posts";
 import { harness, isolate, json } from "../support";
 
@@ -41,7 +42,7 @@ test("posts creates an upload URL scoped to the current user", async () => {
   const h = ready();
   const response = await h.request(
     "/post/preSignedUrl",
-    json({ fileName: "my image.jpg", fileType: "image/jpeg", fileSize: 100 }),
+    json({ fileName: "my image.jpg", fileType: "image/jpeg", fileSize: 100 })
   );
   expect(response.status).toBe(200);
   const body = (await response.json()) as { key: string; url: string };
@@ -58,9 +59,9 @@ test("posts creates an upload URL scoped to the current user", async () => {
           fileName: "big.jpg",
           fileType: "image/jpeg",
           fileSize: 201 * 1024 * 1024,
-        }),
+        })
       )
-    ).status,
+    ).status
   ).toBe(400);
 });
 
@@ -70,18 +71,18 @@ test("posts deletes owned media and rejects another user's key", async () => {
     (
       await h.request(
         "/post/delete/media",
-        json({ mediaKey: "media/other/photo.jpg" }),
+        json({ mediaKey: "media/other/photo.jpg" })
       )
-    ).status,
+    ).status
   ).toBe(400);
   expect(h.MEDIA_BUCKET.delete).not.toHaveBeenCalled();
   expect(
     (
       await h.request(
         "/post/delete/media",
-        json({ mediaKey: "media/user-1/photo.jpg" }),
+        json({ mediaKey: "media/user-1/photo.jpg" })
       )
-    ).status,
+    ).status
   ).toBe(200);
   expect(h.MEDIA_BUCKET.delete).toHaveBeenCalledWith("media/user-1/photo.jpg");
 });
@@ -107,7 +108,7 @@ test("posts queues each selected provider and returns its job", async () => {
     .mockResolvedValueOnce({ id: "post-instagram" });
   const response = await h.request(
     "/post",
-    form({ providers: '["twitter","instagram"]' }),
+    form({ providers: '["twitter","instagram"]' })
   );
   expect(response.status).toBe(200);
   expect(((await response.json()) as { results: unknown[] }).results).toEqual([
@@ -140,11 +141,13 @@ for (const [title, limit] of [
 ] as const) {
   test(`posts enforces ${title} monthly limits before writing`, async () => {
     const h = ready();
-    h.db.subscription.findFirst.mockResolvedValue({ planId: title.toLowerCase() });
+    h.db.subscription.findFirst.mockResolvedValue({
+      planId: title.toLowerCase(),
+    });
     h.db.post.count.mockResolvedValueOnce(limit - 1).mockResolvedValueOnce(0);
     expect(
       (await h.request("/post", form({ providers: '["twitter","linkedin"]' })))
-        .status,
+        .status
     ).toBe(403);
     expect(h.db.post.create).not.toHaveBeenCalled();
   });
@@ -157,9 +160,9 @@ test("posts enforces scheduled limits and permits Premium usage", async () => {
     (
       await h.request(
         "/post",
-        form({ scheduleAt: new Date(Date.now() + 60_000).toISOString() }),
+        form({ scheduleAt: new Date(Date.now() + 60_000).toISOString() })
       )
-    ).status,
+    ).status
   ).toBe(403);
   h.db.subscription.findFirst.mockResolvedValue({ planId: "premium" });
   h.db.post.count.mockResolvedValue(1000);
@@ -200,4 +203,61 @@ test("posts lists user-scoped status groups and clamps pagination", async () => 
     take: 50,
     skip: 0,
   });
+});
+
+test("posts persists and queues each platform's caption and images", async () => {
+  const h = ready();
+  const platformContent = {
+    twitter: { text: "Short caption", mediaKeys: ["media/user-1/x.png"] },
+    linkedin: {
+      text: "A longer professional caption",
+      mediaKeys: ["media/user-1/linkedin.png"],
+    },
+  };
+  const response = await h.request(
+    "/post",
+    form({
+      postText: "",
+      providers: '["twitter","linkedin"]',
+      platformContent: JSON.stringify(platformContent),
+    })
+  );
+  expect(response.status).toBe(200);
+  for (const [index, provider] of (
+    ["twitter", "linkedin"] as const
+  ).entries()) {
+    expect(h.db.post.create.mock.calls[index]![0].data).toMatchObject({
+      provider,
+      text: platformContent[provider].text,
+      mediaKeys: platformContent[provider].mediaKeys,
+    });
+    expect(h.CROSSPOSTHUB_QUEUE.send.mock.calls[index]![0]).toMatchObject({
+      provider,
+      postText: platformContent[provider].text,
+      mediaKeys: platformContent[provider].mediaKeys,
+    });
+  }
+});
+
+test("posts validates all platform content and schedules before writing", async () => {
+  const h = ready();
+  for (const input of [
+    { scheduleAt: "invalid" },
+    { scheduleAt: new Date(Date.now() - 60_000).toISOString() },
+    {
+      platformContent: JSON.stringify({
+        twitter: { text: "x".repeat(281), mediaKeys: [] },
+      }),
+    },
+    {
+      platformContent: JSON.stringify({
+        twitter: { text: " ", mediaKeys: [] },
+      }),
+    },
+    { platformContent: "{" },
+  ]) {
+    expect((await h.request("/post", form(input))).status).toBe(400);
+  }
+  expect(h.db.post.create).not.toHaveBeenCalled();
+  expect(h.CROSSPOSTHUB_QUEUE.send).not.toHaveBeenCalled();
 });

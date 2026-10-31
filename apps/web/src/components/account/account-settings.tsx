@@ -1,16 +1,18 @@
-import type { ProfileDraft } from "@/lib/types";
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Link } from "react-router";
+
 import { motion, useReducedMotion } from "motion/react";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
-import { updateProfile, errorMessage } from "@/lib/api";
-import { AVATARS } from "@/lib/avatars";
-import { cn } from "@/lib/utils";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { LabelInput } from "@/components/ui/label-input";
 import { Icon } from "@/components/ui/icon";
+import { LabelInput } from "@/components/ui/label-input";
+import { errorMessage, updateProfile } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
+import { AVATARS } from "@/lib/avatars";
+import type { ProfileDraft } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export function AccountSettings() {
   const { data: session, refetch } = authClient.useSession();
@@ -82,7 +84,7 @@ export function AccountSettings() {
                       "relative aspect-square h-auto w-full overflow-hidden rounded-2xl border-2 p-0 cursor-pointer",
                       image === avatar.url
                         ? "border-foreground"
-                        : "border-transparent",
+                        : "border-transparent"
                     )}
                   >
                     <Avatar className="size-full rounded-none">
@@ -133,7 +135,6 @@ export function AccountSettings() {
               <Button
                 type="submit"
                 disabled={saving || !user}
-                className="h-auto rounded-full bg-linear-to-b from-neutral-600 to-neutral-800 px-4 py-1.75 text-sm text-white shadow-[0_2px_8px_rgba(23,23,23,0.25),inset_0_1.5px_0_rgba(255,255,255,0.25)] dark:from-white dark:to-neutral-200 dark:text-neutral-800"
               >
                 {saving ? "Saving…" : "Save changes"}
               </Button>

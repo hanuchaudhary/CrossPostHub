@@ -1,16 +1,19 @@
-import { CHANNELS } from "@/lib/constants";
 import { Link } from "react-router";
+
 import { useQuery } from "@tanstack/react-query";
-import { authClient } from "@/lib/auth-client";
-import { queries } from "@/lib/query";
-import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
+
+import { CreatePostButton } from "@/components/posts/composer";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import {
   PageHeading,
   PostList,
   QueryState,
 } from "@/components/workspace/common";
+import { authClient } from "@/lib/auth-client";
+import { CHANNELS } from "@/lib/constants";
+import { queries } from "@/lib/query";
 
 export default function DashboardPage() {
   const { data: session } = authClient.useSession(),
@@ -19,7 +22,7 @@ export default function DashboardPage() {
   const rows = posts.data ?? [],
     published = rows.filter((p) => p.status === "SUCCESS").length,
     scheduled = rows.filter(
-      (p) => p.isScheduled && p.status === "PENDING",
+      (p) => p.isScheduled && p.status === "PENDING"
     ).length;
   return (
     <>
@@ -27,10 +30,7 @@ export default function DashboardPage() {
         title={`Hey ${session?.user.name.split(" ")[0] || "creator"}, let’s make waves.`}
         description="Your ideas, your people, your whole creative world. Right here."
       >
-        <Button nativeButton={false} render={<Link to="/create" />}>
-          <Icon name="plus" />
-          Create a post
-        </Button>
+        <CreatePostButton />
       </PageHeading>
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
@@ -51,8 +51,8 @@ export default function DashboardPage() {
             value: accounts.isSuccess
               ? accounts.data.filter((a) =>
                   CHANNELS.some(
-                    (channel) => !channel.locked && channel.id === a.providerId,
-                  ),
+                    (channel) => !channel.locked && channel.id === a.providerId
+                  )
                 ).length
               : "—",
             icon: "link" as const,

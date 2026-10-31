@@ -1,5 +1,4 @@
-import { Link } from "react-router";
-
+import { CreatePostButton } from "@/components/posts/composer";
 import type {
   PageHeadingProps,
   PostListProps,
@@ -88,10 +87,7 @@ export function PostList({ posts, compact = false }: PostListProps) {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button nativeButton={false} render={<Link to="/create" />}>
-            <Icon name="plus" />
-            Create a post
-          </Button>
+          <CreatePostButton />
         </EmptyContent>
       </Empty>
     );

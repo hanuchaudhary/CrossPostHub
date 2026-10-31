@@ -95,7 +95,7 @@ export default function SigninPage() {
             />
           </Field>
           <AuthFeedback error={error || params.get("error") || undefined} />
-          <Button className="w-full" disabled={pending}>
+          <Button className="w-full" variant={"primary"} disabled={pending}>
             {pending ? "One moment…" : "Sign in to your space"}
             <Icon name="arrow" />
           </Button>

@@ -29,16 +29,14 @@ export function Hero() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Button
-                size="lg"
-                className="h-10 px-4"
+                variant={"primary"}
                 nativeButton={false}
                 render={<Link to="/register" />}
               >
                 Register
               </Button>
               <Button
-                size="lg"
-                variant="ghost"
+                variant="secondary"
                 nativeButton={false}
                 render={<a href="#features" />}
               >

@@ -31,6 +31,12 @@
       "skillPath": "better-auth/emailAndPassword/SKILL.md",
       "computedHash": "863886759f729081e265941f4f72c503835d55a1f34f6d63cebe6571159fff4a"
     },
+    "isokit": {
+      "source": "aadilghani1/isokit",
+      "sourceType": "github",
+      "skillPath": "skills/isokit/SKILL.md",
+      "computedHash": "edc2da8c848a2d896d95db7b9a360cb0c5a1cd8bfe78b66a68eaec9435f3268c"
+    },
     "organization-best-practices": {
       "source": "better-auth/skills",
       "sourceType": "github",

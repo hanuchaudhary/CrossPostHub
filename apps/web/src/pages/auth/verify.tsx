@@ -1,13 +1,15 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { AuthLayout } from "@/components/auth/auth-layout";
+
 import { AuthFeedback } from "@/components/auth/auth-feedback";
+import { AuthLayout } from "@/components/auth/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
-import { LabelInput } from "@/components/ui/label-input";
 import { Icon } from "@/components/ui/icon";
-import { sendVerificationEmail, verifyEmail, errorMessage } from "@/lib/api";
+import { LabelInput } from "@/components/ui/label-input";
+import { errorMessage, sendVerificationEmail, verifyEmail } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
+
 export default function VerifyPage() {
   const [params] = useSearchParams(),
     { data: session } = authClient.useSession();
@@ -32,7 +34,7 @@ export default function VerifyPage() {
       setSuccess(
         token
           ? "Your email is verified. You’re ready to sign in."
-          : "If verification is available for this account, you’ll receive an email shortly.",
+          : "If verification is available for this account, you’ll receive an email shortly."
       );
     } catch (error) {
       setError(errorMessage(error));
@@ -75,7 +77,7 @@ export default function VerifyPage() {
             }
             success={success}
           />
-          <Button className="w-full" disabled={pending}>
+          <Button variant={"primary"} className="w-full" disabled={pending}>
             {pending
               ? "One moment…"
               : token

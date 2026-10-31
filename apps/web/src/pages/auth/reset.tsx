@@ -87,7 +87,7 @@ export default function ResetPage() {
             }
             success={success}
           />
-          <Button className="w-full" disabled={pending || !token || !!success}>
+          <Button variant={"primary"} className="w-full" disabled={pending || !token || !!success}>
             {pending ? "One moment…" : "Reset password"}
             <Icon name="arrow" />
           </Button>
