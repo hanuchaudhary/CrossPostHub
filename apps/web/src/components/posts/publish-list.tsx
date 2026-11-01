@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { useQuery } from "@tanstack/react-query";
 import { addDays, startOfDay } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QueryState } from "@/components/workspace/common";
 import { getChannel } from "@/lib/constants";
+import { queries } from "@/lib/query";
 import type { Post } from "@/lib/types";
 
 import { useComposer } from "./composer";
@@ -18,7 +21,6 @@ const timeLabel = (date: Date) =>
     hour12: true,
   });
 
-// Keep suggestions stable for each date; today's suggestions always stay ahead of now.
 function suggestedSlots(day: Date, now: Date) {
   const seed =
     (day.getFullYear() * 31 + day.getMonth() * 7 + day.getDate() * 13) % 12;
@@ -42,33 +44,76 @@ function suggestedSlots(day: Date, now: Date) {
   });
 }
 
-export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
+const statuses = {
+  pending: "PENDING",
+  sent: "SUCCESS",
+  failed: "FAILED",
+} as const;
+type PublishFilter = keyof typeof statuses;
+
+export function PublishList({ now }: { now: Date }) {
   const open = useComposer();
-  const [filter, setFilter] = useState("queue");
+  const [filter, setFilter] = useState<PublishFilter>("pending");
+  const posts = useQuery(queries.posts());
+  const [visibleDays, setVisibleDays] = useState(10);
+  const sentinel = useRef<HTMLDivElement>(null);
   const groups = {
-    queue: posts.filter((post) => post.status === "PENDING"),
-    sent: posts.filter((post) => post.status === "SUCCESS"),
-    failed: posts.filter((post) => post.status === "FAILED"),
+    pending: (posts.data ?? []).filter((post) => post.status === "PENDING"),
+    sent: (posts.data ?? []).filter((post) => post.status === "SUCCESS"),
+    failed: (posts.data ?? []).filter((post) => post.status === "FAILED"),
   };
-  const rows = groups[filter as keyof typeof groups];
+  const rows = groups[filter];
+  const hasData = posts.data !== undefined;
+  useEffect(() => {
+    const target = sentinel.current;
+    if (
+      filter !== "pending" ||
+      !target ||
+      !hasData ||
+      typeof IntersectionObserver === "undefined"
+    )
+      return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setVisibleDays((count) => count + 10);
+      },
+      {
+        root: target.closest<HTMLElement>('[data-slot="sidebar-inset"]'),
+        rootMargin: "240px 0px",
+      }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [filter, visibleDays, hasData]);
   const postDate = (post: Post) =>
     new Date(post.scheduledFor ?? post.createdAt);
-  const dates = new Map<number, Date>();
-  if (filter === "queue")
-    for (let i = 0; i < 7; i++) {
-      const day = startOfDay(addDays(now, i));
-      dates.set(dateKey(day), day);
-    }
-  for (const post of rows)
-    dates.set(dateKey(postDate(post)), startOfDay(postDate(post)));
-  const days = [...dates.values()].sort((a, b) =>
-    filter === "queue" ? a.getTime() - b.getTime() : b.getTime() - a.getTime()
-  );
+  const days = !posts.data
+    ? []
+    : filter === "pending"
+      ? Array.from({ length: visibleDays }, (_, index) =>
+          startOfDay(addDays(now, index))
+        )
+      : [
+          ...new Map(
+            rows.map((post) => {
+              const day = startOfDay(postDate(post));
+              return [dateKey(day), day] as const;
+            })
+          ).values(),
+        ].sort((a, b) => b.getTime() - a.getTime());
   return (
-    <Tabs value={filter} onValueChange={(value) => setFilter(String(value))}>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-2">
+    <Tabs
+      value={filter}
+      onValueChange={(value) => {
+        if (value === "pending" || value === "sent" || value === "failed") {
+          setFilter(value);
+          setVisibleDays(10);
+        }
+      }}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <TabsList variant="line" aria-label="Post status">
-          {(["queue", "sent", "failed"] as const).map((value) => (
+          {(["pending", "sent", "failed"] as const).map((value) => (
             <TabsTrigger
               key={value}
               value={value}
@@ -76,45 +121,26 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
             >
               {value}
               <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] text-muted-foreground">
-                {groups[value].length}
+                {posts.data ? groups[value].length : 0}
               </span>
             </TabsTrigger>
           ))}
         </TabsList>
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Icon name="clock" />
-          {Intl.DateTimeFormat().resolvedOptions().timeZone}
-        </span>
+        {filter === "pending" && (
+          <span className="hidden shrink-0 rounded-full border px-3 py-1.5 text-[10px] text-muted-foreground sm:block">
+            Next {visibleDays} days
+          </span>
+        )}
       </div>
-      <TabsContent
-        value={filter}
-        className="mx-auto w-full max-w-5xl py-7 sm:py-10"
-      >
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-medium tracking-tight">
-              {filter === "queue"
-                ? "Make room for your next idea."
-                : filter === "sent"
-                  ? "Out in the world."
-                  : "Needs your attention."}
-            </h2>
-            <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
-              {filter === "queue"
-                ? "Pick a time below to start a post. You can adjust it in the composer."
-                : filter === "sent"
-                  ? "Your published posts, one day at a time."
-                  : "Review the posts that couldn’t be published."}
-            </p>
-          </div>
-          {filter === "queue" && (
-            <span className="hidden shrink-0 rounded-full border px-3 py-1.5 text-[10px] text-muted-foreground sm:block">
-              Next 7 days
-            </span>
-          )}
-        </div>
-        {!days.length && (
-          <div className="rounded-xl border border-dashed py-16 text-center">
+      <TabsContent value={filter} className="mx-auto w-full py-7 sm:py-10">
+        <QueryState
+          loadingLabel="Loading your posts"
+          pending={posts.isPending}
+          error={!posts.data ? posts.error : null}
+          retry={() => posts.refetch()}
+        />
+        {hasData && filter !== "pending" && rows.length === 0 && (
+          <div className="rounded-xl border border-dashed px-6 py-14 text-center">
             <Icon
               name={filter === "sent" ? "send" : "check"}
               className="mx-auto mb-3 text-muted-foreground"
@@ -122,7 +148,7 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
             />
             <p className="text-sm text-muted-foreground">
               {filter === "sent"
-                ? "Your published posts will appear here."
+                ? "No published posts yet."
                 : "No failed posts."}
             </p>
           </div>
@@ -133,7 +159,7 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
               (post) => dateKey(postDate(post)) === dateKey(day)
             );
             const slots =
-              filter === "queue" && dateKey(day) >= dateKey(now)
+              filter === "pending" && dateKey(day) >= dateKey(now)
                 ? suggestedSlots(day, now)
                 : [];
             const entries: (
@@ -148,7 +174,7 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
               ...slots.map((date) => ({ date, key: `slot-${date.getTime()}` })),
             ];
             entries.sort((a, b) =>
-              filter === "queue"
+              filter === "pending"
                 ? a.date.getTime() - b.date.getTime()
                 : b.date.getTime() - a.date.getTime()
             );
@@ -181,6 +207,15 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
                   </div>
                 </header>
                 <div className="space-y-3">
+                  {entries.length === 0 && (
+                    <p className="rounded-xl border border-dashed px-4 py-5 text-xs text-muted-foreground">
+                      {filter === "sent"
+                        ? "No published posts on this day."
+                        : filter === "failed"
+                          ? "No failed posts on this day."
+                          : "No more time slots today."}
+                    </p>
+                  )}
                   {entries.map(({ date, post, key }) => (
                     <div
                       key={key}
@@ -250,6 +285,19 @@ export function PublishList({ posts, now }: { posts: Post[]; now: Date }) {
             );
           })}
         </div>
+        {posts.data && filter === "pending" && (
+          <div
+            ref={sentinel}
+            className="flex min-h-20 items-center justify-center"
+          >
+            <Button
+              variant="ghost"
+              onClick={() => setVisibleDays((count) => count + 10)}
+            >
+              Show 10 more days
+            </Button>
+          </div>
+        )}
       </TabsContent>
     </Tabs>
   );

@@ -1,8 +1,10 @@
 import axios from "axios";
 
 import { authClient } from "./auth-client";
+import { connectionError, connectionRedirect } from "./connection-flow";
 import { getChannel } from "./constants";
 import type {
+  BillingUsage,
   ChannelId,
   ConnectedAccount,
   NotificationsResponse,
@@ -104,10 +106,31 @@ export const markNotificationsRead = async () =>
   (await api.put("/notifications")).data;
 export const getSubscription = async () =>
   (await api.get<SubscriptionResponse>("/payment/subscription")).data;
+export const getBillingUsage = async () =>
+  (await api.get<BillingUsage>("/payment/usage")).data;
+export const openBillingPortal = async () => {
+  const { data } = await api.get<{ url: string; redirect: boolean }>(
+    "/auth/dodopayments/customer/portal"
+  );
+  if (!data.url || !data.redirect)
+    throw new Error("Couldn’t open billing. Please try again.");
+  window.location.assign(data.url);
+};
+export const startPlanCheckout = async (planId: string) => {
+  const { data } = await api.post<{ checkout_url: string }>(
+    "/payment/subscribe",
+    { planId }
+  );
+  if (!data.checkout_url)
+    throw new Error("Couldn’t open checkout. Please try again.");
+  window.location.assign(data.checkout_url);
+};
 export const getAccounts = async (): Promise<ConnectedAccount[]> => {
   const result = await authClient.listAccounts();
-  if (result.error) throw new Error(result.error.message);
-  return result.data ?? [];
+  if (result.error) throw connectionError(result.error);
+  if (!Array.isArray(result.data))
+    throw new Error("Couldn’t load your connections. Please try again.");
+  return result.data;
 };
 export const connectAccount = async (provider: ChannelId) => {
   const channel = getChannel(provider);
@@ -115,14 +138,19 @@ export const connectAccount = async (provider: ChannelId) => {
     throw new Error(`${channel?.name || provider} is not available yet.`);
   const result = await authClient.linkSocial({
     provider,
-    callbackURL: `${window.location.origin}/connections`,
+    callbackURL: `${window.location.origin}/connections?connection=success&provider=${encodeURIComponent(provider)}`,
+    errorCallbackURL: `${window.location.origin}/connections?connection=error&provider=${encodeURIComponent(provider)}`,
+    disableRedirect: true,
   });
-  if (result.error) throw new Error(result.error.message);
-  return result.data;
+  if (result.error) throw connectionError(result.error);
+  return connectionRedirect(result.data?.url);
 };
 export const disconnectAccount = async (accountId: string) => {
+  if (!accountId.trim()) throw new Error("No connected account was selected.");
   const result = await authClient.unlinkAccount({ accountId });
-  if (result.error) throw new Error(result.error.message);
+  if (result.error) throw connectionError(result.error);
+  if (!result.data?.status)
+    throw new Error("The account couldn’t be disconnected. Please try again.");
   return result.data;
 };
 export function errorMessage(error: unknown) {

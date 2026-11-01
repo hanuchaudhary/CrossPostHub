@@ -1,7 +1,7 @@
 import { type FormEvent, useRef } from "react";
 
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { Button } from "@/components/ui/button";
 import { LabelInput } from "@/components/ui/label-input";

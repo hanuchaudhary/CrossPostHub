@@ -105,6 +105,13 @@ export type SubscriptionResponse = {
   status: string;
   subscription?: { nextBillingAt?: string | null; planId: string };
 };
+export type BillingUsage = {
+  planId: string;
+  periodStart: string;
+  resetsAt: string;
+  posts: { used: number; limit: number | null };
+  scheduled: { used: number; limit: number | null };
+};
 export type Session = typeof authClient.$Infer.Session;
 export type User = Session["user"];
 export type ConnectedAccount = NonNullable<
@@ -140,6 +147,7 @@ export type PageHeadingProps = {
   children?: ReactNode;
 };
 export type QueryStateProps = {
+  loadingLabel?: string;
   pending: boolean;
   error: unknown;
   retry: () => void;

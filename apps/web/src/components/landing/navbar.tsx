@@ -1,11 +1,13 @@
 import { Link } from "react-router";
 
 import { SiteCorners, SiteRule } from "@/components/corners";
+import { authClient } from "@/lib/auth-client";
 
 import { Brand } from "../ui/brand";
 import { Button } from "../ui/button";
 
 export function Navbar() {
+  const { data: session, isPending } = authClient.useSession();
   return (
     <>
       <header className="sticky top-0 z-40 bg-background backdrop-blur-sm">
@@ -22,31 +24,53 @@ export function Navbar() {
               <nav aria-label="Primary" className="max-lg:hidden">
                 <ul className="flex items-center gap-2" role="list">
                   {[
-                    ["Features", "#features"],
-                    ["Channels", "#channels"],
-                    ["Pricing", "#pricing"],
+                    ["Features", "/#features"],
+                    ["Channels", "/#channels"],
+                    ["Pricing", "/pricing"],
                   ].map(([label, href]) => (
-                    <Link className="subheading text-sm! text-primary! hover:underline" to={href} key={href}>{label}</Link>
+                    <Link
+                      className="subheading text-sm! text-primary! hover:underline"
+                      to={href}
+                      key={href}
+                    >
+                      {label}
+                    </Link>
                   ))}
                 </ul>
               </nav>
             </div>
 
             <div className="flex items-center gap-1 sm:gap-2">
-              <Button
-                variant="ghost"
-                nativeButton={false}
-                render={<Link to="/signin" />}
-              >
-                Sign in
-              </Button>
-              <Button
-                variant={"primary"}
-                nativeButton={false}
-                render={<Link to="/register" />}
-              >
-                Get started
-              </Button>
+              {session?.user ? (
+                <Button
+                  variant="primary"
+                  nativeButton={false}
+                  render={<Link to="/dashboard" />}
+                >
+                  Dashboard
+                </Button>
+              ) : !isPending ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    nativeButton={false}
+                    render={<Link to="/signin" />}
+                  >
+                    Sign in
+                  </Button>
+                  <Button
+                    variant={"primary"}
+                    nativeButton={false}
+                    render={<Link to="/register" />}
+                  >
+                    Get started
+                  </Button>
+                </>
+              ) : (
+                <span role="status" className="text-sm text-muted-foreground">
+                  <span className="sr-only">Checking your session</span>
+                </span>
+              )}
             </div>
           </div>
         </div>

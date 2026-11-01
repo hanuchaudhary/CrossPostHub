@@ -2,12 +2,12 @@ import { useRef, useState } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
 
 import { AlertDialog } from "@base-ui/react/alert-dialog";
-import { toast } from "sonner";
 
 import { ComposerProvider, useComposer } from "@/components/posts/composer";
 import { errorMessage, signOut } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { queryClient } from "@/lib/query";
+import { toast } from "@/lib/toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Brand } from "../ui/brand";
@@ -51,17 +51,16 @@ export function ProtectedLayout() {
   if (isPending)
     return (
       <div className="flex min-h-svh flex-col items-center justify-center gap-4 text-sm text-muted-foreground">
-        <LoadingIndicator />
-        Opening your creative space…
+        <LoadingIndicator label="Opening your workspace" />
       </div>
     );
   if (error)
     return (
-      <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-6 text-center">
-        <h1 className="text-xl font-semibold">
+      <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 p-6 text-center">
+        <h1 className="heading md:w-70">
           We couldn’t reach your account.
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="subheading md:w-80">
           Please check your connection and try again.
         </p>
         <Button onClick={() => refetch()}>Try again</Button>

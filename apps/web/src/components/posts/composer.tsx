@@ -10,7 +10,6 @@ import { Link } from "react-router";
 
 import { Dialog } from "@base-ui/react/dialog";
 import { useIsMutating, useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
 
@@ -30,26 +29,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UploadDropzone } from "@/components/ui/upload-dropzone";
-import { createPost, errorMessage } from "@/lib/api";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createPost, deleteMedia, errorMessage, uploadMedia } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { CHANNELS, getChannel, isPublishingPlatform } from "@/lib/constants";
 import { mutationKeys, queries, queryClient, refreshPosts } from "@/lib/query";
+import { toast } from "@/lib/toast";
 import type { Platform, PostInput } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 import {
-  MEDIA_ACCEPT,
-  validateAttachments,
+  MediaUpload,
+  useMediaUploads,
   validatePlatformMedia,
-} from "./media-validation";
+} from "./media-upload";
 import { PostPreview } from "./preview";
-import { MediaFile } from "./preview/media";
 import {
   isFutureSchedule,
   nextScheduledMinute,
   withScheduleTime,
 } from "./schedule-time";
-import { useMediaUploads } from "./use-media-uploads";
 
 export function localDateTime(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
@@ -123,7 +122,6 @@ function PostComposer({
   const [showDate, setShowDate] = useState(false);
   const selectedDate = new Date(when);
   const invalidSchedule = scheduled && !isFutureSchedule(selectedDate, now);
-  const current = customized ? (variants[active] ?? shared) : shared;
   const previewPlatform =
     !providers.length || providers.includes(active) ? active : providers[0]!;
   const previewContent = customized
@@ -134,7 +132,16 @@ function PostComposer({
     const error = validatePlatformMedia(id, content.files);
     return error ? [`${getChannel(id)?.name}: ${error}`] : [];
   });
-  const uploads = useMediaUploads();
+  const uploads = useMediaUploads(uploadMedia, deleteMedia);
+  useEffect(() => {
+    const used = new Set([
+      ...shared.files,
+      ...Object.values(variants).flatMap((content) => content.files),
+    ]);
+    for (const file of uploads.entries.keys()) {
+      if (!used.has(file)) uploads.release(file);
+    }
+  }, [shared, variants, uploads]);
   const publishingFiles = [
     ...new Set(
       providers.flatMap(
@@ -145,45 +152,10 @@ function PostComposer({
   const uploadsBlocked = publishingFiles.some(
     (file) => uploads.entries.get(file)?.status !== "uploaded"
   );
-  function removeFile(file: File) {
-    const nextShared = {
-      ...shared,
-      files: shared.files.filter((item) => item !== file),
-    };
-    // Removing from a custom platform must not erase another platform's media.
-    if (customized) {
-      const nextContent = {
-        ...current,
-        files: current.files.filter((item) => item !== file),
-      };
-      setVariants((old) => ({ ...old, [active]: nextContent }));
-      const stillUsed =
-        shared.files.includes(file) ||
-        Object.entries(variants).some(
-          ([id, content]) => id !== active && content.files.includes(file)
-        );
-      if (!stillUsed) uploads.release(file);
-    } else {
-      setShared(nextShared);
-      if (
-        !Object.values(variants).some((content) => content.files.includes(file))
-      )
-        uploads.release(file);
-    }
-  }
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  function update(content: Content) {
-    if (customized) setVariants((old) => ({ ...old, [active]: content }));
+  function update(content: Content, platform?: Platform) {
+    if (platform) setVariants((old) => ({ ...old, [platform]: content }));
     else setShared(content);
-  }
-  function addFiles(files: File[]) {
-    const error = validateAttachments([...current.files, ...files]);
-    if (error) {
-      return error;
-    }
-    update({ ...current, files: [...current.files, ...files] });
-    uploads.start(files);
-    return undefined;
   }
   const mutation = useMutation({
     mutationKey: mutationKeys.createPost,
@@ -235,7 +207,6 @@ function PostComposer({
         throw new Error(
           "Monthly post limit reached. Compare plans in Billing."
         );
-      // Uploads start when files are selected; submission only uses completed keys.
       const filesToPublish = [
         ...new Set(providers.flatMap((id) => contentFor(id).files)),
       ];
@@ -266,43 +237,86 @@ function PostComposer({
     },
     onError: (error) => toast.error(errorMessage(error)),
   });
-  const limit = customized
-    ? active === "twitter"
+  function renderEditor(platform?: Platform) {
+    const content = platform ? (variants[platform] ?? shared) : shared;
+    const selected = platform ? [platform] : providers;
+    const limit = selected.includes("twitter")
       ? 280
-      : active === "instagram"
-        ? 2200
-        : 3000
-    : providers.includes("twitter")
-      ? 280
-      : providers.includes("instagram")
+      : selected.includes("instagram")
         ? 2200
         : 3000;
+    const captionId = `post-caption-${platform ?? "shared"}`;
+    return (
+      <div
+        key={platform ?? "shared"}
+        className="rounded-xl border bg-muted/35 p-4 sm:p-5"
+        onFocusCapture={() => {
+          if (platform) setActive(platform);
+        }}
+      >
+        <label
+          htmlFor={captionId}
+          className="mb-3 flex items-center gap-2 text-sm font-medium"
+        >
+          <Icon name={platform ?? "layers"} />
+          {platform ? getChannel(platform)?.name : "Your caption"}
+          {platform === "instagram" && (
+            <span className="ml-auto text-[10px] font-normal text-muted-foreground">
+              Photo or video required
+            </span>
+          )}
+        </label>
+        <textarea
+          id={captionId}
+          className="min-h-44 w-full resize-y bg-transparent text-sm leading-7 outline-none placeholder:text-muted-foreground/60"
+          placeholder={
+            platform
+              ? `Write your ${getChannel(platform)?.name} caption…`
+              : "What would you like to share?"
+          }
+          value={content.text}
+          aria-invalid={content.text.length > limit}
+          aria-describedby={`${captionId}-count`}
+          onChange={(event) =>
+            update({ ...content, text: event.target.value }, platform)
+          }
+        />
+        <MediaUpload
+          files={content.files}
+          platforms={selected}
+          uploads={uploads}
+          disabled={mutation.isPending}
+          onChange={(files) => update({ ...content, files }, platform)}
+        />
+        <p
+          id={`${captionId}-count`}
+          className={`mt-4 text-right text-xs ${content.text.length > limit ? "text-destructive" : "text-muted-foreground"}`}
+        >
+          {content.text.length} / {limit}
+        </p>
+      </div>
+    );
+  }
   return (
     <Dialog.Portal>
       <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm" />
-      <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 flex max-h-[94dvh] w-[min(1120px,96vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl">
-        <header className="flex items-center justify-between border-b px-6 py-5">
-          <div>
-            <Dialog.Title className="text-xl font-medium">
-              Create Post
-            </Dialog.Title>
-            <Dialog.Description className="mt-1 text-xs text-muted-foreground">
-              One idea, every channel. Make it yours.
-            </Dialog.Description>
-          </div>
-          <Dialog.Close
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={mutation.isPending}
-                aria-label="Close composer"
-              />
-            }
-          >
-            <Icon name="close" />
-          </Dialog.Close>
-        </header>
+      <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 flex h-[90dvh] max-h-[94dvh] w-[min(1120px,96vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl">
+        <Dialog.Close
+          render={
+            <Button
+              variant="secondary"
+              size="icon"
+              disabled={mutation.isPending}
+              aria-label="Close composer"
+              className={cn(
+                "absolute top-2 right-2 z-30 size-8 rounded-full",
+                mutation.isPending && "opacity-50"
+              )}
+            />
+          }
+        >
+          <Icon name="close" />
+        </Dialog.Close>
         <form
           className="flex min-h-0 flex-1 flex-col"
           onSubmit={(e) => {
@@ -312,254 +326,135 @@ function PostComposer({
         >
           <fieldset
             disabled={mutation.isPending}
-            className="min-h-0 min-w-0 flex-1 overflow-y-auto"
+            className="flex min-h-0 min-w-0 flex-1 overflow-hidden"
           >
-            <div className="grid min-w-0 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
-              <section className="min-w-0 space-y-5 p-5 sm:p-7">
-                <div
-                  className="flex flex-wrap gap-2"
-                  role="group"
-                  aria-label="Publishing channels"
-                >
-                  {CHANNELS.map((channel) => {
-                    const supported = isPublishingPlatform(channel.id);
-                    const connected = !!accounts.data?.some(
-                      (a) => a.providerId === channel.id
-                    );
-                    const selected =
-                      isPublishingPlatform(channel.id) &&
-                      providers.includes(channel.id);
-                    const label = `${channel.name}${!supported || channel.locked ? " — publishing coming soon" : !connected ? " — connect this channel first" : ""}`;
-                    return (
-                      <Button
-                        key={channel.id}
-                        type="button"
-                        variant={selected ? "secondary" : "outline"}
-                        className={`size-12 rounded-xl ${selected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
-                        title={label}
-                        aria-label={label}
-                        aria-pressed={selected}
-                        disabled={
-                          !supported ||
-                          !connected ||
-                          channel.locked ||
-                          accounts.isPending ||
-                          accounts.isError
-                        }
-                        onClick={() => {
-                          if (!isPublishingPlatform(channel.id)) return;
-                          const id = channel.id;
-                          const next = providers.includes(id)
-                            ? providers.filter((p) => p !== id)
-                            : [...providers, id];
-                          setProviders(next);
-                          setActive(
-                            next.includes(id) ? id : (next[0] ?? "linkedin")
-                          );
-                          if (customized && !variants[id])
-                            setVariants((old) => ({
-                              ...old,
-                              [id]: { ...shared },
-                            }));
-                        }}
-                      >
-                        <ChannelIcon
-                          channel={channel}
-                          connected={connected}
-                          size={24}
-                        />
-                      </Button>
-                    );
-                  })}
-                </div>
-                {accounts.isError && (
-                  <p role="alert" className="text-xs text-destructive">
-                    Connections couldn’t load.{" "}
-                    <button
-                      type="button"
-                      className="underline"
-                      onClick={() => accounts.refetch()}
-                    >
-                      Try again
-                    </button>
-                  </p>
-                )}
-                {accounts.isSuccess &&
-                  !accounts.data.some((a) =>
-                    isPublishingPlatform(a.providerId)
-                  ) && (
-                    <Link
-                      to="/connections"
-                      onClick={close}
-                      className="text-xs underline"
-                    >
-                      Connect a channel to start publishing
-                    </Link>
-                  )}
-                <div className="flex flex-wrap gap-2" aria-label="Content mode">
-                  <Button
-                    type="button"
-                    variant={!customized ? "secondary" : "ghost"}
-                    aria-pressed={!customized}
-                    onClick={() => setCustomized(false)}
-                  >
-                    Same post for all
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={customized ? "secondary" : "ghost"}
-                    aria-pressed={customized}
-                    onClick={() => {
+            <div className="grid min-h-0 w-full min-w-0 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)] lg:overflow-hidden">
+              <section
+                aria-label="Post content"
+                className="min-h-0 min-w-0 lg:overflow-y-auto"
+              >
+                <Tabs
+                  value={customized ? "customized" : "shared"}
+                  className="gap-0"
+                  onValueChange={(value) => {
+                    if (value === "customized") {
                       setVariants((old) => {
                         const next = { ...old };
                         for (const id of providers) next[id] ??= { ...shared };
                         return next;
                       });
-                      setCustomized(true);
-                      if (!providers.includes(active) && providers[0])
-                        setActive(providers[0]);
-                    }}
-                  >
-                    Customize per platform
-                  </Button>
-                </div>
-                {customized && (
-                  <div
-                    className="flex flex-wrap gap-2"
-                    role="group"
-                    aria-label="Edit platform content"
-                  >
-                    {providers.map((id) => (
-                      <Button
-                        key={id}
-                        type="button"
-                        variant={active === id ? "secondary" : "outline"}
-                        aria-pressed={active === id}
-                        onClick={() => setActive(id)}
-                      >
-                        {getChannel(id)?.name}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-                <div className="rounded-xl border bg-muted/35 p-4 sm:p-5">
-                  <label
-                    htmlFor="post-caption"
-                    className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"
-                  >
-                    <Icon name={customized ? active : "layers"} />
-                    {customized
-                      ? `${getChannel(active)?.name} caption`
-                      : "Your caption"}
-                  </label>
-                  <textarea
-                    id="post-caption"
-                    className="min-h-52 w-full resize-y bg-transparent text-sm leading-7 outline-none placeholder:text-muted-foreground/60"
-                    placeholder="What would you like to share?"
-                    value={current.text}
-                    onChange={(e) =>
-                      update({ ...current, text: e.target.value })
                     }
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    {current.files.map((file, index) => (
-                      <div
-                        key={`${file.name}-${file.lastModified}-${index}`}
-                        className="relative"
-                      >
-                        <MediaFile
-                          file={file}
-                          className="aspect-video rounded-lg"
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="secondary"
-                          className="absolute top-2 right-2"
-                          aria-label={`Remove ${file.name}`}
-                          onClick={() => removeFile(file)}
-                        >
-                          <Icon name="close" />
-                        </Button>
-                        {current.files.length > 1 && (
-                          <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-background/90 p-1 shadow-sm">
-                            <span className="px-1 text-[10px]">
-                              {index + 1}
-                            </span>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-xs"
-                              aria-label={`Move ${file.name} earlier`}
-                              disabled={index === 0}
-                              onClick={() => {
-                                const files = [...current.files];
-                                [files[index - 1], files[index]] = [
-                                  files[index]!,
-                                  files[index - 1]!,
-                                ];
-                                update({ ...current, files });
-                              }}
-                            >
-                              <Icon name="back" size={12} />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon-xs"
-                              aria-label={`Move ${file.name} later`}
-                              disabled={index === current.files.length - 1}
-                              onClick={() => {
-                                const files = [...current.files];
-                                [files[index], files[index + 1]] = [
-                                  files[index + 1]!,
-                                  files[index]!,
-                                ];
-                                update({ ...current, files });
-                              }}
-                            >
-                              <Icon name="arrow" size={12} />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4">
-                    <UploadDropzone
-                      accept={MEDIA_ACCEPT}
-                      disabled={mutation.isPending}
-                      files={current.files.map(
-                        (file) =>
-                          uploads.entries.get(file) ?? {
-                            file,
-                            status: "uploading",
-                            progress: 0,
-                          }
-                      )}
-                      onFiles={addFiles}
-                      onRemove={removeFile}
-                      onRetry={uploads.retry}
-                    />
-                  </div>
-                  <p
-                    className={`mt-4 text-right text-xs ${current.text.length > limit ? "text-destructive" : "text-muted-foreground"}`}
-                  >
-                    {current.text.length} / {limit}
-                  </p>
-                  {mediaIssues.length > 0 && (
+                    setCustomized(value === "customized");
+                  }}
+                >
+                  <div className="sticky top-0 z-20 space-y-4 bg-background p-5 sm:px-7">
                     <div
-                      role="status"
-                      className="mt-3 space-y-1 text-xs leading-5 text-destructive"
+                      className="flex flex-wrap gap-2"
+                      role="group"
+                      aria-label="Publishing channels"
                     >
-                      {mediaIssues.map((issue) => (
-                        <p key={issue}>{issue}</p>
-                      ))}
+                      {CHANNELS.map((channel) => {
+                        const supported = isPublishingPlatform(channel.id);
+                        const connected = !!accounts.data?.some(
+                          (a) => a.providerId === channel.id
+                        );
+                        const selected =
+                          isPublishingPlatform(channel.id) &&
+                          providers.includes(channel.id);
+                        const label = `${channel.name}${!supported || channel.locked ? " — publishing coming soon" : !connected ? " — connect this channel first" : ""}`;
+                        return (
+                          <Button
+                            key={channel.id}
+                            type="button"
+                            variant={selected ? "secondary" : "outline"}
+                            className={`size-12 rounded-xl ${selected ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""}`}
+                            title={label}
+                            aria-label={label}
+                            aria-pressed={selected}
+                            onClick={() => {
+                              if (!isPublishingPlatform(channel.id)) return;
+                              const id = channel.id;
+                              const next = providers.includes(id)
+                                ? providers.filter((p) => p !== id)
+                                : [...providers, id];
+                              setProviders(next);
+                              setActive(
+                                next.includes(id) ? id : (next[0] ?? "linkedin")
+                              );
+                              if (customized && !variants[id])
+                                setVariants((old) => ({
+                                  ...old,
+                                  [id]: { ...shared },
+                                }));
+                            }}
+                          >
+                            <ChannelIcon
+                              channel={channel}
+                              connected={connected}
+                              size={24}
+                            />
+                          </Button>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
+                    {accounts.isError && (
+                      <p role="alert" className="text-xs text-destructive">
+                        Connections couldn’t load.{" "}
+                        <button
+                          type="button"
+                          className="underline"
+                          onClick={() => accounts.refetch()}
+                        >
+                          Try again
+                        </button>
+                      </p>
+                    )}
+                    {accounts.isSuccess &&
+                      !accounts.data.some((a) =>
+                        isPublishingPlatform(a.providerId)
+                      ) && (
+                        <Link
+                          to="/connections"
+                          onClick={close}
+                          className="text-xs underline"
+                        >
+                          Connect a channel to start publishing
+                        </Link>
+                      )}
+                    <TabsList aria-label="Content mode">
+                      <TabsTrigger
+                        className={"px-4"}
+                        value="shared"
+                        disabled={mutation.isPending}
+                      >
+                        Same post for all
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="customized"
+                        disabled={mutation.isPending}
+                      >
+                        Customize per platform
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <TabsContent value="shared" className="p-5 sm:p-7">
+                    {renderEditor()}
+                  </TabsContent>
+                  <TabsContent
+                    value="customized"
+                    className="space-y-5 p-5 sm:p-7"
+                  >
+                    {providers.length ? (
+                      providers.map((id) => renderEditor(id))
+                    ) : (
+                      <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                        Select platforms above to customize each post.
+                      </p>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </section>
-              <aside className="min-w-0 border-t bg-muted/15 p-4 sm:p-6 lg:border-t-0 lg:border-l">
+              <aside className="min-h-0 min-w-0 border-t bg-muted/15 p-4 sm:p-6 lg:overflow-y-auto lg:border-t-0 lg:border-l">
                 <div className="mb-5 flex items-center justify-between gap-3">
                   <h2 className="text-sm font-medium">Post preview</h2>
                   <Select
@@ -593,7 +488,7 @@ function PostComposer({
                   </Select>
                 </div>
                 <PostPreview
-                  key={`${previewPlatform}-${previewContent.files.map((f) => f.name + f.lastModified).join("-")}`}
+                  key={previewPlatform}
                   platform={providers.length ? previewPlatform : active}
                   text={previewContent.text}
                   files={previewContent.files}
@@ -609,11 +504,14 @@ function PostComposer({
               </aside>
             </div>
           </fieldset>
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/20 px-6 py-4">
-            <span className="text-xs text-muted-foreground">
-              {providers.length} channel{providers.length === 1 ? "" : "s"}{" "}
-              selected
-            </span>
+          <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 bg-muted/20 px-6 py-4">
+            <div className="flex items-center gap-2">
+              {providers.map((id) => (
+                <div key={id} className="size-12 rounded-full bg-secondary p-2 flex items-center justify-center -mr-6 ring-2 ring-primary/50 ring-offset-1 ring-offset-background">
+                  <ChannelIcon showLock={false} connected={true} channel={getChannel(id)!} size={24} className="z-0" />
+                </div>
+              ))}
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               <Select
                 value={scheduled ? "schedule" : "now"}

@@ -3,6 +3,28 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
 
+/* Kobra toast registry tokens. */
+@theme inline {
+  --toast-morph-duration: 300ms;
+  --toast-morph-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-info: var(--info);
+}
+:root {
+  --error: oklch(0.5 0.21 27.3);
+  --warning: oklch(0.5 0.14 70);
+  --success: oklch(0.5 0.13 152);
+  --info: oklch(0.5 0.17 255);
+}
+.dark {
+  --error: oklch(0.704 0.191 22.216);
+  --warning: oklch(0.704 0.15 75);
+  --success: oklch(0.704 0.15 152);
+  --info: oklch(0.704 0.15 255);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -137,14 +159,13 @@
   }
 }
 
-.heading{
+.heading {
   @apply text-foreground font-light md:text-[2.25rem] text-[2rem] text-balance max-w-2xl leading-none tracking-tighter;
 }
 
-.subheading{
+.subheading {
   @apply text-neutral-400/90 font-light md:text-[1.4rem] text-[1.125rem] text-pretty max-w-2xl leading-tight tracking-tight;
 }
-
 
 @utility site-rule {
   height: 1px;
@@ -259,145 +280,26 @@
     display: none;
   }
 }
-/* ══ Upload dropzone ═════════════════════════════════════
-   Adapted from Bencho (MIT), https://bencho.dev/licence.
-   Map Bencho's ink, ground and font directly to this app's existing tokens.
-   Success has no existing equivalent, so it stays local to this component. */
-.upl {
-  --upl-ok: #15803d;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  min-width: 0;
-  font-family: var(--font-sans);
-  color: var(--foreground);
-  user-select: none;
-  -webkit-user-select: none;
+/* Unlayered toast rules intentionally outrank utility classes. */
+.toast-pill {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 18%),
+    0 8px 24px rgb(0 0 0 / 20%),
+    0 0 0 1px rgb(255 255 255 / 10%);
+  transition: padding var(--toast-morph-duration) var(--toast-morph-ease);
 }
-
-/* a slot of fixed size, so the box can close in round an upload
-   without moving anything below it */
-.upl-zone-wrap {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 176px;
+.toast-detail {
+  transition: padding var(--toast-morph-duration) var(--toast-morph-ease);
 }
-.upl-zone {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  /* 176, up from 128: the drop target is the block, and a short
-     one read as a banner rather than a place to put something */
-  height: 176px;
-  padding: 0 16px;
-  overflow: hidden;
-  border: 0;
-  border-radius: var(--upl-r);
-  background: var(--card);
-  cursor: pointer;
-  /* a file over it and it grows, with a bounce; an upload and it
-     closes in round it */
-  transition:
-    scale 420ms cubic-bezier(0.24, 1.34, 0.38, 1),
-    width 420ms cubic-bezier(0.24, 1.34, 0.38, 1),
-    height 420ms cubic-bezier(0.24, 1.34, 0.38, 1),
-    background-color 220ms ease;
-}
-.upl-zone[data-over] { scale: 1.02; }
-
-/* the gulp: in a little as the file goes down, out past its size,
-   and settle */
-.upl-zone[data-gulp] { animation: upl-gulp 460ms cubic-bezier(0.3, 1.2, 0.4, 1); }
-.upl-zone[data-gulp] .upl-icon { animation: upl-open 460ms cubic-bezier(0.3, 1.4, 0.4, 1); }
-[data-stroke="on"] .upl-zone { box-shadow: 0 0 0 1px var(--border); }
-.upl-icon {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  /* a light grey tile, no edge — the fill's own ink walked most
-     of the way to its slab, so it is a pale grey on the light fill
-     and a lifted grey on the dark one */
-  background: color-mix(in srgb, var(--foreground) 6%, var(--card));
-  color: color-mix(in srgb, var(--foreground) 72%, var(--card));
-  transition: translate 420ms cubic-bezier(0.24, 1.34, 0.38, 1), background-color 220ms ease, color 220ms ease;
-}
-/* over the box the tile only lifts, and its arrow goes to full
-   ink — no colour of its own */
-.upl-zone[data-over] .upl-icon { translate: 0 -4px; color: var(--foreground); }
-.upl-say { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; text-align: center; letter-spacing: 0em; }
-.upl-say b { font-weight: 500; }
-.upl-say span { font-size: 12px; color: color-mix(in srgb, var(--foreground) 52%, var(--card)); letter-spacing: 0em; }
-.upl-zone[data-refuse] .upl-say b { color: var(--destructive); }
-
-/* the file, arrived in the box */
-.upl-now { display: flex; align-items: center; gap: 12px; width: max-content; flex: none; animation: upl-land 420ms var(--upl-spring) both; }
-.upl-text { display: flex; flex-direction: column; gap: 4px; width: 150px; }
-.upl-name { overflow: hidden; font-size: 13px; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; letter-spacing: 0em; }
-.upl-meta { display: flex; align-items: center; gap: 4px; height: 14px; font-size: 12px; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--foreground) 52%, var(--card)); letter-spacing: 0em; }
-.upl-track { position: relative; height: 4px; margin-top: 4px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--foreground) 6%, var(--card)); }
-.upl-bar { position: absolute; inset: 0; border-radius: inherit; background: var(--primary); transform-origin: left center; }
-.upl-roll { display: inline-flex; line-height: 1em; height: 1em; overflow: hidden; }
-.upl-roll-col { display: inline-block; height: 1em; overflow: hidden; }
-.upl-roll-strip { display: flex; flex-direction: column; transition: transform 220ms cubic-bezier(0.24, 1.34, 0.38, 1); }
-.upl-roll-strip > span { height: 1em; }
-.upl-end { display: grid; place-items: center; flex: none; width: 22px; height: 22px; }
-.upl-tick { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--upl-ok); color: #fff; animation: upl-pop 380ms cubic-bezier(0.3, 1.6, 0.4, 1) both; }
-
-/* the tray: three files lying under the box */
-.upl-tray { display: flex; justify-content: center; gap: 20px; }
-.upl-slot { position: relative; width: 76px; height: 75px; }
-.upl-file { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 4px; cursor: grab; touch-action: none; outline: none;
-  /* home is a spring; the Bounce knob sets its overshoot */
-  transition: transform 420ms var(--upl-spring), opacity 220ms ease;
-}
-.upl-file[data-held] { z-index: 5; cursor: grabbing; transition: none; }
-.upl-file[data-gone] { opacity: 0; pointer-events: none; transition: none; }
-.upl-file:not([data-gone]) { animation: upl-back 360ms var(--upl-spring) both; }
-.upl-file:focus-visible .upl-page { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 6px; }
-.upl-page { overflow: visible; flex-shrink: 0; }
-.upl-page-line { stroke: color-mix(in srgb, var(--foreground) 32%, var(--card)); stroke-width: 1.5;
-  /* outline only: the page is drawn, not filled */
-  fill: none;
-}
-.upl-page-ext { fill: #fff; font-family: var(--font-sans);
-  /* size is the <text>'s own fontSize, in the icon's units */
-  font-weight: 500; letter-spacing: 0em;
-}
-.upl-label { max-width: 76px; overflow: hidden; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; color: color-mix(in srgb, var(--foreground) 72%, var(--card)); letter-spacing: 0em; }
-
-/* the tray sits on the STAGE, not on the block, so when Fill
-   takes the block the other way from the page its names would be
-   coloured for the wrong ground — light grey on a light stage.
-   Across that split they take the page's own ink instead. */
-/* the page's outline goes with its name, the same colour */
-/* This app uses .dark and semantic surface tokens, rather than Bencho's
-   data-theme/data-fill system. Its tray and box inherit the same local ink. */
-.upl-tray-live .upl-page-line { stroke: color-mix(in srgb, var(--foreground) 70%, var(--background)); }
-.upl-tray-live { flex-direction: column; gap: 10px; }
-.upl-now-live { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--border); border-radius: 12px; animation: none; }
-.upl-now-live .upl-text { min-width: 0; flex: 1; width: auto; }
-.upl-action { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; }
-.upl-action:hover { background: var(--muted); }
-.upl-action:disabled, .upl-zone:disabled { opacity: 0.5; cursor: not-allowed; }
-.upl-action:focus-visible, .upl-zone:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
-.upl-error { color: var(--destructive); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
-
-@keyframes upl-gulp { 0% { scale: 1.02; } 35% { scale: 0.985; } 70% { scale: 1.006; } 100% { scale: 1; } }
-@keyframes upl-open { 40% { scale: 1.08; } }
-@keyframes upl-land { from { opacity: 0; scale: 0.85; translate: 0 10px; } }
-@keyframes upl-pop { from { scale: 0; } }
-@keyframes upl-back { from { scale: 0.7; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .upl *, .upl *::before, .upl *::after { animation: none !important; transition: none !important; }
-  .upl-zone[data-over] { scale: 1; }
+  .toast-pill,
+  .toast-detail {
+    transition: none;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .toast-pill {
+    background: var(--popover);
+    backdrop-filter: none;
+  }
 }

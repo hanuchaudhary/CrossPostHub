@@ -1,8 +1,15 @@
-import { findPlan, planForProduct, productIdForPlan } from "@repo/shared/pricing";
 import { Hono } from "hono";
 import { z } from "zod";
+
+import {
+  findPlan,
+  getPlan,
+  planForProduct,
+  productIdForPlan,
+} from "@repo/shared/pricing";
+
 import { getDodo } from "../lib/dodo";
-import { dbFor, requireUser, type AppEnv } from "./shared";
+import { type AppEnv, dbFor, requireUser } from "./shared";
 
 function transactionJson(transaction: Record<string, unknown>) {
   return { ...transaction, order_id: transaction.orderId };
@@ -28,7 +35,7 @@ app.get("", async (c) => {
   ]);
   return c.json({
     transactions: transactions.map((item) =>
-      transactionJson(item as unknown as Record<string, unknown>),
+      transactionJson(item as unknown as Record<string, unknown>)
     ),
     subscriptions,
   });
@@ -40,7 +47,7 @@ app.post("", async (c) => {
   const { order_id } = z
     .object({ order_id: z.string() })
     .parse(await c.req.json());
-    const transaction = await dbFor(c).transaction.findFirst({
+  const transaction = await dbFor(c).transaction.findFirst({
     where: {
       userId: user.id,
       OR: [{ id: order_id }, { orderId: order_id }, { paymentId: order_id }],
@@ -56,13 +63,57 @@ app.post("", async (c) => {
 app.get("/subscription", async (c) => {
   const user = await requireUser(c);
   if (!user) return c.json({ message: "Unauthorized" }, 401);
-    const subscription = await dbFor(c).subscription.findFirst({
+  const db = dbFor(c);
+  const active = await db.subscription.findFirst({
     where: { userId: user.id, status: "active" },
     orderBy: { updatedAt: "desc" },
   });
+  const subscription =
+    active ??
+    (await db.subscription.findFirst({
+      where: { userId: user.id, dodoSubscriptionId: { not: null } },
+      orderBy: { updatedAt: "desc" },
+    }));
   return subscription
     ? c.json({ status: subscription.status, subscription })
     : c.json({ status: "none" });
+});
+
+app.get("/usage", async (c) => {
+  const user = await requireUser(c);
+  if (!user) return c.json({ message: "Unauthorized" }, 401);
+  const db = dbFor(c);
+  const now = new Date();
+  const periodStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+  );
+  const resetsAt = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)
+  );
+  const [active, posts, scheduled] = await Promise.all([
+    db.subscription.findFirst({
+      where: { userId: user.id, status: "active" },
+      orderBy: { updatedAt: "desc" },
+    }),
+    db.post.count({
+      where: { userId: user.id, createdAt: { gte: periodStart, lt: resetsAt } },
+    }),
+    db.post.count({
+      where: {
+        userId: user.id,
+        isScheduled: true,
+        createdAt: { gte: periodStart, lt: resetsAt },
+      },
+    }),
+  ]);
+  const plan = getPlan(active?.planId);
+  return c.json({
+    planId: plan.id,
+    periodStart: periodStart.toISOString(),
+    resetsAt: resetsAt.toISOString(),
+    posts: { used: posts, limit: plan.limits.posts },
+    scheduled: { used: scheduled, limit: plan.limits.scheduled },
+  });
 });
 
 app.post("/subscribe", async (c) => {
@@ -71,9 +122,21 @@ app.post("/subscribe", async (c) => {
   const { planId } = z
     .object({ planId: z.string().min(1) })
     .parse(await c.req.json());
-    const db = dbFor(c);
+  const db = dbFor(c);
   const plan = findPlan(planId) ?? planForProduct(planId, c.env);
   if (!plan) return c.json({ error: "Invalid plan" }, 400);
+  const existing = await db.subscription.findFirst({
+    where: {
+      userId: user.id,
+      dodoSubscriptionId: { not: null },
+      status: { in: ["active", "on_hold", "pending"] },
+    },
+  });
+  if (existing)
+    return c.json(
+      { error: "Manage your existing subscription in the billing portal." },
+      409
+    );
   if (plan.price === 0) {
     const subscription = await db.subscription.create({
       data: { userId: user.id, planId: plan.id, status: "active" },
@@ -88,7 +151,7 @@ app.post("/subscribe", async (c) => {
   if (!productId)
     return c.json(
       { error: "This plan is not configured in Dodo Payments" },
-      400,
+      400
     );
   const dbUser = await db.user.findUniqueOrThrow({ where: { id: user.id } });
   const checkout = await getDodo(c.env).checkoutSessions.create({
@@ -101,7 +164,7 @@ app.post("/subscribe", async (c) => {
       plan_id: plan.id,
       reference_id: crypto.randomUUID(),
     },
-    return_url: `${c.env.CLIENT_URL}/payment/success`,
+    return_url: `${c.env.CLIENT_URL}/billing`,
   });
   return c.json({
     checkout_url: checkout.checkout_url,

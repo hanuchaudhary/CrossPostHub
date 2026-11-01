@@ -1,18 +1,19 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { errorMessage, markNotificationsRead } from "@/lib/api";
-import { queries, queryClient, queryKeys, mutationKeys } from "@/lib/query";
-import { Icon } from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
 } from "@/components/ui/empty";
+import { Icon } from "@/components/ui/icon";
 import { PageHeading, QueryState } from "@/components/workspace/common";
+import { errorMessage, markNotificationsRead } from "@/lib/api";
+import { mutationKeys, queries, queryClient, queryKeys } from "@/lib/query";
 
 export default function NotificationsPage() {
   const notices = useQuery(queries.notifications());
@@ -38,6 +39,7 @@ export default function NotificationsPage() {
         </Button>
       </PageHeading>
       <QueryState
+        loadingLabel="Loading notifications"
         pending={notices.isPending}
         error={notices.error}
         retry={() => notices.refetch()}

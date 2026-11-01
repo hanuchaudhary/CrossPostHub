@@ -2,7 +2,7 @@ import { type FormEvent, useState } from "react";
 import { Link } from "react-router";
 
 import { motion, useReducedMotion } from "motion/react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

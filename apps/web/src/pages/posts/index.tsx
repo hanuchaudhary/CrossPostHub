@@ -19,6 +19,7 @@ export default function PostsPage() {
         <CreatePostButton />
       </PageHeading>
       <QueryState
+        loadingLabel="Loading your posts"
         pending={posts.isPending}
         error={posts.error}
         retry={() => posts.refetch()}

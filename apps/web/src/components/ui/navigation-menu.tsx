@@ -1,5 +1,5 @@
 import { IconSelector } from '@tabler/icons-react'
-import { NavigationMenu as NavigationMenuPrimitive } from '@base-ui/react/navigation-menu'
+import { NavigationMenu as NavigationMenuPrimitive } from '@animate-ui/react/primitives/base-ui/navigation-menu'
 import { cva } from 'class-variance-authority'
 
 import { useEffect, useRef, useState } from 'react'
@@ -197,7 +197,7 @@ function NavigationMenuContent({
       keepMounted={keepMounted}
       className={cn(
 
-        'w-auto p-1 transition-[opacity,translate] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[viewport=false]/navigation-menu:rounded-lg group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:ring-1 group-data-[viewport=false]/navigation-menu:ring-foreground/10 group-data-[viewport=false]/navigation-menu:duration-200 group-data-[viewport=false]/navigation-menu:data-closed:animate-out group-data-[viewport=false]/navigation-menu:data-closed:fade-out-0 group-data-[viewport=false]/navigation-menu:data-closed:zoom-out-95 data-ending-style:opacity-0 group-data-[viewport=false]/navigation-menu:data-open:animate-in group-data-[viewport=false]/navigation-menu:data-open:fade-in-0 group-data-[viewport=false]/navigation-menu:data-open:zoom-in-95 data-starting-style:opacity-0 data-ending-style:data-[activation-direction=left]:translate-x-4 data-starting-style:data-[activation-direction=left]:-translate-x-4 data-ending-style:data-[activation-direction=right]:-translate-x-4 data-starting-style:data-[activation-direction=right]:translate-x-4 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none',
+        'w-auto p-1 transition-[opacity,translate] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[viewport=false]/navigation-menu:rounded-lg group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:ring-1 group-data-[viewport=false]/navigation-menu:ring-foreground/10 group-data-[viewport=false]/navigation-menu:duration-200 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none',
         className,
       )}
       {...props}
@@ -260,7 +260,7 @@ function NavigationMenuIndicator({
     <NavigationMenuPrimitive.Icon
       data-slot="navigation-menu-indicator"
       className={cn(
-        'top-full z-1 flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in',
+        'top-full z-1 flex h-1.5 items-end justify-center overflow-hidden',
         className,
       )}
       {...props}

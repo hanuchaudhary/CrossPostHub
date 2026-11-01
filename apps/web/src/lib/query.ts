@@ -1,11 +1,14 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
+
 import {
-  getAllPosts,
   getAccounts,
+  getAllPosts,
+  getBillingUsage,
   getNotifications,
   getOverview,
   getSubscription,
 } from "./api";
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true },
@@ -18,8 +21,14 @@ export const queryKeys = {
   overview: ["overview"] as const,
   notifications: ["notifications"] as const,
   subscription: ["subscription"] as const,
+  billingUsage: ["billingUsage"] as const,
 };
 export const queries = {
+  billingUsage: () =>
+    queryOptions({
+      queryKey: queryKeys.billingUsage,
+      queryFn: getBillingUsage,
+    }),
   posts: () =>
     queryOptions({
       queryKey: queryKeys.posts,
@@ -53,4 +62,5 @@ export const refreshPosts = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.posts }),
     queryClient.invalidateQueries({ queryKey: queryKeys.overview }),
     queryClient.invalidateQueries({ queryKey: queryKeys.notifications }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.billingUsage }),
   ]);

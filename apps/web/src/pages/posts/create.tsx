@@ -5,7 +5,6 @@ import { useComposer } from "@/components/posts/composer";
 
 import SchedulePage from "./schedule";
 
-// Preserve old bookmarks while opening the shared dialog over the calendar.
 export default function CreatePage() {
   const open = useComposer();
   const [params] = useSearchParams();

@@ -57,7 +57,7 @@ export const Footer = () => {
               links: [
                 ["Features", "/#features"],
                 ["Channels", "/#channels"],
-                ["Pricing", "/#pricing"],
+                ["Pricing", "/pricing"],
               ],
             },
             {

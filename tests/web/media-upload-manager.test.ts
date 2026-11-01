@@ -1,6 +1,6 @@
 import { expect, mock, test } from "bun:test";
 
-import { MediaUploadManager } from "../../apps/web/src/components/posts/media-upload-manager";
+import { MediaUploadManager } from "../../apps/web/src/components/posts/media-upload";
 
 const file = () => new File(["photo"], "photo.jpg", { type: "image/jpeg" });
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));

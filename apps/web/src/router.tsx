@@ -1,8 +1,12 @@
 import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router";
+
+import { GuestLayout } from "./components/auth/guest-layout";
 import { RouteRoot } from "./components/route-root";
 import RouteErrorPage from "./pages/errors/route-error";
+
 const LandingPage = lazy(() => import("./pages/landing"));
+const PricingPage = lazy(() => import("./pages/pricing"));
 const SigninPage = lazy(() => import("./pages/auth/signin"));
 const RegisterPage = lazy(() => import("./pages/auth/register"));
 const ForgotPage = lazy(() => import("./pages/auth/forgot"));
@@ -24,7 +28,7 @@ const NotFoundPage = lazy(() => import("./pages/errors/not-found"));
 const ProtectedLayout = lazy(() =>
   import("./components/workspace/layout").then((module) => ({
     default: module.ProtectedLayout,
-  })),
+  }))
 );
 export const router = createBrowserRouter([
   {
@@ -32,13 +36,19 @@ export const router = createBrowserRouter([
     errorElement: <RouteErrorPage />,
     children: [
       { path: "/", element: <LandingPage /> },
-      { path: "/signin", element: <SigninPage /> },
-      { path: "/sign-in", element: <Navigate to="/signin" replace /> },
-      { path: "/register", element: <RegisterPage /> },
-      { path: "/forgot-password", element: <ForgotPage /> },
-      { path: "/verify", element: <VerifyPage /> },
-      { path: "/verify-email", element: <VerifyPage /> },
-      { path: "/reset-password", element: <ResetPage /> },
+      { path: "/pricing", element: <PricingPage /> },
+      {
+        element: <GuestLayout />,
+        children: [
+          { path: "/signin", element: <SigninPage /> },
+          { path: "/sign-in", element: <Navigate to="/signin" replace /> },
+          { path: "/register", element: <RegisterPage /> },
+          { path: "/forgot-password", element: <ForgotPage /> },
+          { path: "/verify", element: <VerifyPage /> },
+          { path: "/verify-email", element: <VerifyPage /> },
+          { path: "/reset-password", element: <ResetPage /> },
+        ],
+      },
       { path: "/privacy", element: <PrivacyPage /> },
       { path: "/terms", element: <TermsPage /> },
       { path: "/contact", element: <ContactPage /> },

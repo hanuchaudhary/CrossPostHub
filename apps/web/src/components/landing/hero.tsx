@@ -51,9 +51,9 @@ export function Hero() {
         <div className="absolute -bottom-30 md:left-auto md:translate-x-0 left-1/2 -translate-x-1/2 z-10 w-60 md:right-45 md:w-90 md:opacity-100">
           <Iphone className="relative">
             <SocialArc />
-            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
-            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
-            <div className="dark:h-100 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 md:h-90 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 md:h-90 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
+            <div className="dark:h-100 md:h-90 h-40 absolute bg-primary-foreground rounded-full scale-130 w-full dark:-bottom-20 bottom-0 blur-2xl"></div>
           </Iphone>
         </div>
       </div>

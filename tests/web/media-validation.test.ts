@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import {
   validateAttachments,
   validatePlatformMedia,
-} from "../../apps/web/src/components/posts/media-validation";
+} from "../../apps/web/src/components/posts/media-upload";
 
 function media(type: string, size = 1024): File {
   return { name: `upload.${type.split("/")[1]}`, type, size } as File;

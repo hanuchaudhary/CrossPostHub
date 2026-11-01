@@ -154,7 +154,7 @@ export function PreviewMedia({
                   type="button"
                   aria-label={`Show photo ${i + 1}`}
                   aria-pressed={i === current}
-                  key={`${file.name}-${i}`}
+                  key={`${file.name}-${file.size}-${file.lastModified}`}
                   className={`size-1.5 rounded-full ${i === current ? "bg-[#0095f6]" : "bg-neutral-300 dark:bg-neutral-600"}`}
                   onClick={() => setIndex(i)}
                 />
@@ -178,7 +178,7 @@ export function PreviewMedia({
           {files.map((file, i) => (
             <button
               type="button"
-              key={`${file.name}-${i}`}
+              key={`${file.name}-${file.size}-${file.lastModified}`}
               aria-label={`Enlarge photo ${i + 1}: ${file.name}`}
               className={cn(
                 "min-h-0 min-w-0 overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500",

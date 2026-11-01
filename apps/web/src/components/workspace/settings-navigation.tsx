@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
-import { motion } from "motion/react";
-import { HugeiconsIcon } from "@hugeicons/react";
+
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { motion } from "motion/react";
+
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Icon } from "@/components/ui/icon";
 import {
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Icon } from "@/components/ui/icon";
+
 const items = [
   { title: "Account", to: "/profile" },
   { title: "Billing", to: "/billing" },
@@ -25,13 +28,13 @@ const items = [
 ];
 export function SettingsNavigation() {
   const location = useLocation();
-  return <SettingsMenu key={location.key} pathname={location.pathname} />;
+  return <SettingsMenu pathname={location.pathname} />;
 }
 
 function SettingsMenu({ pathname }: { pathname: string }) {
   const { setOpenMobile } = useSidebar();
   const active = items.some((item) => item.to === pathname);
-  const [open, setOpen] = useState(active);
+  const [open, setOpen] = useState(true);
   return (
     <SidebarMenuItem>
       <Collapsible open={open} onOpenChange={setOpen}>
