@@ -124,25 +124,11 @@ model GeneratedImage {
   updatedAt DateTime @updatedAt
 }
 
-model Plan {
-  id            String         @id @default(uuid())
-  title         String
-  price         Float
-  description   String
-  features      Json
-  cta           String
-  dodoProductId String?        @unique
-  subscriptions Subscription[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-}
-
 model Subscription {
   id                 String        @id @default(uuid())
   userId             String
   user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   planId             String
-  plan               Plan          @relation(fields: [planId], references: [id])
   dodoSubscriptionId String?       @unique
   status             String
   nextBillingAt      DateTime?

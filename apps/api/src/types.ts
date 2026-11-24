@@ -26,6 +26,6 @@ export type Bindings = {
   GEMINI_API_KEY?: string;
   FAL_KEY?: string;
   R2_PUBLIC_URL?: string;
-  POSTHUB_QUEUE: Queue<PostJob>;
+  CROSSPOSTHUB_QUEUE: Queue<PostJob>;
   MEDIA_BUCKET: R2Bucket;
 };

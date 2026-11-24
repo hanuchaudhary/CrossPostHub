@@ -1,3 +1,4 @@
+import { PRICING_PLANS, productIdForPlan } from "@repo/shared/pricing";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import {
@@ -11,15 +12,10 @@ import { getDodo, syncDodoWebhook } from "./dodo";
 import type { Bindings } from "../types";
 
 export function createAuth(env: Bindings, db: PrismaClient) {
-  const products = [
-    env.DODO_PRODUCT_PRO && { productId: env.DODO_PRODUCT_PRO, slug: "pro" },
-    env.DODO_PRODUCT_PREMIUM && {
-      productId: env.DODO_PRODUCT_PREMIUM,
-      slug: "premium",
-    },
-  ].filter((product): product is { productId: string; slug: string } =>
-    Boolean(product),
-  );
+  const products = PRICING_PLANS.flatMap((plan) => {
+    const productId = productIdForPlan(plan.id, env);
+    return productId ? [{ productId, slug: plan.id }] : [];
+  });
 
   return betterAuth({
     appName: "CrossPostHub",
@@ -84,7 +80,7 @@ export function createAuth(env: Bindings, db: PrismaClient) {
           portal(),
           webhooks({
             webhookKey: env.DODO_PAYMENTS_WEBHOOK_KEY,
-            onPayload: (payload) => syncDodoWebhook(db, payload),
+            onPayload: (payload) => syncDodoWebhook(db, payload, env),
           }),
         ],
       }),

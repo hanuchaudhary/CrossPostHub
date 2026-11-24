@@ -1,7 +1,10 @@
-import { Hono, type Context } from "hono";
+import { type Context, Hono } from "hono";
 import { z } from "zod";
-import { dbFor, requireUser, type AppContext, type AppEnv } from "./shared";
+
+import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
+
 import type { Bindings, PostJob } from "../types";
+import { type AppContext, type AppEnv, dbFor, requireUser } from "./shared";
 
 const app = new Hono<AppEnv>();
 
@@ -49,15 +52,37 @@ app.post("", async (c) => {
     .min(1)
     .parse(JSON.parse(String(form.get("providers") || "[]")));
   const scheduleAt = String(form.get("scheduleAt") ?? "");
-  if (!postText && mediaKeys.length === 0)
-    return c.json({ error: "Please enter text or upload media" }, 400);
+  const platformContent = z
+    .record(
+      z.enum(["twitter", "linkedin", "instagram"]),
+      z.object({ text: z.string(), mediaKeys: z.array(z.string()) })
+    )
+    .parse(JSON.parse(String(form.get("platformContent") || "{}")));
+  if (
+    scheduleAt &&
+    (!Number.isFinite(Date.parse(scheduleAt)) ||
+      Date.parse(scheduleAt) <= Date.now())
+  )
+    return c.json({ error: "Choose a date and time in the future" }, 400);
+  for (const provider of providers) {
+    const content = platformContent[provider] ?? { text: postText, mediaKeys };
+    if (!content.text.trim() && content.mediaKeys.length === 0)
+      return c.json(
+        { error: `Please enter text or upload media for ${provider}` },
+        400
+      );
+    if (
+      content.text.length >
+      (provider === "twitter" ? 280 : provider === "instagram" ? 2200 : 3000)
+    )
+      return c.json({ error: `Caption is too long for ${provider}` }, 400);
+  }
   const db = dbFor(c);
   const monthStart = new Date();
   monthStart.setUTCDate(1);
   monthStart.setUTCHours(0, 0, 0, 0);
   const active = await db.subscription.findFirst({
     where: { userId: user.id, status: "active" },
-    include: { plan: true },
     orderBy: { updatedAt: "desc" },
   });
   const [postCount, scheduledCount] = await Promise.all([
@@ -72,19 +97,16 @@ app.post("", async (c) => {
       },
     }),
   ]);
-  const limits =
-    active?.plan.title === "Premium"
-      ? { posts: Infinity, scheduled: Infinity }
-      : active?.plan.title === "Pro"
-        ? { posts: 60, scheduled: 20 }
-        : { posts: 25, scheduled: 5 };
   if (
-    postCount + providers.length > limits.posts ||
-    (scheduleAt && scheduledCount + providers.length > limits.scheduled)
+    exceedsPostLimits(
+      getPlan(active?.planId),
+      postCount + providers.length,
+      scheduleAt ? scheduledCount + providers.length : 0
+    )
   )
     return c.json(
       { error: "Monthly post limit reached. Please upgrade your plan." },
-      403,
+      403
     );
 
   const delaySeconds = scheduleAt
@@ -92,17 +114,18 @@ app.post("", async (c) => {
         0,
         Math.min(
           43_200,
-          Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000),
-        ),
+          Math.floor((new Date(scheduleAt).getTime() - Date.now()) / 1000)
+        )
       )
     : 0;
   const results = [];
   for (const provider of providers) {
+    const content = platformContent[provider] ?? { text: postText, mediaKeys };
     const post = await db.post.create({
       data: {
         userId: user.id,
-        text: postText,
-        mediaKeys,
+        text: content.text,
+        mediaKeys: content.mediaKeys,
         provider,
         scheduledFor: scheduleAt ? new Date(scheduleAt) : null,
         isScheduled: Boolean(scheduleAt),
@@ -110,15 +133,15 @@ app.post("", async (c) => {
     });
     const job: PostJob = {
       provider,
-      postText,
-      mediaKeys,
+      postText: content.text,
+      mediaKeys: content.mediaKeys,
       userId: user.id,
       postId: post.id,
       scheduledFor: scheduleAt || undefined,
     };
-    await c.env.POSTHUB_QUEUE.send(
+    await c.env.CROSSPOSTHUB_QUEUE.send(
       job,
-      delaySeconds ? { delaySeconds } : undefined,
+      delaySeconds ? { delaySeconds } : undefined
     );
     await db.notification.create({
       data: {
@@ -142,7 +165,7 @@ app.get("", async (c) => {
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   const take = Math.min(50, Math.max(1, Number(c.req.query("limit") ?? 10)));
   const skip = Math.max(0, Number(c.req.query("offset") ?? 0));
-    const posts = await dbFor(c).post.findMany({
+  const posts = await dbFor(c).post.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take,

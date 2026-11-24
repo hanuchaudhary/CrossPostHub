@@ -1,3 +1,4 @@
+import { planForProduct } from "@repo/shared/pricing";
 import DodoPayments from "dodopayments";
 import type { Payment, Subscription, WebhookPayload } from "@dodopayments/core";
 import type { PrismaClient } from "../../generated/prisma/client";
@@ -22,6 +23,7 @@ function statusForPayment(type: WebhookPayload["type"]) {
 export async function syncDodoWebhook(
   db: PrismaClient,
   payload: WebhookPayload,
+  env: Bindings,
 ) {
   if (payload.type.startsWith("payment.")) {
     const data = payload.data as Payment;
@@ -56,12 +58,10 @@ export async function syncDodoWebhook(
 
   if (payload.type.startsWith("subscription.")) {
     const data = payload.data as Subscription;
-    const [user, plan] = await Promise.all([
-      db.user.findUnique({
-        where: { dodoCustomerId: data.customer.customer_id },
-      }),
-      db.plan.findUnique({ where: { dodoProductId: data.product_id } }),
-    ]);
+    const user = await db.user.findUnique({
+      where: { dodoCustomerId: data.customer.customer_id },
+    });
+    const plan = planForProduct(data.product_id, env);
     if (!user || !plan) return;
     await db.subscription.upsert({
       where: { dodoSubscriptionId: data.subscription_id },
