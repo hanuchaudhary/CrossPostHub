@@ -48,6 +48,7 @@ model User {
   updatedAt       DateTime         @updatedAt
   sessions        Session[]
   accounts        Account[]
+  socialConnections SocialConnection[]
   posts           Post[]
   transactions    Transaction[]
   notifications   Notification[]
@@ -179,4 +180,49 @@ model WebhookEvent {
   id        String   @id
   type      String
   createdAt DateTime @default(now())
+}
+
+enum SocialProvider {
+  youtube
+  instagram
+  linkedin
+  x
+}
+
+enum SocialConnectionStatus {
+  ACTIVE
+  NEEDS_REAUTH
+}
+
+model SocialConnection {
+  id             String                 @id @default(cuid())
+  userId         String
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       SocialProvider
+  externalId     String
+  platformUserId String?
+  name           String
+  avatarUrl      String?
+  accessToken    String
+  refreshToken   String?
+  expiresAt      DateTime
+  scopes         String                 @default("")
+  status         SocialConnectionStatus @default(ACTIVE)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@unique([userId, provider, externalId])
+  @@index([userId])
+  @@index([provider, platformUserId])
+}
+
+model SocialConnectState {
+  state        String         @id
+  userId       String
+  provider     SocialProvider
+  codeVerifier String
+  expiresAt    DateTime
+  createdAt    DateTime       @default(now())
+
+  @@index([expiresAt])
 }

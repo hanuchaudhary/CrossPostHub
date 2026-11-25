@@ -23,6 +23,7 @@ function delegate() {
     create: operation(),
     update: operation(),
     updateMany: operation(),
+    delete: operation(),
     deleteMany: operation(),
     count: operation(),
     upsert: operation(),
@@ -32,6 +33,8 @@ export function database() {
   return {
     post: delegate(),
     account: delegate(),
+    socialConnection: delegate(),
+    socialConnectState: delegate(),
     notification: delegate(),
     user: delegate(),
     transaction: delegate(),
@@ -67,6 +70,7 @@ export function bindings() {
     DODO_PRODUCT_PRO: "product-pro",
     DODO_PRODUCT_PREMIUM: "product-premium",
     R2_PUBLIC_URL: "https://cdn.example.com/",
+    SOCIAL_TOKEN_KEY: btoa("0123456789abcdef0123456789abcdef"),
   } as unknown as Bindings;
   return { env, ...resources };
 }

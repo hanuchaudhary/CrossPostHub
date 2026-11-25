@@ -17,8 +17,8 @@
         "@dodopayments/better-auth": "^1.6.6",
         "@prisma/adapter-d1": "^7.10.1",
         "@prisma/client": "7.10.0",
+        "@repo/post": "workspace:*",
         "@repo/shared": "workspace:*",
-        "@xdevplatform/xdk": "^0.6.6",
         "better-auth": "^1.7.13",
         "dodopayments": "^2.57.0",
         "hono": "^4.13.14",
@@ -73,6 +73,15 @@
         "oxlint": "^1.89.0",
         "typescript": "~7.0.2",
         "vite": "^8.3.5",
+      },
+    },
+    "packages/post": {
+      "name": "@repo/post",
+      "dependencies": {
+        "@xdevplatform/xdk": "^0.6.6",
+      },
+      "devDependencies": {
+        "@types/node": "^26.6.5",
       },
     },
     "packages/shared": {
@@ -455,6 +464,8 @@
     "@remix-run/route-pattern": ["@remix-run/route-pattern@0.22.1", "", {}, "sha512-czdGJWh09Lapvcqt7Vb09KlrU2PhRJ8xQaI+AItTuD9aDJ5MAgxnS38lnys6Ll+6RJEqPiaUqTwIQhVLwFvv+w=="],
 
     "@repo/api": ["@repo/api@workspace:apps/api"],
+
+    "@repo/post": ["@repo/post@workspace:packages/post"],
 
     "@repo/shared": ["@repo/shared@workspace:packages/shared"],
 

@@ -29,6 +29,10 @@ import {
   CodeIcon,
   Layers01Icon,
   SquareLock02Icon,
+  CreditCardIcon,
+  PencilEdit02Icon,
+  Share08Icon,
+  SlidersHorizontalIcon,
 } from "@hugeicons/core-free-icons";
 const icons = {
   arrow: ArrowRight01Icon,
@@ -57,6 +61,10 @@ const icons = {
   code: CodeIcon,
   layers: Layers01Icon,
   lock: SquareLock02Icon,
+  billing: CreditCardIcon,
+  edit: PencilEdit02Icon,
+  share: Share08Icon,
+  sliders: SlidersHorizontalIcon,
 };
 export type { IconName } from "@/lib/types";
 export function Icon({ name, size = 20, className = "" }: IconProps) {

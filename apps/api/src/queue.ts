@@ -5,7 +5,7 @@ import {
   LinkedInProvider,
   PublishError,
   TwitterProvider,
-} from "./core";
+} from "@repo/post";
 import { getDb } from "./lib/db";
 import { getPublishingAccount } from "./lib/publishing-account";
 import type { Bindings, PostJob } from "./types";

@@ -18,6 +18,7 @@
   --success: oklch(0.5 0.13 152);
   --info: oklch(0.5 0.17 255);
 }
+
 .dark {
   --error: oklch(0.704 0.191 22.216);
   --warning: oklch(0.704 0.15 75);
@@ -152,7 +153,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-light text-pretty leading-tight tracking-tight;
   }
   html {
     @apply font-sans;
@@ -160,11 +161,11 @@
 }
 
 .heading {
-  @apply text-foreground font-light md:text-[2.25rem] text-[2rem] text-balance max-w-2xl leading-none tracking-tighter;
+  @apply text-foreground font-light md:text-[1.8rem] text-[2rem] text-balance leading-none tracking-tighter;
 }
 
 .subheading {
-  @apply text-neutral-400/90 font-light md:text-[1.4rem] text-[1.125rem] text-pretty max-w-2xl leading-tight tracking-tight;
+  @apply text-neutral-400/90 font-light md:text-[1.2rem] text-[1.125rem] text-pretty max-w-2xl leading-tight tracking-tight;
 }
 
 @utility site-rule {

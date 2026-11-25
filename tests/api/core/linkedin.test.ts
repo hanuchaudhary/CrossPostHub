@@ -5,7 +5,7 @@ import {
   type Fetch,
   type PublishContent,
   type PublishMedia,
-} from "../../../apps/api/src/core";
+} from "../../../packages/post/src";
 const content: PublishContent = {
   account: { accountId: "person-1", accessToken: "test-token" },
   text: "Hello LinkedIn",

@@ -26,6 +26,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -37,12 +38,32 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { LoadingIndicator } from "./common";
-import { SettingsNavigation } from "./settings-navigation";
 
-const links: { to: string; name: string; icon: IconName }[] = [
-  { to: "/dashboard", name: "Overview", icon: "dashboard" },
-  { to: "/posts", name: "All posts", icon: "layers" },
-  { to: "/schedule", name: "Schedule", icon: "calendar" },
+type NavLink = { to: string; name: string; icon: IconName; compose?: boolean };
+
+const groups: { label?: string; links: NavLink[] }[] = [
+  {
+    links: [
+      { to: "/dashboard", name: "Overview", icon: "dashboard" },
+      { to: "/posts", name: "All posts", icon: "layers" },
+    ],
+  },
+  {
+    label: "Social",
+    links: [
+      { to: "/create", name: "Create", icon: "edit", compose: true },
+      { to: "/schedule", name: "Calendar", icon: "calendar" },
+      { to: "/connections", name: "Social accounts", icon: "share" },
+    ],
+  },
+  {
+    label: "Settings",
+    links: [
+      { to: "/profile", name: "Account", icon: "user" },
+      { to: "/billing", name: "Billing", icon: "billing" },
+      { to: "/settings", name: "Preferences", icon: "sliders" },
+    ],
+  },
 ];
 
 export function ProtectedLayout() {
@@ -116,39 +137,37 @@ function WorkspaceLayout() {
       <Sidebar variant="inset">
         <SidebarHeader className="px-4 py-5">
           <Brand />
-          <Button
-            variant="primary"
-            className="mt-4 w-full gap-2"
-            onClick={() => {
-              setOpenMobile(false);
-              openComposer();
-            }}
-          >
-            <Icon name="plus" />
-            Create post
-          </Button>
         </SidebarHeader>
         <SidebarRail />
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {links.map((link) => (
-                  <SidebarMenuItem key={link.to}>
-                    <SidebarMenuButton
-                      render={<Link to={link.to} />}
-                      isActive={location.pathname === link.to}
-                      onClick={() => setOpenMobile(false)}
-                    >
-                      <Icon name={link.icon} />
-                      <span>{link.name}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-                <SettingsNavigation />
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {groups.map((group, index) => (
+            <SidebarGroup key={group.label ?? index}>
+              {group.label && (
+                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.links.map((link) => (
+                    <SidebarMenuItem key={link.to}>
+                      <SidebarMenuButton
+                        render={<Link to={link.to} />}
+                        isActive={location.pathname === link.to}
+                        onClick={(event) => {
+                          setOpenMobile(false);
+                          if (!link.compose) return;
+                          event.preventDefault();
+                          openComposer();
+                        }}
+                      >
+                        <Icon name={link.icon} />
+                        <span>{link.name}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
         <SidebarFooter className="gap-4 p-4">
           <SidebarMenu>

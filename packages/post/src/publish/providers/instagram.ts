@@ -28,7 +28,7 @@ export class InstagramProvider implements CrossPostProvider {
     const version = options.apiVersion ?? "v25.0";
     if (!/^v\d+\.\d+$/.test(version))
       throw new Error("Invalid Instagram API version");
-    this.baseUrl = `https://graph.instagram.com/${version}`;
+    this.baseUrl = `https://graph.facebook.com/${version}`;
     this.wait =
       options.wait ??
       ((milliseconds) =>

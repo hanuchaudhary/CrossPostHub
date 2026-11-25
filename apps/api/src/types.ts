@@ -18,6 +18,10 @@ export type Bindings = {
   LINKEDIN_CLIENT_SECRET?: string;
   TWITTER_CLIENT_ID?: string;
   TWITTER_CLIENT_SECRET?: string;
+  INSTAGRAM_APP_ID?: string;
+  INSTAGRAM_APP_SECRET?: string;
+  INSTAGRAM_CONFIG_ID?: string;
+  SOCIAL_TOKEN_KEY?: string;
   DODO_PAYMENTS_API_KEY: string;
   DODO_PAYMENTS_WEBHOOK_KEY: string;
   DODO_PAYMENTS_ENVIRONMENT: "test_mode" | "live_mode";

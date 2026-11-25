@@ -47,22 +47,6 @@ export function createAuth(env: Bindings, db: PrismaClient) {
         clientId: env.GOOGLE_CLIENT_ID!,
         clientSecret: env.GOOGLE_CLIENT_SECRET,
       },
-      linkedin: {
-        clientId: env.LINKEDIN_CLIENT_ID!,
-        clientSecret: env.LINKEDIN_CLIENT_SECRET,
-        scope: ["openid", "profile", "email", "w_member_social"],
-      },
-      twitter: {
-        clientId: env.TWITTER_CLIENT_ID!,
-        clientSecret: env.TWITTER_CLIENT_SECRET,
-        scope: [
-          "tweet.read",
-          "tweet.write",
-          "users.read",
-          "offline.access",
-          "media.write",
-        ],
-      },
     },
     plugins: [
       dodopayments({

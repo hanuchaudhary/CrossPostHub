@@ -4,12 +4,12 @@ import {
   CrossPostHub,
   LinkedInProvider,
   TwitterProvider,
-} from "../../../apps/api/src/core";
+} from "../../../packages/post/src";
 import type {
   CrossPostProvider,
   Fetch,
   PublishContent,
-} from "../../../apps/api/src/core";
+} from "../../../packages/post/src";
 
 const content: PublishContent = {
   account: { accountId: "person-1", accessToken: "test-token" },

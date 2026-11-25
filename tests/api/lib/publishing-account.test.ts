@@ -1,9 +1,9 @@
 import { expect, spyOn, test } from "bun:test";
-import { symmetricEncrypt, symmetricDecrypt } from "better-auth/crypto";
 import { getPublishingAccount } from "../../../apps/api/src/lib/publishing-account";
-import * as authModule from "../../../apps/api/src/lib/auth";
-import { asPrisma, bindings, database, isolate } from "../support";
+import { LimitError, ReauthError, X } from "../../../packages/post/src";
+import { decrypt, encrypt } from "../../../apps/api/src/modules/post/crypto";
 import type { PostJob } from "../../../apps/api/src/types";
+import { asPrisma, bindings, database, isolate } from "../support";
 isolate();
 
 async function fixture() {
@@ -11,28 +11,25 @@ async function fixture() {
   const { env } = bindings();
   env.TWITTER_CLIENT_ID = "test-client-id";
   env.TWITTER_CLIENT_SECRET = "test-client-secret";
-  env.LINKEDIN_CLIENT_ID = "linkedin-id";
-  env.LINKEDIN_CLIENT_SECRET = "linkedin-secret";
-  const auth = authModule.createAuth(env, asPrisma(db));
-  spyOn(authModule, "createAuth").mockReturnValue(auth);
-  const context = await auth.$context;
-  const account = {
-    id: "local-account-id",
+  const connection = {
+    id: "connection-1",
     userId: "user-1",
-    providerId: "twitter",
-    accountId: "x-person",
-    accessToken: await symmetricEncrypt({
-      key: context.secretConfig,
-      data: "plain-access-token",
-    }),
-    accessTokenExpiresAt: new Date(Date.now() + 60_000),
+    provider: "x" as const,
+    externalId: "x-person",
+    name: "@person",
+    avatarUrl: null,
+    accessToken: encrypt("plain-access-token", env.SOCIAL_TOKEN_KEY),
     refreshToken: null as string | null,
-    scope: "tweet.read,tweet.write,users.read,offline.access,media.write",
+    expiresAt: new Date(Date.now() + 60 * 60_000),
+    status: "ACTIVE" as "ACTIVE" | "NEEDS_REAUTH",
     createdAt: new Date(),
     updatedAt: new Date(),
   };
-  db.account.findFirst.mockResolvedValue(account);
-  db.account.findMany.mockImplementation(async () => [account]);
+  db.socialConnection.findFirst.mockImplementation(async () => connection);
+  db.socialConnection.update.mockImplementation(async (input) => ({
+    ...connection,
+    ...input.data,
+  }));
   const job: PostJob = {
     provider: "twitter",
     userId: "user-1",
@@ -43,102 +40,85 @@ async function fixture() {
   return {
     db,
     env,
-    auth,
-    context,
-    account,
+    connection,
     job,
     resolve: () => getPublishingAccount(asPrisma(db), env, job),
   };
 }
 
-test("publishing resolves and decrypts the owned account using its local row ID", async () => {
+test("publishing resolves and decrypts the owner's social connection", async () => {
   const h = await fixture();
-  expect(h.account.accessToken).not.toBe("plain-access-token");
+  expect(h.connection.accessToken).not.toContain("plain-access-token");
   expect(await h.resolve()).toEqual({
     accountId: "x-person",
     accessToken: "plain-access-token",
   });
-  expect(h.db.account.findFirst).toHaveBeenCalledWith({
-    where: { userId: "user-1", providerId: "twitter" },
+  expect(h.db.socialConnection.findFirst).toHaveBeenCalledWith({
+    where: { userId: "user-1", provider: "x" },
+    orderBy: { createdAt: "asc" },
   });
 });
 
-test("publishing refreshes expired encrypted credentials and persists encrypted rotated tokens", async () => {
-  // Exercise Better Auth's actual server-side token API with a stubbed provider exchange.
+test("publishing refreshes expiring tokens and stores the rotated ones encrypted", async () => {
   const h = await fixture();
-  h.account.accessTokenExpiresAt = new Date(Date.now() - 60_000);
-  h.account.refreshToken = await symmetricEncrypt({
-    key: h.context.secretConfig,
-    data: "plain-refresh-token",
-  });
-  const provider = h.context.socialProviders.find(
-    (provider) => provider.id === "twitter",
-  )!;
-  const refresh = spyOn(provider, "refreshAccessToken").mockImplementation(
-    async (token) => {
-      expect(token).toBe("plain-refresh-token");
+  h.connection.expiresAt = new Date(Date.now() - 60_000);
+  h.connection.refreshToken = encrypt(
+    "plain-refresh-token",
+    h.env.SOCIAL_TOKEN_KEY,
+  );
+  const refresh = spyOn(X.prototype, "refresh").mockImplementation(
+    async (tokens) => {
+      expect(tokens.refreshToken).toBe("plain-refresh-token");
       return {
         accessToken: "fresh-token",
         refreshToken: "rotated-token",
-        accessTokenExpiresAt: new Date(Date.now() + 3_600_000),
+        expiresAt: new Date(Date.now() + 3_600_000),
       };
     },
   );
-  const update = spyOn(
-    h.context.internalAdapter,
-    "updateAccount",
-  ).mockImplementation(async (_id, data) => ({ ...h.account, ...data }));
   expect(await h.resolve()).toEqual({
     accountId: "x-person",
     accessToken: "fresh-token",
   });
   expect(refresh).toHaveBeenCalledTimes(1);
-  const stored = update.mock.calls[0]![1];
+  const stored = h.db.socialConnection.update.mock.calls[0]![0].data;
   expect(stored.accessToken).not.toBe("fresh-token");
-  expect(
-    await symmetricDecrypt({
-      key: h.context.secretConfig,
-      data: stored.refreshToken!,
-    }),
-  ).toBe("rotated-token");
+  expect(decrypt(stored.refreshToken, h.env.SOCIAL_TOKEN_KEY)).toBe(
+    "rotated-token",
+  );
 });
 
-test("publishing reports a reconnect when expired credentials have no refresh token", async () => {
+test("publishing marks the connection for reconnect when refresh is refused", async () => {
   const h = await fixture();
-  h.account.accessTokenExpiresAt = new Date(Date.now() - 60_000);
+  h.connection.expiresAt = new Date(Date.now() - 60_000);
+  spyOn(X.prototype, "refresh").mockRejectedValue(
+    new ReauthError("No refresh token; connect again"),
+  );
   await expect(h.resolve()).rejects.toThrow("expired; reconnect");
+  expect(h.db.socialConnection.update).toHaveBeenCalledWith({
+    where: { id: "connection-1" },
+    data: { status: "NEEDS_REAUTH" },
+  });
 });
 
-test("publishing requires media.write only for X media posts", async () => {
+test("publishing stops early for a connection that already needs reconnecting", async () => {
   const h = await fixture();
-  h.account.scope = "tweet.read,tweet.write,users.read,offline.access";
-  expect((await h.resolve()).accessToken).toBe("plain-access-token");
-  h.job.mediaKeys = ["media/user-1/photo.jpg"];
-  await expect(h.resolve()).rejects.toThrow("media.write");
+  h.connection.status = "NEEDS_REAUTH";
+  await expect(h.resolve()).rejects.toThrow("reconnect the account");
 });
 
-test("LinkedIn publishing requires w_member_social, not just OIDC login scopes", async () => {
+test("transient refresh failures stay retryable", async () => {
   const h = await fixture();
-  h.account.providerId = "linkedin";
-  h.job.provider = "linkedin";
-  h.account.scope = "openid,profile,email";
-  await expect(h.resolve()).rejects.toThrow("w_member_social");
-  h.account.scope += ",w_member_social";
-  expect((await h.resolve()).accessToken).toBe("plain-access-token");
+  h.connection.expiresAt = new Date(Date.now() - 60_000);
+  h.connection.refreshToken = encrypt("refresh", h.env.SOCIAL_TOKEN_KEY);
+  spyOn(X.prototype, "refresh").mockRejectedValue(
+    new LimitError("Too many requests"),
+  );
+  await expect(h.resolve()).rejects.toMatchObject({ retryable: true });
 });
 
-test("publishing does not resolve another user's account row", async () => {
+test("publishing does not resolve another user's connection", async () => {
   const h = await fixture();
-  h.db.account.findFirst.mockResolvedValue(null);
+  h.db.socialConnection.findFirst.mockResolvedValue(null);
   await expect(h.resolve()).rejects.toThrow("not connected");
-  expect(h.db.account.findMany).not.toHaveBeenCalled();
-});
-
-test("Instagram's existing token is decrypted without requiring an unsupported auth provider", async () => {
-  const h = await fixture();
-  h.job.provider = "instagram";
-  h.account.providerId = "instagram";
-  expect((await h.resolve()).accessToken).toBe("plain-access-token");
-  h.account.accessTokenExpiresAt = new Date(Date.now() - 60_000);
-  await expect(h.resolve()).rejects.toThrow("Instagram token expired");
 });
