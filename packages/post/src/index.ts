@@ -1,5 +1,4 @@
 export { type AuthOptions, type ConnectOptions, Provider, type ProviderConfig } from "./lib/provider";
-export { YouTube, type YouTubeConfig } from "./providers/youtube";
 export { Instagram, type InstagramConfig, type SignedRequest } from "./providers/instagram";
 export { LinkedIn, type LinkedInConfig, littleText } from "./providers/linkedin";
 export { X, type XConfig } from "./providers/x";
@@ -16,3 +15,16 @@ export type {
 } from "./lib/types";
 
 export * from "./publish";
+export { Threads, ThreadsProvider, type ThreadsConfig } from "./providers/threads";
+export { Facebook, FacebookProvider, type FacebookConfig } from "./providers/facebook";
+export { Bluesky, BlueskyProvider, type BlueskyConfig } from "./providers/bluesky";
+export {
+  Mastodon,
+  MastodonProvider,
+  mastodonInstance,
+  registerMastodonApp,
+  type MastodonConfig,
+} from "./providers/mastodon";
+export { Pinterest, PinterestProvider, type PinterestConfig } from "./providers/pinterest";
+export { TikTok, TikTokProvider, type TikTokConfig } from "./providers/tiktok";
+export { Telegram, TelegramProvider, telegramChat, type TelegramConfig } from "./providers/telegram";

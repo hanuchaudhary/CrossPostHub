@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 
 import { useConfirm } from "@/components/confirm-dialog";
+import { ConnectDialog } from "@/components/post/connect-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,7 +20,13 @@ import { queryKeys } from "@/lib/query";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
-import { PROVIDERS, useConnections, usePostingAccess } from "./use-social";
+import {
+  type ConnectKind,
+  iconInvert,
+  PROVIDERS,
+  useConnections,
+  usePostingAccess,
+} from "./use-social";
 
 function UpgradeButton({
   label = "Upgrade to connect",
@@ -30,7 +37,6 @@ function UpgradeButton({
 }) {
   return (
     <Button
-      size="pill"
       variant="secondary"
       nativeButton={false}
       render={<Link to="/pricing" />}
@@ -130,6 +136,7 @@ function ProviderCard({
   provider,
   accounts,
   allowed,
+  configured,
   several,
   busy,
   onConnect,
@@ -138,6 +145,7 @@ function ProviderCard({
   provider: (typeof PROVIDERS)[number];
   accounts: SocialConnection[];
   allowed: boolean;
+  configured: boolean;
   several: boolean;
   busy: string | null;
   onConnect: (provider: SocialProvider) => void;
@@ -162,17 +170,17 @@ function ProviderCard({
           <img
             src={provider.icon}
             alt=""
-            className={cn("size-7", provider.id === "x" && "dark:invert")}
+            className={cn("size-7", iconInvert(provider))}
           />
         </span>
         <div className="min-w-0 flex-1 basis-32">
           <h2 className="truncate txt font-medium">{provider.label}</h2>
           <p className="mt-0.5 text-sm txt text-muted-foreground">
-            {provider.available
-              ? hasAccounts
-                ? `${accounts.length} connected`
-                : "Not connected"
-              : "Coming soon"}
+            {hasAccounts
+              ? `${accounts.length} connected`
+              : configured
+                ? "Not connected"
+                : "Not set up on this server yet"}
           </p>
         </div>
         {hasAccounts && !open && (
@@ -187,18 +195,17 @@ function ProviderCard({
           </div>
         )}
         <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
-          {provider.available && !allowed && (
+          {configured && !allowed && (
             <UpgradeButton className="flex-1 sm:flex-none" />
           )}
-          {provider.available && allowed && hasAccounts && !several && (
+          {configured && allowed && hasAccounts && !several && (
             <UpgradeButton
               label="Upgrade to add another"
               className="flex-1 sm:flex-none"
             />
           )}
-          {provider.available && allowed && (!hasAccounts || several) && (
+          {configured && allowed && (!hasAccounts || several) && (
             <Button
-              size="pill"
               variant={hasAccounts ? "secondary" : "primary"}
               className="flex-1 sm:flex-none"
               onClick={() => onConnect(provider.id)}
@@ -266,8 +273,14 @@ export function ConnectedAccounts() {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [busy, setBusy] = useState<string | null>(null);
+  const [form, setForm] = useState<Exclude<ConnectKind, "oauth"> | null>(null);
 
   const connect = async (provider: SocialProvider) => {
+    const kind = PROVIDERS.find((item) => item.id === provider)?.connect;
+    if (kind && kind !== "oauth") {
+      setForm(kind);
+      return;
+    }
     setBusy(provider);
     try {
       await PostApi.connect(provider);
@@ -314,6 +327,7 @@ export function ConnectedAccounts() {
               connections?.filter((item) => item.provider === provider.id) ?? []
             }
             allowed={access.allowed}
+            configured={access.configured.has(provider.id)}
             several={access.several}
             busy={busy}
             onConnect={(id) => void connect(id)}
@@ -321,6 +335,14 @@ export function ConnectedAccounts() {
           />
         ))}
       </div>
+      <ConnectDialog
+        kind={form}
+        onOpenChange={(open) => !open && setForm(null)}
+        onConnected={() => {
+          void queryClient.invalidateQueries({ queryKey: ["post"] });
+          void queryClient.invalidateQueries({ queryKey: queryKeys.accounts });
+        }}
+      />
     </LayoutGroup>
   );
 }

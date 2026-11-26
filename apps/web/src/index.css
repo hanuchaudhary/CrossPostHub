@@ -57,6 +57,9 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-brand-foreground: var(--brand-foreground);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -81,6 +84,9 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
+  --brand: #0072e5;
+  --brand-light: #60c5f8;
+  --brand-foreground: #ffffff;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -121,6 +127,9 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
+  --brand: #0072e5;
+  --brand-light: #60c5f8;
+  --brand-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -161,11 +170,11 @@
 }
 
 .heading {
-  @apply text-foreground font-light md:text-[1.8rem] text-[2rem] text-balance leading-none tracking-tighter;
+  @apply text-foreground font-light md:text-2xl text-xl text-balance leading-none tracking-tighter;
 }
 
 .subheading {
-  @apply text-neutral-400/90 font-light md:text-[1.2rem] text-[1.125rem] text-pretty max-w-2xl leading-tight tracking-tight;
+  @apply text-neutral-400/90 font-light md:text-lg text-base text-pretty max-w-2xl leading-tight tracking-tight;
 }
 
 @utility site-rule {

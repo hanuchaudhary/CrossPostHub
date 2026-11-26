@@ -1,39 +1,67 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useQuery } from "@tanstack/react-query";
 import { addDays, addMonths, startOfMonth, startOfWeek } from "date-fns";
 
+import { cn } from "cn";
+
+import { CalendarDayDialog } from "@/components/posts/calendar-day-dialog";
 import { CreatePostButton, useComposer } from "@/components/posts/composer";
+import { MediaThumb } from "@/components/posts/post-media";
 import { PublishList } from "@/components/posts/publish-list";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeading, QueryState } from "@/components/workspace/common";
+import { QueryState } from "@/components/workspace/common";
 import { queries } from "@/lib/query";
+import type { Post } from "@/lib/types";
 
-const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+import { PageLayout } from "../page-layout";
+
+const VISIBLE_CHIPS = 3;
+const DEFAULT_HOUR = 10;
+
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
+const dayKey = (date: Date) =>
+  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+function monthGrid(month: Date) {
+  const start = startOfWeek(startOfMonth(month));
+  const last = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+  const days: Date[] = [];
+  for (let at = start; at <= last || at.getDay() !== 0; at = addDays(at, 1))
+    days.push(at);
+  return days;
+}
+
+const postDate = (post: Post) => new Date(post.scheduledFor ?? post.createdAt);
+
+const timeOf = (date: Date) =>
+  date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+/** Today: the next half hour. Future days: 10:00. */
+function startFor(day: Date) {
+  if (startOfDay(new Date()).getTime() !== day.getTime())
+    return new Date(
+      day.getFullYear(),
+      day.getMonth(),
+      day.getDate(),
+      DEFAULT_HOUR
+    );
+  const next = new Date();
+  next.setMinutes(next.getMinutes() + 30, 0, 0);
+  return next;
+}
+
 export default function SchedulePage() {
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") === "list" ? "list" : "calendar";
   const [now, setNow] = useState(() => new Date());
-  const [anchor, setAnchor] = useState(() => new Date());
-  const [_, setSelected] = useState(() => new Date());
-  const [view, setView] = useState<"month" | "week">("week");
+  const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const posts = useQuery({ ...queries.posts(), enabled: tab === "calendar" });
-  const [calendarScroll, setCalendarScroll] = useState<HTMLDivElement | null>(
-    null
-  );
-  const [calendarViewport, setCalendarViewport] = useState<HTMLElement | null>(
-    null
-  );
+  const [picked, setPicked] = useState<Date | null>(null);
   const open = useComposer();
 
   useEffect(() => {
@@ -41,106 +69,29 @@ export default function SchedulePage() {
     return () => window.clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (tab !== "calendar" || !calendarScroll || !calendarViewport) return;
-    const scroller = calendarScroll;
-    const viewport = calendarViewport;
-    let frame = 0;
-    let scrolled = false;
-    const positionCalendar = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        if (
-          scrolled ||
-          !scroller.clientHeight ||
-          !viewport.clientWidth ||
-          !scroller.getClientRects().length
-        )
-          return;
-        const today = new Date();
-        const target =
-          view === "week"
-            ? scroller.querySelector<HTMLElement>(
-                `[data-hour="${today.getHours()}"]`
-              )
-            : (scroller.querySelector<HTMLElement>(
-                '[data-calendar-date="today"]'
-              ) ??
-              scroller.querySelector<HTMLElement>(
-                '[data-calendar-date="anchor"]'
-              ));
-        if (!target || !target.getClientRects().length) return;
-        const rect = target.getBoundingClientRect();
-        const headerHeight =
-          scroller.querySelector<HTMLElement>("[data-calendar-header]")
-            ?.offsetHeight ?? 0;
-        const minuteOffset =
-          view === "week" ? (today.getMinutes() / 60) * rect.height : 0;
-        scroller.scrollTop +=
-          rect.top -
-          scroller.getBoundingClientRect().top +
-          minuteOffset -
-          Math.max(headerHeight + 8, scroller.clientHeight / 3);
-        const column =
-          view === "week"
-            ? scroller.querySelector<HTMLElement>(
-                '[data-calendar-date="today"]'
-              )
-            : target;
-        if (column) {
-          const columnRect = column.getBoundingClientRect();
-          viewport.scrollLeft +=
-            columnRect.left -
-            viewport.getBoundingClientRect().left -
-            (viewport.clientWidth - columnRect.width) / 2;
-        }
-        scrolled = true;
-        observer?.disconnect();
-      });
-    };
-    // Animated tab panels stay hidden during their entrance. Wait for real layout
-    // before measuring, then stop observing so manual scrolling stays untouched.
-    const observer =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(positionCalendar)
-        : null;
-    observer?.observe(scroller);
-    observer?.observe(viewport);
-    positionCalendar();
-    return () => {
-      window.cancelAnimationFrame(frame);
-      observer?.disconnect();
-    };
-  }, [tab, view, anchor, calendarScroll, calendarViewport]);
-  const scheduled = (posts.data ?? []).filter(
-    (p) => p.isScheduled && p.scheduledFor
-  );
-  const days = Array.from({ length: view === "week" ? 7 : 42 }, (_, i) =>
-    addDays(
-      view === "week" ? startOfWeek(anchor) : startOfWeek(startOfMonth(anchor)),
-      i
-    )
-  );
-  const dayPosts = (day: Date) =>
-    scheduled.filter((p) => sameDay(new Date(p.scheduledFor!), day));
-  function openDay(day: Date) {
-    const date = new Date(day);
-    date.setHours(12, 0, 0, 0);
-    if (date <= new Date()) {
-      const next = new Date();
-      next.setMinutes(next.getMinutes() + 30, 0, 0);
-      if (!sameDay(next, day)) return;
-      open(next);
-    } else open(date);
-  }
+  const byDay = useMemo(() => {
+    const map = new Map<string, { post: Post; at: Date }[]>();
+    for (const post of posts.data ?? []) {
+      const at = postDate(post);
+      const key = dayKey(at);
+      map.set(key, [...(map.get(key) ?? []), { post, at }]);
+    }
+    for (const list of map.values())
+      list.sort((a, b) => a.at.getTime() - b.at.getTime());
+    return map;
+  }, [posts.data]);
+
+  const today = startOfDay(now);
+  const days = monthGrid(month);
+  const thisMonth = startOfMonth(today).getTime() === month.getTime();
+
   return (
     <Tabs
       value={tab}
       onValueChange={(value) => {
         if (value === "calendar") {
-          const today = new Date();
-          setAnchor(today);
-          setNow(today);
+          setMonth(startOfMonth(new Date()));
+          setNow(new Date());
         }
         setParams((current) => {
           const next = new URLSearchParams(current);
@@ -149,286 +100,219 @@ export default function SchedulePage() {
         });
       }}
     >
-      <PageHeading title="Publish">
-        <div className="flex flex-wrap items-center gap-3">
-          <TabsList
-            aria-label="Publishing view"
-            className="rounded-lg border p-1 group-data-horizontal/tabs:h-9"
-          >
-            <TabsTrigger value="list" className="rounded-md px-3">
-              <Icon name="layers" />
-              List
-            </TabsTrigger>
-            <TabsTrigger value="calendar" className="rounded-md px-3">
-              <Icon name="calendar" />
-              Calendar
-            </TabsTrigger>
-          </TabsList>
-          <CreatePostButton />
-        </div>
-      </PageHeading>
-      <TabsContent value="list">
-        <PublishList now={now} />
-      </TabsContent>
-      <TabsContent value="calendar">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Previous period"
-              onClick={() =>
-                setAnchor(
-                  view === "week" ? addDays(anchor, -7) : addMonths(anchor, -1)
-                )
-              }
+      <PageLayout
+        title="Publish"
+        description="Pick a day to schedule a post, and see everything planned."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <TabsList
+              aria-label="Publishing view"
+              className="rounded-lg border p-1 group-data-horizontal/tabs:h-9"
             >
-              <Icon name="back" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Next period"
-              onClick={() =>
-                setAnchor(
-                  view === "week" ? addDays(anchor, 7) : addMonths(anchor, 1)
-                )
-              }
-            >
-              <Icon name="arrow" />
-            </Button>
-            <h2 className="mr-3 text-sm font-medium">
-              {anchor.toLocaleDateString([], {
-                month: "long",
-                year: "numeric",
-              })}
-            </h2>
-            <Button
-              variant="outline"
-              onClick={() => {
-                const today = new Date();
-                setAnchor(today);
-                setSelected(today);
-                setNow(today);
-              }}
-            >
-              Today
-            </Button>
-            <Select
-              value={view}
-              items={[
-                { value: "week", label: "Week" },
-                { value: "month", label: "Month" },
-              ]}
-              onValueChange={(value) => {
-                if (value === "week" || value === "month") setView(value);
-              }}
-            >
-              <SelectTrigger aria-label="Calendar view" className="min-w-28">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
-                <SelectItem value="week">Week</SelectItem>
-                <SelectItem value="month">Month</SelectItem>
-              </SelectContent>
-            </Select>
+              <TabsTrigger value="list" className="rounded-md px-3">
+                <Icon name="layers" />
+                List
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="rounded-md px-3">
+                <Icon name="calendar" />
+                Calendar
+              </TabsTrigger>
+            </TabsList>
+            <CreatePostButton />
           </div>
-        </div>
-        <QueryState
-          loadingLabel="Loading your calendar"
-          pending={posts.isPending}
-          error={posts.error}
-          retry={() => posts.refetch()}
-        />
-        {posts.data !== undefined && (
-          <section
-            ref={setCalendarViewport}
-            aria-label="Publishing calendar"
-            className="overflow-x-auto rounded-xl border"
-          >
-            {view === "week" ? (
-              <div
-                ref={setCalendarScroll}
-                className="max-h-[68vh] min-w-[780px] overflow-y-auto"
+        }
+      >
+        <TabsContent value="list">
+          <PublishList now={now} />
+        </TabsContent>
+        <TabsContent value="calendar">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-medium tabular-nums">
+              {month.toLocaleDateString([], { month: "long", year: "numeric" })}
+            </h2>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                disabled={thisMonth}
+                onClick={() => setMonth(startOfMonth(new Date()))}
               >
-                <div
-                  data-calendar-header
-                  className="sticky top-0 z-20 grid grid-cols-[56px_repeat(7,minmax(0,1fr))] border-b bg-background"
-                >
-                  <div className="border-r" />
-                  {days.map((day) => (
-                    <button
-                      key={day.toISOString()}
-                      data-calendar-date={
-                        sameDay(day, now) ? "today" : undefined
-                      }
-                      onClick={() => setSelected(day)}
-                      className={`border-r p-4 text-center text-xs last:border-r-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${sameDay(day, now) ? "border-b-2 border-b-primary bg-primary/5 text-foreground" : "text-muted-foreground"}`}
-                    >
-                      {day.toLocaleDateString([], { weekday: "long" })}
-                      <span className="ml-2">{day.getDate()}</span>
-                    </button>
-                  ))}
-                </div>
-                {Array.from({ length: 24 }, (_, hour) => (
-                  <div
-                    key={hour}
-                    data-hour={hour}
-                    className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))]"
-                  >
-                    <div className="border-r border-b px-1 pt-2 text-right text-[10px] text-muted-foreground">
-                      {new Date(2000, 0, 1, hour).toLocaleTimeString([], {
-                        hour: "numeric",
-                        hour12: true,
-                      })}
-                    </div>
-                    {days.map((day) => {
-                      const slot = new Date(day);
-                      slot.setHours(hour, 0, 0, 0);
-                      const past = slot.getTime() <= now.getTime();
-                      const rows = dayPosts(day).filter(
-                        (p) => new Date(p.scheduledFor!).getHours() === hour
-                      );
-                      return (
-                        <div
-                          key={slot.toISOString()}
-                          className={`relative min-h-24 border-r border-b last:border-r-0 ${past ? "bg-muted/45" : ""}`}
-                        >
-                          <button
-                            type="button"
-                            disabled={past}
-                            aria-label={`Schedule post ${slot.toLocaleString()}`}
-                            className="group absolute inset-0 flex items-center justify-center outline-none transition-colors hover:bg-muted/60 focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-not-allowed disabled:hover:bg-transparent"
-                            onClick={() => {
-                              if (slot > new Date()) {
-                                setSelected(day);
-                                open(slot);
-                              }
-                            }}
-                          >
-                            {!past && (
-                              <span className="rounded-full border bg-background p-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 [@media(hover:none)]:opacity-60">
-                                <Icon name="plus" size={14} />
-                              </span>
-                            )}
-                          </button>
-                          {rows.map((post) => (
-                            <div
-                              key={post.id}
-                              className="pointer-events-none relative z-10 m-1 rounded-md border bg-background p-2 text-[10px] shadow-sm"
-                            >
-                              <span className="flex items-center gap-1 font-medium">
-                                <Icon name={post.provider} size={12} />
-                                {new Date(
-                                  post.scheduledFor!
-                                ).toLocaleTimeString([], {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                })}
-                              </span>
-                              <p className="mt-1 truncate">
-                                {post.text || "Media post"}
-                              </p>
-                            </div>
-                          ))}
-                          {sameDay(day, now) && now.getHours() === hour && (
-                            <div
-                              className="pointer-events-none absolute inset-x-0 z-10 border-t border-red-500"
-                              style={{
-                                top: `${(now.getMinutes() / 60) * 100}%`,
-                              }}
-                            >
-                              <span className="absolute -top-1 left-0 size-2 rounded-full bg-red-500" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                Today
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Previous month"
+                onClick={() => setMonth((current) => addMonths(current, -1))}
+              >
+                <Icon name="back" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Next month"
+                onClick={() => setMonth((current) => addMonths(current, 1))}
+              >
+                <Icon name="arrow" />
+              </Button>
+            </div>
+          </div>
+          <QueryState
+            loadingLabel="Loading your calendar"
+            pending={posts.isPending}
+            error={posts.error}
+            retry={() => posts.refetch()}
+          />
+          {posts.data !== undefined && (
+            <section
+              aria-label="Publishing calendar"
+              className="flex h-[calc(100dvh-18rem)] min-h-[560px] flex-col"
+            >
+              <div className="grid grid-cols-7 border-b pb-2 text-center text-xs text-muted-foreground">
+                {days.slice(0, 7).map((day) => (
+                  <span key={day.getDay()}>
+                    {day.toLocaleDateString([], { weekday: "short" })}
+                  </span>
                 ))}
               </div>
-            ) : (
               <div
-                ref={setCalendarScroll}
-                className="max-h-[68vh] min-w-[630px] overflow-y-auto"
+                className="grid min-h-0 flex-1 grid-cols-7 border-l"
+                style={{
+                  gridTemplateRows: `repeat(${days.length / 7}, minmax(0, 1fr))`,
+                }}
               >
-                <div
-                  data-calendar-header
-                  className="sticky top-0 z-20 grid grid-cols-7 border-b bg-background"
-                >
-                  {days.slice(0, 7).map((day) => (
-                    <div
-                      key={day.toISOString()}
-                      className="p-3 text-center text-xs text-muted-foreground"
+                {days.map((day) => {
+                  const inMonth = day.getMonth() === month.getMonth();
+                  const isToday = day.getTime() === today.getTime();
+                  const upcoming = day >= today;
+                  const entries = byDay.get(dayKey(day)) ?? [];
+                  const viewable = upcoming || entries.length > 0;
+                  const label = day.toLocaleDateString([], {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  });
+                  return (
+                    <button
+                      key={dayKey(day)}
+                      type="button"
+                      disabled={!viewable}
+                      onClick={() =>
+                        entries.length ? setPicked(day) : open(startFor(day))
+                      }
+                      aria-label={
+                        entries.length
+                          ? `See ${entries.length} post${entries.length === 1 ? "" : "s"} on ${label}`
+                          : upcoming
+                            ? `Schedule a post on ${label}`
+                            : `${label}, this day has passed`
+                      }
+                      title={viewable ? undefined : "This day has passed"}
+                      className={cn(
+                        "group relative flex min-h-0 flex-col gap-1 overflow-hidden border-r border-b p-1.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring md:p-2",
+                        !upcoming && "bg-secondary/30",
+                        viewable
+                          ? "cursor-pointer hover:bg-secondary/60"
+                          : "cursor-not-allowed"
+                      )}
                     >
-                      {day.toLocaleDateString([], { weekday: "long" })}
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7">
-                  {days.map((day) => {
-                    const end = new Date(day);
-                    end.setHours(23, 59, 59, 999);
-                    const past = end < now;
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        data-calendar-date={
-                          sameDay(day, now)
-                            ? "today"
-                            : sameDay(day, anchor)
-                              ? "anchor"
-                              : undefined
-                        }
-                        className={`group relative min-h-28 border-r border-b p-2 ${day.getMonth() !== anchor.getMonth() ? "bg-muted/25 text-muted-foreground" : ""}`}
-                      >
-                        <button
-                          className={`flex size-7 items-center justify-center rounded-full text-xs focus-visible:ring-2 focus-visible:ring-ring ${sameDay(day, now) ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-                          onClick={() => setSelected(day)}
-                          aria-label={`Show posts for ${day.toLocaleDateString()}`}
+                      <span className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "grid size-6 place-items-center rounded-full text-xs tabular-nums",
+                            isToday && "bg-brand text-brand-foreground",
+                            !isToday && !upcoming && "text-muted-foreground/60",
+                            !isToday &&
+                              upcoming &&
+                              !inMonth &&
+                              "text-muted-foreground"
+                          )}
                         >
                           {day.getDate()}
-                        </button>
-                        {!past && (
-                          <button
-                            className="absolute top-3 right-3 rounded-full border p-1 opacity-0 group-hover:opacity-100 focus:opacity-100 [@media(hover:none)]:opacity-60"
-                            aria-label={`Create post for ${day.toLocaleDateString()}`}
-                            onClick={() => {
-                              setSelected(day);
-                              openDay(day);
-                            }}
+                        </span>
+                        {upcoming && (
+                          <Icon
+                            name="plus"
+                            size={16}
+                            className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                          />
+                        )}
+                      </span>
+
+                      <span className="flex flex-wrap gap-0.5 md:hidden">
+                        {entries.slice(0, 4).map(({ post }) => (
+                          <Icon
+                            key={post.id}
+                            name={post.provider}
+                            size={14}
+                            className={cn(
+                              post.status === "FAILED" && "opacity-50"
+                            )}
+                          />
+                        ))}
+                      </span>
+                      <span className="hidden min-h-0 flex-col gap-0.5 md:flex">
+                        {entries.slice(0, VISIBLE_CHIPS).map(({ post, at }) => (
+                          <span
+                            key={post.id}
+                            title={post.text || "Media post"}
+                            className={cn(
+                              "flex items-center gap-1.5 truncate rounded-md bg-background px-1.5 py-0.5 text-[11px] ring-1 ring-border",
+                              post.status === "FAILED" &&
+                                "text-destructive ring-destructive/40",
+                              post.status === "SUCCESS" &&
+                                "text-muted-foreground"
+                            )}
                           >
-                            <Icon name="plus" size={12} />
-                          </button>
+                            {post.mediaKeys[0] ? (
+                              <MediaThumb
+                                mediaKey={post.mediaKeys[0]}
+                                className="size-4 shrink-0 rounded-sm ring-0"
+                              />
+                            ) : (
+                              <Icon
+                                name={post.provider}
+                                size={12}
+                                className="shrink-0"
+                              />
+                            )}
+                            <span className="tabular-nums">{timeOf(at)}</span>
+                            <span className="truncate">
+                              {post.text || "Media post"}
+                            </span>
+                          </span>
+                        ))}
+                        {entries.length > VISIBLE_CHIPS && (
+                          <span className="px-1.5 text-[11px] text-muted-foreground">
+                            +{entries.length - VISIBLE_CHIPS} more
+                          </span>
                         )}
-                        {dayPosts(day)
-                          .slice(0, 2)
-                          .map((post) => (
-                            <div
-                              key={post.id}
-                              className="mt-1 flex items-center gap-1 rounded border bg-background px-1 py-1 text-[10px]"
-                            >
-                              <Icon name={post.provider} size={12} />
-                              <span className="truncate">
-                                {post.text || "Media post"}
-                              </span>
-                            </div>
-                          ))}
-                        {dayPosts(day).length > 2 && (
-                          <p className="mt-1 text-[10px]">
-                            +{dayPosts(day).length - 2} more
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </section>
-        )}
-      </TabsContent>
+            </section>
+          )}
+          <CalendarDayDialog
+            day={picked}
+            posts={
+              picked
+                ? (byDay.get(dayKey(picked)) ?? []).map((entry) => entry.post)
+                : []
+            }
+            canSchedule={!!picked && picked >= today}
+            onSchedule={() => {
+              if (!picked) return;
+              const at = startFor(picked);
+              setPicked(null);
+              open(at);
+            }}
+            onOpenChange={(next) => {
+              if (!next) setPicked(null);
+            }}
+          />
+        </TabsContent>
+      </PageLayout>
     </Tabs>
   );
 }

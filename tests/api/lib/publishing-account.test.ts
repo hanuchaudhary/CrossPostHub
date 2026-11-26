@@ -49,7 +49,7 @@ async function fixture() {
 test("publishing resolves and decrypts the owner's social connection", async () => {
   const h = await fixture();
   expect(h.connection.accessToken).not.toContain("plain-access-token");
-  expect(await h.resolve()).toEqual({
+  expect(await h.resolve()).toMatchObject({
     accountId: "x-person",
     accessToken: "plain-access-token",
   });
@@ -76,9 +76,10 @@ test("publishing refreshes expiring tokens and stores the rotated ones encrypted
       };
     },
   );
-  expect(await h.resolve()).toEqual({
+  expect(await h.resolve()).toMatchObject({
     accountId: "x-person",
     accessToken: "fresh-token",
+    refreshToken: "rotated-token",
   });
   expect(refresh).toHaveBeenCalledTimes(1);
   const stored = h.db.socialConnection.update.mock.calls[0]![0].data;

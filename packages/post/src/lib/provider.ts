@@ -35,9 +35,19 @@ export abstract class Provider<Config extends ProviderConfig = ProviderConfig> {
   abstract connect(options: ConnectOptions): Promise<Account>;
   abstract refresh(tokens: Tokens): Promise<Tokens>;
   abstract revoke(tokens: Tokens): Promise<void>;
-  abstract publish(tokens: Tokens, input: PostInput): Promise<PostStatus>;
-  /** Follows up a post that came back `processing`. */
-  abstract status(tokens: Tokens, ref: string): Promise<PostStatus>;
+  readonly connection: "oauth" | "form" = "oauth";
+
+  connectForm(_input: Record<string, string>): Promise<Account> {
+    throw this.invalid(`${this.id} connects through its sign-in page`);
+  }
+
+  publish(_tokens: Tokens, _input: PostInput): Promise<PostStatus> {
+    throw this.invalid(`Video publishing is not available for ${this.id}`);
+  }
+
+  status(_tokens: Tokens, _ref: string): Promise<PostStatus> {
+    throw this.invalid(`Video publishing is not available for ${this.id}`);
+  }
 
   /**
    * Throws a ValidationError when `input` can never be posted here as it is.

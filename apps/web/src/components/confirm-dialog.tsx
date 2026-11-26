@@ -90,7 +90,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               {options?.cancelLabel ?? "Cancel"}
             </AlertDialogCancel>
             <AlertDialogAction
-              variant={options?.destructive ? "destructive" : "brand"}
+              variant={options?.destructive ? "destructive" : "primary"}
               disabled={busy}
               onClick={() => void accept()}
             >

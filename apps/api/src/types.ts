@@ -1,5 +1,7 @@
+import type { Platform } from "@repo/shared/platforms";
+
 export type PostJob = {
-  provider: "twitter" | "linkedin" | "instagram";
+  provider: Platform;
   postText: string;
   mediaKeys: string[];
   userId: string;
@@ -22,6 +24,17 @@ export type Bindings = {
   INSTAGRAM_APP_SECRET?: string;
   INSTAGRAM_CONFIG_ID?: string;
   SOCIAL_TOKEN_KEY?: string;
+  THREADS_APP_ID?: string;
+  THREADS_APP_SECRET?: string;
+  FACEBOOK_APP_ID?: string;
+  FACEBOOK_APP_SECRET?: string;
+  PINTEREST_APP_ID?: string;
+  PINTEREST_APP_SECRET?: string;
+  PINTEREST_API_URL?: string;
+  TIKTOK_CLIENT_KEY?: string;
+  TIKTOK_CLIENT_SECRET?: string;
+  TIKTOK_AUDITED?: string;
+  TELEGRAM_BOT_TOKEN?: string;
   DODO_PAYMENTS_API_KEY: string;
   DODO_PAYMENTS_WEBHOOK_KEY: string;
   DODO_PAYMENTS_ENVIRONMENT: "test_mode" | "live_mode";

@@ -183,10 +183,16 @@ model WebhookEvent {
 }
 
 enum SocialProvider {
-  youtube
   instagram
   linkedin
   x
+  threads
+  facebook
+  bluesky
+  mastodon
+  pinterest
+  tiktok
+  telegram
 }
 
 enum SocialConnectionStatus {
@@ -207,6 +213,7 @@ model SocialConnection {
   refreshToken   String?
   expiresAt      DateTime
   scopes         String                 @default("")
+  meta           String?
   status         SocialConnectionStatus @default(ACTIVE)
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
@@ -221,6 +228,7 @@ model SocialConnectState {
   userId       String
   provider     SocialProvider
   codeVerifier String
+  meta         String?
   expiresAt    DateTime
   createdAt    DateTime       @default(now())
 

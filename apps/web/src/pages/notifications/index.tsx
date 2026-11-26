@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { toast } from "@/lib/toast";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Icon } from "@/components/ui/icon";
-import { PageHeading, QueryState } from "@/components/workspace/common";
+import { QueryState } from "@/components/workspace/common";
 import { errorMessage, markNotificationsRead } from "@/lib/api";
 import { mutationKeys, queries, queryClient, queryKeys } from "@/lib/query";
+import { toast } from "@/lib/toast";
+
+import { PageLayout } from "../page-layout";
 
 export default function NotificationsPage() {
   const notices = useQuery(queries.notifications());
@@ -25,11 +27,10 @@ export default function NotificationsPage() {
     onError: (e) => toast.error(errorMessage(e)),
   });
   return (
-    <>
-      <PageHeading
-        title="You’re in the loop."
-        description="The latest from your creative corner."
-      >
+    <PageLayout
+      title="You’re in the loop."
+      description="The latest from your creative corner."
+      actions={
         <Button
           variant="outline"
           disabled={mark.isPending || !notices.data?.some((n) => !n.read)}
@@ -37,7 +38,8 @@ export default function NotificationsPage() {
         >
           Mark all as read
         </Button>
-      </PageHeading>
+      }
+    >
       <QueryState
         loadingLabel="Loading notifications"
         pending={notices.isPending}
@@ -80,6 +82,6 @@ export default function NotificationsPage() {
           </div>
         </section>
       )}
-    </>
+    </PageLayout>
   );
 }

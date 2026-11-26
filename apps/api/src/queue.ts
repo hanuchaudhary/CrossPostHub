@@ -1,20 +1,40 @@
 import type { PrismaClient } from "../generated/prisma/client";
 import {
+  BlueskyProvider,
   CrossPostHub,
+  FacebookProvider,
   InstagramProvider,
   LinkedInProvider,
+  MastodonProvider,
+  PinterestProvider,
   PublishError,
+  TelegramProvider,
+  ThreadsProvider,
+  TikTokProvider,
   TwitterProvider,
 } from "@repo/post";
 import { getDb } from "./lib/db";
+import { pinterestApi } from "./modules/post/providers";
 import { getPublishingAccount } from "./lib/publishing-account";
 import type { Bindings, PostJob } from "./types";
 
-const crossposthub = new CrossPostHub([
-  new TwitterProvider(),
-  new LinkedInProvider(),
-  new InstagramProvider(),
-]);
+let hub: CrossPostHub | undefined;
+
+function crossposthubFor(env: Bindings) {
+  hub ??= new CrossPostHub([
+    new TwitterProvider(),
+    new LinkedInProvider(),
+    new InstagramProvider(),
+    new ThreadsProvider(),
+    new FacebookProvider(),
+    new BlueskyProvider(),
+    new MastodonProvider(),
+    new PinterestProvider(undefined, pinterestApi(env)),
+    new TikTokProvider(undefined, { audited: env.TIKTOK_AUDITED === "true" }),
+    new TelegramProvider(),
+  ]);
+  return hub;
+}
 
 async function processPost(db: PrismaClient, env: Bindings, job: PostJob) {
   const post = await db.post.findFirst({
@@ -24,7 +44,7 @@ async function processPost(db: PrismaClient, env: Bindings, job: PostJob) {
 
   const account = await getPublishingAccount(db, env, job);
 
-  await crossposthub.publish({
+  await crossposthubFor(env).publish({
     provider: job.provider,
     account,
     text: job.postText,
@@ -45,7 +65,7 @@ async function processPost(db: PrismaClient, env: Bindings, job: PostJob) {
         if (!key.startsWith(`media/${job.userId}/`))
           throw new PublishError("Invalid media key for post owner");
         if (!env.R2_PUBLIC_URL)
-          throw new Error("R2_PUBLIC_URL is required for Instagram publishing");
+          throw new Error("R2_PUBLIC_URL is required to publish media by URL");
         const object = await env.MEDIA_BUCKET.head(key);
         if (!object) throw new Error(`Media object not found: ${key}`);
         return {

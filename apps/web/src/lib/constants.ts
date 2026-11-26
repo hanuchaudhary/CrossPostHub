@@ -1,3 +1,5 @@
+import { isPlatform } from "@repo/shared/platforms";
+
 import type { Channel, ChannelId, Platform } from "./types";
 
 export const CHANNELS: readonly Channel[] = [
@@ -25,49 +27,48 @@ export const CHANNELS: readonly Channel[] = [
     name: "Threads",
     icon: "/icons/threads-icon.svg",
     iconClassName: "invert dark:invert-0",
-    locked: true,
+    locked: false,
   },
   {
     id: "facebook",
     name: "Facebook",
     icon: "/icons/facebook-icon.svg",
-    locked: true,
+    locked: false,
   },
   {
     id: "bluesky",
     name: "Bluesky",
     icon: "/icons/bluesky-icon.svg",
-    locked: true,
+    locked: false,
   },
   {
     id: "pinterest",
     name: "Pinterest",
     icon: "/icons/pinterest-icon.svg",
-    locked: true,
+    locked: false,
   },
   {
     id: "tiktok",
     name: "TikTok",
     icon: "/icons/tiktok-icon.svg",
-    locked: true,
+    locked: false,
   },
   {
-    id: "youtube",
-    name: "YouTube",
-    icon: "/icons/youtube-icon.svg",
-    locked: true,
+    id: "mastodon",
+    name: "Mastodon",
+    icon: "/icons/mastodon-icon.svg",
+    locked: false,
   },
   {
-    id: "github",
-    name: "GitHub",
-    icon: "/icons/github-icon.svg",
-    iconClassName: "invert dark:invert-0",
-    locked: true,
+    id: "telegram",
+    name: "Telegram",
+    icon: "/icons/telegram-icon.svg",
+    locked: false,
   },
 ];
 export function getChannel(id: string) {
   return CHANNELS.find((channel) => channel.id === id);
 }
 export function isPublishingPlatform(id: ChannelId | string): id is Platform {
-  return id === "twitter" || id === "linkedin" || id === "instagram";
+  return isPlatform(id);
 }

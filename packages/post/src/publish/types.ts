@@ -13,6 +13,8 @@ export interface MediaSource {
 export interface PublishAccount {
   accessToken: string;
   accountId: string;
+  refreshToken?: string;
+  meta?: Record<string, string>;
 }
 
 export interface PublishContent {

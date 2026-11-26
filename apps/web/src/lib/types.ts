@@ -11,10 +11,10 @@ export type ChannelId =
   | "bluesky"
   | "pinterest"
   | "tiktok"
-  | "youtube"
-  | "github";
+  | "mastodon"
+  | "telegram";
 
-export type Platform = "twitter" | "linkedin" | "instagram";
+export type Platform = import("@repo/shared/platforms").Platform;
 export type Channel = {
   id: ChannelId;
   name: string;
@@ -156,4 +156,8 @@ export type QueryStateProps = {
   error: unknown;
   retry: () => void;
 };
-export type PostListProps = { posts: Post[]; compact?: boolean };
+export type PostListProps = {
+  posts: Post[];
+  compact?: boolean;
+  empty?: string;
+};

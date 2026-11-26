@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "cn";
 import { addDays, startOfDay } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { QueryState } from "@/components/workspace/common";
 import { getChannel } from "@/lib/constants";
 import { queries } from "@/lib/query";
 import type { Post } from "@/lib/types";
 
 import { useComposer } from "./composer";
+import { MediaGrid } from "./post-media";
 
 const dateKey = (date: Date) => startOfDay(date).getTime();
 const timeLabel = (date: Date) =>
@@ -102,37 +104,28 @@ export function PublishList({ now }: { now: Date }) {
           ).values(),
         ].sort((a, b) => b.getTime() - a.getTime());
   return (
-    <Tabs
-      value={filter}
-      onValueChange={(value) => {
-        if (value === "pending" || value === "sent" || value === "failed") {
-          setFilter(value);
-          setVisibleDays(10);
-        }
-      }}
-    >
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <TabsList variant="line" aria-label="Post status">
-          {(["pending", "sent", "failed"] as const).map((value) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              className="px-3 py-2 capitalize"
-            >
-              {value}
-              <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] text-muted-foreground">
-                {posts.data ? groups[value].length : 0}
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <FilterTabs
+          label="Post status"
+          value={filter}
+          onChange={(value) => {
+            setFilter(value);
+            setVisibleDays(10);
+          }}
+          options={(["pending", "sent", "failed"] as const).map((key) => ({
+            key,
+            label: LABELS[key],
+            count: posts.data ? groups[key].length : undefined,
+          }))}
+        />
         {filter === "pending" && (
-          <span className="hidden shrink-0 rounded-full border px-3 py-1.5 text-[10px] text-muted-foreground sm:block">
+          <span className="hidden shrink-0 text-xs text-muted-foreground tabular-nums sm:block">
             Next {visibleDays} days
           </span>
         )}
       </div>
-      <TabsContent value={filter} className="mx-auto w-full py-7 sm:py-10">
+      <div role="tabpanel">
         <QueryState
           loadingLabel="Loading your posts"
           pending={posts.isPending}
@@ -140,20 +133,20 @@ export function PublishList({ now }: { now: Date }) {
           retry={() => posts.refetch()}
         />
         {hasData && filter !== "pending" && rows.length === 0 && (
-          <div className="rounded-xl border border-dashed px-6 py-14 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed py-20 text-center">
             <Icon
               name={filter === "sent" ? "send" : "check"}
-              className="mx-auto mb-3 text-muted-foreground"
-              size={24}
+              size={32}
+              className="text-muted-foreground"
             />
             <p className="text-sm text-muted-foreground">
               {filter === "sent"
                 ? "No published posts yet."
-                : "No failed posts."}
+                : "No failed posts. Nice."}
             </p>
           </div>
         )}
-        <div>
+        <div className="space-y-4">
           {days.map((day) => {
             const daily = rows.filter(
               (post) => dateKey(postDate(post)) === dateKey(day)
@@ -188,99 +181,81 @@ export function PublishList({ now }: { now: Date }) {
               <section
                 key={day.toISOString()}
                 aria-label={`${label}, ${day.toLocaleDateString()}`}
-                className="grid gap-4 border-t py-6 first:border-t-0 first:pt-0 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-7"
+                className="rounded-2xl bg-popover p-1 ring-1 ring-foreground/10"
               >
-                <header className="flex items-center gap-3 self-start sm:sticky sm:top-4">
-                  <div
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-xl text-lg font-medium ${today ? "bg-primary text-primary-foreground" : "border bg-muted/25"}`}
+                <header className="flex items-center gap-3 rounded-xl bg-secondary px-3 py-2.5 shadow ring-2 ring-muted">
+                  <span
+                    className={cn(
+                      "grid size-9 shrink-0 place-items-center rounded-lg text-sm font-medium tabular-nums",
+                      today
+                        ? "bg-brand text-brand-foreground"
+                        : "bg-background ring-1 ring-border"
+                    )}
                   >
                     {day.getDate()}
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-medium">{label}</h3>
-                    <p className="mt-1 text-[10px] text-muted-foreground">
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-medium">{label}</h3>
+                    <p className="text-xs text-muted-foreground">
                       {day.toLocaleDateString([], {
-                        month: "short",
+                        month: "long",
                         year: "numeric",
                       })}
                     </p>
                   </div>
+                  {daily.length > 0 && (
+                    <span className="ml-auto min-w-5 rounded-full bg-background px-1.5 text-center text-[11px] leading-5 text-muted-foreground tabular-nums">
+                      {daily.length}
+                    </span>
+                  )}
                 </header>
-                <div className="space-y-3">
+                <ul className="space-y-1 p-2">
                   {entries.length === 0 && (
-                    <p className="rounded-xl border border-dashed px-4 py-5 text-xs text-muted-foreground">
-                      {filter === "sent"
-                        ? "No published posts on this day."
-                        : filter === "failed"
-                          ? "No failed posts on this day."
-                          : "No more time slots today."}
-                    </p>
+                    <li className="px-3 py-4 text-sm text-muted-foreground">
+                      {filter === "pending"
+                        ? "No more time slots today."
+                        : "Nothing on this day."}
+                    </li>
                   )}
                   {entries.map(({ date, post, key }) => (
-                    <div
+                    <li
                       key={key}
-                      className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[85px_minmax(0,1fr)]"
+                      className="grid grid-cols-[64px_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[80px_minmax(0,1fr)]"
                     >
                       <time
                         dateTime={date.toISOString()}
-                        className="pt-4 text-[11px] tabular-nums text-muted-foreground"
+                        className={cn(
+                          "text-xs text-muted-foreground tabular-nums",
+                          post ? "pt-4" : "pt-3"
+                        )}
                       >
                         {timeLabel(date)}
                       </time>
                       {post ? (
-                        <article className="min-w-0 rounded-xl border bg-background p-4 shadow-xs">
-                          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                            <span className="flex items-center gap-2 text-xs font-medium">
-                              <Icon name={post.provider} size={16} />
-                              {getChannel(post.provider)?.name}
-                            </span>
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-[10px] ${post.status === "FAILED" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}
-                            >
-                              {post.status === "SUCCESS"
-                                ? "Published"
-                                : post.status === "FAILED"
-                                  ? "Failed"
-                                  : post.isScheduled
-                                    ? "Scheduled"
-                                    : "Processing"}
-                            </span>
-                          </div>
-                          <p className="whitespace-pre-wrap break-words text-sm leading-6">
-                            {post.text || "Media post"}
-                          </p>
-                          {post.mediaKeys.length > 0 && (
-                            <p className="mt-3 flex items-center gap-1 text-[10px] text-muted-foreground">
-                              <Icon name="image" size={12} />
-                              {post.mediaKeys.length} image
-                              {post.mediaKeys.length === 1 ? "" : "s"}
-                            </p>
-                          )}
-                        </article>
+                        <PostCard post={post} />
                       ) : (
-                        <Button
-                          variant="ghost"
-                          className="group h-12 w-full justify-between rounded-xl border border-dashed bg-muted/15 px-4 text-muted-foreground hover:border-foreground/30 hover:bg-muted/50 hover:text-foreground"
+                        <button
+                          type="button"
+                          className="group flex h-11 w-full cursor-pointer items-center justify-between rounded-xl border border-dashed px-4 text-sm text-muted-foreground transition-colors outline-none hover:border-foreground/30 hover:bg-secondary/40 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40"
                           onClick={() => {
                             if (date > new Date()) open(date);
                           }}
                           aria-label={`New post ${date.toLocaleDateString()} at ${timeLabel(date)}`}
                         >
                           <span className="flex items-center gap-2">
-                            <span className="flex size-5 items-center justify-center rounded-full border bg-background">
-                              <Icon name="plus" size={12} />
-                            </span>
+                            <Icon name="plus" size={14} />
                             New post
                           </span>
                           <Icon
                             name="arrow"
-                            className="opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+                            size={16}
+                            className="opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100 group-focus-visible:opacity-100"
                           />
-                        </Button>
+                        </button>
                       )}
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </section>
             );
           })}
@@ -298,7 +273,43 @@ export function PublishList({ now }: { now: Date }) {
             </Button>
           </div>
         )}
-      </TabsContent>
-    </Tabs>
+      </div>
+    </div>
+  );
+}
+
+const LABELS: Record<PublishFilter, string> = {
+  pending: "Upcoming",
+  sent: "Posted",
+  failed: "Failed",
+};
+
+function PostCard({ post }: { post: Post }) {
+  const status =
+    post.status === "SUCCESS"
+      ? { label: "Posted", tone: "text-lime-600 dark:text-lime-400" }
+      : post.status === "FAILED"
+        ? { label: "Failed", tone: "text-destructive" }
+        : post.isScheduled
+          ? { label: "Scheduled", tone: "text-muted-foreground" }
+          : { label: "Posting…", tone: "text-amber-600 dark:text-amber-400" };
+  return (
+    <article className="min-w-0 space-y-3 rounded-2xl p-3 ring-1 ring-border transition-colors hover:bg-secondary/40">
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="grid size-6 place-items-center rounded-md bg-secondary">
+            <Icon name={post.provider} size={14} />
+          </span>
+          {getChannel(post.provider)?.name}
+        </span>
+        <span className={cn("text-xs", status.tone)}>{status.label}</span>
+      </div>
+      {post.text && (
+        <p className="line-clamp-4 text-sm leading-relaxed break-words whitespace-pre-wrap">
+          {post.text}
+        </p>
+      )}
+      <MediaGrid keys={post.mediaKeys} />
+    </article>
   );
 }

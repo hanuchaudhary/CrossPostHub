@@ -1,17 +1,24 @@
 import { cn } from "@/lib/utils";
 
-import { PROVIDERS } from "./use-social";
+import type { SocialProvider } from "@/lib/api/post";
+
+import { iconInvert, PROVIDERS } from "./use-social";
 
 export function ProviderStack({
   size = "sm",
+  providers,
   className,
 }: {
   size?: "xs" | "sm" | "lg";
+  /** Only show these providers. Defaults to every provider. */
+  providers?: SocialProvider[];
   className?: string;
 }) {
   return (
     <span aria-hidden className={cn("flex -space-x-1.5", className)}>
-      {PROVIDERS.map((provider) => (
+      {PROVIDERS.filter(
+        (provider) => !providers || providers.includes(provider.id)
+      ).map((provider) => (
         <span
           key={provider.id}
           className={cn(
@@ -34,7 +41,7 @@ export function ProviderStack({
               : size === "lg"
                 ? "size-5"
                 : "",
-              provider.id === "x" && "dark:invert"
+              iconInvert(provider)
             )}
           />
         </span>

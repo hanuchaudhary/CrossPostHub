@@ -1,6 +1,10 @@
 import {
+  mastodonInstance,
   PostError,
   ReauthError,
+  registerMastodonApp,
+  Telegram,
+  type Account,
   type Provider,
   type ProviderId,
   type Tokens,
@@ -12,9 +16,15 @@ import type {
 } from "../../../generated/prisma/client";
 import type { Bindings } from "../../types";
 import { decrypt, encrypt } from "./crypto";
-import { instagramFor, providersFor, redirectUri } from "./providers";
+import {
+  instagramFor,
+  isConfigured,
+  providersFor,
+  redirectUri,
+} from "./providers";
 
 const STATE_TTL_MS = 10 * 60_000;
+const TELEGRAM_TTL_MS = 30 * 60_000;
 
 export class HttpError extends Error {
   constructor(
@@ -28,18 +38,44 @@ export class HttpError extends Error {
 export type CallbackQuery = { code?: string; state?: string; error?: string };
 
 const PROVIDER_NAMES: Record<ProviderId, string> = {
-  youtube: "YouTube",
   instagram: "Instagram",
   linkedin: "LinkedIn",
   x: "X",
+  threads: "Threads",
+  facebook: "Facebook",
+  bluesky: "Bluesky",
+  mastodon: "Mastodon",
+  pinterest: "Pinterest",
+  tiktok: "TikTok",
+  telegram: "Telegram",
 };
 
 const connectionsPage = (env: Bindings) =>
   `${env.CLIENT_URL.replace(/\/$/, "")}/connections`;
 
-export function providerFor(env: Bindings, id: ProviderId): Provider {
-  const provider = providersFor(env)[id];
-  if (!provider) throw new HttpError(400, `Posting to ${id} is not available yet`);
+export function sealMeta(meta: Record<string, string> | undefined, env: Bindings) {
+  return meta && Object.keys(meta).length
+    ? encrypt(JSON.stringify(meta), env.SOCIAL_TOKEN_KEY)
+    : null;
+}
+
+export function openMeta(value: string | null | undefined, env: Bindings) {
+  if (!value) return {};
+  try {
+    return JSON.parse(decrypt(value, env.SOCIAL_TOKEN_KEY)) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+export function providerFor(
+  env: Bindings,
+  id: ProviderId,
+  meta: Record<string, string> = {},
+): Provider {
+  const provider = providersFor(env, meta)[id];
+  if (!provider || !isConfigured(env, id))
+    throw new HttpError(400, `${PROVIDER_NAMES[id]} is not configured yet`);
   return provider;
 }
 
@@ -51,6 +87,7 @@ export function tokensOf(connection: SocialConnection, env: Bindings): Tokens {
       : undefined,
     expiresAt: connection.expiresAt,
     accountId: connection.externalId,
+    meta: openMeta(connection.meta, env),
   };
 }
 
@@ -70,6 +107,42 @@ async function canConnectSeveral(db: PrismaClient, userId: string) {
     select: { role: true, planId: true },
   });
   return user?.role === "ADMIN" || user?.planId === "premium";
+}
+
+async function saveAccount(
+  db: PrismaClient,
+  env: Bindings,
+  userId: string,
+  id: ProviderId,
+  provider: Provider,
+  account: Account,
+) {
+  const others = await db.socialConnection.count({
+    where: { userId, provider: id, externalId: { not: account.id } },
+  });
+  if (others > 0 && !(await canConnectSeveral(db, userId))) {
+    await provider.revoke(account.tokens).catch(() => {});
+    throw new HttpError(
+      403,
+      `Connecting more than one ${PROVIDER_NAMES[id]} account needs the Premium plan`,
+    );
+  }
+  const data = {
+    name: account.name,
+    avatarUrl: account.avatarUrl ?? null,
+    platformUserId: account.userId ?? null,
+    meta: sealMeta(account.meta, env),
+    status: "ACTIVE" as const,
+    ...sealTokens(account.tokens, env),
+  };
+  return db.socialConnection.upsert({
+    where: {
+      userId_provider_externalId: { userId, provider: id, externalId: account.id },
+    },
+    create: { userId, provider: id, externalId: account.id, ...data },
+    update: data,
+    select: { id: true, provider: true, name: true, avatarUrl: true, status: true },
+  });
 }
 
 export abstract class PostService {
@@ -96,8 +169,28 @@ export abstract class PostService {
     env: Bindings,
     userId: string,
     id: ProviderId,
+    input: Record<string, string> = {},
   ) {
-    const provider = providerFor(env, id);
+    let meta: Record<string, string> = {};
+    if (id === "mastodon") {
+      let instance: string;
+      try {
+        instance = mastodonInstance(input.instance ?? "");
+      } catch (error) {
+        throw new HttpError(400, (error as Error).message);
+      }
+      const app = await registerMastodonApp(
+        instance,
+        redirectUri(env, id),
+        env.CLIENT_URL,
+      ).catch(() => {
+        throw new HttpError(400, "That Mastodon server did not answer. Check the address");
+      });
+      meta = { instance, ...app };
+    }
+    const provider = providerFor(env, id, meta);
+    if (provider.connection !== "oauth")
+      throw new HttpError(400, `${PROVIDER_NAMES[id]} connects with a form`);
     const state = randomUUID();
     const codeVerifier = randomBytes(48).toString("base64url");
     await db.socialConnectState.deleteMany({
@@ -109,6 +202,7 @@ export abstract class PostService {
         userId,
         provider: id,
         codeVerifier,
+        meta: sealMeta(meta, env),
         expiresAt: new Date(Date.now() + STATE_TTL_MS),
       },
     });
@@ -119,6 +213,89 @@ export abstract class PostService {
         codeVerifier,
       }),
     };
+  }
+
+  static async connectForm(
+    db: PrismaClient,
+    env: Bindings,
+    userId: string,
+    id: ProviderId,
+    input: Record<string, string>,
+  ) {
+    const provider = providerFor(env, id);
+    if (provider.connection !== "form")
+      throw new HttpError(400, `${PROVIDER_NAMES[id]} connects through its sign-in page`);
+    try {
+      const account = await provider.connectForm(input);
+      return await saveAccount(db, env, userId, id, provider, account);
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      if (error instanceof PostError) throw new HttpError(400, error.message);
+      throw error;
+    }
+  }
+
+  static async telegramStart(
+    db: PrismaClient,
+    env: Bindings,
+    userId: string,
+    chat: string,
+  ) {
+    const provider = providerFor(env, "telegram") as Telegram;
+    let found;
+    try {
+      found = await provider.chat(chat);
+    } catch (error) {
+      throw new HttpError(400, (error as Error).message);
+    }
+    const code = `cph-${randomBytes(4).toString("hex")}`;
+    const state = randomUUID();
+    await db.socialConnectState.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: new Date() } },
+          { userId, provider: "telegram" },
+        ],
+      },
+    });
+    await db.socialConnectState.create({
+      data: {
+        state,
+        userId,
+        provider: "telegram",
+        codeVerifier: code,
+        meta: sealMeta({ chat: String(found.id) }, env),
+        expiresAt: new Date(Date.now() + TELEGRAM_TTL_MS),
+      },
+    });
+    return {
+      state,
+      code,
+      chat: found.title ?? (found.username ? `@${found.username}` : String(found.id)),
+    };
+  }
+
+  static async telegramVerify(
+    db: PrismaClient,
+    env: Bindings,
+    userId: string,
+    state: string,
+  ) {
+    const saved = await db.socialConnectState.findUnique({ where: { state } });
+    if (
+      !saved ||
+      saved.userId !== userId ||
+      saved.provider !== "telegram" ||
+      saved.expiresAt < new Date()
+    )
+      throw new HttpError(400, "This code expired. Start again.");
+    const { chat } = openMeta(saved.meta, env);
+    const account = await PostService.connectForm(db, env, userId, "telegram", {
+      chat: chat ?? "",
+      code: saved.codeVerifier,
+    });
+    await db.socialConnectState.delete({ where: { state } }).catch(() => {});
+    return account;
   }
 
   static async callback(
@@ -153,53 +330,21 @@ export abstract class PostService {
     }
 
     try {
-      const provider = providerFor(env, id);
+      const provider = providerFor(env, id, openMeta(state.meta, env));
       const account = await provider.connect({
         code: query.code,
         redirectUri: redirectUri(env, id),
         codeVerifier: state.codeVerifier,
       });
-      const others = await db.socialConnection.count({
-        where: {
-          userId: state.userId,
-          provider: id,
-          externalId: { not: account.id },
-        },
-      });
-      if (others > 0 && !(await canConnectSeveral(db, state.userId))) {
-        await provider.revoke(account.tokens).catch(() => {});
-        return back({
-          error: `Connecting more than one ${PROVIDER_NAMES[id]} account needs the Premium plan`,
-        });
-      }
-      const data = {
-        name: account.name,
-        avatarUrl: account.avatarUrl ?? null,
-        platformUserId: account.userId ?? null,
-        status: "ACTIVE" as const,
-        ...sealTokens(account.tokens, env),
-      };
-      await db.socialConnection.upsert({
-        where: {
-          userId_provider_externalId: {
-            userId: state.userId,
-            provider: id,
-            externalId: account.id,
-          },
-        },
-        create: {
-          userId: state.userId,
-          provider: id,
-          externalId: account.id,
-          ...data,
-        },
-        update: data,
-      });
+      await saveAccount(db, env, state.userId, id, provider, account);
       return back({ connected: id });
     } catch (error) {
       console.error(`[social-connect-failed] provider=${id}`, error);
       return back({
-        error: error instanceof PostError ? error.message : "Connection failed",
+        error:
+          error instanceof PostError || error instanceof HttpError
+            ? error.message
+            : "Connection failed",
       });
     }
   }
@@ -216,11 +361,10 @@ export abstract class PostService {
     if (!connection) throw new HttpError(404, "Connection not found");
 
     await Promise.resolve()
-      .then(() =>
-        providersFor(env)[connection.provider]?.revoke(
-          tokensOf(connection, env),
-        ),
-      )
+      .then(() => {
+        const tokens = tokensOf(connection, env);
+        return providersFor(env, tokens.meta)[connection.provider]?.revoke(tokens);
+      })
       .catch(() => {});
     await db.socialConnection.delete({ where: { id } });
     return { ok: true };
@@ -231,16 +375,20 @@ export abstract class PostService {
     env: Bindings,
     connection: SocialConnection,
   ) {
-    const provider = providerFor(env, connection.provider);
     const tokens = tokensOf(connection, env);
+    const provider = providerFor(env, connection.provider, tokens.meta);
     if (!provider.needsRefresh(tokens)) return tokens;
     try {
       const fresh = await provider.refresh(tokens);
       await db.socialConnection.update({
         where: { id: connection.id },
-        data: { ...sealTokens(fresh, env), status: "ACTIVE" },
+        data: {
+          ...sealTokens(fresh, env),
+          ...(fresh.meta ? { meta: sealMeta(fresh.meta, env) } : {}),
+          status: "ACTIVE",
+        },
       });
-      return fresh;
+      return { ...fresh, meta: fresh.meta ?? tokens.meta };
     } catch (error) {
       if (error instanceof ReauthError)
         await db.socialConnection.update({
@@ -283,7 +431,7 @@ export abstract class PostService {
   private static metaUser(userId: string | number) {
     const id = String(userId);
     return {
-      provider: "instagram" as const,
+      provider: { in: ["instagram", "facebook", "threads"] as ProviderId[] },
       OR: [{ platformUserId: id }, { externalId: id }],
     };
   }

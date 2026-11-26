@@ -164,7 +164,7 @@ test("Meta deauthorize marks the Instagram connection for reconnect", async () =
   expect(response.status).toBe(200);
   expect(h.db.socialConnection.updateMany.mock.calls[0]![0]).toEqual({
     where: {
-      provider: "instagram",
+      provider: { in: ["instagram", "facebook", "threads"] },
       OR: [{ platformUserId: "meta-user" }, { externalId: "meta-user" }],
     },
     data: { status: "NEEDS_REAUTH" },

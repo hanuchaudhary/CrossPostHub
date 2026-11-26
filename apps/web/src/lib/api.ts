@@ -95,6 +95,10 @@ export const uploadMedia = async (
     throw error;
   }
 };
+export const mediaUrl = (key: string) =>
+  `${api.defaults.baseURL}/media/file?${new URLSearchParams({ key })}`;
+export const isVideoKey = (key: string) =>
+  /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(key);
 export const deleteMedia = async (mediaKey: string) =>
   (await api.post("/post/delete/media", { mediaKey })).data;
 export const getOverview = async () =>

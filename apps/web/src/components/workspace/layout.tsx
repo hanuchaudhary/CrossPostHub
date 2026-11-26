@@ -135,8 +135,19 @@ function WorkspaceLayout() {
   return (
     <>
       <Sidebar variant="inset">
-        <SidebarHeader className="px-4 py-5">
+        <SidebarHeader className="gap-5 px-4 py-5">
           <Brand />
+          <Button
+            variant="primary"
+            className="w-full"
+            onClick={() => {
+              setOpenMobile(false);
+              openComposer();
+            }}
+          >
+            <Icon name="plus" />
+            Post
+          </Button>
         </SidebarHeader>
         <SidebarRail />
         <SidebarContent>

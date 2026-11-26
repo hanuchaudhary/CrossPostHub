@@ -13,7 +13,7 @@ export type RequestOptions = RequestInit & {
   form?: Record<string, string | undefined>;
   /** Attempts after the first, on a network error or a 5xx. Defaults to 2 for GET and 0 otherwise, so a POST is never sent twice. */
   retries?: number;
-  /** Non-2xx statuses that are an answer, not a failure (YouTube's 308 between upload chunks). */
+  /** Non-2xx statuses that are an answer, not a failure. */
   accept?: number[];
 };
 
@@ -21,7 +21,7 @@ export type RequestOptions = RequestInit & {
 export class Http {
   constructor(
     private readonly mapError: ErrorMapper,
-    private readonly fetcher: typeof fetch = fetch,
+    private readonly fetcher: typeof fetch = (input, init) => fetch(input, init),
     private readonly retryDelayMs = 500
   ) {}
 

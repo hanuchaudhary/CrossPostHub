@@ -1,4 +1,14 @@
-export type ProviderId = "youtube" | "instagram" | "linkedin" | "x";
+export type ProviderId =
+  | "instagram"
+  | "linkedin"
+  | "x"
+  | "threads"
+  | "facebook"
+  | "bluesky"
+  | "mastodon"
+  | "pinterest"
+  | "tiktok"
+  | "telegram";
 
 export type Tokens = {
   accessToken: string;
@@ -6,6 +16,7 @@ export type Tokens = {
   expiresAt: Date;
   /** The platform's id of the account these tokens act as, for APIs that address it by id (Instagram). */
   accountId?: string;
+  meta?: Record<string, string>;
 };
 
 /** A connected account: who it is, and the tokens to act as it. */
@@ -15,6 +26,7 @@ export type Account = {
   avatarUrl?: string;
   /** The platform's id for whoever logged in, when it is not the account id. Meta's deauthorize and data-deletion callbacks send this id. */
   userId?: string;
+  meta?: Record<string, string>;
   tokens: Tokens;
 };
 

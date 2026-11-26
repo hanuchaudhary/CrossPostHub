@@ -10,6 +10,9 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"routes": [
+		{ "pattern": "api.crossposthub.kushchaudhary.com", "custom_domain": true }
+	],
 	"queues": {
 		"consumers": [
 			{
@@ -43,7 +46,7 @@
 	],
 	"vars": {
 		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
-		"CLIENT_URL": "http://localhost:5173",
-		"API_URL": "http://localhost:8787"
+		"CLIENT_URL": "https://crossposthub.kushchaudhary.com",
+		"API_URL": "https://api.crossposthub.kushchaudhary.com"
 	}
 }

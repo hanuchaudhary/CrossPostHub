@@ -105,10 +105,10 @@ test("posts queues each selected provider and returns its job", async () => {
   const h = ready();
   h.db.post.create
     .mockResolvedValueOnce({ id: "post-twitter" })
-    .mockResolvedValueOnce({ id: "post-instagram" });
+    .mockResolvedValueOnce({ id: "post-bluesky" });
   const response = await h.request(
     "/post",
-    form({ providers: '["twitter","instagram"]' })
+    form({ providers: '["twitter","bluesky"]' })
   );
   expect(response.status).toBe(200);
   expect(((await response.json()) as { results: unknown[] }).results).toEqual([
@@ -119,8 +119,8 @@ test("posts queues each selected provider and returns its job", async () => {
       scheduledFor: null,
     },
     {
-      provider: "instagram",
-      jobId: "post-instagram",
+      provider: "bluesky",
+      jobId: "post-bluesky",
       status: "queued",
       scheduledFor: null,
     },
@@ -207,6 +207,10 @@ test("posts lists user-scoped status groups and clamps pagination", async () => 
 
 test("posts persists and queues each platform's caption and images", async () => {
   const h = ready();
+  h.MEDIA_BUCKET.head.mockImplementation(async () => ({
+    size: 1024,
+    httpMetadata: { contentType: "image/png" },
+  }));
   const platformContent = {
     twitter: { text: "Short caption", mediaKeys: ["media/user-1/x.png"] },
     linkedin: {
@@ -260,4 +264,39 @@ test("posts validates all platform content and schedules before writing", async 
   }
   expect(h.db.post.create).not.toHaveBeenCalled();
   expect(h.CROSSPOSTHUB_QUEUE.send).not.toHaveBeenCalled();
+});
+
+test("posts rejects media the platform can't take and media owned by someone else", async () => {
+  const h = ready();
+  h.MEDIA_BUCKET.head.mockImplementation(async () => ({
+    size: 1024,
+    httpMetadata: { contentType: "video/mp4" },
+  }));
+  const bluesky = await h.request(
+    "/post",
+    form({
+      providers: '["bluesky"]',
+      platformContent: JSON.stringify({
+        bluesky: { text: "Hi", mediaKeys: ["media/user-1/clip.mp4"] },
+      }),
+    })
+  );
+  expect(bluesky.status).toBe(400);
+  expect(await bluesky.json()).toEqual({ error: "Bluesky doesn't take videos." });
+  const pinterest = await h.request(
+    "/post",
+    form({ providers: '["pinterest"]', postText: "No photo" })
+  );
+  expect(await pinterest.json()).toEqual({ error: "Pinterest needs a photo." });
+  const stolen = await h.request(
+    "/post",
+    form({
+      providers: '["twitter"]',
+      platformContent: JSON.stringify({
+        twitter: { text: "Hi", mediaKeys: ["media/user-2/photo.png"] },
+      }),
+    })
+  );
+  expect(stolen.status).toBe(400);
+  expect(h.db.post.create).not.toHaveBeenCalled();
 });

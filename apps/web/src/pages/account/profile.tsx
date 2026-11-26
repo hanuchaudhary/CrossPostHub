@@ -1,13 +1,13 @@
 import { AccountSettings } from "@/components/account/account-settings";
 import { ChangePassword } from "@/components/account/change-password";
 
-import { CenterPageLayout } from "../center-page-layout";
+import { PageLayout } from "../page-layout";
 
 export default function ProfilePage() {
   return (
-    <CenterPageLayout title="Profile">
+    <PageLayout centered title="Profile">
       <AccountSettings />
       <ChangePassword />
-    </CenterPageLayout>
+    </PageLayout>
   );
 }

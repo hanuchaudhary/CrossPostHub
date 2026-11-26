@@ -76,6 +76,7 @@ export class X extends Provider<XConfig> {
           code,
           redirect_uri: redirectUri,
           code_verifier: codeVerifier,
+          client_id: this.config.clientId,
         },
       })
     );
@@ -102,7 +103,11 @@ export class X extends Provider<XConfig> {
     const response = await this.http.json<TokenResponse>(TOKEN_URL, {
       method: "POST",
       headers: this.basic(),
-      form: { grant_type: "refresh_token", refresh_token: tokens.refreshToken },
+      form: {
+        grant_type: "refresh_token",
+        refresh_token: tokens.refreshToken,
+        client_id: this.config.clientId,
+      },
     });
     return { ...this.tokens(response, tokens), accountId: tokens.accountId };
   }
@@ -118,7 +123,7 @@ export class X extends Provider<XConfig> {
     });
   }
 
-  async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
+  override async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
     this.validate(input);
     if (!("stream" in input.video)) throw this.invalid("The video must be given as a stream");
     const { stream, size } = input.video;
@@ -150,7 +155,7 @@ export class X extends Provider<XConfig> {
     return this.next(tokens, { mediaId: init.id, text: input.caption }, media.processing_info);
   }
 
-  async status(tokens: Tokens, ref: string): Promise<PostStatus> {
+  override async status(tokens: Tokens, ref: string): Promise<PostStatus> {
     const pending = JSON.parse(ref) as Pending;
     const { data: media } = await this.http.json<{ data: Media }>(`${API}/media/upload`, {
       query: { command: "STATUS", media_id: pending.mediaId },

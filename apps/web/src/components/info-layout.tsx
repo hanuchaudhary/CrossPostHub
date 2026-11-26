@@ -14,9 +14,6 @@ export function InfoLayout({
       <Brand />
       <section className="flex min-w-0 flex-col gap-4">
         <header className="flex flex-col gap-2">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            THE SMALL PRINT
-          </p>
           <h2 className="font-medium text-2xl tracking-tight">{title}</h2>
         </header>
         <div className="min-w-0 space-y-6 text-sm leading-7 text-muted-foreground">

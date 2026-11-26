@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { dbFor, requireUser, type AppEnv } from "../../routes/shared";
-import { isProviderId } from "./providers";
+import { isConfigured, isProviderId, PROVIDER_IDS } from "./providers";
 import { HttpError, PostService } from "./service";
 
 const signedRequestBody = z.object({ signed_request: z.string() });
@@ -31,7 +31,10 @@ post.get("/connections", async (c) => {
 post.get("/access", async (c) => {
   const user = requireUser(c);
   if (!user) return c.json({ message: "Unauthorized" }, 401);
-  return c.json(await PostService.access(dbFor(c), user.id));
+  return c.json({
+    ...(await PostService.access(dbFor(c), user.id)),
+    configured: PROVIDER_IDS.filter((id) => isConfigured(c.env, id)),
+  });
 });
 
 post.delete("/connections/:id", async (c) => {
@@ -62,6 +65,53 @@ post.post("/instagram/data-deletion", async (c) =>
   ),
 );
 
+const stringBody = z.record(z.string(), z.string());
+
+async function bodyOf(request: Request) {
+  const text = await request.text();
+  if (!text) return {};
+  try {
+    return stringBody.parse(JSON.parse(text));
+  } catch {
+    throw new HttpError(400, "Send the form fields as JSON");
+  }
+}
+
+post.post("/telegram/start", async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ message: "Unauthorized" }, 401);
+  const { chat } = await bodyOf(c.req.raw);
+  return c.json(
+    await PostService.telegramStart(dbFor(c), c.env, user.id, chat ?? ""),
+  );
+});
+
+post.post("/telegram/verify", async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ message: "Unauthorized" }, 401);
+  const { state } = await bodyOf(c.req.raw);
+  return c.json(
+    await PostService.telegramVerify(dbFor(c), c.env, user.id, state ?? ""),
+  );
+});
+
+post.post("/:provider/connect/form", async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ message: "Unauthorized" }, 401);
+  const provider = c.req.param("provider");
+  if (!isProviderId(provider) || provider === "telegram")
+    return c.json({ message: `${provider} does not connect with a form` }, 400);
+  return c.json(
+    await PostService.connectForm(
+      dbFor(c),
+      c.env,
+      user.id,
+      provider,
+      await bodyOf(c.req.raw),
+    ),
+  );
+});
+
 post.post("/:provider/connect", async (c) => {
   const user = requireUser(c);
   if (!user) return c.json({ message: "Unauthorized" }, 401);
@@ -69,7 +119,13 @@ post.post("/:provider/connect", async (c) => {
   if (!isProviderId(provider))
     return c.json({ message: `Posting to ${provider} is not available yet` }, 400);
   return c.json(
-    await PostService.connectUrl(dbFor(c), c.env, user.id, provider),
+    await PostService.connectUrl(
+      dbFor(c),
+      c.env,
+      user.id,
+      provider,
+      await bodyOf(c.req.raw),
+    ),
   );
 });
 

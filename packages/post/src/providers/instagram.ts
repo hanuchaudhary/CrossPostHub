@@ -141,7 +141,7 @@ export class Instagram extends Provider<InstagramConfig> {
   /** A system-user token has no revoke call: the user removes the app from their business integrations. */
   async revoke(): Promise<void> {}
 
-  async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
+  override async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
     this.validate(input);
     if (!("url" in input.video))
       throw this.invalid("The video must be given as a url");
@@ -184,7 +184,7 @@ export class Instagram extends Provider<InstagramConfig> {
     return { state: "processing", ref: container.id, retryInMs: POLL_MS };
   }
 
-  async status(tokens: Tokens, ref: string): Promise<PostStatus> {
+  override async status(tokens: Tokens, ref: string): Promise<PostStatus> {
     const container = await this.http.json<Container>(this.url(ref), {
       query: { fields: "status_code,status", access_token: tokens.accessToken },
     });

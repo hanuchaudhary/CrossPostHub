@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 
+import { contentProblem, PLATFORMS } from "../../packages/shared/platforms";
 import {
   validateAttachments,
   validatePlatformMedia,
@@ -8,25 +9,35 @@ import {
 function media(type: string, size = 1024): File {
   return { name: `upload.${type.split("/")[1]}`, type, size } as File;
 }
-test("four photos are accepted by every publishing platform", () => {
+test("four photos are accepted by the platforms that take several photos", () => {
   const photos = Array.from({ length: 4 }, () => media("image/jpeg"));
-  for (const platform of ["twitter", "linkedin", "instagram"] as const)
+  for (const platform of [
+    "twitter",
+    "linkedin",
+    "instagram",
+    "threads",
+    "facebook",
+    "bluesky",
+    "mastodon",
+    "telegram",
+  ] as const)
     expect(validatePlatformMedia(platform, photos)).toBeUndefined();
-  expect(validateAttachments([...photos, media("image/jpeg")])).toContain(
-    "4 photos"
-  );
+  expect(validatePlatformMedia("pinterest", photos)).toContain("up to 1 file");
+  expect(
+    validateAttachments(Array.from({ length: 11 }, () => media("image/jpeg")))
+  ).toContain("10 files");
 });
-test("single MP4 video is accepted and mixing photos with video is rejected", () => {
+test("a single MP4 is accepted where video is supported and mixing is rejected", () => {
   const video = media("video/mp4", 100 * 1024 ** 2);
   for (const platform of ["twitter", "linkedin", "instagram"] as const) {
     expect(validatePlatformMedia(platform, [video])).toBeUndefined();
     expect(
       validatePlatformMedia(platform, [video, media("image/jpeg")])
     ).toContain("video on its own");
-    expect(validatePlatformMedia(platform, [video, video])).toContain(
-      "video on its own"
-    );
   }
+  expect(validatePlatformMedia("threads", [video, media("image/jpeg")])).toBeUndefined();
+  expect(validatePlatformMedia("bluesky", [video])).toContain("doesn't take videos");
+  expect(validatePlatformMedia("tiktok", [video])).toBeUndefined();
 });
 test("file sizes and empty or unsupported files are rejected before upload", () => {
   expect(validateAttachments([media("video/mp4", 201 * 1024 ** 2)])).toContain(
@@ -51,7 +62,7 @@ test("platform-specific formats and limits match the publishing implementations"
     "JPEG"
   );
   expect(validatePlatformMedia("linkedin", [media("image/webp")])).toContain(
-    "JPEG, PNG, GIF and MP4"
+    "JPEG, PNG and GIF"
   );
   expect(
     validatePlatformMedia("twitter", [media("video/quicktime")])
@@ -59,6 +70,9 @@ test("platform-specific formats and limits match the publishing implementations"
   expect(
     validatePlatformMedia("instagram", [media("video/quicktime")])
   ).toBeUndefined();
+  expect(
+    validatePlatformMedia("bluesky", [media("image/jpeg", 2 * 1024 ** 2)])
+  ).toContain("976 KB");
 });
 test("GIF works alone on X and with images on LinkedIn", () => {
   const gif = media("image/gif");
@@ -70,8 +84,20 @@ test("GIF works alone on X and with images on LinkedIn", () => {
     validatePlatformMedia("linkedin", [gif, media("image/jpeg")])
   ).toBeUndefined();
 });
-test("only Instagram requires media for a text post", () => {
+test("platforms that need media say which kind", () => {
   expect(validatePlatformMedia("instagram", [])).toContain("photo or video");
-  expect(validatePlatformMedia("twitter", [])).toBeUndefined();
-  expect(validatePlatformMedia("linkedin", [])).toBeUndefined();
+  expect(validatePlatformMedia("pinterest", [])).toContain("needs a photo");
+  expect(validatePlatformMedia("tiktok", [])).toContain("needs a video");
+  for (const platform of ["twitter", "linkedin", "threads", "bluesky", "telegram"] as const)
+    expect(validatePlatformMedia(platform, [])).toBeUndefined();
+});
+test("text limits follow each platform and Telegram captions are shorter", () => {
+  expect(contentProblem("bluesky", "a".repeat(301), [])).toContain("too long");
+  expect(contentProblem("threads", "a".repeat(500), [])).toBeUndefined();
+  expect(contentProblem("telegram", "a".repeat(2000), [])).toBeUndefined();
+  expect(
+    contentProblem("telegram", "a".repeat(2000), [{ type: "image/jpeg" }])
+  ).toContain("too long");
+  for (const platform of PLATFORMS)
+    expect(contentProblem(platform, "", [])).toContain("Add text or media");
 });

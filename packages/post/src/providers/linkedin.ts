@@ -122,7 +122,7 @@ export class LinkedIn extends Provider<LinkedInConfig> {
     });
   }
 
-  async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
+  override async publish(tokens: Tokens, input: PostInput): Promise<PostStatus> {
     this.validate(input);
     if (!("stream" in input.video)) throw this.invalid("The video must be given as a stream");
     const author = this.author(tokens);
@@ -182,7 +182,7 @@ export class LinkedIn extends Provider<LinkedInConfig> {
   }
 
   /** Waits for LinkedIn to process the video, then creates the post that shows it. */
-  async status(tokens: Tokens, ref: string): Promise<PostStatus> {
+  override async status(tokens: Tokens, ref: string): Promise<PostStatus> {
     const pending = JSON.parse(ref) as Pending;
     const video = await this.http.json<Video>(
       `${API}/rest/videos/${encodeURIComponent(pending.video)}`,

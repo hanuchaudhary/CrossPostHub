@@ -1,6 +1,7 @@
 import type { Platform } from "@/lib/types";
 
 import type { PostPreviewProps } from "./common";
+import { GenericPreview } from "./generic";
 import { InstagramPreview } from "./instagram";
 import { LinkedInPreview } from "./linkedin";
 import { TwitterPreview } from "./twitter";
@@ -16,5 +17,7 @@ export function PostPreview({
       return <TwitterPreview {...props} />;
     case "instagram":
       return <InstagramPreview {...props} />;
+    default:
+      return <GenericPreview platform={platform} {...props} />;
   }
 }
