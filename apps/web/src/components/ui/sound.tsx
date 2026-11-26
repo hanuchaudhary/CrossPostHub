@@ -3,11 +3,7 @@ import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import type { SoundPatch } from "@web-kits/audio";
 import { SoundProvider, usePatch } from "@web-kits/audio/react";
 
-import {
-  TOAST_EVENT,
-  type ToastInput,
-  type ToastState,
-} from "@/lib/toast-state";
+import { TOAST_EVENT, type ToastState } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "kobra-sound-muted";
@@ -131,7 +127,8 @@ function SoundEffectListener() {
   useEffect(() => {
     if (!patch.ready) return;
     const onToast = (event: Event) => {
-      const state = (event as CustomEvent<ToastInput>).detail.state ?? "info";
+      const state =
+        (event as CustomEvent<{ state?: ToastState }>).detail.state ?? "info";
       const sound = TOAST_SOUND[state];
       if (sound) patch.play(sound);
     };

@@ -4,11 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { CreatePostButton } from "@/components/posts/composer";
 import { FilterTabs } from "@/components/ui/filter-tabs";
-import {
-  PostList,
-  postState,
-  QueryState,
-} from "@/components/workspace/common";
+import { PostList, postState, QueryState } from "@/components/workspace/common";
 import { queries } from "@/lib/query";
 import type { Post } from "@/lib/types";
 

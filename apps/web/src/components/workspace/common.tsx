@@ -1,10 +1,10 @@
+import { cn } from "cn";
+
 import LatticeLoader, {
   type LatticeLoaderProps,
 } from "@/components/LatticeLoader";
 import { CreatePostButton } from "@/components/posts/composer";
 import { PostVisual } from "@/components/posts/post-media";
-import { cn } from "cn";
-
 import { getChannel } from "@/lib/constants";
 import type {
   PageHeadingProps,
@@ -104,7 +104,9 @@ export function QueryState({
             <EmptyMedia variant="icon">
               <Icon name="link" />
             </EmptyMedia>
-            <EmptyTitle className="heading w-full!">We couldn’t load this just yet.</EmptyTitle>
+            <EmptyTitle className="heading w-full!">
+              We couldn’t load this just yet.
+            </EmptyTitle>
             <EmptyDescription className="subheading text-xl! max-w-[280px]! mt-4">
               Check that the API is running and try again.
             </EmptyDescription>

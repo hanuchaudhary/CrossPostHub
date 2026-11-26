@@ -75,7 +75,8 @@ app.post("", async (c) => {
       let item = described.get(key);
       if (!item) {
         const object = await c.env.MEDIA_BUCKET.head(key);
-        if (!object) return c.json({ error: "Uploaded media was not found" }, 400);
+        if (!object)
+          return c.json({ error: "Uploaded media was not found" }, 400);
         item = {
           type: (object.httpMetadata?.contentType ?? "").split(";")[0]!.trim(),
           size: object.size,

@@ -10,7 +10,7 @@ export function Navbar() {
   const { data: session, isPending } = authClient.useSession();
   return (
     <>
-      <header className="sticky top-0 z-40 bg-background backdrop-blur-sm">
+      <header className="sticky top-0 z-40 backdrop-blur-sm">
         <SiteRule className="bottom-0 z-20" />
         <SiteRule className="top-0 z-20" />
         <div className="relative isolate mx-auto w-full max-w-6xl min-w-0 px-4 sm:px-6 lg:px-8">

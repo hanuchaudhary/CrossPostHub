@@ -21,7 +21,13 @@ import {
 const app = new Hono<AppEnv>();
 
 app.use("*", logger());
-app.use("*", secureHeaders());
+const defaultHeaders = secureHeaders();
+const mediaHeaders = secureHeaders({ crossOriginResourcePolicy: "cross-origin" });
+app.use("*", (c, next) =>
+  c.req.path === "/api/media/file"
+    ? mediaHeaders(c, next)
+    : defaultHeaders(c, next)
+);
 app.use("/api/*", apiCors);
 
 app.onError(handleError);

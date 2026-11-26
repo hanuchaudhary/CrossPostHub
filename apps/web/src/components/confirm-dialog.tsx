@@ -74,13 +74,13 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           if (!next && !busy) settle(false);
         }}
       >
-        <AlertDialogContent size="default" className={"max-w-lg! rounded-3xl"}>
+        <AlertDialogContent size="default" className={"max-w-lg! rounded-3xl p-6"}>
           <AlertDialogHeader>
             <AlertDialogTitle className="heading text-xl!">
               {options?.title}
             </AlertDialogTitle>
             {options?.description && (
-              <AlertDialogDescription className="subheading text-base! mt-2">
+              <AlertDialogDescription className="subheading text-base!">
                 {options.description}
               </AlertDialogDescription>
             )}

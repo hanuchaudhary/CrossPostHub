@@ -1,8 +1,7 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
 
-import { AlertDialog } from "@base-ui/react/alert-dialog";
-
+import { useConfirm } from "@/components/confirm-dialog";
 import { ComposerProvider, useComposer } from "@/components/posts/composer";
 import { errorMessage, signOut } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
@@ -78,9 +77,7 @@ export function ProtectedLayout() {
   if (error)
     return (
       <div className="flex min-h-svh w-full flex-col items-center justify-center gap-4 p-6 text-center">
-        <h1 className="heading md:w-70">
-          We couldn’t reach your account.
-        </h1>
+        <h1 className="heading md:w-70">We couldn’t reach your account.</h1>
         <p className="subheading md:w-80">
           Please check your connection and try again.
         </p>
@@ -111,15 +108,9 @@ function WorkspaceLayout() {
     location = useLocation(),
     { setOpenMobile } = useSidebar();
   const openComposer = useComposer();
-  const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
+  const confirm = useConfirm();
   const profileTrigger = useRef<HTMLButtonElement>(null);
-  const cancelSignOut = useRef<HTMLButtonElement>(null);
-  const logoutRunning = useRef(false);
   async function logout() {
-    if (logoutRunning.current) return;
-    logoutRunning.current = true;
-    setSigningOut(true);
     try {
       const result = await signOut();
       if (result.error) throw new Error(result.error.message);
@@ -127,9 +118,7 @@ function WorkspaceLayout() {
       navigate("/signin", { replace: true });
     } catch (e) {
       toast.error(errorMessage(e));
-    } finally {
-      logoutRunning.current = false;
-      setSigningOut(false);
+      throw e;
     }
   }
   return (
@@ -210,7 +199,7 @@ function WorkspaceLayout() {
                   align="start"
                   sideOffset={8}
                   className="min-w-48"
-                  finalFocus={confirmSignOut ? false : profileTrigger}
+                  finalFocus={profileTrigger}
                 >
                   <DropdownMenuItem
                     render={<Link to="/profile" />}
@@ -222,7 +211,16 @@ function WorkspaceLayout() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() => setConfirmSignOut(true)}
+                    onClick={() =>
+                      void confirm({
+                        title: "Sign out of CrossPostHub?",
+                        description:
+                          "You’ll need to sign in again to access your workspace.",
+                        confirmLabel: "Sign out",
+                        destructive: true,
+                        onConfirm: logout,
+                      })
+                    }
                   >
                     <Icon name="logout" />
                     Sign out
@@ -233,50 +231,7 @@ function WorkspaceLayout() {
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <AlertDialog.Root
-        open={confirmSignOut}
-        onOpenChange={(open, details) => {
-          if (logoutRunning.current) {
-            details.cancel();
-            return;
-          }
-          setConfirmSignOut(open);
-        }}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Backdrop className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
-          <AlertDialog.Popup
-            initialFocus={cancelSignOut}
-            finalFocus={profileTrigger}
-            aria-busy={signingOut}
-            className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border bg-background p-6 shadow-xl"
-          >
-            <AlertDialog.Title className="text-lg font-medium">
-              Sign out of CrossPostHub?
-            </AlertDialog.Title>
-            <AlertDialog.Description className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              You’ll need to sign in again to access your workspace.
-            </AlertDialog.Description>
-            <div className="mt-6 flex justify-end gap-3">
-              <AlertDialog.Close
-                ref={cancelSignOut}
-                disabled={signingOut}
-                render={<Button variant="secondary" />}
-              >
-                Cancel
-              </AlertDialog.Close>
-              <Button
-                variant="destructive"
-                disabled={signingOut}
-                onClick={logout}
-              >
-                {signingOut ? "Signing out…" : "Sign out"}
-              </Button>
-            </div>
-          </AlertDialog.Popup>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
-      <SidebarInset className="overflow-hidden h-[calc(100dvh-1rem)] overflow-y-scroll">
+      <SidebarInset className="h-[calc(100dvh-1rem)] overflow-y-auto scrollbar-none dark:bg-neutral-900/90!">
         <header className="flex h-12 items-center gap-3 border-b px-6 md:hidden">
           <SidebarTrigger />
           <span className="text-xs text-muted-foreground">My workspace</span>

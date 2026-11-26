@@ -8,7 +8,7 @@ import { SupportedApps } from "@/components/landing/supported-apps";
 
 export default function Landing() {
   return (
-    <section className="overflow-hidden">
+    <section className="landing-neutral overflow-hidden bg-background text-foreground">
       <Navbar />
       <main className="relative h-full min-h-screen">
         <Hero />

@@ -40,7 +40,6 @@
 			"binding": "DB",
 			"database_name": "crossposthub-db",
 			"database_id": "b95e814b-6a3e-4098-ba8f-6d970c4f3e61",
-			"remote": true,
 			"migrations_dir": "prisma/migrations",
 		}
 	],

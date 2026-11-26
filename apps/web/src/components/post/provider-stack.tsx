@@ -10,7 +10,6 @@ export function ProviderStack({
   className,
 }: {
   size?: "xs" | "sm" | "lg";
-  /** Only show these providers. Defaults to every provider. */
   providers?: SocialProvider[];
   className?: string;
 }) {
@@ -22,7 +21,7 @@ export function ProviderStack({
         <span
           key={provider.id}
           className={cn(
-            "grid shrink-0 place-items-center rounded-full bg-background ring-2 ring-background",
+            "grid shrink-0 place-items-center rounded-full dark:bg-white bg-secondary ring-2 ring-background",
             size === "xs"
               ? "size-4"
               : size === "sm"

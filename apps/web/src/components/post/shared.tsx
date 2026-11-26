@@ -142,10 +142,12 @@ export function AccountPicker({
   connections,
   selected,
   onToggle,
+  onConnect,
 }: {
   connections: SocialConnection[];
   selected: Set<string>;
   onToggle: (id: string) => void;
+  onConnect?: () => void;
 }) {
   return (
     <div className="space-y-2">
@@ -197,7 +199,7 @@ export function AccountPicker({
           size="lg"
           variant="primary"
           nativeButton={false}
-          render={<Link to="/connections" />}
+          render={<Link to="/connections" onClick={onConnect} />}
         >
           <IconPlus className="size-3.5" />
           Connect accounts

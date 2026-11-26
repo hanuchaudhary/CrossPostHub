@@ -55,7 +55,6 @@ export function MediaThumb({
   );
 }
 
-/** Square leading visual for a post: its first media, or the platform icon. */
 export function PostVisual({
   post,
   className,
@@ -78,7 +77,7 @@ export function PostVisual({
   return (
     <span className={cn("relative size-14 shrink-0", className)}>
       <MediaThumb mediaKey={first} className="size-full rounded-xl" />
-      <span className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-md bg-background ring-1 ring-border">
+      <span className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-md bg-white ring-1 ring-border">
         <Icon name={post.provider} size={12} />
       </span>
       {post.mediaKeys.length > 1 && (

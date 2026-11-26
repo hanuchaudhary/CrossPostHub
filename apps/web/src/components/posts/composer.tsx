@@ -8,15 +8,13 @@ import {
 } from "react";
 import { Link } from "react-router";
 
-import {
-  IconArrowRight,
-  IconPlus,
-} from "@tabler/icons-react";
+import { IconArrowRight, IconPlus } from "@tabler/icons-react";
 import { useIsMutating, useMutation } from "@tanstack/react-query";
 
 import { PLATFORM_RULES, PLATFORMS } from "@repo/shared/platforms";
 import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
 
+import { ProviderStack } from "@/components/post/provider-stack";
 import {
   AccountPicker,
   Counter,
@@ -30,7 +28,6 @@ import {
   Section,
   Segment,
 } from "@/components/post/shared";
-import { ProviderStack } from "@/components/post/provider-stack";
 import { useConnections } from "@/components/post/use-social";
 import { Button } from "@/components/ui/button";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
@@ -110,12 +107,12 @@ const NOTES = Object.fromEntries(
   PLATFORMS.map((id) => [id, PLATFORM_RULES[id].note])
 ) as Record<Platform, string>;
 
-const platformOf = (provider: SocialProvider): Platform | null =>
-  provider === "x"
-    ? "twitter"
-    : provider === "linkedin" || provider === "instagram"
-      ? provider
-      : null;
+const platformOf = (provider: SocialProvider): Platform | null => {
+  if (provider === "x") return "twitter";
+  return (PLATFORMS as readonly string[]).includes(provider)
+    ? (provider as Platform)
+    : null;
+};
 
 const providerOf = (platform: Platform): SocialProvider =>
   platform === "twitter" ? "x" : platform;
@@ -129,6 +126,33 @@ const MODE = [
   { id: false, label: "Same for all" },
   { id: true, label: "Per platform" },
 ] as const;
+
+type CreatedPosts = { results: { provider: Platform; jobId: string }[] };
+
+async function waitForPublish(ids: string[]) {
+  const deadline = Date.now() + 120_000;
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => window.setTimeout(resolve, 2000));
+    const posts = await queryClient.fetchQuery({
+      ...queries.posts(),
+      staleTime: 0,
+    });
+    const mine = posts.filter((post) => ids.includes(post.id));
+    const failed = mine.find((post) => post.status === "FAILED");
+    if (failed)
+      throw new Error(
+        `Couldn’t post to ${getChannel(failed.provider)?.name ?? failed.provider}.`
+      );
+    if (
+      mine.length === ids.length &&
+      mine.every((p) => p.status === "SUCCESS")
+    ) {
+      void refreshPosts();
+      return;
+    }
+  }
+  throw new Error("Still posting. Check All posts in a minute.");
+}
 
 function PostComposer({
   initialDate,
@@ -293,17 +317,34 @@ function PostComposer({
     },
     onSuccess: () => {
       void refreshPosts();
-      const where =
-        targets.length === 1 ? targets[0]!.name : `${targets.length} accounts`;
-      toast.success(
-        scheduling
-          ? `Scheduled for ${formatWhen(new Date(when).toISOString())} on ${where}`
-          : `Posting to ${where}`
-      );
       close();
     },
-    onError: (error) => toast.error(errorMessage(error)),
   });
+
+  function publish() {
+    const where =
+      targets.length === 1 ? targets[0]!.name : `${targets.length} accounts`;
+    const later = scheduling;
+    const at = formatWhen(new Date(when).toISOString());
+    toast
+      .promise(
+        mutation
+          .mutateAsync()
+          .then((created: CreatedPosts) =>
+            later
+              ? undefined
+              : waitForPublish(created.results.map((item) => item.jobId))
+          ),
+        {
+          loading: later ? "Scheduling…" : `Posting to ${where}…`,
+          success: later
+            ? `Scheduled for ${at} on ${where}`
+            : `Posted to ${where}`,
+          error: (error) => errorMessage(error),
+        }
+      )
+      .catch(() => undefined);
+  }
 
   function editor(platform?: Platform) {
     const content = platform ? (variants[platform] ?? shared) : shared;
@@ -364,6 +405,7 @@ function PostComposer({
         title="Your post"
         icon={
           <ProviderStack
+            size="lg"
             providers={providers.map(providerOf)}
             className="-space-x-1"
           />
@@ -394,7 +436,7 @@ function PostComposer({
       showCloseButton={!mutation.isPending}
       className={cn(
         FULL_PAGE_DIALOG,
-        "flex flex-col gap-0 overflow-hidden p-0"
+        "flex flex-col gap-0 overflow-hidden p-0 rounded-4xl"
       )}
     >
       <DialogHeader className="border-b p-5 sm:p-6">
@@ -408,9 +450,9 @@ function PostComposer({
 
       <fieldset
         disabled={mutation.isPending}
-        className="grid min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-hidden lg:grid-cols-[minmax(0,1fr)_24rem] lg:overflow-hidden"
+        className="grid min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-none lg:grid-cols-[minmax(0,1fr)_24rem] lg:overflow-hidden"
       >
-        <div className="order-2 space-y-4 p-5 sm:p-6 lg:order-1 lg:overflow-y-auto scrollbar-hidden">
+        <div className="order-2 space-y-4 p-5 sm:p-6 lg:order-1 lg:overflow-y-auto scrollbar-none">
           {providers.length > 1 && (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Label>Content</Label>
@@ -440,7 +482,7 @@ function PostComposer({
           )}
         </div>
 
-        <aside className="order-1 border-b lg:order-2 lg:overflow-y-auto scrollbar-hidden lg:border-b-0 lg:border-l">
+        <aside className="order-1 border-b lg:order-2 lg:overflow-y-auto scrollbar-none lg:border-b-0 lg:border-l">
           <div className="space-y-6 p-5 sm:p-6">
             <section className="space-y-3">
               <Label>Post to</Label>
@@ -451,6 +493,7 @@ function PostComposer({
                   connections={publishable}
                   selected={selected}
                   onToggle={toggle}
+                  onConnect={close}
                 />
               )}
               {publishable.length === 0 && !connectionsPending && (
@@ -489,7 +532,7 @@ function PostComposer({
             <Button
               variant="primary"
               className="w-full"
-              onClick={() => mutation.mutate()}
+              onClick={publish}
               disabled={
                 mutation.isPending ||
                 targets.length === 0 ||

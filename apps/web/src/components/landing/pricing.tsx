@@ -16,7 +16,6 @@ import { FrameBox } from "../corners";
 import GradientASCII from "../GradientASCII";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
-import { Reveal } from "./reveal";
 import { LandingSection } from "./section";
 
 export function Pricing() {
@@ -36,7 +35,7 @@ export function Pricing() {
   });
   return (
     <LandingSection id="pricing">
-      <Reveal className="mb-14 space-y-7">
+      <div className="mb-14 space-y-7">
         <h2 className="heading">
           Start with an idea.
           <br />
@@ -47,7 +46,7 @@ export function Pricing() {
           <br />
           More room when you need it.
         </p>
-      </Reveal>
+      </div>
       {session?.user && subscription.isError && (
         <QueryState
           pending={false}

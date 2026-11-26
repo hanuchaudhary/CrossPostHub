@@ -6,7 +6,7 @@ import { MotionConfig } from "motion/react";
 
 import { ConfirmProvider } from "@/components/confirm-dialog";
 import { SoundEffects } from "@/components/ui/sound";
-import { Toasts } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "@/lib/query";
 
 import { ThemeProvider } from "../theme-provider";
@@ -22,7 +22,7 @@ export function Provider({ children }: { children: ReactNode }) {
               <TooltipProvider>
                 <ConfirmProvider>
                   {children}
-                  <Toasts position="top-center" />
+                  <Toaster />
                 </ConfirmProvider>
               </TooltipProvider>
             </SoundEffects>
