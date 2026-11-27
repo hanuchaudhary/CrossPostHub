@@ -56,8 +56,10 @@ export const Footer = () => {
               title: "Explore",
               links: [
                 ["Features", "/#features"],
-                ["Channels", "/#channels"],
+                ["How it works", "/#how-it-works"],
+                ["Channels", "/#platforms"],
                 ["Pricing", "/pricing"],
+                ["FAQ", "/#faq"],
               ],
             },
             {

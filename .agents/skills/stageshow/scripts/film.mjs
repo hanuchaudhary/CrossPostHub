@@ -413,6 +413,7 @@ const waitForMark = async () => {
 
 const clipFor = async () => {
   // The example may still be compiling or animating in; wait for a real box
+  await el.scrollIntoViewIfNeeded().catch(() => {})
   let bounds = await el.boundingBox()
   for (let i = 0; !bounds && i < 50; i++) {
     await page.waitForTimeout(200)

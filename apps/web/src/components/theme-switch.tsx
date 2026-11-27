@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { IconMoonFilled, IconSunFilled } from "@tabler/icons-react";
+import { Moon, Sun } from "@keyline-icons/react/duotone";
 import { motion } from "motion/react";
 
 import { cn } from "@/lib/utils";
@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "./theme-provider";
 
 const themes = [
-  { key: "light", icon: IconSunFilled, label: "Light theme" },
-  { key: "dark", icon: IconMoonFilled, label: "Dark theme" },
+  { key: "light", icon: Sun, label: "Light theme" },
+  { key: "dark", icon: Moon, label: "Dark theme" },
 ];
 
 export const ThemeSwitch = () => {

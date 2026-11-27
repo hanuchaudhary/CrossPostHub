@@ -6,7 +6,7 @@ import { LandingSection } from "./section";
 
 export const Cta = () => {
   return (
-    <LandingSection classname="bg-secondary/20">
+    <LandingSection containerClassname="bg-secondary/20">
       <div className="flex min-w-0 flex-col gap-7 py-4 md:py-12">
         <header className="flex flex-col gap-7">
           <h2 className="heading">

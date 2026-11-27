@@ -1,4 +1,5 @@
 import {
+  type ComponentType,
   type CSSProperties,
   type ReactNode,
   type RefObject,
@@ -9,16 +10,16 @@ import {
 } from "react";
 
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Comment01Icon,
-  FavouriteIcon,
-  Image01Icon,
-  RepeatIcon,
-  Tick02Icon,
-  Video01Icon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+  ArrowLeft,
+  ArrowRight,
+  CircleCheck,
+  Heart,
+  Image,
+  MessageSquare,
+  Repeat,
+  Video,
+  type IconProps as KeylineProps,
+} from "@keyline-icons/react/duotone";
 import { cn } from "cn";
 
 import { Icon } from "@/components/ui/icon";
@@ -157,24 +158,18 @@ function Cursor({
 }
 
 function Glyph({
-  icon,
+  icon: Icon,
   size = 16,
   className,
   style,
 }: {
-  icon: IconSvgElement;
+  icon: ComponentType<KeylineProps>;
   size?: number;
   className?: string;
   style?: CSSProperties;
 }) {
   return (
-    <HugeiconsIcon
-      icon={icon}
-      size={size}
-      strokeWidth={1.8}
-      style={style}
-      className={cn("shrink-0", className)}
-    />
+    <Icon size={size} style={style} className={cn("shrink-0", className)} />
   );
 }
 
@@ -296,8 +291,8 @@ function Publish({ step }: SceneProps) {
       </div>
       <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
         <span className="flex items-center gap-3 text-muted-foreground">
-          <Glyph icon={Image01Icon} />
-          <Glyph icon={Video01Icon} />
+          <Glyph icon={Image} />
+          <Glyph icon={Video} />
         </span>
         <span
           data-target="post"
@@ -309,7 +304,7 @@ function Publish({ step }: SceneProps) {
             count === 0 && !posted && "opacity-50"
           )}
         >
-          {posted && <Glyph icon={Tick02Icon} />}
+          {posted && <Glyph icon={CircleCheck} />}
           {posted
             ? "Posted"
             : count === 0
@@ -440,9 +435,9 @@ function Preview({ step }: SceneProps) {
                   )}
                 </p>
                 <div className="flex items-center gap-10 pt-2 text-muted-foreground">
-                  <Glyph icon={FavouriteIcon} />
-                  <Glyph icon={Comment01Icon} />
-                  <Glyph icon={RepeatIcon} />
+                  <Glyph icon={Heart} />
+                  <Glyph icon={MessageSquare} />
+                  <Glyph icon={Repeat} />
                 </div>
               </div>
             </div>
@@ -482,8 +477,8 @@ function Schedule({ step }: SceneProps) {
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <span className="text-sm font-medium">March 2026</span>
         <span className="flex gap-1 text-muted-foreground">
-          <Glyph icon={ArrowLeft01Icon} />
-          <Glyph icon={ArrowRight01Icon} />
+          <Glyph icon={ArrowLeft} />
+          <Glyph icon={ArrowRight} />
         </span>
       </div>
       <div className="grid grid-cols-7 gap-y-1 px-3 text-center text-xs">
@@ -531,7 +526,7 @@ function Schedule({ step }: SceneProps) {
               : "bg-primary text-primary-foreground"
           )}
         >
-          {scheduled && <Glyph icon={Tick02Icon} size={14} />}
+          {scheduled && <Glyph icon={CircleCheck} size={14} />}
           {scheduled ? "Scheduled" : "Schedule"}
         </span>
       </div>
@@ -553,7 +548,7 @@ function FileTile() {
   return (
     <span className="flex items-center gap-2 rounded-lg bg-background py-1.5 pr-3 pl-1.5 text-xs whitespace-nowrap shadow-[0_8px_24px_-8px_rgb(0_0_0/0.3)] ring-1 ring-foreground/10">
       <span className="grid size-6 place-items-center rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400">
-        <Glyph icon={Video01Icon} size={14} />
+        <Glyph icon={Video} size={14} />
       </span>
       teaser.mp4
     </span>
@@ -587,7 +582,7 @@ function Media({ step }: SceneProps) {
         <ul className="px-2">
           <li className="flex items-center gap-3 rounded-xl px-2 py-2">
             <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
-              <Glyph icon={Image01Icon} size={18} />
+              <Glyph icon={Image} size={18} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm">
@@ -598,7 +593,7 @@ function Media({ step }: SceneProps) {
               </span>
             </span>
             <Glyph
-              icon={Tick02Icon}
+              icon={CircleCheck}
               className="mr-1 text-emerald-600 dark:text-emerald-400"
             />
           </li>
@@ -606,7 +601,7 @@ function Media({ step }: SceneProps) {
             <Collapse open={added}>
               <div className="flex items-center gap-3 rounded-xl px-2 py-2">
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <Glyph icon={Video01Icon} size={18} />
+                  <Glyph icon={Video} size={18} />
                 </span>
                 <span className="min-w-0 flex-1 space-y-1.5">
                   <span className="flex items-center justify-between gap-3 text-sm">
@@ -627,7 +622,7 @@ function Media({ step }: SceneProps) {
                   </span>
                 </span>
                 <Glyph
-                  icon={Tick02Icon}
+                  icon={CircleCheck}
                   className={cn(
                     "mr-1 text-emerald-600 transition-opacity duration-300 dark:text-emerald-400",
                     done ? "opacity-100" : "opacity-0"

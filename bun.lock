@@ -41,6 +41,7 @@
         "@fontsource-variable/inter": "^5.3.0",
         "@hugeicons/core-free-icons": "^4.3.5",
         "@hugeicons/react": "^1.1.10",
+        "@keyline-icons/react": "^3.2.0",
         "@repo/shared": "workspace:*",
         "@tabler/icons-react": "^3.50.0",
         "@tailwindcss/vite": "^4.3.3",
@@ -371,6 +372,8 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.6.0", "", {}, "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@keyline-icons/react": ["@keyline-icons/react@3.2.0", "", { "peerDependencies": { "react": ">=18" } }, "sha512-sAJ+BHYx4sAPRDXQMLwkjmsYQdoOKS97RClbVnkA3L+zYadrrK1PF3ybecbwYxnMPMp37lnSqv8P3yR2TUvLfQ=="],
 
     "@modelcontextprotocol/core": ["@modelcontextprotocol/core@2.4.0", "", { "dependencies": { "zod": "^4.2.0" } }, "sha512-z8QBKqdfXLPzkLQuG4xp8hrVEMm1PZ1IgxMN2sMbJiFiAKOWXnAzogXn2W4aqIBlP1ea6U5yiqVquvUNM1Cj6Q=="],
 

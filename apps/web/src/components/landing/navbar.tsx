@@ -25,8 +25,9 @@ export function Navbar() {
                 <ul className="flex items-center gap-2" role="list">
                   {[
                     ["Features", "/#features"],
-                    ["Channels", "/#channels"],
+                    ["Channels", "/#platforms"],
                     ["Pricing", "/pricing"],
+                    ["FAQ", "/#faq"],
                   ].map(([label, href]) => (
                     <Link
                       className="subheading text-sm! text-primary! hover:underline"

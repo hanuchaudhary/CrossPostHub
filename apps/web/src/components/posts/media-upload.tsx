@@ -1,11 +1,7 @@
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
-import {
-  LoaderCircle,
-  RotateCcw,
-  Upload,
-  X,
-} from "lucide-react";
+import { CloudUpload, RotateCcw } from "@keyline-icons/react/duotone";
+import { LoaderCircle, X } from "lucide-react";
 import {
   motion,
   Reorder,
@@ -473,7 +469,7 @@ export function MediaUpload({
             receive(Array.from(event.dataTransfer.files));
           }}
         >
-          <Upload className="size-5" />
+          <CloudUpload className="size-5" />
           <span className="text-xs font-medium">
             {over
               ? "Drop to upload"

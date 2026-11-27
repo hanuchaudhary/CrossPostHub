@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
-import { IconChevronDown, IconCrownFilled } from "@tabler/icons-react";
+import { Crown } from "@keyline-icons/react/duotone";
+import { IconChevronDown } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 
@@ -42,7 +43,7 @@ function UpgradeButton({
       render={<Link to="/pricing" />}
       className={className}
     >
-      <IconCrownFilled className="text-amber-400" />
+      <Crown className="text-amber-500 dark:text-amber-400" />
       {label}
     </Button>
   );

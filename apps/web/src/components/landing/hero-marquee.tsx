@@ -1,20 +1,20 @@
 import MarqueeAlongSvgPath from "@/components/ui/marquee-along-path";
 
 const path =
-  "M1 209.434C58.5872 255.935 387.926 325.938 482.583 209.434C600.905 63.8051 525.516 -43.2211 427.332 19.9613C329.149 83.1436 352.902 242.723 515.041 267.302C644.752 286.966 943.56 181.94 995 156.5";
+  "M1 320C751 320 1454.93 292.233 1501 329.434C1558.59 375.935 1887.93 445.938 1982.58 329.434C2100.91 183.805 2025.52 76.779 1927.33 139.961C1829.15 203.144 1852.9 362.723 2015.04 387.302C2144.75 406.966 2443.56 301.94 2495 276.5C2556.73 245.972 3245 220 3995 220";
 
 export function MarqueeHero() {
   return (
-    <div className="w-dvw h-dvh flex items-center justify-center">
+    <div className="size-full">
       <MarqueeAlongSvgPath
         path={path}
-        viewBox="0 0 996 330"
-        baseVelocity={8}
+        viewBox="0 0 3996 570"
+        baseVelocity={2.86}
         slowdownOnHover={true}
         draggable={true}
-        repeat={2}
+        repeat={6}
         dragSensitivity={0.1}
-        className="w-full h-full scale-105"
+        className="size-full scale-130"
         responsive
         grabCursor
       >

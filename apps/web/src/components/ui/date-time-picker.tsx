@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
-  IconCalendarEvent,
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { CalendarClock } from "@keyline-icons/react/duotone";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -125,7 +125,7 @@ export function DateTimePicker({
           />
         }
       >
-        <IconCalendarEvent />
+        <CalendarClock />
         {valid
           ? new Intl.DateTimeFormat(undefined, {
               weekday: "short",

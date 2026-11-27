@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { CircleCheck } from "@keyline-icons/react/duotone";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { cn } from "cn";
 
@@ -110,11 +110,11 @@ export function Pricing() {
                 <li
                   key={feature}
                   className={cn(
-                    "flex items-start gap-2.5 subheading text-xl!",
+                    "flex items-start gap-2.5 subheading",
                     plan.popular && "text-primary!"
                   )}
                 >
-                  <IconCircleCheckFilled className="fill-sky-400 size-6" />
+                  <CircleCheck className="size-6 text-sky-500 dark:text-sky-400" />
                   {feature}
                 </li>
               ))}

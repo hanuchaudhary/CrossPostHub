@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { IconCopy } from "@tabler/icons-react";
+import { Copy } from "@keyline-icons/react/duotone";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -210,7 +210,7 @@ export function ConnectDialog({
                           .then(() => toast.success("Code copied"))
                       }
                     >
-                      <IconCopy />
+                      <Copy />
                     </Button>
                   </div>
                 </div>

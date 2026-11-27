@@ -20,10 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  IconLayoutSidebarFilled,
-  IconLayoutSidebarRightFilled,
-} from "@tabler/icons-react"
+import { PanelLeft, PanelLeftClose } from "@keyline-icons/react/duotone"
 
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
@@ -178,8 +175,8 @@ function SidebarTrigger({
       {...props}
     >
       <SidebarPrimitive.TriggerIcon
-        open={<IconLayoutSidebarRightFilled />}
-        closed={<IconLayoutSidebarFilled />}
+        open={<PanelLeftClose />}
+        closed={<PanelLeft />}
       />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>

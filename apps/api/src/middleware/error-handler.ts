@@ -19,7 +19,9 @@ export function handleError(error: Error, c: Context) {
   console.error("Unhandled request error", {
     method: c.req.method,
     path: c.req.path,
-    error,
+    name: error.name,
+    message: error.message,
+    stack: error.stack,
   });
   return c.json({ error: "Internal server error" }, 500);
 }

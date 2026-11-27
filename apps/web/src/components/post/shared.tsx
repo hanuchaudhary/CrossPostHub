@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-import { IconCheck, IconPlus } from "@tabler/icons-react";
+import { CircleCheck, Plus } from "@keyline-icons/react/duotone";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -190,7 +190,7 @@ export function AccountPicker({
                 />
               </span>
               {connection.name}
-              {on && <IconCheck className="size-3.5" />}
+              {on && <CircleCheck className="size-3.5" />}
             </button>
           );
         })}
@@ -201,7 +201,7 @@ export function AccountPicker({
           nativeButton={false}
           render={<Link to="/connections" onClick={onConnect} />}
         >
-          <IconPlus className="size-3.5" />
+          <Plus className="size-3.5" />
           Connect accounts
         </Button>
       </div>

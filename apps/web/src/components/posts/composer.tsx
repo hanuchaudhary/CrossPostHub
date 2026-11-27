@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Link } from "react-router";
 
-import { IconArrowRight, IconPlus } from "@tabler/icons-react";
+import { ArrowRight, Plus } from "@keyline-icons/react/duotone";
 import { useIsMutating, useMutation } from "@tanstack/react-query";
 
 import { PLATFORM_RULES, PLATFORMS } from "@repo/shared/platforms";
@@ -63,7 +63,7 @@ export function CreatePostButton() {
   const open = useComposer();
   return (
     <Button variant="primary" onClick={() => open()}>
-      <IconPlus />
+      <Plus />
       Create a post
     </Button>
   );
@@ -503,7 +503,7 @@ function PostComposer({
                   className="group flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                   Manage social accounts
-                  <IconArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               )}
             </section>
