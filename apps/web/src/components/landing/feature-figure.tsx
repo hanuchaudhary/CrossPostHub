@@ -1,565 +1,843 @@
-import { type CSSProperties, type ReactNode, useState } from "react";
-import { Box, Glow, path, Plate, Press, project } from "react-isokit";
-import type { Box3 } from "react-isokit";
-import { Callout } from "react-isokit/drafting";
+import {
+  type ComponentType,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  ArrowLeft,
+  ArrowRight,
+  CircleCheck,
+  Heart,
+  Image,
+  MessageSquare,
+  Repeat,
+  Video,
+  type IconProps as KeylineProps,
+} from "@keyline-icons/react/duotone";
+import { cn } from "cn";
+
+import { Icon } from "@/components/ui/icon";
+import type { Platform } from "@/lib/types";
 
 type FigureKind = "publish" | "workflow" | "schedule" | "media" | "workspace";
 
-const HUB = { x: 49, y: 92, z: 0, w: 66, d: 52, h: 18 };
-const RECEIVERS = [0, 61, 122].map((x) => ({
-  x,
-  y: 0,
-  z: 0,
-  w: 44,
-  d: 34,
-  h: 36,
-}));
-const PRESS = { x: 0, y: 0, z: 0, w: 136, d: 108, h: 9 };
-const LAYERS = [16, 40, 64].map((z) => ({
-  x: 10,
-  y: 10,
-  z,
-  w: 116,
-  d: 88,
-  h: 3,
-}));
-const CALENDAR = { x: 0, y: 0, z: 8, w: 124, d: 20, h: 100 };
-const FOOT = { x: 0, y: 0, z: 0, w: 124, d: 52, h: 8 };
-const CLOCK = { x: 137, y: 23, z: 0, w: 46, d: 20, h: 52 };
-const POST = { x: 84, y: 5, z: 5, w: 90, d: 112, h: 5 };
-const PHOTO = { x: 0, y: 44, z: 28, w: 70, d: 58, h: 3 };
-const ORGANIZER = { x: 0, y: 0, z: 0, w: 168, d: 112, h: 8 };
-const FILES = [0, 1, 2].map((i) => ({
-  x: 8 + i * 53,
-  y: 18,
-  z: 8,
-  w: 46,
-  d: 9,
-  h: 62,
-}));
+type Beat = { ms: number; target: string; press?: boolean; drag?: boolean };
 
-const CONFIG: Record<
+type SceneProps = { step: number };
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return reduced;
+}
+
+function useInView<T extends Element>(ref: RefObject<T | null>) {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(!!entry?.isIntersecting),
+      { threshold: 0.35 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [ref]);
+  return inView;
+}
+
+function useLoop(
+  beats: Beat[],
+  playing: boolean,
+  reduced: boolean,
+  poster: number
+) {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setTimeout(
+      () => setStep((current) => (current + 1) % beats.length),
+      beats[step]!.ms
+    );
+    return () => window.clearTimeout(timer);
+  }, [beats, playing, step]);
+  return reduced ? poster : step;
+}
+
+function Pointer() {
+  return (
+    <svg height="24" width="24" viewBox="0 0 32 32" fill="none">
+      <g transform="translate(10 7)">
+        <path
+          d="m6.148 18.473 1.863-1.003 1.615-.839-2.568-4.816h4.332l-11.379-11.408v16.015l3.316-3.221z"
+          fill="#fff"
+        />
+        <path
+          d="m6.431 17 1.765-.941-2.775-5.202h3.604l-8.025-8.043v11.188l2.53-2.442z"
+          fill="#000"
+        />
+      </g>
+    </svg>
+  );
+}
+
+function Cursor({
+  figure,
+  beat,
+  hidden,
+  carry,
+}: {
+  figure: RefObject<HTMLDivElement | null>;
+  beat: Beat;
+  hidden: boolean;
+  carry?: ReactNode;
+}) {
+  const [point, setPoint] = useState<{ x: number; y: number } | null>(null);
+  useLayoutEffect(() => {
+    const root = figure.current;
+    if (!root) return;
+    const measure = () => {
+      const target = root.querySelector<HTMLElement>(
+        `[data-target="${beat.target}"]`
+      );
+      if (!target) return;
+      const box = root.getBoundingClientRect();
+      const rect = target.getBoundingClientRect();
+      setPoint({
+        x: rect.left - box.left + rect.width / 2,
+        y: rect.top - box.top + rect.height / 2,
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [beat.target, figure]);
+  if (!point || hidden) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute top-0 left-0 z-30 transition-transform duration-700 ease-[cubic-bezier(0.45,0,0.2,1)]"
+      style={{ transform: `translate(${point.x}px, ${point.y}px)` }}
+    >
+      {carry && (
+        <div
+          className={cn(
+            "absolute top-3 left-3 transition-all duration-300",
+            beat.drag ? "scale-100 opacity-100" : "scale-75 opacity-0"
+          )}
+        >
+          {carry}
+        </div>
+      )}
+      <div
+        className={cn(
+          "absolute -top-[5.25px] -left-[7.5px] origin-[7.5px_5.25px] drop-shadow-[0_1px_1px_rgb(0_0_0/0.25)] transition-transform duration-150",
+          beat.press && "scale-90"
+        )}
+      >
+        <Pointer />
+      </div>
+    </div>
+  );
+}
+
+function Glyph({
+  icon: Icon,
+  size = 16,
+  className,
+  style,
+}: {
+  icon: ComponentType<KeylineProps>;
+  size?: number;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <Icon size={size} style={style} className={cn("shrink-0", className)} />
+  );
+}
+
+function Panel({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "absolute top-10 right-5 left-5 flex h-[308px] flex-col overflow-hidden rounded-2xl bg-background shadow-[0_1px_2px_rgb(0_0_0/0.04),0_16px_40px_-16px_rgb(0_0_0/0.18)] ring-1 ring-foreground/10 [mask-image:linear-gradient(to_bottom,#000_68%,transparent)] sm:right-10 sm:left-10 dark:shadow-none",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Bar({ className }: { className?: string }) {
+  return <span className={cn("block h-2 rounded-full bg-muted", className)} />;
+}
+
+function Filler({ rows = 2 }: { rows?: number }) {
+  const widths = ["w-1/2", "w-2/5", "w-3/5", "w-1/3"];
+  return (
+    <ul className="space-y-1 px-2">
+      {Array.from({ length: rows }, (_, index) => (
+        <li key={index} className="flex items-center gap-3 px-2 py-2">
+          <span className="size-10 shrink-0 rounded-lg bg-muted" />
+          <span className="flex-1 space-y-2">
+            <Bar className={widths[index % widths.length]} />
+            <Bar className={widths[(index + 2) % widths.length]} />
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Collapse({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
+        open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+function Rest() {
+  return (
+    <span
+      data-target="rest"
+      className="absolute right-[18%] bottom-6 size-px"
+    />
+  );
+}
+
+const CHANNELS: { id: Platform; name: string }[] = [
+  { id: "twitter", name: "X" },
+  { id: "linkedin", name: "LinkedIn" },
+  { id: "instagram", name: "Instagram" },
+];
+
+const PUBLISH: Beat[] = [
+  { ms: 900, target: "rest" },
+  { ms: 750, target: "chip-twitter" },
+  { ms: 260, target: "chip-twitter", press: true },
+  { ms: 650, target: "chip-linkedin" },
+  { ms: 260, target: "chip-linkedin", press: true },
+  { ms: 650, target: "chip-instagram" },
+  { ms: 260, target: "chip-instagram", press: true },
+  { ms: 800, target: "post" },
+  { ms: 260, target: "post", press: true },
+  { ms: 2200, target: "post" },
+  { ms: 900, target: "rest" },
+];
+
+function Publish({ step }: SceneProps) {
+  const picked = [step >= 3, step >= 5, step >= 7].map((on) => on && step < 10);
+  const count = picked.filter(Boolean).length;
+  const posted = step === 9;
+  return (
+    <Panel>
+      <div className="flex items-center gap-2 border-b px-3 py-3 sm:px-4">
+        <span className="mr-1 hidden text-xs whitespace-nowrap text-muted-foreground sm:inline">
+          Post to
+        </span>
+        {CHANNELS.map((channel, index) => (
+          <span
+            key={channel.id}
+            data-target={`chip-${channel.id}`}
+            className={cn(
+              "flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs whitespace-nowrap ring-1 transition-[background-color,color,box-shadow] duration-300",
+              picked[index]
+                ? "bg-brand/10 text-foreground ring-brand/50"
+                : "bg-secondary text-muted-foreground ring-border"
+            )}
+          >
+            <Icon name={channel.id} size={14} />
+            {channel.name}
+          </span>
+        ))}
+      </div>
+      <div className="space-y-3 px-4 pt-4">
+        <p className="text-[15px] leading-snug">
+          Our spring collection drops Friday. Here’s a first look at the colors.
+        </p>
+        <span className="block text-xs text-muted-foreground tabular-nums">
+          68 / 280
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <span className="flex items-center gap-3 text-muted-foreground">
+          <Glyph icon={Image} />
+          <Glyph icon={Video} />
+        </span>
+        <span
+          data-target="post"
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-xl px-4 text-sm whitespace-nowrap transition-[background-color,color,opacity] duration-300",
+            posted
+              ? "bg-emerald-600 text-white dark:bg-emerald-500"
+              : "bg-linear-to-b from-[#60c5f8] to-[#0072e5] text-white shadow-[inset_0_1px_0_#ffffffb3,inset_0_0_0_1px_#ffffff26,0_2px_3px_#0072e526]",
+            count === 0 && !posted && "opacity-50"
+          )}
+        >
+          {posted && <Glyph icon={CircleCheck} />}
+          {posted
+            ? "Posted"
+            : count === 0
+              ? "Choose accounts"
+              : `Post to ${count} account${count === 1 ? "" : "s"}`}
+        </span>
+      </div>
+      <div className="pt-2">
+        <Filler rows={2} />
+      </div>
+    </Panel>
+  );
+}
+
+const PREVIEW: Beat[] = [
+  { ms: 1600, target: "rest" },
+  { ms: 750, target: "tab-linkedin" },
+  { ms: 260, target: "tab-linkedin", press: true },
+  { ms: 1800, target: "tab-linkedin" },
+  { ms: 650, target: "tab-instagram" },
+  { ms: 260, target: "tab-instagram", press: true },
+  { ms: 1800, target: "tab-instagram" },
+  { ms: 650, target: "tab-twitter" },
+  { ms: 260, target: "tab-twitter", press: true },
+  { ms: 900, target: "rest" },
+];
+
+const POST =
+  "Our spring collection drops Friday. Here’s a first look at the colors.";
+
+function previewOf(step: number): Platform {
+  if (step >= 3 && step < 6) return "linkedin";
+  if (step >= 6 && step < 9) return "instagram";
+  return "twitter";
+}
+
+function Preview({ step }: SceneProps) {
+  const active = previewOf(step);
+  const bar = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState<{
+    left: number;
+    width: number;
+  }>();
+  useLayoutEffect(() => {
+    const node = bar.current?.querySelector<HTMLElement>(
+      `[data-target="tab-${active}"]`
+    );
+    if (node) setIndicator({ left: node.offsetLeft, width: node.offsetWidth });
+  }, [active]);
+  return (
+    <>
+      <div
+        ref={bar}
+        className="absolute top-10 left-1/2 z-10 flex -translate-x-1/2 rounded-full bg-secondary p-1 ring-1 ring-border"
+      >
+        {indicator && (
+          <span
+            className="absolute top-1 bottom-1 rounded-full bg-background shadow-sm ring-1 ring-border transition-[left,width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
+            style={indicator}
+          />
+        )}
+        {CHANNELS.map((item) => (
+          <span
+            key={item.id}
+            data-target={`tab-${item.id}`}
+            className={cn(
+              "relative flex h-7 items-center gap-1.5 rounded-full px-3 text-xs whitespace-nowrap transition-colors duration-300",
+              active === item.id ? "text-foreground" : "text-muted-foreground"
+            )}
+          >
+            <Icon name={item.id} size={13} />
+            {item.name}
+          </span>
+        ))}
+      </div>
+      <Panel className="top-[92px] h-[256px]">
+        <div className="grid border-b">
+          {CHANNELS.map(({ id }) => (
+            <div
+              key={id}
+              className={cn(
+                "col-start-1 row-start-1 flex gap-3 p-4 transition-[opacity,translate] duration-300",
+                active === id
+                  ? "translate-y-0 opacity-100"
+                  : "pointer-events-none translate-y-1 opacity-0"
+              )}
+            >
+              <span
+                className={cn(
+                  "grid size-10 shrink-0 place-items-center bg-amber-500/15 text-sm font-medium text-amber-700 dark:text-amber-400",
+                  id === "linkedin" ? "rounded-lg" : "rounded-full"
+                )}
+              >
+                MC
+              </span>
+              <div className="min-w-0 flex-1 space-y-1.5">
+                {id === "twitter" && (
+                  <p className="flex min-w-0 items-center gap-1.5 text-sm">
+                    <span className="shrink-0 font-medium">Maya Chen</span>
+                    <span className="truncate text-muted-foreground">
+                      @mayamakes · now
+                    </span>
+                  </p>
+                )}
+                {id === "linkedin" && (
+                  <p className="min-w-0 text-sm">
+                    <span className="block font-medium">Maya Chen</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      Founder at Studio North · now
+                    </span>
+                  </p>
+                )}
+                {id === "instagram" && (
+                  <p className="flex min-w-0 items-center gap-1.5 text-sm">
+                    <span className="shrink-0 font-medium">mayamakes</span>
+                    <span className="truncate text-muted-foreground">
+                      Studio North
+                    </span>
+                  </p>
+                )}
+                <p className="text-[15px] leading-snug">
+                  {POST}
+                  {id === "instagram" && (
+                    <span className="text-sky-700 dark:text-sky-400">
+                      {" "}
+                      #springdrop
+                    </span>
+                  )}
+                </p>
+                <div className="flex items-center gap-10 pt-2 text-muted-foreground">
+                  <Glyph icon={Heart} />
+                  <Glyph icon={MessageSquare} />
+                  <Glyph icon={Repeat} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-3 p-4">
+          <span className="size-10 shrink-0 rounded-full bg-muted" />
+          <span className="flex-1 space-y-2 pt-1">
+            <Bar className="w-1/3" />
+            <Bar className="w-4/5" />
+            <Bar className="w-3/5" />
+          </span>
+        </div>
+      </Panel>
+    </>
+  );
+}
+
+const SCHEDULE: Beat[] = [
+  { ms: 900, target: "rest" },
+  { ms: 800, target: "day-13" },
+  { ms: 260, target: "day-13", press: true },
+  { ms: 700, target: "day-13" },
+  { ms: 700, target: "schedule" },
+  { ms: 260, target: "schedule", press: true },
+  { ms: 2200, target: "schedule" },
+  { ms: 900, target: "rest" },
+];
+
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
+function Schedule({ step }: SceneProps) {
+  const picked = step >= 3 && step < 7;
+  const scheduled = step === 6;
+  return (
+    <Panel>
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <span className="text-sm font-medium">March 2026</span>
+        <span className="flex gap-1 text-muted-foreground">
+          <Glyph icon={ArrowLeft} />
+          <Glyph icon={ArrowRight} />
+        </span>
+      </div>
+      <div className="grid grid-cols-7 gap-y-1 px-3 text-center text-xs">
+        {DAYS.map((day, index) => (
+          <span key={index} className="py-1 text-muted-foreground">
+            {day}
+          </span>
+        ))}
+        {[1, 8, 15].flatMap((start) =>
+          Array.from({ length: 7 }, (_, index) => {
+            const date = start + index;
+            return (
+              <span key={date} className="grid place-items-center py-0.5">
+                <span
+                  data-target={`day-${date}`}
+                  className={cn(
+                    "grid size-8 place-items-center rounded-full tabular-nums transition-[background-color,color] duration-300",
+                    date < 9 && "text-muted-foreground/60",
+                    date === 13 && picked && "bg-brand text-brand-foreground"
+                  )}
+                >
+                  {date}
+                </span>
+              </span>
+            );
+          })
+        )}
+      </div>
+      <div className="mx-4 mt-3 flex items-center justify-between gap-3 border-t pt-3 pb-4">
+        <span
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-lg bg-secondary px-3 text-xs whitespace-nowrap tabular-nums ring-1 ring-border transition-opacity duration-300",
+            picked ? "opacity-100" : "opacity-50"
+          )}
+        >
+          <Icon name="clock" size={14} className="text-muted-foreground" />
+          {picked ? "Fri, Mar 13 · 12:30 PM" : "Pick a date"}
+        </span>
+        <span
+          data-target="schedule"
+          className={cn(
+            "inline-flex h-8 items-center gap-1.5 rounded-xl px-3 text-xs whitespace-nowrap transition-colors duration-300",
+            scheduled
+              ? "bg-emerald-600 text-white dark:bg-emerald-500"
+              : "bg-primary text-primary-foreground"
+          )}
+        >
+          {scheduled && <Glyph icon={CircleCheck} size={14} />}
+          {scheduled ? "Scheduled" : "Schedule"}
+        </span>
+      </div>
+      <Filler rows={2} />
+    </Panel>
+  );
+}
+
+const MEDIA: Beat[] = [
+  { ms: 900, target: "pickup", drag: true },
+  { ms: 900, target: "drop", drag: true },
+  { ms: 260, target: "drop" },
+  { ms: 2600, target: "rest" },
+  { ms: 1600, target: "rest" },
+  { ms: 900, target: "pickup" },
+];
+
+function FileTile() {
+  return (
+    <span className="flex items-center gap-2 rounded-lg bg-background py-1.5 pr-3 pl-1.5 text-xs whitespace-nowrap shadow-[0_8px_24px_-8px_rgb(0_0_0/0.3)] ring-1 ring-foreground/10">
+      <span className="grid size-6 place-items-center rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <Glyph icon={Video} size={14} />
+      </span>
+      teaser.mp4
+    </span>
+  );
+}
+
+function Media({ step }: SceneProps) {
+  const over = step === 1;
+  const added = step >= 2 && step < 5;
+  const uploading = step >= 3 && step < 5;
+  const done = step === 4;
+  return (
+    <>
+      <span
+        data-target="pickup"
+        className="absolute top-4 right-[12%] size-px"
+      />
+      <Panel>
+        <div
+          data-target="drop"
+          className={cn(
+            "m-3 flex flex-col items-center gap-2 rounded-xl border border-dashed px-4 py-5 text-center transition-colors duration-300",
+            over ? "border-brand bg-brand/5" : "bg-secondary/40"
+          )}
+        >
+          <span className="grid size-9 place-items-center rounded-lg bg-background text-muted-foreground ring-1 ring-border">
+            <Icon name="plus" size={16} />
+          </span>
+          <span className="text-sm">Drop photos or videos</span>
+        </div>
+        <ul className="px-2">
+          <li className="flex items-center gap-3 rounded-xl px-2 py-2">
+            <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
+              <Glyph icon={Image} size={18} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm">
+                spring-lookbook.jpg
+              </span>
+              <span className="block text-xs text-muted-foreground tabular-nums">
+                2.4 MB
+              </span>
+            </span>
+            <Glyph
+              icon={CircleCheck}
+              className="mr-1 text-emerald-600 dark:text-emerald-400"
+            />
+          </li>
+          <li>
+            <Collapse open={added}>
+              <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <Glyph icon={Video} size={18} />
+                </span>
+                <span className="min-w-0 flex-1 space-y-1.5">
+                  <span className="flex items-center justify-between gap-3 text-sm">
+                    <span className="truncate">teaser.mp4</span>
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      18 MB
+                    </span>
+                  </span>
+                  <span className="block h-1 overflow-hidden rounded-full bg-muted">
+                    <span
+                      className={cn(
+                        "block h-full w-full origin-left rounded-full bg-brand ease-out",
+                        uploading
+                          ? "scale-x-100 transition-transform duration-[2400ms]"
+                          : "scale-x-[0.04]"
+                      )}
+                    />
+                  </span>
+                </span>
+                <Glyph
+                  icon={CircleCheck}
+                  className={cn(
+                    "mr-1 text-emerald-600 transition-opacity duration-300 dark:text-emerald-400",
+                    done ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </div>
+            </Collapse>
+          </li>
+        </ul>
+        <Filler rows={2} />
+      </Panel>
+    </>
+  );
+}
+
+const WORKSPACE: Beat[] = [
+  { ms: 1500, target: "rest" },
+  { ms: 1200, target: "rest" },
+  { ms: 750, target: "filter-Scheduled" },
+  { ms: 260, target: "filter-Scheduled", press: true },
+  { ms: 1900, target: "filter-Scheduled" },
+  { ms: 650, target: "filter-All" },
+  { ms: 260, target: "filter-All", press: true },
+  { ms: 1400, target: "filter-All" },
+  { ms: 700, target: "rest" },
+];
+
+const FILTERS: [string, number][] = [
+  ["All", 24],
+  ["Scheduled", 6],
+  ["Posted", 16],
+  ["Failed", 2],
+];
+
+const ROWS: { id: Platform; text: string; when: string; posted: boolean }[] = [
+  {
+    id: "instagram",
+    text: "Behind the scenes",
+    when: "Today, 9:00 AM",
+    posted: true,
+  },
+  {
+    id: "linkedin",
+    text: "We’re hiring designers",
+    when: "Tomorrow, 10:30 AM",
+    posted: false,
+  },
+  {
+    id: "twitter",
+    text: "Spring drop is live",
+    when: "Mon, 4:15 PM",
+    posted: true,
+  },
+];
+
+function Workspace({ step }: SceneProps) {
+  const filter = step >= 4 && step < 7 ? "Scheduled" : "All";
+  const arriving = step < 8;
+  const live = step === 0;
+  return (
+    <Panel className="left-0 rounded-l-none sm:left-0">
+      <div className="flex gap-1.5 border-b py-3 pr-4 pl-6 text-xs">
+        {FILTERS.map(([label, count], index) => (
+          <span
+            key={label}
+            data-target={`filter-${label}`}
+            className={cn(
+              "flex h-7 shrink-0 items-center gap-1.5 rounded-full px-3 transition-colors duration-300",
+              filter === label
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground",
+              index === 3 && "hidden sm:flex"
+            )}
+          >
+            {label}
+            <span
+              className={cn(
+                "min-w-5 rounded-full px-1.5 text-center text-[11px] leading-5 tabular-nums transition-colors duration-300",
+                filter === label ? "bg-primary-foreground/15" : "bg-secondary"
+              )}
+            >
+              {count}
+            </span>
+          </span>
+        ))}
+      </div>
+      <ul className="py-2 pr-2 pl-4">
+        {ROWS.map((row, index) => {
+          const shown =
+            (filter === "All" || !row.posted) && (index > 0 || arriving);
+          const posting = index === 0 && live;
+          return (
+            <li key={row.id}>
+              <Collapse open={shown}>
+                <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary">
+                    <Icon name={row.id} size={18} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm">{row.text}</span>
+                    <span className="block text-xs text-muted-foreground tabular-nums">
+                      {row.when}
+                    </span>
+                  </span>
+                  <span className="mr-2 grid shrink-0 justify-items-end text-xs">
+                    <span
+                      className={cn(
+                        "col-start-1 row-start-1 transition-all duration-300",
+                        row.posted
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-muted-foreground",
+                        posting
+                          ? "translate-y-2 opacity-0"
+                          : "translate-y-0 opacity-100"
+                      )}
+                    >
+                      {row.posted ? "Posted" : "Scheduled"}
+                    </span>
+                    {index === 0 && (
+                      <span
+                        className={cn(
+                          "col-start-1 row-start-1 text-amber-600 transition-all duration-300 dark:text-amber-400",
+                          posting
+                            ? "translate-y-0 opacity-100"
+                            : "-translate-y-2 opacity-0"
+                        )}
+                      >
+                        Posting…
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </Collapse>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="pl-2">
+        <Filler rows={2} />
+      </div>
+    </Panel>
+  );
+}
+
+const SCENES: Record<
   FigureKind,
-  { name: string; fig: string; hint: string; fit: Box3[]; label: string }
+  {
+    Scene: (props: SceneProps) => ReactNode;
+    beats: Beat[];
+    poster: number;
+    carry?: ReactNode;
+    label: string;
+  }
 > = {
   publish: {
-    name: "One idea, everywhere",
-    fig: "01",
-    hint: "draft → three destinations",
-    fit: [HUB, ...RECEIVERS],
+    Scene: Publish,
+    beats: PUBLISH,
+    poster: 9,
     label:
-      "A publishing hub sends one post along three cables to three social channels.",
+      "A post composer: X, LinkedIn and Instagram are selected, then the post goes out to all three.",
   },
   workflow: {
-    name: "From spark to story",
-    fig: "02",
-    hint: "words + visuals → ready",
-    fit: [PRESS, ...LAYERS],
+    Scene: Preview,
+    beats: PREVIEW,
+    poster: 0,
     label:
-      "Separate layers of words and visuals assemble into one finished post.",
+      "A live preview of one post, switching between how it looks on X, LinkedIn and Instagram.",
   },
   schedule: {
-    name: "A date with your audience",
-    fig: "03",
-    hint: "choose a day → let it go",
-    fit: [FOOT, CALENDAR, CLOCK],
+    Scene: Schedule,
+    beats: SCHEDULE,
+    poster: 6,
     label:
-      "A desk calendar selects a publishing day while a clock counts toward the scheduled time.",
+      "A date picker: Friday, March 13 is chosen and the post is scheduled for 12:30 PM.",
   },
   media: {
-    name: "A picture meets a story",
-    fig: "04",
-    hint: "image → complete post",
-    fit: [POST, PHOTO, { ...PHOTO, z: 50 }],
+    Scene: Media,
+    beats: MEDIA,
+    poster: 4,
+    carry: <FileTile />,
     label:
-      "A photograph slides into a written post, bringing words and visuals together.",
+      "A video is dropped into the upload area and finishes uploading next to a photo.",
   },
   workspace: {
-    name: "Everything in its place",
-    fig: "05",
-    hint: "pending → scheduled → published",
-    fit: [ORGANIZER, ...FILES, { ...FILES[0], z: 30 }],
+    Scene: Workspace,
+    beats: WORKSPACE,
+    poster: 1,
     label:
-      "Three file holders organize pending, scheduled, and published posts; a file lifts in each category.",
+      "A list of posts by status: a new post goes from Posting to Posted, then the list is filtered to scheduled posts.",
   },
 };
 
-function Lines({
-  x = 10,
-  y = 12,
-  width = 70,
-  count = 3,
-}: {
-  x?: number;
-  y?: number;
-  width?: number;
-  count?: number;
-}) {
-  return (
-    <>
-      {Array.from({ length: count }, (_, i) => (
-        <path
-          key={i}
-          className="ik-detail"
-          d={`M${x} ${y + i * 7}h${width - (i === count - 1 ? 15 : 0)}`}
-        />
-      ))}
-    </>
-  );
-}
-
-function Landscape({
-  width = 50,
-  height = 36,
-}: {
-  width?: number;
-  height?: number;
-}) {
-  return (
-    <>
-      <rect className="ik-well" width={width} height={height} rx={2} />
-      <circle className="ik-line" cx={width * 0.74} cy={height * 0.26} r={4} />
-      <path
-        className="ik-line"
-        d={`M3 ${height - 4}L${width * 0.32} ${height * 0.35}L${width * 0.58} ${height * 0.76}L${width * 0.74} ${height * 0.5}L${width - 3} ${height - 4}`}
-      />
-    </>
-  );
-}
-
-function Publishing({ replay }: { replay: () => void }) {
-  return (
-    <>
-      {RECEIVERS.map((receiver, i) => {
-        const cable = path([
-          [82, 93, 4],
-          [82, 65, 4],
-          [receiver.x + 22, 53, 4],
-          [receiver.x + 22, 34, 4],
-        ]);
-        return (
-          <g key={i}>
-            <path className="ik-line" d={cable} />
-            <path
-              className="ik-live feature-signal ik-loop"
-              style={{ "--order": i } as CSSProperties}
-              d={cable}
-            />
-          </g>
-        );
-      })}
-      {RECEIVERS.map((receiver, i) => (
-        <Box
-          key={i}
-          {...receiver}
-          r={5}
-          top={
-            <text className="ik-label" x={22} y={20} textAnchor="middle">
-              {["x", "in", "ig"][i]}
-            </text>
-          }
-          front={
-            <>
-              <rect
-                className="ik-screen"
-                x={6}
-                y={6}
-                width={32}
-                height={23}
-                rx={2}
-              />
-              <path className="ik-detail" d="M12 14h20M12 20h12" />
-              <Glow>
-                <g
-                  className="feature-delivered ik-loop"
-                  style={{ "--order": i } as CSSProperties}
-                >
-                  <path className="ik-screen-line" d="M16 17l4 4 9-9" />
-                </g>
-              </Glow>
-            </>
-          }
-          side={<path className="ik-detail" d="M8 10v15M13 10v15M18 10v15" />}
-        />
-      ))}
-      <Press
-        label="Replay cross-posting preview"
-        material="rubber"
-        onPress={replay}
-      >
-        <g>
-          <Box
-            {...HUB}
-            r={6}
-            top={
-              <>
-                <rect
-                  className="ik-screen"
-                  x={9}
-                  y={8}
-                  width={48}
-                  height={28}
-                  rx={2}
-                />
-                <text
-                  className="ik-screen-text"
-                  x={33}
-                  y={25}
-                  textAnchor="middle"
-                  fontSize={8}
-                >
-                  one post
-                </text>
-                <path
-                  className="ik-live feature-send ik-loop"
-                  d="M25 41h16m-5-4 5 4-5 4"
-                />
-              </>
-            }
-            front={
-              <text className="ik-label" x={10} y={12}>
-                CrossPostHub
-              </text>
-            }
-          />
-        </g>
-      </Press>
-      <Callout at={[82, 118, 18]} dx={-48} dy={20} label="write once" />
-    </>
-  );
-}
-
-function Workflow({ replay }: { replay: () => void }) {
-  return (
-    <>
-      <Box
-        {...PRESS}
-        r={5}
-        front={
-          <text className="ik-label" x={12} y={7}>
-            a little less juggling
-          </text>
-        }
-      />
-      {LAYERS.map((layer, i) => (
-        <g key={i}>
-          <g
-            className="feature-assemble ik-loop"
-            style={{ "--order": i, "--drop": `${i * 21}px` } as CSSProperties}
-          >
-            <Box
-              {...layer}
-              r={3}
-              top={
-                <>
-                  {i === 0 && (
-                    <>
-                      <text className="ik-label" x={9} y={18}>
-                        the first spark
-                      </text>
-                      <Lines y={31} width={92} count={5} />
-                    </>
-                  )}
-                  {i === 1 && (
-                    <>
-                      <g transform="translate(9 9)">
-                        <Landscape width={45} height={50} />
-                      </g>
-                      <Lines x={65} y={18} width={40} count={5} />
-                    </>
-                  )}
-                  {i === 2 && (
-                    <>
-                      <rect
-                        className="ik-detail"
-                        x={8}
-                        y={8}
-                        width={100}
-                        height={71}
-                        rx={2}
-                      />
-                      <text className="ik-label" x={16} y={25}>
-                        a story, ready.
-                      </text>
-                      <Lines x={16} y={37} width={84} count={3} />
-                      <path className="ik-live" d="M78 63l5 5 10-12" />
-                    </>
-                  )}
-                </>
-              }
-            />
-          </g>
-        </g>
-      ))}
-      <Press label="Replay workflow assembly" material="paper" onPress={replay}>
-        <g>
-          <Box
-            x={143}
-            y={70}
-            z={0}
-            w={28}
-            d={28}
-            h={5}
-            r={4}
-            top={<path className="ik-line" d="M8 14a6 6 0 1 0 3-5M8 7v7h7" />}
-          />
-        </g>
-      </Press>
-    </>
-  );
-}
-
-function Scheduling({ replay }: { replay: () => void }) {
-  return (
-    <>
-      <Box {...FOOT} r={4} />
-      <Box
-        {...CALENDAR}
-        r={4}
-        front={
-          <>
-            <text className="ik-label" x={10} y={16}>
-              a little room to create
-            </text>
-            <path className="ik-detail" d="M8 23h108" />
-            {["m", "t", "w", "t", "f", "s", "s"].map((day, i) => (
-              <text key={i} className="ik-label" x={14 + i * 16} y={36}>
-                {day}
-              </text>
-            ))}
-            {Array.from({ length: 21 }, (_, i) => (
-              <text
-                key={i}
-                className="ik-label"
-                x={14 + (i % 7) * 16}
-                y={51 + Math.floor(i / 7) * 18}
-              >
-                {i + 1}
-              </text>
-            ))}
-            <g className="feature-calendar-selection ik-loop">
-              <rect
-                className="ik-live"
-                x={41}
-                y={39}
-                width={17}
-                height={17}
-                rx={3}
-              />
-            </g>
-            <g className="feature-calendar-confirm ik-loop">
-              <path className="ik-live" d="M99 81l4 4 8-10" />
-            </g>
-          </>
-        }
-        top={<path className="ik-detail" d="M10 10h104" />}
-      />
-      {[20, 96].map((x) => (
-        <Box key={x} x={x} y={6} z={104} w={8} d={22} h={8} r={4} />
-      ))}
-      <Press
-        label="Replay scheduling preview"
-        material="metal"
-        onPress={replay}
-      >
-        <g>
-          <Box
-            {...CLOCK}
-            r={8}
-            front={
-              <>
-                <circle className="ik-screen" cx={23} cy={25} r={18} />
-                <g transform="translate(23 25)">
-                  <path
-                    className="ik-detail"
-                    d="M0-15v3M15 0h-3M0 15v-3M-15 0h3"
-                  />
-                  <path className="ik-line" d="M0 0l-7-4" />
-                  <g className="feature-clock-hand ik-loop">
-                    <path className="ik-line" d="M0 2V-12" />
-                  </g>
-                  <circle className="ik-fill" r={1.5} />
-                </g>
-                <text className="ik-label" x={23} y={48} textAnchor="middle">
-                  10:00
-                </text>
-              </>
-            }
-          />
-        </g>
-      </Press>
-    </>
-  );
-}
-
-function Media({ replay }: { replay: () => void }) {
-  const [moveX, moveY] = project(93, -11, -18);
-  return (
-    <>
-      <Box
-        {...POST}
-        r={3}
-        top={
-          <>
-            <circle className="ik-fill" cx={13} cy={12} r={4} />
-            <Lines x={23} y={10} width={55} count={2} />
-            <rect
-              className="ik-well"
-              x={9}
-              y={28}
-              width={70}
-              height={58}
-              rx={2}
-            />
-            <Lines x={9} y={95} width={65} count={2} />
-          </>
-        }
-      />
-      <g
-        className="feature-photo-flight ik-loop"
-        style={
-          {
-            "--photo-x": `${moveX}px`,
-            "--photo-y": `${moveY}px`,
-          } as CSSProperties
-        }
-      >
-        <Press
-          label="Replay words and visuals preview"
-          material="paper"
-          onPress={replay}
-        >
-          <g>
-            <Box
-              {...PHOTO}
-              r={2}
-              top={
-                <>
-                  <g transform="translate(5 5)">
-                    <Landscape width={60} height={40} />
-                  </g>
-                  <text className="ik-label feature-photo-caption" x={7} y={53}>
-                    a moment worth sharing
-                  </text>
-                </>
-              }
-            />
-          </g>
-        </Press>
-      </g>
-      <Callout at={[40, 60, 31]} dx={-25} dy={-28} label="your image" />
-      <Callout at={[145, 104, 10]} dx={38} dy={18} label="the whole story" />
-    </>
-  );
-}
-
-function Workspace({ replay }: { replay: () => void }) {
-  return (
-    <>
-      <Box {...ORGANIZER} r={5} />
-      {FILES.map((file, i) => (
-        <g key={i}>
-          <Box x={file.x - 2} y={file.y - 5} z={8} w={50} d={67} h={8} r={3} />
-          <g
-            className="feature-file-lift ik-loop"
-            style={{ "--order": i } as CSSProperties}
-          >
-            <Box
-              {...file}
-              r={3}
-              front={
-                <>
-                  <text className="ik-label" x={6} y={13}>
-                    0{i + 1}
-                  </text>
-                  <Lines x={6} y={24} width={34} count={3} />
-                  <g
-                    className="feature-file-check ik-loop"
-                    style={{ "--order": i } as CSSProperties}
-                  >
-                    <path className="ik-live" d="M26 48l4 4 9-10" />
-                  </g>
-                </>
-              }
-            />
-            <Box
-              className={i === 2 ? "feature-accent-tab" : undefined}
-              x={file.x + 4}
-              y={file.y + 5}
-              z={file.z + file.h}
-              w={22}
-              d={4}
-              h={6}
-              r={2}
-            />
-          </g>
-          <Box
-            x={file.x - 2}
-            y={74}
-            z={8}
-            w={50}
-            d={8}
-            h={22}
-            r={3}
-            front={
-              <text className="ik-label" x={25} y={14} textAnchor="middle">
-                {["pending", "scheduled", "published"][i]}
-              </text>
-            }
-          />
-        </g>
-      ))}
-      <Press
-        label="Replay workspace preview"
-        material="plastic"
-        onPress={replay}
-      >
-        <g>
-          <Box
-            x={55}
-            y={92}
-            z={8}
-            w={58}
-            d={14}
-            h={3}
-            r={3}
-            top={
-              <text className="ik-label" x={29} y={10} textAnchor="middle">
-                all together
-              </text>
-            }
-          />
-        </g>
-      </Press>
-    </>
-  );
-}
-
-const SCENES: Record<FigureKind, (props: { replay: () => void }) => ReactNode> =
-  {
-    publish: Publishing,
-    workflow: Workflow,
-    schedule: Scheduling,
-    media: Media,
-    workspace: Workspace,
-  };
-
 export function FeatureFigure({ kind }: { kind: FigureKind }) {
-  const [replays, setReplays] = useState(0);
-  const config = CONFIG[kind];
-  const Scene = SCENES[kind];
+  const figure = useRef<HTMLDivElement>(null);
+  const inView = useInView(figure);
+  const reduced = useReducedMotion();
+  const { Scene, beats, poster, carry, label } = SCENES[kind];
+  const step = useLoop(beats, inView && !reduced, reduced, poster);
   return (
-    <div className={`feature-figure feature-figure-${kind}`}>
-      <Plate
-        className="feature-plate"
-        fit={config.fit}
-        aspect={1.5}
-        pad={0.16}
-      >
-        <g key={replays}>
-          <Scene replay={() => setReplays((value) => value + 1)} />
-        </g>
-      </Plate>
+    <div
+      ref={figure}
+      role="img"
+      aria-label={label}
+      className="relative h-[348px] min-w-0 overflow-hidden select-none"
+    >
+      <div aria-hidden="true" className="contents">
+        <Rest />
+        <Scene step={step} />
+      </div>
+      <Cursor
+        figure={figure}
+        beat={beats[step]!}
+        hidden={reduced}
+        carry={carry}
+      />
     </div>
   );
 }

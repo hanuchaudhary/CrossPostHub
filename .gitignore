@@ -13,6 +13,7 @@ tests_output/
 vendor/
 /out/
 coverage/
+/plans
 
 *.tsbuildinfo
 .eslintcache

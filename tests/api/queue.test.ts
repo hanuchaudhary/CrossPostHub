@@ -1,8 +1,8 @@
 import { expect, mock, spyOn, test } from "bun:test";
 import { consumePosts } from "../../apps/api/src/queue";
-import { CrossPostHub } from "../../apps/api/src/core";
+import { CrossPostHub } from "../../packages/post/src";
 import * as accountModule from "../../apps/api/src/lib/publishing-account";
-import { PublishError } from "../../apps/api/src/core";
+import { PublishError } from "../../packages/post/src";
 import * as dbModule from "../../apps/api/src/lib/db";
 import type { PostJob } from "../../apps/api/src/types";
 import { asPrisma, bindings, database, isolate } from "./support";

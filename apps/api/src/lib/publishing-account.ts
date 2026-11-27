@@ -1,63 +1,48 @@
-import { decryptOAuthToken } from "better-auth/oauth2";
+import {
+  PublishError,
+  ReauthError,
+  type ProviderId,
+  type PublishAccount,
+} from "@repo/post";
+import type { Platform } from "@repo/shared/platforms";
 import type { PrismaClient } from "../../generated/prisma/client";
-import type { PublishAccount } from "../core";
-import { PublishError } from "../core";
+import { PostService } from "../modules/post/service";
 import type { Bindings, PostJob } from "../types";
-import { createAuth } from "./auth";
+
+export const providerOf = (platform: Platform): ProviderId =>
+  platform === "twitter" ? "x" : platform;
 
 export async function getPublishingAccount(
   db: PrismaClient,
   env: Bindings,
   job: PostJob,
 ): Promise<PublishAccount> {
-  const account = await db.account.findFirst({
-    where: { userId: job.userId, providerId: job.provider },
+  const connection = await db.socialConnection.findFirst({
+    where: { userId: job.userId, provider: providerOf(job.provider) },
+    orderBy: { createdAt: "asc" },
   });
-  if (!account?.accessToken)
+  if (!connection)
     throw new PublishError(`${job.provider} account is not connected`);
-  const auth = createAuth(env, db);
-  if (job.provider === "instagram") {
-    if (
-      account.accessTokenExpiresAt &&
-      account.accessTokenExpiresAt.getTime() <= Date.now()
-    )
-      throw new PublishError("Instagram token expired; reconnect the account");
-    const accessToken = await decryptOAuthToken(
-      account.accessToken,
-      (await auth.$context) as unknown as Parameters<
-        typeof decryptOAuthToken
-      >[1],
+  if (connection.status === "NEEDS_REAUTH")
+    throw new PublishError(
+      `${job.provider} access expired; reconnect the account`,
     );
-    if (!accessToken)
-      throw new PublishError(
-        "Instagram token is missing; reconnect the account",
-      );
-    return { accountId: account.accountId, accessToken };
-  }
   try {
-    const token = await auth.api.getAccessToken({
-      body: { userId: job.userId, accountId: account.id },
-    });
-    if (
-      !token.accessToken ||
-      (token.accessTokenExpiresAt &&
-        token.accessTokenExpiresAt.getTime() <= Date.now() + 5_000)
-    )
-      throw new PublishError(
-        `${job.provider} token expired; reconnect the account`,
-      );
-    const required =
-      job.provider === "linkedin"
-        ? ["w_member_social"]
-        : ["tweet.write", ...(job.mediaKeys.length ? ["media.write"] : [])];
-    const missing = required.filter((scope) => !token.scopes.includes(scope));
-    if (missing.length)
-      throw new PublishError(
-        `${job.provider} is missing ${missing.join(", ")}; reconnect the account to grant publishing permissions`,
-      );
-    return { accountId: account.accountId, accessToken: token.accessToken };
+    const tokens = await PostService.activeTokens(db, env, connection);
+    return {
+      accountId: connection.externalId,
+      accessToken:
+        job.provider === "telegram"
+          ? (env.TELEGRAM_BOT_TOKEN ?? "")
+          : tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      meta: tokens.meta,
+    };
   } catch (error) {
-    if (error instanceof PublishError) throw error;
+    if (error instanceof ReauthError)
+      throw new PublishError(
+        `${job.provider} access expired; reconnect the account`,
+      );
     throw new PublishError(
       `${job.provider} credentials could not be resolved; reconnect the account if this continues`,
       true,

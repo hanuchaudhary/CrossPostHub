@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { createAuth } from "./lib/auth";
+import { post as social } from "./modules/post";
 import { consumePosts } from "./queue";
 import type { Bindings, PostJob } from "./types";
 import { apiCors } from "./middleware/cors";
@@ -20,7 +21,13 @@ import {
 const app = new Hono<AppEnv>();
 
 app.use("*", logger());
-app.use("*", secureHeaders());
+const defaultHeaders = secureHeaders();
+const mediaHeaders = secureHeaders({ crossOriginResourcePolicy: "cross-origin" });
+app.use("*", (c, next) =>
+  c.req.path === "/api/media/file"
+    ? mediaHeaders(c, next)
+    : defaultHeaders(c, next)
+);
 app.use("/api/*", apiCors);
 
 app.onError(handleError);
@@ -37,6 +44,7 @@ app.all("/api/auth/*", async (c) => {
 
 app.route("/api/notifications", notifications);
 app.route("/api/payment", payment);
+app.route("/api/post", social);
 app.route("/api/post", posts);
 app.route("/api/media", media);
 app.route("/api", user);

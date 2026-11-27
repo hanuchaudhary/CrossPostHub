@@ -1,14 +1,14 @@
 import { BillingDetails } from "@/components/account/billing-details";
 
-import { CenterPageLayout } from "../center-page-layout";
+import { PageLayout } from "../page-layout";
 
 export default function BillingPage() {
   return (
-    <CenterPageLayout
+    <PageLayout centered
       title="Billing"
       description="Review your plan and subscription."
     >
       <BillingDetails />
-    </CenterPageLayout>
+    </PageLayout>
   );
 }

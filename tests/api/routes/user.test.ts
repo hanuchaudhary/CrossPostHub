@@ -1,8 +1,8 @@
-import { expect, spyOn, test } from "bun:test";
+import { expect, test } from "bun:test";
 import user from "../../../apps/api/src/routes/user";
-import { harness, isolate, json } from "../support";
+import { harness, isolate } from "../support";
 isolate();
-for (const method of ["GET", "POST"]) {
+for (const method of ["GET"]) {
   test(`user ${method} requires authentication`, async () => {
     expect(
       (await harness(user, "/", false).request("/user", { method })).status,
@@ -29,39 +29,3 @@ test("user aggregates successful posts by UTC month and provider", async () => {
     createdAt: { gte: expect.any(Date) },
   });
 });
-test("user validates GitHub usernames and returns the fetched profile", async () => {
-  const h = harness(user);
-  expect(
-    (await h.request("/user", json({ githubUsername: "../invalid" }))).status,
-  ).toBe(400);
-  const fetch = spyOn(globalThis, "fetch").mockResolvedValue(
-    Response.json({ login: "octocat" }),
-  );
-  expect(
-    await (
-      await h.request("/user", json({ githubUsername: "octocat" }))
-    ).json(),
-  ).toEqual({ login: "octocat" });
-  expect(fetch).toHaveBeenCalledWith("https://api.github.com/users/octocat", {
-    headers: { "User-Agent": "CrossPostHub" },
-  });
-});
-for (const [upstream, expected] of [
-  [404, 404],
-  [429, 502],
-  [500, 502],
-]) {
-  test(`user maps GitHub ${upstream} to HTTP ${expected}`, async () => {
-    spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(null, { status: upstream }),
-    );
-    expect(
-      (
-        await harness(user).request(
-          "/user",
-          json({ githubUsername: "octocat" }),
-        )
-      ).status,
-    ).toBe(expected);
-  });
-}

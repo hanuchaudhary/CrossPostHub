@@ -6,14 +6,12 @@ import { motion } from "motion/react";
 const icons = [
   "bluesky",
   "facebook",
-  // "github",
   "instagram",
   "linkedin",
   "pinterest",
   "threads",
   "tiktok",
   "twitter",
-  "youtube",
 ];
 const directions = [
   { x: -115, y: -60 },

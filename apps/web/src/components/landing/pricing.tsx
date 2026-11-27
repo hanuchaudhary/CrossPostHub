@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { CircleCheck } from "@keyline-icons/react/duotone";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { cn } from "cn";
 
@@ -16,7 +16,6 @@ import { FrameBox } from "../corners";
 import GradientASCII from "../GradientASCII";
 import { Button } from "../ui/button";
 import { Icon } from "../ui/icon";
-import { Reveal } from "./reveal";
 import { LandingSection } from "./section";
 
 export function Pricing() {
@@ -36,7 +35,7 @@ export function Pricing() {
   });
   return (
     <LandingSection id="pricing">
-      <Reveal className="mb-14 space-y-7">
+      <div className="mb-14 space-y-7">
         <h2 className="heading">
           Start with an idea.
           <br />
@@ -47,7 +46,7 @@ export function Pricing() {
           <br />
           More room when you need it.
         </p>
-      </Reveal>
+      </div>
       {session?.user && subscription.isError && (
         <QueryState
           pending={false}
@@ -111,11 +110,11 @@ export function Pricing() {
                 <li
                   key={feature}
                   className={cn(
-                    "flex items-start gap-2.5 subheading text-xl!",
+                    "flex items-start gap-2.5 subheading",
                     plan.popular && "text-primary!"
                   )}
                 >
-                  <IconCircleCheckFilled className="fill-sky-400 size-6" />
+                  <CircleCheck className="size-6 text-sky-500 dark:text-sky-400" />
                   {feature}
                 </li>
               ))}

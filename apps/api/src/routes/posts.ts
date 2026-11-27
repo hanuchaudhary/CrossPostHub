@@ -1,6 +1,7 @@
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 
+import { contentProblem, PLATFORMS } from "@repo/shared/platforms";
 import { exceedsPostLimits, getPlan } from "@repo/shared/pricing";
 
 import type { Bindings, PostJob } from "../types";
@@ -48,13 +49,13 @@ app.post("", async (c) => {
     .array(z.string())
     .parse(JSON.parse(String(form.get("mediaKeys") || "[]")));
   const providers = z
-    .array(z.enum(["twitter", "linkedin", "instagram"]))
+    .array(z.enum(PLATFORMS))
     .min(1)
     .parse(JSON.parse(String(form.get("providers") || "[]")));
   const scheduleAt = String(form.get("scheduleAt") ?? "");
   const platformContent = z
     .record(
-      z.enum(["twitter", "linkedin", "instagram"]),
+      z.enum(PLATFORMS),
       z.object({ text: z.string(), mediaKeys: z.array(z.string()) })
     )
     .parse(JSON.parse(String(form.get("platformContent") || "{}")));
@@ -64,18 +65,28 @@ app.post("", async (c) => {
       Date.parse(scheduleAt) <= Date.now())
   )
     return c.json({ error: "Choose a date and time in the future" }, 400);
+  const described = new Map<string, { type: string; size: number }>();
   for (const provider of providers) {
     const content = platformContent[provider] ?? { text: postText, mediaKeys };
-    if (!content.text.trim() && content.mediaKeys.length === 0)
-      return c.json(
-        { error: `Please enter text or upload media for ${provider}` },
-        400
-      );
-    if (
-      content.text.length >
-      (provider === "twitter" ? 280 : provider === "instagram" ? 2200 : 3000)
-    )
-      return c.json({ error: `Caption is too long for ${provider}` }, 400);
+    const media = [];
+    for (const key of content.mediaKeys) {
+      if (!key.startsWith(`media/${user.id}/`))
+        return c.json({ error: "Invalid media key" }, 400);
+      let item = described.get(key);
+      if (!item) {
+        const object = await c.env.MEDIA_BUCKET.head(key);
+        if (!object)
+          return c.json({ error: "Uploaded media was not found" }, 400);
+        item = {
+          type: (object.httpMetadata?.contentType ?? "").split(";")[0]!.trim(),
+          size: object.size,
+        };
+        described.set(key, item);
+      }
+      media.push(item);
+    }
+    const problem = contentProblem(provider, content.text, media);
+    if (problem) return c.json({ error: problem }, 400);
   }
   const db = dbFor(c);
   const monthStart = new Date();

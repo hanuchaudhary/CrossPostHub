@@ -8,13 +8,18 @@ export function LandingSection({
   children,
   id,
   classname,
+  containerClassname,
 }: {
   children: ReactNode;
   id?: string;
   classname?: string;
+  containerClassname?: string;
 }) {
   return (
-    <section id={id} className="relative scroll-mt-16">
+    <section
+      id={id}
+      className={cn("relative scroll-mt-16", containerClassname)}
+    >
       <SiteRule className="bottom-0" />
       <div
         className={cn(

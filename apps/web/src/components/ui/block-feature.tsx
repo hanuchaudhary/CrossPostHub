@@ -1,5 +1,4 @@
 import { LandingSection } from "../landing/section";
-import { Reveal } from "../landing/reveal";
 import { Icon, type IconName } from "./icon";
 
 const features: {
@@ -46,46 +45,45 @@ const features: {
 export default function Feature() {
   return (
     <LandingSection id="features">
-        <Reveal className="mb-14 space-y-7">
-          <h2 className="heading">
-            More creating.
-            <br />
-            <span className="text-muted-foreground">Less juggling.</span>
-          </h2>
-          <p className="subheading max-w-md!">
-            Everything you need to take a post from an idea to your audience,
-            all in one place.
-          </p>
-        </Reveal>
-        <div className="grid gap-10 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
-          {features.map((feature, index) => (
-            <Reveal
-              key={feature.number}
-              delay={index * 0.1}
-              className="group flex min-w-0 flex-col border-t pt-6 transition-colors duration-300 hover:border-foreground"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
-                  <Icon name={feature.icon} size={22} />
-                </div>
-                <span className="text-3xl font-light tracking-tighter text-muted-foreground/40">
-                  {feature.number}
-                </span>
+      <div className="mb-14 space-y-7">
+        <h2 className="heading">
+          More creating.
+          <br />
+          <span className="text-muted-foreground">Less juggling.</span>
+        </h2>
+        <p className="subheading max-w-md!">
+          Everything you need to take a post from an idea to your audience, all
+          in one place.
+        </p>
+      </div>
+      <div className="grid gap-10 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        {features.map((feature) => (
+          <div
+            key={feature.number}
+            className="group flex min-w-0 flex-col border-t pt-6 transition-colors duration-300 hover:border-foreground"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
+                <Icon name={feature.icon} size={22} />
               </div>
-              <div className="pt-8">
-                <p className="mb-3 text-[10px] tracking-[.18em] text-muted-foreground">
-                  {feature.detail}
-                </p>
-                <h3 className="text-lg font-light tracking-tight">
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
-                  {feature.description}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+              <span className="text-3xl font-light tracking-tighter text-muted-foreground/40">
+                {feature.number}
+              </span>
+            </div>
+            <div className="pt-8">
+              <p className="mb-3 text-[10px] tracking-[.18em] text-muted-foreground">
+                {feature.detail}
+              </p>
+              <h3 className="text-lg font-light tracking-tight">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
+                {feature.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </LandingSection>
   );
 }

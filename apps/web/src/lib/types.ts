@@ -11,10 +11,10 @@ export type ChannelId =
   | "bluesky"
   | "pinterest"
   | "tiktok"
-  | "youtube"
-  | "github";
+  | "mastodon"
+  | "telegram";
 
-export type Platform = "twitter" | "linkedin" | "instagram";
+export type Platform = import("@repo/shared/platforms").Platform;
 export type Channel = {
   id: ChannelId;
   name: string;
@@ -57,7 +57,11 @@ export type UiIconName =
   | "more"
   | "code"
   | "layers"
-  | "lock";
+  | "lock"
+  | "billing"
+  | "edit"
+  | "share"
+  | "sliders";
 export type IconName = UiIconName | ChannelId;
 export type IconProps = { name: IconName; size?: number; className?: string };
 export type PostStatus = "PENDING" | "SUCCESS" | "FAILED";
@@ -114,9 +118,9 @@ export type BillingUsage = {
 };
 export type Session = typeof authClient.$Infer.Session;
 export type User = Session["user"];
-export type ConnectedAccount = NonNullable<
-  Awaited<ReturnType<typeof authClient.listAccounts>>["data"]
->[number];
+export type ConnectedAccount = import("./api/post").SocialConnection & {
+  providerId: ChannelId;
+};
 export type AvatarDefinition = { name: string; url: string };
 export type ProfileDraft = { name: string; image: string };
 export type PasswordChangeInput = {
@@ -152,4 +156,8 @@ export type QueryStateProps = {
   error: unknown;
   retry: () => void;
 };
-export type PostListProps = { posts: Post[]; compact?: boolean };
+export type PostListProps = {
+  posts: Post[];
+  compact?: boolean;
+  empty?: string;
+};

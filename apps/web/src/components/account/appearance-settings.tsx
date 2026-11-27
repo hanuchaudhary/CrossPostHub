@@ -1,5 +1,4 @@
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PaintBoardIcon } from "@hugeicons/core-free-icons";
+import { Palette } from "@keyline-icons/react/duotone";
 import { ThemeSwitch } from "@/components/theme-switch";
 export function AppearanceSettings() {
   return (
@@ -9,7 +8,7 @@ export function AppearanceSettings() {
     >
       <div className="flex items-center gap-4">
         <span className="grid size-11 place-items-center rounded-xl bg-secondary">
-          <HugeiconsIcon icon={PaintBoardIcon} size={20} aria-hidden="true" />
+          <Palette size={20} aria-hidden="true" />
         </span>
         <div>
           <h2 id="appearance-heading" className="font-medium">

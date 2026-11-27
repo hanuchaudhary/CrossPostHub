@@ -20,10 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  IconLayoutSidebarFilled,
-  IconLayoutSidebarRightFilled,
-} from "@tabler/icons-react"
+import { PanelLeft, PanelLeftClose } from "@keyline-icons/react/duotone"
 
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
@@ -47,7 +44,7 @@ function SidebarProvider({
         } as React.CSSProperties
       }
       className={cn(
-        "group/sidebar-wrapper flex min-h-svh w-full dark:has-data-[variant=inset]:bg-sidebar/50 has-data-[variant=inset]:bg-neutral-50",
+        "group/sidebar-wrapper flex min-h-svh w-full dark:has-data-[variant=inset]:bg-[#232326] has-data-[variant=inset]:bg-neutral-50",
         className
       )}
       {...props}
@@ -178,8 +175,8 @@ function SidebarTrigger({
       {...props}
     >
       <SidebarPrimitive.TriggerIcon
-        open={<IconLayoutSidebarRightFilled />}
-        closed={<IconLayoutSidebarFilled />}
+        open={<PanelLeftClose />}
+        closed={<PanelLeft />}
       />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>

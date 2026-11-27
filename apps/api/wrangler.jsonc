@@ -10,6 +10,9 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"routes": [
+		{ "pattern": "api.crossposthub.kushchaudhary.com", "custom_domain": true }
+	],
 	"queues": {
 		"consumers": [
 			{
@@ -37,13 +40,12 @@
 			"binding": "DB",
 			"database_name": "crossposthub-db",
 			"database_id": "b95e814b-6a3e-4098-ba8f-6d970c4f3e61",
-			"remote": true,
 			"migrations_dir": "prisma/migrations",
 		}
 	],
 	"vars": {
 		"DODO_PAYMENTS_ENVIRONMENT": "test_mode",
-		"CLIENT_URL": "http://localhost:5173",
-		"API_URL": "http://localhost:8787"
+		"CLIENT_URL": "https://crossposthub.kushchaudhary.com",
+		"API_URL": "https://api.crossposthub.kushchaudhary.com"
 	}
 }

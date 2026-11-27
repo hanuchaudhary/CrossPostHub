@@ -1,64 +1,77 @@
-import type { IconProps, UiIconName } from "@/lib/types";
-import { getChannel } from "@/lib/constants";
-import { ChannelIcon } from "@/components/channels/channel-icon";
-import { HugeiconsIcon } from "@hugeicons/react";
+import type { ComponentType } from "react";
+
 import {
-  ArrowRight01Icon,
-  ArrowLeft01Icon,
-  ArrowUpRight01Icon,
-  Calendar03Icon,
-  DashboardSquare01Icon,
-  Settings01Icon,
-  UserCircleIcon,
-  Logout01Icon,
-  Add01Icon,
-  CheckmarkCircle02Icon,
-  Cancel01Icon,
-  Menu01Icon,
-  SparklesIcon,
-  GoogleIcon,
-  Notification01Icon,
-  Search01Icon,
-  Image01Icon,
-  SentIcon,
-  Link01Icon,
-  Clock01Icon,
-  Mail01Icon,
-  Shield01Icon,
-  MoreHorizontalIcon,
-  CodeIcon,
-  Layers01Icon,
-  SquareLock02Icon,
-} from "@hugeicons/core-free-icons";
-const icons = {
-  arrow: ArrowRight01Icon,
-  back: ArrowLeft01Icon,
-  external: ArrowUpRight01Icon,
-  calendar: Calendar03Icon,
-  dashboard: DashboardSquare01Icon,
-  settings: Settings01Icon,
-  user: UserCircleIcon,
-  logout: Logout01Icon,
-  plus: Add01Icon,
-  check: CheckmarkCircle02Icon,
-  close: Cancel01Icon,
-  menu: Menu01Icon,
-  sparkle: SparklesIcon,
-  google: GoogleIcon,
-  bell: Notification01Icon,
-  search: Search01Icon,
-  image: Image01Icon,
-  send: SentIcon,
-  link: Link01Icon,
-  clock: Clock01Icon,
-  mail: Mail01Icon,
-  shield: Shield01Icon,
-  more: MoreHorizontalIcon,
-  code: CodeIcon,
-  layers: Layers01Icon,
-  lock: SquareLock02Icon,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Bell,
+  CalendarDays,
+  CircleCheck,
+  CircleUser,
+  Clock,
+  Code,
+  CreditCard,
+  Image,
+  Layers,
+  LayoutDashboard,
+  Link,
+  Lock,
+  LogOut,
+  Mail,
+  Menu,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Send,
+  Settings,
+  Share2,
+  Shield,
+  SlidersHorizontal,
+  Sparkles,
+  SquarePen,
+  X,
+  type IconProps as KeylineProps,
+} from "@keyline-icons/react/duotone";
+
+import { ChannelIcon } from "@/components/channels/channel-icon";
+import { getChannel } from "@/lib/constants";
+import type { IconProps, UiIconName } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+const icons: Record<Exclude<UiIconName, "google">, ComponentType<KeylineProps>> = {
+  arrow: ArrowRight,
+  back: ArrowLeft,
+  external: ArrowUpRight,
+  calendar: CalendarDays,
+  dashboard: LayoutDashboard,
+  settings: Settings,
+  user: CircleUser,
+  logout: LogOut,
+  plus: Plus,
+  check: CircleCheck,
+  close: X,
+  menu: Menu,
+  sparkle: Sparkles,
+  bell: Bell,
+  search: Search,
+  image: Image,
+  send: Send,
+  link: Link,
+  clock: Clock,
+  mail: Mail,
+  shield: Shield,
+  more: MoreHorizontal,
+  code: Code,
+  layers: Layers,
+  lock: Lock,
+  billing: CreditCard,
+  edit: SquarePen,
+  share: Share2,
+  sliders: SlidersHorizontal,
 };
+
 export type { IconName } from "@/lib/types";
+
 export function Icon({ name, size = 20, className = "" }: IconProps) {
   const channel = getChannel(name);
   if (channel)
@@ -71,12 +84,22 @@ export function Icon({ name, size = 20, className = "" }: IconProps) {
         className={className}
       />
     );
+  if (name === "google")
+    return (
+      <img
+        src="/icons/google-icon.svg"
+        alt=""
+        width={size}
+        height={size}
+        className={cn("shrink-0", className)}
+        aria-hidden="true"
+      />
+    );
+  const Glyph = icons[name as Exclude<UiIconName, "google">];
   return (
-    <HugeiconsIcon
-      icon={icons[name as UiIconName]}
+    <Glyph
       size={size}
-      strokeWidth={1.7}
-      className={className}
+      className={cn("shrink-0", className)}
       aria-hidden="true"
     />
   );

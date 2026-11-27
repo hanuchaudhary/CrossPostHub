@@ -1,5 +1,4 @@
-import { SquareLock02Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Lock } from "@keyline-icons/react/duotone";
 
 import type { ChannelIconProps } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -41,11 +40,7 @@ export function ChannelIcon({
       />
       {channel.locked && showLock && (
         <span className="absolute inset-0 grid place-items-center rounded bg-background/60">
-          <HugeiconsIcon
-            icon={SquareLock02Icon}
-            strokeWidth={2}
-            className={"size-6"}
-          />
+          <Lock className="size-6" />
         </span>
       )}
     </span>

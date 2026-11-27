@@ -1,11 +1,10 @@
 import axios from "axios";
 
+import type { SocialConnection } from "./api/post";
 import { authClient } from "./auth-client";
-import { connectionError, connectionRedirect } from "./connection-flow";
 import { getChannel } from "./constants";
 import type {
   BillingUsage,
-  ChannelId,
   ConnectedAccount,
   NotificationsResponse,
   OverviewResponse,
@@ -96,6 +95,10 @@ export const uploadMedia = async (
     throw error;
   }
 };
+export const mediaUrl = (key: string) =>
+  `${api.defaults.baseURL}/media/file?${new URLSearchParams({ key })}`;
+export const isVideoKey = (key: string) =>
+  /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(key);
 export const deleteMedia = async (mediaKey: string) =>
   (await api.post("/post/delete/media", { mediaKey })).data;
 export const getOverview = async () =>
@@ -126,32 +129,13 @@ export const startPlanCheckout = async (planId: string) => {
   window.location.assign(data.checkout_url);
 };
 export const getAccounts = async (): Promise<ConnectedAccount[]> => {
-  const result = await authClient.listAccounts();
-  if (result.error) throw connectionError(result.error);
-  if (!Array.isArray(result.data))
+  const { data } = await api.get<SocialConnection[]>("/post/connections");
+  if (!Array.isArray(data))
     throw new Error("Couldn’t load your connections. Please try again.");
-  return result.data;
-};
-export const connectAccount = async (provider: ChannelId) => {
-  const channel = getChannel(provider);
-  if (!channel || channel.locked)
-    throw new Error(`${channel?.name || provider} is not available yet.`);
-  const result = await authClient.linkSocial({
-    provider,
-    callbackURL: `${window.location.origin}/connections?connection=success&provider=${encodeURIComponent(provider)}`,
-    errorCallbackURL: `${window.location.origin}/connections?connection=error&provider=${encodeURIComponent(provider)}`,
-    disableRedirect: true,
-  });
-  if (result.error) throw connectionError(result.error);
-  return connectionRedirect(result.data?.url);
-};
-export const disconnectAccount = async (accountId: string) => {
-  if (!accountId.trim()) throw new Error("No connected account was selected.");
-  const result = await authClient.unlinkAccount({ accountId });
-  if (result.error) throw connectionError(result.error);
-  if (!result.data?.status)
-    throw new Error("The account couldn’t be disconnected. Please try again.");
-  return result.data;
+  return data.map((connection) => ({
+    ...connection,
+    providerId: connection.provider === "x" ? "twitter" : connection.provider,
+  }));
 };
 export function errorMessage(error: unknown) {
   if (axios.isAxiosError(error))

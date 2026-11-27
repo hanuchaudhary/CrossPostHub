@@ -4,11 +4,11 @@ import { AppearanceSettings } from "@/components/account/appearance-settings";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 
-import { CenterPageLayout } from "../center-page-layout";
+import { PageLayout } from "../page-layout";
 
 export default function SettingsPage() {
   return (
-    <CenterPageLayout title="Preferences">
+    <PageLayout centered title="Preferences">
       <div className="space-y-6">
         <AppearanceSettings />
         <section className="flex flex-wrap items-center justify-between gap-5">
@@ -56,6 +56,6 @@ export default function SettingsPage() {
           </div>
         </section>
       </div>
-    </CenterPageLayout>
+    </PageLayout>
   );
 }

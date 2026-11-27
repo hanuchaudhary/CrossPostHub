@@ -36,8 +36,6 @@ export function Iphone({
       }}
       {...props}
     >
-      <div className="absolute h-90 w-10 bg-background -left-6 top-20"></div>
-      <div className="absolute h-90 w-10 bg-background -right-6 top-20"></div>
       <div
         className="absolute z-0 overflow-hidden"
         style={{

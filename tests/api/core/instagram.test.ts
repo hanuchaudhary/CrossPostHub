@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CrossPostHub, InstagramProvider } from "../../../apps/api/src/core";
+import { CrossPostHub, InstagramProvider } from "../../../packages/post/src";
 import type {
   Fetch,
   PublishContent,
   PublishMedia,
-} from "../../../apps/api/src/core";
+} from "../../../packages/post/src";
 
 function media(
   url = "https://cdn.example/photo.jpg",
@@ -38,7 +38,7 @@ test("Instagram creates, checks, and publishes a single image through CrossPostH
     assert.ok(!String(url).includes("test-token"));
     const body = new URLSearchParams(String(init?.body ?? ""));
     if (calls.length === 1) {
-      assert.equal(url, "https://graph.instagram.com/v25.0/ig-1/media");
+      assert.equal(url, "https://graph.facebook.com/v25.0/ig-1/media");
       assert.equal(init?.method, "POST");
       assert.equal(body.get("image_url"), "https://cdn.example/photo.jpg");
       assert.equal(body.get("caption"), content.text);
@@ -47,12 +47,12 @@ test("Instagram creates, checks, and publishes a single image through CrossPostH
     if (calls.length === 2) {
       assert.equal(
         url,
-        "https://graph.instagram.com/v25.0/container-1?fields=status_code",
+        "https://graph.facebook.com/v25.0/container-1?fields=status_code",
       );
       assert.equal(init?.method, "GET");
       return Response.json({ status_code: "FINISHED" });
     }
-    assert.equal(url, "https://graph.instagram.com/v25.0/ig-1/media_publish");
+    assert.equal(url, "https://graph.facebook.com/v25.0/ig-1/media_publish");
     assert.equal(body.get("creation_id"), "container-1");
     return Response.json({ id: "post-1" });
   };

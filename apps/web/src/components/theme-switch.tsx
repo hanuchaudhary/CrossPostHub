@@ -1,60 +1,81 @@
-import { useId } from "react";
+import { useEffect } from "react";
+
+import { Moon, Sun } from "@keyline-icons/react/duotone";
 import { motion } from "motion/react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Sun01Icon, Moon02Icon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/theme-provider";
+
 import { cn } from "@/lib/utils";
-export function ThemeSwitch() {
-  const { theme, setTheme } = useTheme(),
-    id = useId();
-  const active =
-    theme === "system"
-      ? typeof window !== "undefined" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme;
+
+import { useTheme } from "./theme-provider";
+
+const themes = [
+  { key: "light", icon: Sun, label: "Light theme" },
+  { key: "dark", icon: Moon, label: "Dark theme" },
+];
+
+export const ThemeSwitch = () => {
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLElement &&
+        (e.target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName))
+      ) {
+        return;
+      }
+
+      if (
+        e.key.toLowerCase() === "t" &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey
+      ) {
+        setTheme(theme === "dark" ? "light" : "dark");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [theme, setTheme]);
+
   return (
     <div
       role="group"
       aria-label="Color theme"
-      className="relative flex h-8 rounded-full bg-background/80 p-1 ring-1 ring-border"
+      className={cn(
+        "cursor-pointer relative z-40 flex h-8 rounded-full dark:bg-background/40 bg-white backdrop-blur-sm p-1 ring-1 ring-border"
+      )}
     >
-      {(
-        [
-          { key: "light", icon: Sun01Icon, label: "Light theme" },
-          { key: "dark", icon: Moon02Icon, label: "Dark theme" },
-        ] as const
-      ).map((item) => (
-        <Button
-          key={item.key}
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="relative size-6 rounded-full p-0"
-          aria-label={item.label}
-          aria-pressed={active === item.key}
-          onClick={() => setTheme(item.key)}
-        >
-          {active === item.key && (
-            <motion.span
-              layoutId={`active-theme-${id}`}
-              className="absolute inset-0 rounded-full bg-secondary"
-              transition={{ type: "spring", duration: 0.5 }}
-            />
-          )}
-          <HugeiconsIcon
-            icon={item.icon}
-            size={16}
-            className={cn(
-              "relative",
-              active === item.key ? "text-foreground" : "text-muted-foreground",
+      {themes.map(({ key, icon: Icon, label }) => {
+        const isActive = theme === key;
+
+        return (
+          <button
+            type="button"
+            key={key}
+            className="relative h-6 w-6 rounded-full cursor-pointer"
+            aria-label={label}
+            aria-pressed={isActive}
+            onClick={() => setTheme(key as "light" | "dark")}
+          >
+            {isActive && (
+              <motion.span
+                layoutId="activeTheme"
+                className="absolute inset-0 rounded-full bg-secondary"
+                transition={{ type: "spring", duration: 0.5 }}
+              />
             )}
-            aria-hidden="true"
-          />
-        </Button>
-      ))}
+            <Icon
+              className={cn(
+                "relative m-auto h-4 w-4",
+                isActive ? "text-foreground" : "text-muted-foreground"
+              )}
+            />
+          </button>
+        );
+      })}
     </div>
   );
-}
+};

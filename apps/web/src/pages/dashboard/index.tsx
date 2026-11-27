@@ -1,18 +1,19 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import { useQuery } from "@tanstack/react-query";
 
+import { cn } from "cn";
+
 import { CreatePostButton } from "@/components/posts/composer";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import {
-  PageHeading,
-  PostList,
-  QueryState,
-} from "@/components/workspace/common";
+import { PostList, QueryState } from "@/components/workspace/common";
 import { authClient } from "@/lib/auth-client";
 import { CHANNELS } from "@/lib/constants";
 import { queries } from "@/lib/query";
+
+import { PageLayout } from "../page-layout";
 
 export default function DashboardPage() {
   const { data: session } = authClient.useSession();
@@ -62,60 +63,52 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-10 py-6 md:space-y-12 md:py-0">
-      <PageHeading
-        title={`A little overview, ${session?.user.name.trim().split(/\s+/)[0] || "creator"}.`}
-        description="Your ideas in motion. Your whole workspace, at a glance."
-      >
-        <CreatePostButton />
-      </PageHeading>
-
-      <dl className="grid divide-y border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-        {stats.map((stat) => (
-          <div
-            key={stat.name}
-            className="min-w-0 px-1 py-6 sm:px-6 sm:first:pl-0 sm:last:pr-0"
-          >
-            <dt>
-              <Link
-                to={stat.to}
-                className="flex items-center justify-between gap-3 rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-              >
-                {stat.name}
-                <Icon name={stat.icon} size={18} />
-              </Link>
-            </dt>
-            <dd className="mt-4 text-4xl font-light tracking-tighter tabular-nums md:text-5xl">
-              {stat.value}
-            </dd>
-            <dd className="mt-2 text-xs text-muted-foreground">{stat.note}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] xl:gap-8">
-        <section aria-labelledby="recent-heading" className="min-w-0 space-y-5">
-          <header className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-2">
-              <h2
-                id="recent-heading"
-                className="text-2xl font-light tracking-tight"
-              >
-                A little body of work.
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                The latest things you’ve put into motion.
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              nativeButton={false}
-              render={<Link to="/posts" />}
+    <PageLayout
+      title={`A little overview, ${session?.user.name.trim().split(/\s+/)[0] || "creator"}.`}
+      description="Your ideas in motion. Your whole workspace, at a glance."
+      actions={<CreatePostButton />}
+    >
+      <div className="space-y-10">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {stats.map((stat, index) => (
+            <Link
+              key={stat.name}
+              to={stat.to}
+              className={cn(
+                "group rounded-2xl bg-secondary/50 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                index === stats.length - 1 && "col-span-2 sm:col-span-1"
+              )}
             >
-              All posts <Icon name="arrow" />
-            </Button>
-          </header>
-          <div className="min-w-0 rounded-xl border py-2">
+              <div className="rounded-xl bg-white p-4 ring-1 ring-secondary transition-colors group-hover:bg-white/70 dark:bg-background/60 dark:group-hover:bg-background/80">
+                <p className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-2">
+                    <Icon name={stat.icon} size={16} />
+                    {stat.name}
+                  </span>
+                  <Icon
+                    name="arrow"
+                    size={14}
+                    className="opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
+                  />
+                </p>
+                <p className="mt-3 text-3xl font-light tabular-nums">
+                  {stat.value}
+                </p>
+              </div>
+              <p className="px-3 py-2 text-xs text-muted-foreground">
+                {stat.note}
+              </p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <Panel
+            id="recent-heading"
+            title="Recent posts"
+            description="The latest things you’ve put into motion."
+            action={<ViewAll to="/posts">All posts</ViewAll>}
+          >
             <QueryState
               loadingLabel="Loading recent posts"
               pending={posts.isPending}
@@ -123,113 +116,59 @@ export default function DashboardPage() {
               retry={() => posts.refetch()}
             />
             {posts.isSuccess && <PostList posts={recent} compact />}
-          </div>
-        </section>
+          </Panel>
 
-        <section
-          aria-labelledby="schedule-heading"
-          className="min-w-0 rounded-2xl bg-muted/50 p-6 md:p-7"
-        >
-          <div className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
-            <Icon name="calendar" size={16} />
-            UP NEXT
-          </div>
-          <h2
+          <Panel
             id="schedule-heading"
-            className="text-2xl font-light tracking-tight"
+            title="Up next"
+            description="A plan today. More space to create tomorrow."
+            action={<ViewAll to="/schedule">Calendar</ViewAll>}
           >
-            A little room to plan.
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            A plan today. More space to create tomorrow.
-          </p>
-          {posts.isSuccess &&
-            (upcoming.length ? (
-              <ul className="mt-6 divide-y">
-                {upcoming.slice(0, 3).map((post) => (
-                  <li
-                    key={post.id}
-                    className="flex min-w-0 items-center gap-3 py-4"
-                  >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg border bg-background">
-                      <Icon name={post.provider} size={18} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">
-                        {post.text || "A picture worth sharing"}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {new Date(
-                          post.scheduledFor || post.createdAt
-                        ).toLocaleString([], {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="my-6 rounded-xl border border-dashed p-5">
-                <Icon
-                  name="sparkle"
-                  size={24}
-                  className="mb-3 text-muted-foreground"
-                />
-                <p className="text-sm">
-                  Your calendar has a little breathing room.
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                  Give your next idea a date when you create a post.
-                </p>
-              </div>
-            ))}
-          {!posts.isSuccess && (
-            <div className="my-6">
+            {!posts.isSuccess && (
               <QueryState
                 loadingLabel="Loading your schedule"
                 pending={posts.isPending}
                 error={posts.error}
                 retry={() => posts.refetch()}
               />
-            </div>
-          )}
-          <Button
-            className="mt-4"
-            variant="secondary"
-            nativeButton={false}
-            render={<Link to="/schedule" />}
-          >
-            Open calendar <Icon name="arrow" />
-          </Button>
-        </section>
-      </div>
+            )}
+            {posts.isSuccess &&
+              (upcoming.length ? (
+                <PostList posts={upcoming.slice(0, 3)} />
+              ) : (
+                <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center">
+                  <Icon
+                    name="calendar"
+                    size={28}
+                    className="text-muted-foreground"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Your calendar has a little breathing room.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    nativeButton={false}
+                    render={<Link to="/schedule" />}
+                  >
+                    Open calendar
+                  </Button>
+                </div>
+              ))}
+          </Panel>
+        </div>
 
-      <section aria-labelledby="channels-heading" className="border-t pt-8">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <h2
-              id="channels-heading"
-              className="text-2xl font-light tracking-tight"
-            >
-              One home. All your channels.
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Keep your accounts connected and your ideas moving.
-            </p>
+        <section aria-labelledby="channels-heading">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="channels-heading" className="text-lg font-medium">
+                Channels
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Keep your accounts connected and your ideas moving.
+              </p>
+            </div>
+            <ViewAll to="/connections">Manage channels</ViewAll>
           </div>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link to="/connections" />}
-          >
-            Manage channels <Icon name="external" />
-          </Button>
-        </header>
-        <div className="mt-6">
           <QueryState
             loadingLabel="Loading your channels"
             pending={accounts.isPending}
@@ -237,36 +176,94 @@ export default function DashboardPage() {
             retry={() => accounts.refetch()}
           />
           {accounts.isSuccess && (
-            <ul className="grid gap-3 sm:grid-cols-3">
-              {channels.map((channel) => (
-                <li key={channel.id}>
-                  <Link
-                    to="/connections"
-                    className="flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-ring"
-                  >
-                    <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary">
-                      <Icon name={channel.id} size={21} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">{channel.name}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {connected.has(channel.id)
-                          ? "Connected"
-                          : "Ready to connect"}
-                      </p>
-                    </div>
-                    <Icon
-                      name={connected.has(channel.id) ? "check" : "plus"}
-                      size={16}
-                      className="ml-auto shrink-0 text-muted-foreground"
-                    />
-                  </Link>
-                </li>
-              ))}
+            <ul className="grid gap-4 sm:grid-cols-3">
+              {channels.map((channel) => {
+                const on = connected.has(channel.id);
+                return (
+                  <li key={channel.id}>
+                    <Link
+                      to="/connections"
+                      className="group block rounded-2xl bg-popover p-1 ring-1 ring-foreground/10 outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                    >
+                      <div className="flex items-center gap-3 rounded-xl bg-secondary p-3 shadow ring-2 ring-muted transition-colors group-hover:bg-secondary/70">
+                        <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-background">
+                          <Icon name={channel.id} size={20} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">{channel.name}</p>
+                          <p
+                            className={cn(
+                              "mt-1 text-xs",
+                              on
+                                ? "text-lime-600 dark:text-lime-400"
+                                : "text-muted-foreground"
+                            )}
+                          >
+                            {on ? "Connected" : "Ready to connect"}
+                          </p>
+                        </div>
+                        <Icon
+                          name={on ? "check" : "plus"}
+                          size={16}
+                          className="ml-auto shrink-0 text-muted-foreground"
+                        />
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
+        </section>
+      </div>
+    </PageLayout>
+  );
+}
+
+function Panel({
+  id,
+  title,
+  description,
+  action,
+  children,
+}: {
+  id: string;
+  title: string;
+  description: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      aria-labelledby={id}
+      className="min-w-0 rounded-2xl bg-popover p-1 ring-1 ring-foreground/10"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-secondary px-4 py-3 shadow ring-2 ring-muted">
+        <div>
+          <h2 id={id} className="text-sm font-medium">
+            {title}
+          </h2>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </div>
-      </section>
-    </div>
+        {action}
+      </div>
+      <div className="p-2">{children}</div>
+    </section>
+  );
+}
+
+function ViewAll({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="group flex shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    >
+      {children}
+      <Icon
+        name="arrow"
+        size={16}
+        className="transition-transform group-hover:translate-x-0.5"
+      />
+    </Link>
   );
 }

@@ -20,29 +20,18 @@ test("auth config enables encrypted tokens, verified linking, rate limits and tr
   expect(auth.options.emailAndPassword?.enabled).toBe(true);
 });
 
-test("auth config supplies provider credentials and current publishing scopes", () => {
+test("auth config keeps Google sign-in and leaves social publishing out of login", () => {
   const { env } = bindings();
   env.GOOGLE_CLIENT_ID = "google-id";
   env.GOOGLE_CLIENT_SECRET = "google-secret";
   env.TWITTER_CLIENT_ID = "twitter-id";
   env.TWITTER_CLIENT_SECRET = "twitter-secret";
-  env.LINKEDIN_CLIENT_ID = "incomplete";
+  env.LINKEDIN_CLIENT_ID = "linkedin-id";
   const auth = createAuth(env, asPrisma(database()));
   expect(auth.options.socialProviders?.google).toMatchObject({
     clientId: "google-id",
   });
-  expect(auth.options.socialProviders?.linkedin).toMatchObject({
-    scope: ["openid", "profile", "email", "w_member_social"],
-  });
-  expect(auth.options.socialProviders?.twitter).toMatchObject({
-    scope: [
-      "tweet.read",
-      "tweet.write",
-      "users.read",
-      "offline.access",
-      "media.write",
-    ],
-  });
+  expect(Object.keys(auth.options.socialProviders ?? {})).toEqual(["google"]);
 });
 
 async function linkingFixture() {
@@ -162,28 +151,4 @@ test("the actual link-social endpoint requires an authenticated app session", as
     }),
   );
   expect(response.status).toBe(401);
-});
-
-test("X authorization uses the configured OAuth2 Client ID, PKCE and the API callback", async () => {
-  const { env } = bindings();
-  env.TWITTER_CLIENT_ID = "oauth2-client-id";
-  env.TWITTER_CLIENT_SECRET = "oauth2-client-secret";
-  const auth = createAuth(env, asPrisma(database()));
-  const context = await auth.$context;
-  const provider = context.socialProviders.find(
-    (provider) => provider.id === "twitter",
-  )!;
-  const url = await provider.createAuthorizationURL({
-    state: "test-state",
-    codeVerifier: "test-code-verifier",
-    redirectURI: `${env.API_URL}/api/auth/callback/twitter`,
-  });
-  expect(url.origin).toBe("https://x.com");
-  expect(url.searchParams.get("client_id")).toBe("oauth2-client-id");
-  expect(url.searchParams.get("redirect_uri")).toBe(
-    `${env.API_URL}/api/auth/callback/twitter`,
-  );
-  expect(url.searchParams.get("code_challenge_method")).toBe("S256");
-  expect(url.searchParams.get("scope")).toContain("media.write");
-  expect(url.toString()).not.toContain("oauth2-client-secret");
 });

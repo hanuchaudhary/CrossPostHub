@@ -18,7 +18,7 @@ SELECT s."id", s."userId",
 FROM "Subscription" s LEFT JOIN "Plan" p ON p."id" = s."planId";
 -- D1 keeps foreign keys enabled. Copy Transaction out before dropping its parent
 -- to avoid ON DELETE SET NULL clearing existing subscription associations.
-CREATE TEMP TABLE "_billing_transaction_links" AS SELECT "id", "subscriptionId" FROM "Transaction";
+CREATE TABLE "_billing_transaction_links" AS SELECT "id", "subscriptionId" FROM "Transaction";
 DROP TABLE "Subscription";
 ALTER TABLE "new_Subscription" RENAME TO "Subscription";
 CREATE UNIQUE INDEX "Subscription_dodoSubscriptionId_key" ON "Subscription"("dodoSubscriptionId");
